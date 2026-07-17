@@ -2,14 +2,14 @@
 
 @php
     $classes = match ($type) {
-        'error' => 'bg-rose-500/10 border-rose-500/20 text-rose-400',
-        'warning' => 'bg-amber-500/10 border-amber-500/20 text-amber-400',
-        'success' => 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
-        default => 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400',
+        'error' => 'bg-red-50 border-red-200 text-red-700',
+        'warning' => 'bg-amber-50 border-amber-200 text-amber-700',
+        'success' => 'bg-green-50 border-green-200 text-green-700',
+        default => 'bg-blue-50 border-blue-200 text-blue-700',
     };
 @endphp
 
-<div class="p-4 rounded-xl border flex items-start gap-3 shadow-md shadow-slate-950/20 {{ $classes }}">
+<div class="p-4 rounded-xl border flex items-start gap-3 shadow-sm {{ $classes }}">
     <div class="shrink-0 mt-0.5">
         @switch($type)
             @case('error') <x-lucide-x-circle class="w-5 h-5" /> @break

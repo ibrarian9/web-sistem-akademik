@@ -7,3 +7,179 @@
     --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* ========================================
+   GLOBAL LIGHT MODE PALETTE OVERRIDES
+   Maps legacy slate classes to warm stone
+   ======================================== */
+
+body {
+    background-color: #fafaf9 !important; /* stone-50 */
+    color: #1c1917 !important; /* stone-900 */
+}
+
+.bg-slate-900, 
+.bg-slate-900\/60, 
+.bg-slate-900\/40, 
+.bg-slate-900\/85, 
+.bg-slate-900\/80, 
+.bg-slate-950,
+.bg-slate-950\/50,
+.bg-slate-950\/40,
+.bg-slate-950\/30,
+.bg-slate-950\/20,
+.bg-slate-950\/60,
+.bg-slate-950\/45 {
+    background-color: #ffffff !important;
+}
+
+/* Form backgrounds and secondary panels */
+select, 
+input, 
+textarea,
+.bg-slate-950\/50,
+.bg-slate-950\/40,
+.bg-stone-50,
+.bg-stone-100 {
+    background-color: #fafaf9 !important; /* stone-50 */
+}
+
+/* Hover background styling */
+.hover\:bg-slate-950\/20:hover, 
+.hover\:bg-slate-800\/40:hover,
+.hover\:bg-slate-800\/60:hover,
+.hover\:bg-stone-100:hover {
+    background-color: #f5f5f4 !important; /* stone-100 */
+}
+
+/* Borders mapping */
+.border-slate-800, 
+.border-slate-850, 
+.border-slate-850\/60, 
+.border-slate-700,
+.border-slate-900 {
+    border-color: #e7e5e4 !important; /* stone-200 */
+}
+
+/* General Typography overrides for light contrast */
+h1.text-white, 
+h2.text-white, 
+h3.text-white, 
+h4.text-white, 
+h1.text-slate-100, 
+h2.text-slate-100, 
+h3.text-slate-100, 
+h4.text-slate-100,
+.text-slate-100, 
+.text-slate-200, 
+.text-slate-300 {
+    color: #1c1917 !important; /* stone-900 */
+}
+
+.text-slate-400, 
+.text-slate-500,
+.text-slate-405 {
+    color: #57534e !important; /* stone-600 */
+}
+
+.text-slate-600, 
+.text-slate-650 {
+    color: #78716c !important; /* stone-500 */
+}
+
+/* Retain white text for action links and buttons */
+button.text-white, 
+a.text-white, 
+.btn-primary, 
+.bg-green-600, 
+.bg-emerald-600, 
+.bg-indigo-600, 
+.bg-red-650, 
+.bg-rose-600 {
+    color: #ffffff !important;
+}
+
+/* Override legacy text-white inside tables, forms, modals, and lists to make them stone-900 (dark) */
+table .text-white:not(button):not(a):not(.btn):not(.badge):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-amber"]),
+form .text-white:not(button):not(a):not(.btn):not(.badge):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-amber"]),
+.bg-white .text-white:not(button):not(a):not(.btn):not(.badge):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-amber"]),
+.bg-stone-50 .text-white:not(button):not(a):not(.btn):not(.badge):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-amber"]),
+.bg-stone-100 .text-white:not(button):not(a):not(.btn):not(.badge):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-amber"]),
+.a11y-card .text-white:not(button):not(a):not(.btn):not(.badge):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-amber"]),
+tr .text-white:not(button):not(a):not(.btn):not(.badge):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-amber"]),
+td.text-white:not(button):not(a):not(.btn):not(.badge):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-amber"]) {
+    color: #1c1917 !important; /* stone-900 */
+}
+
+/* Shadow and containers */
+.shadow-xl, .shadow-2xl {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1) !important;
+}
+
+/* Focus states */
+input:focus, select:focus, textarea:focus {
+    border-color: #16a34a !important; /* green-600 */
+    --tw-ring-color: rgba(22, 163, 74, 0.2) !important;
+}
+
+/* ========================================
+   ACCESSIBILITY SYSTEM
+   Controlled via JavaScript + localStorage
+   ======================================== */
+
+/* Font Scaling — 3 levels */
+html.a11y-font-lg {
+    font-size: 112.5%; /* 18px base instead of 16px */
+}
+html.a11y-font-xl {
+    font-size: 125%; /* 20px base */
+}
+
+/* High Contrast Mode */
+html.a11y-high-contrast {
+    --a11y-text: #000000;
+    --a11y-bg: #ffffff;
+    --a11y-border: #333333;
+}
+html.a11y-high-contrast body {
+    background-color: var(--a11y-bg) !important;
+    color: var(--a11y-text) !important;
+}
+html.a11y-high-contrast .a11y-card {
+    background-color: #ffffff !important;
+    border-color: #333333 !important;
+    box-shadow: 0 0 0 1px #333333 !important;
+}
+html.a11y-high-contrast .a11y-text-primary {
+    color: #000000 !important;
+}
+html.a11y-high-contrast .a11y-text-secondary {
+    color: #333333 !important;
+}
+
+/* Loose Line Spacing */
+html.a11y-loose-lines body {
+    line-height: 1.9 !important;
+}
+html.a11y-loose-lines p,
+html.a11y-loose-lines td,
+html.a11y-loose-lines li,
+html.a11y-loose-lines span,
+html.a11y-loose-lines label {
+    line-height: 1.9 !important;
+}
+
+/* Custom scrollbar (light mode) */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #d6d3d1;
+    border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #a8a29e;
+}

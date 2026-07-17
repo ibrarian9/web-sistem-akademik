@@ -2,7 +2,7 @@
     <div class="flex items-center justify-between">
         <div>
             <h2 class="text-xl font-bold text-white tracking-tight">Manajemen Kelas</h2>
-            <p class="text-xs text-slate-500">Buat kelas akademik baru dan tentukan Wali Kelas yang bertanggung jawab.</p>
+            <p class="text-xs text-slate-500">Buat kelas akademik baru dan tentukan Wali Kelas Umum & Tahfidz.</p>
         </div>
         <button wire:click="openCreate" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold tracking-wide transition duration-200 flex items-center gap-1.5 shadow-lg shadow-indigo-600/10">
             <x-lucide-plus class="w-4 h-4" />
@@ -45,7 +45,8 @@
             <x-slot:thead>
                 <th class="px-6 py-3.5">Nama Kelas</th>
                 <th class="px-6 py-3.5">Tingkat</th>
-                <th class="px-6 py-3.5">Wali Kelas</th>
+                <th class="px-6 py-3.5">Guru Umum (Wali Kelas)</th>
+                <th class="px-6 py-3.5">Guru Tahfidz</th>
                 <th class="px-6 py-3.5">Jumlah Siswa</th>
                 <th class="px-6 py-3.5 text-right">Aksi</th>
             </x-slot:thead>
@@ -55,7 +56,10 @@
                         <td class="px-6 py-4 font-semibold text-white">Kelas {{ $kelas->nama_kelas }}</td>
                         <td class="px-6 py-4 text-slate-300 font-medium">Tingkat {{ $kelas->tingkat }}</td>
                         <td class="px-6 py-4 text-indigo-400 font-semibold">
-                            {{ $kelas->waliKelas->user->nama ?? 'Belum Ditentukan' }}
+                            {{ $kelas->guruUmum->user->nama ?? 'Belum Ditentukan' }}
+                        </td>
+                        <td class="px-6 py-4 text-emerald-450 font-semibold">
+                            {{ $kelas->guruTahfidz->user->nama ?? 'Belum Ditentukan' }}
                         </td>
                         <td class="px-6 py-4 text-slate-300 font-medium">
                             {{ $kelas->siswas()->count() }} Siswa
@@ -73,7 +77,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-8 text-center text-slate-500 font-medium">
+                        <td colspan="6" class="px-6 py-8 text-center text-slate-500 font-medium">
                             Tidak ada data kelas ditemukan
                         </td>
                     </tr>
@@ -117,16 +121,28 @@
                         @error('tingkat') <span class="text-rose-400 text-[10px]">{{ $message }}</span> @enderror
                     </div>
 
-                    <!-- Wali Kelas -->
+                    <!-- Wali Kelas Umum -->
                     <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Wali Kelas</label>
-                        <select wire:model="wali_id" class="w-full px-3 py-2 bg-slate-950/50 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500">
-                            <option value="">Pilih Wali Kelas (Opsional)</option>
-                            @foreach ($gurus as $g)
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Wali Kelas (Guru Umum)</label>
+                        <select wire:model="guru_umum_id" class="w-full px-3 py-2 bg-slate-950/50 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500">
+                            <option value="">Pilih Guru Umum (Opsional)</option>
+                            @foreach ($gurusUmum as $g)
                                 <option value="{{ $g->id }}">{{ $g->user->nama }}</option>
                             @endforeach
                         </select>
-                        @error('wali_id') <span class="text-rose-400 text-[10px]">{{ $message }}</span> @enderror
+                        @error('guru_umum_id') <span class="text-rose-400 text-[10px]">{{ $message }}</span> @enderror
+                    </div>
+
+                    <!-- Guru Tahfidz -->
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Guru Tahfidz</label>
+                        <select wire:model="guru_tahfidz_id" class="w-full px-3 py-2 bg-slate-950/50 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500">
+                            <option value="">Pilih Guru Tahfidz (Opsional)</option>
+                            @foreach ($gurusTahfidz as $g)
+                                <option value="{{ $g->id }}">{{ $g->user->nama }}</option>
+                            @endforeach
+                        </select>
+                        @error('guru_tahfidz_id') <span class="text-rose-400 text-[10px]">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- Buttons -->

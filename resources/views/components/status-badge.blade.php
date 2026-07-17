@@ -2,11 +2,11 @@
 
 @php
     $classes = match (strtolower(str_replace(' ', '_', $status))) {
-        'aktif', 'lunas', 'hadir', 'terkirim', 'berjalan' => 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
-        'nonaktif', 'belum_bayar', 'tidak_hadir', 'gagal', 'keluar' => 'bg-rose-500/10 text-rose-400 border border-rose-500/20',
-        'sebagian', 'izin', 'telat', 'pindah', 'draft' => 'bg-amber-500/10 text-amber-400 border border-amber-500/20',
-        'lulus', 'naik_kelas' => 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20',
-        default => 'bg-slate-500/10 text-slate-400 border border-slate-500/20',
+        'aktif', 'lunas', 'hadir', 'terkirim', 'berjalan' => 'bg-green-50 text-green-700 border border-green-200',
+        'nonaktif', 'belum_bayar', 'tidak_hadir', 'gagal', 'keluar' => 'bg-red-50 text-red-700 border border-red-200',
+        'sebagian', 'izin', 'telat', 'pindah', 'draft' => 'bg-amber-50 text-amber-700 border border-amber-200',
+        'lulus', 'naik_kelas' => 'bg-blue-50 text-blue-700 border border-blue-200',
+        default => 'bg-stone-100 text-stone-600 border border-stone-200',
     };
 
     $label = match (strtolower(str_replace(' ', '_', $status))) {

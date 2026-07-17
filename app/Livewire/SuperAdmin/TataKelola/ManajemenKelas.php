@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Kelas;
 use App\Models\Guru;
+use App\Models\Semester;
 
 class ManajemenKelas extends Component
 {
@@ -18,7 +19,8 @@ class ManajemenKelas extends Component
     public ?int $kelasId = null;
     public string $nama_kelas = '';
     public string $tingkat = '7';
-    public ?int $wali_id = null;
+    public ?int $guru_umum_id = null;
+    public ?int $guru_tahfidz_id = null;
 
     public bool $isFormOpen = false;
 
@@ -42,7 +44,8 @@ class ManajemenKelas extends Component
         $this->kelasId = $kelas->id;
         $this->nama_kelas = $kelas->nama_kelas;
         $this->tingkat = $kelas->tingkat;
-        $this->wali_id = $kelas->wali_id;
+        $this->guru_umum_id = $kelas->guru_umum_id;
+        $this->guru_tahfidz_id = $kelas->guru_tahfidz_id;
 
         $this->isFormOpen = true;
     }
@@ -52,21 +55,26 @@ class ManajemenKelas extends Component
         $rules = [
             'nama_kelas' => 'required|string|max:50|unique:kelas,nama_kelas,' . ($this->kelasId ?? 'NULL'),
             'tingkat' => 'required|in:7,8,9',
-            'wali_id' => 'nullable|exists:guru,id|unique:kelas,wali_id,' . ($this->kelasId ?? 'NULL'),
+            'guru_umum_id' => 'nullable|exists:guru,id',
+            'guru_tahfidz_id' => 'nullable|exists:guru,id',
         ];
 
-        $messages = [
-            'wali_id.unique' => 'Guru ini sudah ditugaskan sebagai wali kelas di kelas lain.',
-        ];
+        $this->validate($rules);
 
-        $this->validate($rules, $messages);
+        $activeSemester = Semester::where('status_aktif', true)->first();
+        if (!$activeSemester) {
+            session()->flash('error', 'Tidak ada semester aktif untuk ditautkan pada kelas.');
+            return;
+        }
 
         Kelas::updateOrCreate(
             ['id' => $this->kelasId],
             [
                 'nama_kelas' => $this->nama_kelas,
                 'tingkat' => $this->tingkat,
-                'wali_id' => $this->wali_id ?: null,
+                'semester_id' => $activeSemester->id,
+                'guru_umum_id' => $this->guru_umum_id ?: null,
+                'guru_tahfidz_id' => $this->guru_tahfidz_id ?: null,
             ]
         );
 
@@ -94,21 +102,24 @@ class ManajemenKelas extends Component
         $this->kelasId = null;
         $this->nama_kelas = '';
         $this->tingkat = '7';
-        $this->wali_id = null;
+        $this->guru_umum_id = null;
+        $this->guru_tahfidz_id = null;
     }
 
     public function render()
     {
-        $kelases = Kelas::with('waliKelas.user')
+        $kelases = Kelas::with(['guruUmum.user', 'guruTahfidz.user'])
             ->where('nama_kelas', 'like', '%' . $this->search . '%')
             ->latest()
             ->paginate($this->perPage);
 
-        $gurus = Guru::with('user')->where('status_aktif', true)->get();
+        $gurusUmum = Guru::with('user')->where('jenis_guru', 'umum')->where('status_aktif', true)->get();
+        $gurusTahfidz = Guru::with('user')->where('jenis_guru', 'tahfidz')->where('status_aktif', true)->get();
 
         return view('livewire.super-admin.tata-kelola.manajemen-kelas', [
             'kelases' => $kelases,
-            'gurus' => $gurus,
+            'gurusUmum' => $gurusUmum,
+            'gurusTahfidz' => $gurusTahfidz,
         ])->layout('components.layouts.app', ['title' => 'Manajemen Kelas']);
     }
 }

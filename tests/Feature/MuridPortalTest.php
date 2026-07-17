@@ -98,3 +98,39 @@ test('murid with outstanding bills is blocked from viewing rapor', function () {
         ->assertStatus(200)
         ->assertSee('Akses Rapor Terkunci');
 });
+
+test('murid with non-blocking outstanding bills (like infaq) can still view rapor', function () {
+    $this->actingAs($this->userMurid);
+
+    // Mark all existing tagihans as lunas
+    Tagihan::where('siswa_id', $this->siswa->id)->update([
+        'status' => 'lunas'
+    ]);
+
+    // Create an unpaid optional/non-blocking tagihan (Infaq)
+    $activeTA = TahunAjaran::where('status_aktif', true)->first();
+    $jtInfaq = JenisTagihan::where('nama', 'Infaq')->first();
+    if (!$jtInfaq) {
+        $jtInfaq = JenisTagihan::create([
+            'nama' => 'Infaq',
+            'kategori' => 'rutin',
+            'default_nominal' => 50000.00,
+            'is_blocking' => false,
+        ]);
+    }
+
+    Tagihan::create([
+        'siswa_id' => $this->siswa->id,
+        'jenis_tagihan_id' => $jtInfaq->id,
+        'tahun_ajaran_id' => $activeTA->id,
+        'bulan' => 'Januari',
+        'nominal' => 50000,
+        'total_dibayar' => 0,
+        'status' => 'belum_bayar',
+        'jatuh_tempo' => now()->addDays(5),
+    ]);
+
+    Livewire::test(RaporNilai::class)
+        ->assertStatus(200)
+        ->assertDontSee('Akses Rapor Terkunci');
+});

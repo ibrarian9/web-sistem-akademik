@@ -67,11 +67,13 @@ class Dashboard extends Component
         }
 
         // Pending invoices count
-        $this->pendingInvoicesCount = Tagihan::where('siswa_id', $siswa->id)
+        $pendingInvoices = Tagihan::where('siswa_id', $siswa->id)
             ->whereIn('status', ['belum_bayar', 'sebagian'])
-            ->count();
-        
-        $this->hasOutstanding = $this->pendingInvoicesCount > 0;
+            ->with('jenisTagihan')
+            ->get();
+
+        $this->pendingInvoicesCount = $pendingInvoices->count();
+        $this->hasOutstanding = $pendingInvoices->contains(fn($t) => $t->jenisTagihan->is_blocking ?? false);
 
         // Today's schedule
         $todayName = strtolower(Carbon::now()->locale('id')->dayName);

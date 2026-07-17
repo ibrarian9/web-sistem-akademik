@@ -8,6 +8,7 @@ use App\Models\Rapor;
 use App\Models\RaporDetail;
 use App\Models\Nilai;
 use App\Models\Tagihan;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 
 class RaporNilai extends Component
@@ -22,6 +23,29 @@ class RaporNilai extends Component
         $this->checkOutstandingAndLoad();
     }
 
+    public function downloadPdf()
+    {
+        if ($this->hasOutstanding || !$this->rapor) {
+            session()->flash('error', 'Tidak dapat mengunduh rapor.');
+            return;
+        }
+
+        $siswa = auth()->user()->siswa;
+        if (!$siswa) {
+            return;
+        }
+
+        $pdf = Pdf::loadView('livewire.shared.laporan.pdf-rapor-siswa', [
+            'rapor' => $this->rapor,
+            'raporDetails' => $this->raporDetails,
+            'siswa' => $siswa,
+        ]);
+
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->stream();
+        }, 'rapor_' . str_replace(' ', '_', strtolower($siswa->user->nama ?? 'siswa')) . '.pdf');
+    }
+
     public function checkOutstandingAndLoad()
     {
         $siswa = auth()->user()->siswa;
@@ -29,9 +53,12 @@ class RaporNilai extends Component
             return;
         }
 
-        // Check for unpaid/partially paid billing
+        // Check for unpaid/partially paid billing (only blocking bills like SPP)
         $this->hasOutstanding = Tagihan::where('siswa_id', $siswa->id)
             ->whereIn('status', ['belum_bayar', 'sebagian'])
+            ->whereHas('jenisTagihan', function ($q) {
+                $q->where('is_blocking', true);
+            })
             ->exists();
 
         if ($this->hasOutstanding) {

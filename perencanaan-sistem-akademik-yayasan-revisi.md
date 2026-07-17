@@ -4,50 +4,59 @@ Dokumen ini merangkum kebutuhan yang sudah dijelaskan, lalu diturunkan menjadi a
 
 ---
 
-## 1. Ringkasan Kebutuhan
+### 1. Ringkasan Kebutuhan
 
 ### 1.1 Aktor (Role Pengguna)
 
 | Role                             | Hak Akses                                                                             |
 | -------------------------------- | ------------------------------------------------------------------------------------- |
 | **Super Admin / Kepala Yayasan** | Akses ke seluruh modul, termasuk Manajemen User dan Log Aktivitas/Audit di semua menu |
-| **Guru** (Umum & Tahfidz)        | Hanya bisa mengakses Input Nilai & Absensi, terbatas pada kelas yang ia ampu saja     |
-| **Murid**                        | Melihat rapor nilai, absensi, dan status tagihan miliknya sendiri                     |
-| **Finance / Bendahara**          | Hanya bisa mengakses modul Keuangan (seluruh datanya)                                 |
+| **Guru** (Umum & Tahfidz)        | Mengakses Input Nilai & Absensi (kelas yang diampu), serta mengatur bobot nilai mandiri|
+| **Murid**                        | Melihat rapor nilai (Umum & Tahfizh terpisah), ekskul, absensi, dan status tagihan     |
+| **Finance / Bendahara**          | Mengakses modul Keuangan (seluruh datanya) dan membuat struk bayar resmi               |
+| **Kepala Sekolah**               | Hak akses *read-only* untuk memantau data Nilai Rapor dan Tagihan Keuangan Siswa      |
+| **Koordinator**                  | Meninjau, menyetujui, atau menolak permohonan koreksi/perubahan nilai dari Guru       |
+| **Tata Usaha (TU)**              | Mengatur jadwal mengajar, jadwal piket guru, data alumni, dan melihat direktori karyawan|
 
 ### 1.2 Modul Utama
 
-1. **Tata Kelola Umum** (master data) — data siswa, data guru, data mata pelajaran, data kelas & tahun ajaran, penugasan guru ke kelas & mata pelajaran, **jadwal pelajaran**
-2. **Akademik** — Input Nilai (per komponen: UH, PTS, PAS, Praktik, Proyek, Tahfidz, Hafalan, Sikap) & Absensi, dikerjakan guru
-3. **Portal Murid** — Rapor Nilai, Absensi, Status Tagihan, **Riwayat Aktivitas**, **Notifikasi**
-4. **Keuangan** — Pemasukan per siswa, Pengeluaran, Dana BOS
-5. **Manajemen User & Audit Log** — khusus Super Admin, tapi log tercatat otomatis di semua modul
-6. **Notifikasi** — notifikasi in-app untuk semua role (tunggakan, rapor terbit, pengumuman); integrasi WA/Email di Fase 2
-7. **Laporan / Report** — rekap absensi, rekap nilai, laporan keuangan, slip gaji — scope bertahap per fase (lihat §6)
+1. **Tata Kelola Umum (Master Data & TU)** — data siswa, data guru, data mata pelajaran, data kelas & tahun ajaran, penugasan guru, **jadwal pelajaran**, **jadwal piket guru**, **direktori karyawan (guru & staff)**, serta **manajemen data alumni**.
+2. **Akademik & Rapor** — Input Nilai per komponen oleh Guru, **pengaturan bobot nilai mandiri oleh Guru**, input absensi siswa, **alur persetujuan koreksi nilai oleh Koordinator**, serta **pemisahan tampilan & cetak Rapor Umum vs Rapor Tahfizh**.
+3. **Portal Murid & Wali** — Rapor Nilai (terpisah Rapor Umum & Rapor Tahfizh), **informasi ekstrakurikuler**, absensi, status tagihan, riwayat aktivitas, dan notifikasi.
+4. **Keuangan** — Pemasukan per siswa, **otomatisasi generate tagihan SPP bulanan**, **penguncian (lock) rapor otomatis per tanggal 10 jika ada tunggakan SPP**, pengeluaran, dana BOS, serta **cetak resi tanda bukti bayar bersahabat dengan tanda tangan TU**.
+5. **Manajemen User & Audit Log** — khusus Super Admin, tapi log tercatat otomatis di semua modul.
+6. **Notifikasi** — notifikasi in-app untuk semua role (tunggakan, rapor terbit, pengumuman, pengajuan koreksi nilai).
+7. **Laporan / Report** — rekap absensi, rekap nilai, laporan keuangan, slip gaji.
 
 ### 1.3 Aturan Bisnis Kunci
 
 - Setiap kelas **hanya punya 2 guru**: 1 Guru Umum + 1 Guru Tahfidz.
 - Guru hanya bisa melihat/menginput data untuk kelas yang ia ampu.
-- **Absensi Guru**: 4 status — Hadir, Tidak Hadir, Izin, Telat — **diinput manual oleh guru sendiri (self check-in) melalui aplikasi, tanpa mesin Fingerprint**. Guru mencatat `waktu_datang`/`waktu_pulang`; status **Hadir/Telat** dihitung otomatis oleh sistem dengan membandingkan `waktu_datang` terhadap jam masuk yang dikonfigurasi Super Admin, sedangkan **Izin/Tidak Hadir** tetap dipilih manual oleh guru (atau diinputkan oleh Super Admin bila guru berhalangan lapor). Lihat 9.1 untuk catatan kontrol tambahan.
-- **Absensi Murid**: 3 status — Hadir, Tidak Hadir, Izin — plus catatan bebas, diinput **manual oleh guru**. Absensi bersifat **harian** (1 record per siswa per hari), bukan per mata pelajaran.
-- **Blocking Rapor / Nilai**:
-    - Murid tidak bisa mengakses nilai/rapor jika ada tagihan **bertipe blocking** (`jenis_tagihan.is_blocking = true`) yang berstatus belum lunas.
-    - Pengecekan hanya pada tagihan di **tahun ajaran aktif**.
-    - Berlaku untuk **semua tagihan belum lunas** terlepas dari jatuh tempo.
-    - Sistem menampilkan pesan untuk menghubungi bagian Finance.
-- **Akun Murid & Wali**: 1 akun murid = 1 akun wali. Tidak ada role `wali` terpisah — akun `murid` bisa digunakan langsung oleh siswa atau diwakilkan oleh orang tua/wali. Relasi 1 anak : 1 akun.
-- Setiap modul wajib punya log aktivitas/audit trail.
-- **Soft Delete**: Tabel-tabel krusial (`users`, `guru`, `siswa`, `kelas`, `tagihan`, `pembayaran`, `pengeluaran`, `gaji_guru`) menggunakan soft delete (`deleted_at`) agar data yang dihapus tetap bisa diaudit.
-- **Timestamps**: Semua tabel wajib memiliki `created_at` dan `updated_at` (Laravel `$timestamps = true`).
-- **Jadwal Pelajaran**: Jadwal bersifat **tetap per semester** (tidak berubah mingguan). Dikelola oleh Super Admin (fungsi Tata Usaha). Sistem harus memvalidasi **bentrok jadwal** — seorang guru tidak boleh mengajar di 2 kelas pada jam yang sama, dan 1 kelas tidak boleh punya 2 mapel di jam yang sama.
-- **Komponen Nilai**: Jenis penilaian (UH, PTS, PAS, Praktik, Proyek, Tahfidz, Hafalan, Sikap) dikelola sebagai **master data** (`komponen_nilai`), bukan ENUM — agar bisa ditambah/diubah tanpa migrasi database. Setiap komponen punya bobot (persentase) untuk perhitungan nilai akhir rapor. **Bobot seragam untuk semua mata pelajaran**. Komponen "Sikap" berupa **predikat angka** (nilai numerik yang dipetakan ke predikat: Sangat Baik / Baik / Cukup / Kurang).
-- **Notifikasi**: Notifikasi in-app tersedia sejak MVP untuk semua role. Channel WA/Email ditambahkan di Fase 2. Jenis notifikasi: tunggakan pembayaran, rapor terbit, pengumuman, absensi, dan lainnya.
-- Kategori **pemasukan** per siswa:
-    - Rutin: SPP, Infaq, Sertifikasi, Qurban, Sedekah Subuh & Maghrib Mengaji
-    - Sekali di awal masuk: Uang Pembangunan, Uang Seragam, Uang Pendaftaran
-    - Tahunan: Uang Buku, Uang Tahunan (ekskul, dll)
-- Kategori **pengeluaran**: Gaji Guru (dengan insentif BPJS & Maghrib Mengaji), Sosial, Potongan Peminjaman, Dana BOS, Lainnya.
+- **Bobot Penilaian & Mata Pelajaran Diatur Guru**: Guru pembuat komponen dan pengisi bobot persentase nilai akhir rapor (`bobot_nilai_guru`) secara dinamis untuk mata pelajarannya sendiri, tidak lagi bersifat seragam/global.
+- **Alur Koreksi Nilai**: Jika guru salah menginput nilai yang sudah disimpan, guru tidak bisa menyunting langsung melainkan harus mengajukan permintaan koreksi nilai (`pengajuan_koreksi_nilai`) beserta alasan ke **Koordinator** untuk mendapatkan persetujuan.
+- **Absensi Guru & Jadwal Piket**:
+  - Guru melakukan self check-in manual tanpa fingerprint.
+  - TU mengatur **Jadwal Piket Guru** (`jadwal_piket_guru`).
+  - Ketentuan jam masuk:
+    - **Guru Tahfidz**: Hari biasa masuk pukul **06:45**. Hari piket masuk lebih awal pukul **06:30**.
+    - **Guru Umum**: Selalu masuk pukul **09:30** dan tidak mendapatkan tugas piket.
+- **Absensi Murid**: 3 status — Hadir, Tidak Hadir, Izin, diinput manual oleh guru secara harian.
+- **Ekstrakurikuler**: Menyimpan data ekskul aktif dan catatan perkembangan serta nilai predikat siswa pada rapor umum.
+- **Pemisahan Rapor**: Murid menerima dua bentuk rapor yang terpisah secara visual maupun cetak PDF, yaitu **Rapor Umum** (mata pelajaran umum) dan **Rapor Tahfizh** (mata pelajaran tahfidz, hafalan, dan perkembangan keagamaan).
+- **Otomatisasi & Penguncian (Lock) SPP**:
+  - Tagihan SPP bulanan otomatis di-generate setiap tanggal 1 bulan berjalan untuk seluruh siswa aktif.
+  - Mulai **tanggal 10** ke atas, jika ada tagihan SPP bulanan (bulan berjalan maupun bulan sebelumnya) yang belum lunas (`status != 'lunas'`), portal rapor & nilai siswa otomatis **terkunci (lock)**.
+  - Menampilkan pesan untuk menghubungi bagian Finance.
+- **Resi Bukti Bayar**: Cetak kuitansi resmi pembayaran tagihan yang memuat detail nominal, kasir, dan kolom tanda tangan dari pihak Tata Usaha (TU).
+- **Soft Delete**: Diterapkan pada tabel-tabel krusial (`users`, `guru`, `siswa`, `kelas`, `tagihan`, `pembayaran`, `pengeluaran`, `gaji_guru`).
+- **Mekanisme Kenaikan Kelas**:
+  - Dilakukan di akhir tahun ajaran (selesai semester genap) oleh Super Admin / Tata Usaha melalui Wizard Kenaikan Kelas.
+  - Syarat kenaikan kelas: Kehadiran siswa >= 85%, menyelesaikan seluruh tagihan SPP/keuangan bertipe blocking, dan tidak memiliki nilai mata pelajaran di bawah standar ketuntasan minimal (KKM) sekolah.
+  - Ketika proses kenaikan kelas dieksekusi:
+    1. Siswa yang naik kelas akan diperbarui field `siswa.kelas_id` ke kelas tingkat berikutnya.
+    2. Riwayat kelas siswa dicatat ke tabel pivot `siswa_kelas` untuk semester baru.
+    3. Untuk siswa tingkat akhir (lulus), status siswa diubah dari `aktif` menjadi `lulus` (alumni), dan kolom `tahun_lulus` serta `catatan_alumni` diisi secara otomatis.
+- **Riwayat Alumni**: Murid yang berstatus lulus dipindahkan dari daftar siswa aktif ke modul **Data Alumni** dengan pelacakan tahun kelulusan dan studi lanjut.
 - **Sinkronisasi Pembayaran → Tagihan**: Setiap kali `pembayaran` dibuat/diupdate/dihapus, service layer otomatis menghitung ulang `tagihan.status` berdasarkan `SUM(pembayaran.nominal_dibayar)` vs `tagihan.nominal`. Field `tagihan.total_dibayar` digunakan sebagai cached column.
 
 ---
@@ -59,8 +68,11 @@ flowchart TD
     ROOT[Sistem Informasi Akademik & Keuangan]
     ROOT --> SA[Super Admin / Kepala Yayasan]
     ROOT --> GR[Guru]
-    ROOT --> MU[Murid]
+    ROOT --> MU[Murid & Wali]
     ROOT --> FI[Finance / Bendahara]
+    ROOT --> KS[Kepala Sekolah]
+    ROOT --> KO[Koordinator]
+    ROOT --> TU[Tata Usaha]
 
     SA --> SA1[Tata Kelola Umum]
     SA1 --> SA1a[Data Siswa]
@@ -78,33 +90,45 @@ flowchart TD
     SA --> SA7[Notifikasi & Pengumuman]
 
     GR --> GR1[Kelas yang Diampu]
-    GR1 --> GR1a[Input Nilai per Komponen: UH, PTS, PAS, Praktik, Proyek, Tahfidz, Hafalan, Sikap]
+    GR1 --> GR1a[Input Nilai per Komponen]
     GR1 --> GR1b[Input Absensi Siswa Manual]
-    GR --> GR2[Absensi Diri: Self Check-in Manual]
+    GR1 --> GR1c[Atur Bobot Nilai & Mapel Mandiri]
+    GR1 --> GR1d[Ajukan Koreksi Nilai ke Koordinator]
+    GR --> GR2[Absensi Diri: Jam Masuk Dinamis Jadwal Piket]
     GR --> GR3[Lihat Jadwal Mengajar]
     GR --> GR4[Laporan: Rekap Absensi, Rekap Nilai]
     GR --> GR5[Notifikasi]
 
-    MU --> MU1{Cek Tunggakan}
-    MU1 -- Lunas --> MU2[Rapor Nilai: Breakdown per Komponen]
-    MU1 -- Ada Tunggakan --> MU3[Notifikasi: Hubungi Finance]
+    MU --> MU1{Cek SPP Jatuh Tempo Tanggal 10}
+    MU1 -- Lunas --> MU2[Rapor Hasil Belajar: Pisah Rapor Umum & Rapor Tahfizh]
+    MU1 -- Tunggakan >= Tanggal 10 --> MU3[Notifikasi: Akses Terkunci]
     MU --> MU4[Riwayat Absensi]
     MU --> MU5[Status Tagihan/Pembayaran]
-    MU --> MU6[Riwayat Aktivitas]
+    MU --> MU6[Riwayat Aktivitas & Info Ekskul]
     MU --> MU7[Jadwal Pelajaran Kelas]
     MU --> MU8[Notifikasi]
 
-    FI --> FI1[Data Siswa & SPP]
+    FI --> FI1[Data Siswa & SPP Otomatis Harian]
     FI --> FI2[Infaq, Sertifikasi, Qurban, Sedekah]
     FI --> FI3[Uang Masuk Sekali di Awal]
     FI --> FI4[Uang Buku & Uang Tahunan]
     FI --> FI5[Pengeluaran: Gaji, Insentif, Sosial, Potongan]
     FI --> FI6[Dana BOS]
-    FI --> FI7[Laporan Keuangan & Slip Gaji]
+    FI --> FI7[Laporan Keuangan & Resi Bukti Pembayaran Tertanda TU]
     FI --> FI8[Notifikasi]
+
+    KS --> KS1[Lihat Semua Nilai & Rapor Siswa - Read Only]
+    KS --> KS2[Lihat Semua Laporan Keuangan - Read Only]
+
+    KO --> KO1[Meninjau & Memverifikasi Pengajuan Koreksi Nilai Guru]
+
+    TU --> TU1[Kelola Jadwal Pelajaran & Mengajar]
+    TU --> TU2[Kelola Jadwal Piket Guru]
+    TU --> TU3[Kelola Data Alumni & Karyawan (Guru & Staff)]
 ```
 
 ---
+
 
 ## 3. Flowchart Proses Bisnis
 
@@ -245,7 +269,7 @@ erDiagram
 | Field | Tipe | Keterangan |
 |---|---|---|
 | id | BIGINT PK | |
-| nama | VARCHAR | super_admin, guru, murid, finance |
+| nama | VARCHAR | super_admin, guru, murid, finance, kepala_sekolah, koordinator, tata_usaha |
 
 **users**
 | Field | Tipe | Keterangan |
@@ -288,7 +312,9 @@ erDiagram
 | nama_wali, no_hp_wali | VARCHAR | |
 | kelas_id | BIGINT FK → kelas.id nullable | **cache** kelas aktif saat ini. Riwayat lengkap ada di `siswa_kelas` |
 | tanggal_masuk | DATE | acuan uang masuk one-time |
-| status | ENUM('aktif','lulus','pindah','keluar') | |
+| status | ENUM('aktif','lulus','pindah','keluar') | status 'lulus' menandakan alumni |
+| tahun_lulus | YEAR nullable | tahun kelulusan untuk data alumni |
+| catatan_alumni | TEXT nullable | riwayat studi lanjut / profesi alumni |
 | deleted_at | DATETIME nullable | soft delete |
 
 > **Catatan**: Field `nama` dihapus dari tabel ini. Gunakan `users.nama` via relasi `user_id`.
@@ -471,6 +497,57 @@ erDiagram
 
 > **Constraint**: `UNIQUE(siswa_id, kelas_id, tanggal)` — mencegah double absensi siswa di hari yang sama. Absensi bersifat **harian**, bukan per mata pelajaran.
 
+**ekstrakurikuler**
+| Field | Tipe | Keterangan |
+|---|---|---|
+| id | BIGINT PK | |
+| nama | VARCHAR | nama kegiatan ekskul (Pramuka, Tapak Suci, dll.) |
+| pembina_guru_id | BIGINT FK → guru.id nullable | guru pembina ekskul |
+| deskripsi | TEXT nullable | |
+
+**siswa_ekstrakurikuler**
+| Field | Tipe | Keterangan |
+|---|---|---|
+| id | BIGINT PK | |
+| siswa_id | BIGINT FK | |
+| ekstrakurikuler_id | BIGINT FK | |
+| semester_id | BIGINT FK → semester.id | |
+| predikat | VARCHAR | nilai predikat ekskul (A/B/C/D) |
+| catatan | TEXT nullable | deskripsi perkembangan keaktifan murid |
+
+> **Constraint**: `UNIQUE(siswa_id, ekstrakurikuler_id, semester_id)`.
+
+**jadwal_piket_guru**
+| Field | Tipe | Keterangan |
+|---|---|---|
+| id | BIGINT PK | |
+| guru_id | BIGINT FK | |
+| hari | ENUM('senin','selasa','rabu','kamis','jumat') | hari pelaksanaan piket |
+| semester_id | BIGINT FK → semester.id | |
+
+> **Constraint**: `UNIQUE(guru_id, hari, semester_id)`.
+
+**bobot_nilai_guru**
+| Field | Tipe | Keterangan |
+|---|---|---|
+| id | BIGINT PK | |
+| guru_mapel_kelas_id | BIGINT FK → guru_mapel_kelas.id | mapel dan kelas spesifik |
+| komponen_nilai_id | BIGINT FK → komponen_nilai.id | kategori komponen (UH, PTS, PAS, dll.) |
+| bobot | DECIMAL(5,2) | persentase bobot nilai (total bobot per mapel-kelas = 100%) |
+
+> **Constraint**: `UNIQUE(guru_mapel_kelas_id, komponen_nilai_id)`.
+
+**pengajuan_koreksi_nilai**
+| Field | Tipe | Keterangan |
+|---|---|---|
+| id | BIGINT PK | |
+| nilai_id | BIGINT FK → nilai.id | record nilai asal yang salah |
+| nilai_baru | DECIMAL(5,2) | usulan nilai koreksi |
+| alasan | TEXT | alasan perubahan |
+| status | ENUM('pending','disetujui','ditolak') | status persetujuan |
+| diajukan_oleh_guru_id | BIGINT FK → guru.id | guru yang mengajukan |
+| disetujui_oleh_user_id | BIGINT FK → users.id | Koordinator yang meninjau |
+
 #### Grup C — Keuangan
 
 **jenis_tagihan** _(referensi jenis pemasukan)_
@@ -498,7 +575,7 @@ erDiagram
 | jatuh_tempo | DATE | |
 | deleted_at | DATETIME nullable | soft delete |
 
-> **Catatan**: 1 tagihan bisa memiliki N pembayaran (cicilan). Status otomatis dihitung: jika `total_dibayar >= nominal` → lunas, jika `total_dibayar > 0` → sebagian, jika `total_dibayar = 0` → belum_bayar. **Blocking rapor** hanya memeriksa tagihan di tahun ajaran aktif (`tahun_ajaran.status_aktif = true`) yang `jenis_tagihan.is_blocking = true` dan `status != 'lunas'`.
+> **Catatan**: 1 tagihan bisa memiliki N pembayaran (cicilan). Status otomatis dihitung: jika `total_dibayar >= nominal` → lunas, jika `total_dibayar > 0` → sebagian, jika `total_dibayar = 0` → belum_bayar. **Blocking rapor** hanya memeriksa tagihan di tahun ajaran aktif (`tahun_ajaran.status_aktif = true`) yang `jenis_tagihan.is_blocking = true` dan `status != 'lunas'`. Khusus tagihan bulanan SPP, penguncian (lock) berlaku otomatis jika tagihan bulan berjalan belum lunas pada atau setelah **tanggal 10** bulan berjalan, atau jika terdapat tunggakan SPP dari bulan-bulan sebelumnya.
 
 **pembayaran**
 | Field | Tipe | Keterangan |
@@ -511,6 +588,8 @@ erDiagram
 | bukti_bayar | VARCHAR | path file |
 | petugas_id | BIGINT FK → users.id | staf finance yang input |
 | deleted_at | DATETIME nullable | soft delete |
+
+> **Catatan**: Pembayaran tagihan dapat dicetak sebagai bukti pembayaran/kuitansi resmi (resi) oleh admin/finance yang memuat nama kasir dan tempat tanda tangan staf Tata Usaha (TU).
 
 **kategori_pengeluaran**
 | Field | Tipe | Keterangan |
@@ -772,9 +851,12 @@ Satu-satunya sumber kebenaran warna status — semua badge di semua modul **waji
 | Role | Menu Sidebar |
 |---|---|
 | **Super Admin** | Dashboard · Tata Kelola Umum (Siswa/Guru/Mapel/Kelas/Penugasan/**Jadwal Pelajaran**/**Komponen Nilai**) · Akademik (semua kelas) · Keuangan (semua data) · **Laporan** · Manajemen User · **Notifikasi & Pengumuman** · Audit Log |
-| **Guru** | Dashboard · Kelas Saya → Input Nilai (per komponen), Input Absensi Siswa · **Jadwal Mengajar** · Absensi Saya (self check-in manual) · **Laporan** (Rekap Absensi, Rekap Nilai) · **Notifikasi** |
-| **Murid/Wali** | Dashboard · Rapor Nilai (breakdown per komponen) · Riwayat Absensi · **Jadwal Pelajaran** · Tagihan & Pembayaran · **Riwayat Aktivitas** · **Notifikasi** |
-| **Finance** | Dashboard · Pemasukan per Siswa · Pengeluaran · Dana BOS · **Laporan Keuangan** · **Notifikasi** |
+| **Guru** | Dashboard · Kelas Saya → Input Nilai (per komponen), Input Absensi Siswa · Pengaturan Bobot Nilai & Mapel Mandiri · Ajukan Koreksi Nilai · **Jadwal Mengajar** · Absensi Saya (self check-in manual) · **Laporan** (Rekap Absensi, Rekap Nilai) · **Notifikasi** |
+| **Murid/Wali** | Dashboard · Rapor Nilai (Rapor Umum & Rapor Tahfizh) · Riwayat Absensi · **Jadwal Pelajaran** · Tagihan & Pembayaran · **Riwayat Aktivitas & Info Ekskul** · **Notifikasi** |
+| **Finance** | Dashboard · Pemasukan per Siswa · Pengeluaran · Dana BOS · **Laporan Keuangan & Cetak Resi** · **Notifikasi** |
+| **Kepala Sekolah** | Dashboard · Pantau Nilai & Rapor Siswa (*Read-Only*) · Pantau Laporan Keuangan (*Read-Only*) · **Notifikasi** |
+| **Koordinator** | Dashboard · Verifikasi Pengajuan Koreksi Nilai · **Notifikasi** |
+| **Tata Usaha** | Dashboard · Kelola Jadwal Pelajaran · Kelola Jadwal Piket Guru · Kelola Karyawan (Guru & Staff) · Kelola Data Alumni · **Notifikasi** |
 
 Item menu aktif ditandai border kiri + background `primary-50`; ikon pakai satu set yang sama (mis. Lucide) di semua role agar terasa satu sistem, bukan modul-modul yang ditempel.
 
@@ -793,32 +875,33 @@ Agar tidak membingungkan pengguna dan menghindari performa yang lambat, dashboar
 - *Catatan*: Jadwal mengajar mingguan dan rekap nilai dipindahkan ke menu Jadwal Mengajar dan Kelas Saya.
 
 **Murid/Wali** — fokus pada informasi administratif & kelulusan:
-- **Status Tagihan & Rapor** (`AlertBanner`): Hanya muncul jika ada tunggakan blocking ("Rapor Anda terkunci, segera hubungi Finance"). Jika lunas, menampilkan ucapan selamat datang yang bersih.
-- **Ringkasan Cepat**: Kehadiran bulan berjalan (persentase) dan tagihan aktif bulan ini.
-- *Catatan*: Nilai detail, riwayat aktivitas lengkap, dan jadwal harian dipindahkan ke menu Rapor Nilai, Riwayat Aktivitas, dan Jadwal Pelajaran.
-
-**Finance** — fokus pada arus kas & persetujuan pembayaran:
-- **Ringkasan Arus Kas**: Total Pemasukan vs Pengeluaran bulan berjalan (dalam bentuk `StatCard` sederhana).
-- **Antrean Pembayaran**: Daftar tagihan jatuh tempo terdekat dan draf gaji guru yang siap dibayarkan.
-- *Catatan*: Tren grafik, detail kasbon guru, dan dana BOS diakses melalui sub-menu Keuangan.
-
-### 5.8 Spesifikasi Layar Kunci
+- ### 5.8 Spesifikasi Layar Kunci
 
 - **Login** — Card terpusat, logo yayasan, field username/password saja. Tidak ada pemilihan role di form (role otomatis terdeteksi setelah login, sesuai flowchart 3.1).
-- **Dashboard (semua role)** — Shell sama (5.2), tapi widget & prioritas konten spesifik per role sesuai 5.7 — bukan sekadar angka beda dengan layout identik.
-- **Portal Murid → Rapor Nilai**:
-  - *Ada tunggakan blocking* → `AlertBanner` merah di atas halaman ("Rapor terkunci, hubungi Finance"), konten rapor disembunyikan, tombol "Lihat Detail Tagihan". Menu Absensi, Tagihan & Riwayat Aktivitas tetap bisa diakses (sesuai 3.3).
-  - *Lunas* → Tabel rapor per mapel dengan **breakdown per kategori**: kolom Pengetahuan (`nilai_pengetahuan`), Keterampilan (`nilai_keterampilan`), Sikap (`nilai_sikap` + predikat teks), Keagamaan (`nilai_keagamaan`, hanya mapel tahfidz), Nilai Akhir (`nilai_akhir`), Predikat. Di bawah header `rapor.catatan_wali_kelas`.
+- **Dashboard (semua role)** — Shell sama (5.2), tapi widget & prioritas konten spesifik per role sesuai 5.7.
+- **Portal Murid → Rapor Nilai (Terpisah Rapor Umum & Rapor Tahfizh)**:
+  - *Ada tunggakan SPP >= Tanggal 10* → `AlertBanner` merah di atas halaman ("Rapor terkunci, mohon selesaikan administrasi SPP bulan berjalan"), konten nilai/rapor sepenuhnya disembunyikan.
+  - *Lunas* → Memiliki dua tab/halaman terpisah:
+    - **Tab Rapor Umum**: Menampilkan tabel nilai mapel-mapel umum, breakdown per kategori (Pengetahuan, Keterampilan, Sikap), dan nilai akhir serta predikat. Di bagian bawah memuat deskripsi perkembangan **Kegiatan Ekstrakurikuler** (`siswa_ekstrakurikuler`) dan catatan wali kelas.
+    - **Tab Rapor Tahfizh**: Menampilkan tabel nilai khusus mapel tahfidz, kategori Keagamaan (Tahfidz, Hafalan), deskripsi capaian surah/juz, serta catatan khusus pembina tahfidz.
+- **Portal Murid → Riwayat Aktivitas & Info Ekskul** — Komponen `Timeline` aktivitas murid, serta widget daftar kegiatan ekstrakurikuler yang diikuti siswa beserta nama pembina.
 - **Portal Murid → Jadwal Pelajaran** — `ScheduleTable` full (Senin–Jumat), kolom: Jam, Mata Pelajaran, Nama Guru. Data dari `jadwal_pelajaran` via `guru_mapel_kelas`. Read-only untuk murid.
-- **Portal Murid → Riwayat Aktivitas** — Komponen `Timeline`, dikelompokkan per tanggal, tiap baris pakai ikon per jenis (4.4) + teks ramah + waktu relatif ("2 jam lalu"). Filter opsional per kategori (Nilai/Absensi/Pembayaran/Rapor). Tidak menampilkan data teknis (`ip_address`, JSON mentah) — beda dengan Audit Log Super Admin.
-- **Portal Murid → Notifikasi** — Halaman daftar semua notifikasi (paging), filter per jenis. Notif yang belum dibaca ditandai warna/bold. Klik notif menandai dibaca dan deep-link ke halaman terkait (misal klik notif "Rapor terbit" → langsung ke halaman Rapor).
-- **Guru → Input Nilai** — Filter atas: Kelas (otomatis dibatasi ke kelas yang diampu) → Mapel → **Komponen Nilai** (dropdown: UH/PTS/PAS/Praktik/Proyek/Tahfidz/Hafalan/Sikap, difilter sesuai jenis mapel) → Tanggal, lalu tabel siswa dengan input nilai inline.
-- **Guru → Jadwal Mengajar** — `ScheduleTable` full (Senin–Jumat), kolom: Jam, Mapel, Kelas. Read-only. Data dari `jadwal_pelajaran` difilter `guru_id` guru yang login.
-- **Guru → Absensi Saya** — Form sederhana: tombol "Check-in" (catat `waktu_datang`, sistem langsung tampilkan badge Hadir/Telat), tombol "Check-out" (`waktu_pulang`), atau pilih Izin/Tidak Hadir + catatan jika tidak masuk.
-- **Super Admin → Kelola Jadwal Pelajaran** — View per kelas: `ScheduleTable` editable (drag-drop atau form modal per slot). Validasi bentrok jadwal guru dan kelas ditampilkan real-time. Filter: Semester, Kelas.
-- **Super Admin → Kelola Komponen Nilai** — Tabel master: Nama, Kategori, Bobot, Berlaku Untuk, Urutan. Edit inline atau via `FormModal`. Validasi total bobot = 100% per kategori `berlaku_untuk` saat simpan.
-- **Finance → Tagihan & Pembayaran** — Tabel siswa: Jenis Tagihan, Nominal, `ProgressBar` (total dibayar vs nominal) untuk memvisualkan cicilan, `StatusBadge`, aksi "Input Pembayaran".
+- **Portal Murid → Riwayat Aktivitas** — Komponen `Timeline`, dikelompokkan per tanggal, tiap baris pakai ikon per jenis (4.4) + teks ramah + waktu relatif.
+- **Portal Murid → Notifikasi** — Halaman daftar semua notifikasi (paging), filter per jenis.
+- **Guru → Input Nilai** — Filter atas: Kelas -> Mapel -> Komponen Nilai. Jika guru mencoba menyunting nilai yang sudah disimpan sebelumnya (telah disubmit), field input terkunci dan muncul tombol "Ajukan Koreksi Nilai" yang membuka modal form pengajuan revisi nilai ke Koordinator.
+- **Guru → Jadwal Mengajar** — `ScheduleTable` full (Senin–Jumat), kolom: Jam, Mapel, Kelas. Read-only.
+- **Guru → Absensi Saya** — Form check-in/check-out mandiri. Batas jam masuk berubah otomatis menjadi 06:30 jika ada jadwal piket guru hari ini (khusus Guru Tahfidz).
+- **Super Admin → Kelola Jadwal Pelajaran** — View per kelas: `ScheduleTable` editable. Validasi bentrok jadwal guru dan kelas ditampilkan real-time.
+- **Super Admin → Kelola Komponen Nilai** — Tabel master komponen nilai.
+- **Finance → Tagihan & Pembayaran** — Tabel siswa, ProgressBar cicilan, StatusBadge, aksi "Input Pembayaran", dan aksi "Cetak Resi Pembayaran" (menghasilkan PDF tanda terima resmi dengan slot tanda tangan TU). SPP bulanan otomatis di-generate tanggal 1.
+- **Kepala Sekolah** — Menu read-only untuk memantau ringkasan nilai rapor siswa per kelas (tabel/grafik rerata) serta laporan arus kas keuangan sekolah.
+- **Koordinator → Verifikasi Koreksi Nilai** — Tabel berisi daftar pengajuan koreksi nilai dari guru (`status = 'pending'`), menampilkan nama guru, siswa, mapel, nilai lama vs nilai usulan baru, alasan, serta tombol aksi "Setujui" (meng-update nilai asal) dan "Tolak".
+- **Tata Usaha → Kelola Karyawan & Piket** — Berisi dua sub-menu utama:
+  - **Kelola Karyawan**: Melihat, menambah, menyunting seluruh data staf, guru, dan karyawan terdaftar.
+  - **Kelola Jadwal Piket**: Form penugasan piket guru per semester (menentukan hari piket).
+  - **Data Alumni**: Halaman pencarian dan rekap lulusan lengkap dengan tahun lulus dan studi lanjut.
 - **Laporan (semua role yang punya akses)** — Menu Laporan menampilkan daftar report yang tersedia sesuai role. Klik report → `ReportViewer` (preview tabel/chart di browser + tombol Download PDF/Excel). Lihat scope per fase di §6.
+
 
 ### 5.9 Responsif & Aksesibilitas
 

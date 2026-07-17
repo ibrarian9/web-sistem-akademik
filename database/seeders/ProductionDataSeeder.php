@@ -1,0 +1,919 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\User;
+use App\Models\Role;
+use App\Models\Guru;
+use App\Models\Siswa;
+use App\Models\Kelas;
+use App\Models\TahunAjaran;
+use App\Models\Semester;
+use App\Models\SiswaKelas;
+use App\Models\MataPelajaran;
+use App\Models\GuruMapelKelas;
+use App\Models\JenisTagihan;
+use App\Models\Tagihan;
+use App\Models\Pembayaran;
+use App\Models\KategoriPengeluaran;
+use App\Models\Pengeluaran;
+use App\Models\Peminjaman;
+use App\Models\GajiGuru;
+use App\Models\Notifikasi;
+use App\Models\KomponenNilai;
+use App\Models\Nilai;
+use App\Models\Rapor;
+use App\Models\RaporDetail;
+use App\Models\DanaBos;
+use App\Models\JadwalPelajaran;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
+class ProductionDataSeeder extends Seeder
+{
+    public function run(): void
+    {
+        // 1. Get Roles
+        $roleAdmin = Role::where('nama', 'super_admin')->first();
+        $roleGuru = Role::where('nama', 'guru')->first();
+        $roleMurid = Role::where('nama', 'murid')->first();
+        $roleFinance = Role::where('nama', 'finance')->first();
+
+        // Ensure roles exist
+        if (!$roleAdmin || !$roleGuru || !$roleMurid || !$roleFinance) {
+            $this->call(RoleSeeder::class);
+            $roleAdmin = Role::where('nama', 'super_admin')->first();
+            $roleGuru = Role::where('nama', 'guru')->first();
+            $roleMurid = Role::where('nama', 'murid')->first();
+            $roleFinance = Role::where('nama', 'finance')->first();
+        }
+
+        // Get or Create Finance User
+        $userFinance = User::where('username', 'finance')->first();
+        if (!$userFinance) {
+            $userFinance = User::create([
+                'username' => 'finance',
+                'nama' => 'Siti Aminah, S.E.',
+                'email' => 'finance@yayasan.or.id',
+                'password' => Hash::make('finance123'),
+                'role_id' => $roleFinance->id,
+                'no_hp' => '081234567891',
+                'alamat' => 'Bantul, Yogyakarta',
+                'status' => 'aktif',
+            ]);
+        }
+
+        // Ensure JenisTagihan & KategoriPengeluaran seeded
+        $this->call(JenisTagihanSeeder::class);
+        $this->call(KategoriPengeluaranSeeder::class);
+        $this->call(KomponenNilaiSeeder::class);
+
+        // 2. Setup Tahun Ajaran & Semester
+        $tahunAjaran = TahunAjaran::firstOrCreate([
+            'nama' => '2025/2026',
+        ], [
+            'status_aktif' => true,
+        ]);
+
+        $semesterGanjil = Semester::firstOrCreate([
+            'tahun_ajaran_id' => $tahunAjaran->id,
+            'semester' => 'ganjil',
+        ], [
+            'tanggal_mulai' => '2025-07-15',
+            'tanggal_selesai' => '2025-12-20',
+            'status_aktif' => false,
+        ]);
+
+        $semesterGenap = Semester::firstOrCreate([
+            'tahun_ajaran_id' => $tahunAjaran->id,
+            'semester' => 'genap',
+        ], [
+            'tanggal_mulai' => '2026-01-05',
+            'tanggal_selesai' => '2026-06-20',
+            'status_aktif' => true,
+        ]);
+
+        // 3. Create Additional Teachers if needed
+        $teachersData = [
+            ['nama' => 'Budi Santoso, S.Pd.', 'username' => 'budi', 'nip' => '198501012010011001', 'jenis' => 'umum'],
+            ['nama' => 'Lutfi Hakim, S.Pd.', 'username' => 'lutfi', 'nip' => '198702022012011002', 'jenis' => 'umum'],
+            ['nama' => 'Hasan Basri, S.Pd.I.', 'username' => 'hasan', 'nip' => '199003032015011003', 'jenis' => 'tahfidz'],
+            ['nama' => 'Fatmawati, S.Pd.', 'username' => 'fatma', 'nip' => '198904042013022004', 'jenis' => 'umum'],
+            ['nama' => 'Dewi Lestari, S.S.Q.', 'username' => 'dewi', 'nip' => '199205052018022005', 'jenis' => 'tahfidz'],
+        ];
+
+        $gurus = [];
+        foreach ($teachersData as $t) {
+            $user = User::firstOrCreate([
+                'username' => $t['username'],
+            ], [
+                'nama' => $t['nama'],
+                'email' => $t['username'] . '@yayasan.or.id',
+                'password' => Hash::make('guru123'),
+                'role_id' => $roleGuru->id,
+                'no_hp' => '0857' . rand(10000000, 99999999),
+                'alamat' => 'Yogyakarta',
+                'status' => 'aktif',
+            ]);
+
+            $guru = Guru::firstOrCreate([
+                'nip' => $t['nip'],
+            ], [
+                'user_id' => $user->id,
+                'jenis_guru' => $t['jenis'],
+                'no_hp' => $user->no_hp,
+                'alamat' => $user->alamat,
+                'tanggal_masuk' => '2020-01-01',
+                'status_aktif' => true,
+            ]);
+
+            $gurus[$t['username']] = $guru;
+        }
+
+        // Get the default teacher (from UserSeeder / UserSeeder.php)
+        $defaultGuruModel = Guru::where('nip', '1234567890')->first();
+        if ($defaultGuruModel) {
+            $gurus['guru'] = $defaultGuruModel;
+        } else {
+            // In case it doesn't exist, create it to prevent errors
+            $userGuru = User::firstOrCreate([
+                'username' => 'guru',
+            ], [
+                'nama' => 'Guru Teladan, S.Pd.',
+                'email' => 'guru@yayasan.or.id',
+                'password' => Hash::make('guru123'),
+                'role_id' => $roleGuru->id,
+                'no_hp' => '081234567890',
+                'alamat' => 'Sleman, Yogyakarta',
+                'status' => 'aktif',
+            ]);
+
+            $defaultGuruModel = Guru::firstOrCreate([
+                'nip' => '1234567890',
+            ], [
+                'user_id' => $userGuru->id,
+                'jenis_guru' => 'umum',
+                'no_hp' => $userGuru->no_hp,
+                'alamat' => $userGuru->alamat,
+                'tanggal_masuk' => '2020-01-01',
+                'status_aktif' => true,
+            ]);
+            $gurus['guru'] = $defaultGuruModel;
+        }
+
+        // 4. Create Kelas
+        $kelasData = [
+            ['nama_kelas' => '7A', 'tingkat' => '7', 'umum' => 'guru', 'tahfidz' => 'hasan'],
+            ['nama_kelas' => '7B', 'tingkat' => '7', 'umum' => 'lutfi', 'tahfidz' => 'hasan'],
+            ['nama_kelas' => '8A', 'tingkat' => '8', 'umum' => 'fatma', 'tahfidz' => 'dewi'],
+            ['nama_kelas' => '8B', 'tingkat' => '8', 'umum' => 'budi', 'tahfidz' => 'dewi'],
+            ['nama_kelas' => '9A', 'tingkat' => '9', 'umum' => 'lutfi', 'tahfidz' => 'hasan'],
+        ];
+
+        $kelasModels = [];
+        foreach ($kelasData as $k) {
+            $kelas = Kelas::firstOrCreate([
+                'nama_kelas' => $k['nama_kelas'],
+                'semester_id' => $semesterGenap->id,
+            ], [
+                'tingkat' => $k['tingkat'],
+                'guru_umum_id' => $gurus[$k['umum']]->id,
+                'guru_tahfidz_id' => $gurus[$k['tahfidz']]->id,
+            ]);
+            $kelasModels[$k['nama_kelas']] = $kelas;
+        }
+
+        // 5. Create Students (Generate 25 students)
+        $firstNames = ['Ahmad', 'Bambang', 'Candra', 'Dina', 'Eka', 'Farhan', 'Gita', 'Hendra', 'Indah', 'Joko', 'Kevin', 'Laras', 'Muhammad', 'Nadia', 'Oki', 'Putri', 'Rian', 'Siti', 'Taufik', 'Ulfa', 'Vina', 'Wawan', 'Yulia', 'Zaki', 'Arif'];
+        $lastNames = ['Fauzi', 'Tri', 'Wijaya', 'Marlina', 'Saputra', 'Adit', 'Kirana', 'Setiawan', 'Permata', 'Susilo', 'Pratama', 'Dewi', 'Rizky', 'Fitri', 'Hidayat', 'Wulandari', 'Ardiansyah', 'Aminah', 'Akbar', 'Rahma', 'Lestari', 'Nugroho', 'Putra', 'Ramadhan', 'Kurniawan'];
+
+        $siswaModels = [];
+
+        // Check if default student 'siswa' (NIS 9999) exists and add to models first
+        $defaultSiswa = Siswa::where('nis', '9999')->first();
+        if ($defaultSiswa) {
+            $assignedKelas = $kelasModels['7A'];
+            $defaultSiswa->update([
+                'kelas_id' => $assignedKelas->id,
+            ]);
+
+            SiswaKelas::firstOrCreate([
+                'siswa_id' => $defaultSiswa->id,
+                'semester_id' => $semesterGenap->id,
+            ], [
+                'kelas_id' => $assignedKelas->id,
+                'status' => 'aktif',
+            ]);
+
+            $siswaModels[] = $defaultSiswa;
+        }
+
+        for ($i = 0; $i < 25; $i++) {
+            $nis = 1000 + $i;
+            $nama = $firstNames[$i] . ' ' . $lastNames[$i];
+            $username = 'siswa' . ($i + 1);
+
+            $user = User::firstOrCreate([
+                'username' => $username,
+            ], [
+                'nama' => $nama,
+                'email' => $username . '@siswa.yayasan.or.id',
+                'password' => Hash::make('siswa123'),
+                'role_id' => $roleMurid->id,
+                'no_hp' => '0878' . rand(10000000, 99999999),
+                'alamat' => 'Yogyakarta',
+                'status' => 'aktif',
+            ]);
+
+            // Assign to class rotatingly: 7A, 7B, 8A, 8B, 9A
+            $kelasKeys = array_keys($kelasModels);
+            $assignedKelasName = $kelasKeys[$i % count($kelasKeys)];
+            $assignedKelas = $kelasModels[$assignedKelasName];
+
+            $siswa = Siswa::firstOrCreate([
+                'nis' => (string)$nis,
+            ], [
+                'user_id' => $user->id,
+                'nisn' => '0098' . rand(100000, 999999),
+                'jenis_kelamin' => ($i % 2 == 0) ? 'L' : 'P',
+                'tempat_lahir' => 'Yogyakarta',
+                'tanggal_lahir' => '2012-05-10',
+                'alamat' => 'Yogyakarta',
+                'nama_wali' => 'Wali dari ' . $nama,
+                'no_hp_wali' => '0899' . rand(10000000, 99999999),
+                'kelas_id' => $assignedKelas->id,
+                'tanggal_masuk' => '2025-07-01',
+                'status' => 'aktif',
+            ]);
+
+            SiswaKelas::firstOrCreate([
+                'siswa_id' => $siswa->id,
+                'semester_id' => $semesterGenap->id,
+            ], [
+                'kelas_id' => $assignedKelas->id,
+                'status' => 'aktif',
+            ]);
+
+            $siswaModels[] = $siswa;
+        }
+
+        // 6. Setup Mata Pelajaran & Penugasan
+        $mapels = [
+            ['nama_mapel' => 'Matematika', 'jenis' => 'umum', 'deskripsi' => 'Mata pelajaran matematika umum'],
+            ['nama_mapel' => 'IPA', 'jenis' => 'umum', 'deskripsi' => 'Ilmu Pengetahuan Alam'],
+            ['nama_mapel' => 'IPS', 'jenis' => 'umum', 'deskripsi' => 'Ilmu Pengetahuan Sosial'],
+            ['nama_mapel' => 'Bahasa Indonesia', 'jenis' => 'umum', 'deskripsi' => 'Bahasa dan Sastra Indonesia'],
+            ['nama_mapel' => 'Tahfidz Al-Quran', 'jenis' => 'tahfidz', 'deskripsi' => 'Pembelajaran hafalan Al-Quran'],
+        ];
+
+        $mapelModels = [];
+        foreach ($mapels as $m) {
+            $mapel = MataPelajaran::firstOrCreate(['nama_mapel' => $m['nama_mapel']], $m);
+            $mapelModels[$m['nama_mapel']] = $mapel;
+        }
+
+        $gmkLookup = [];
+        foreach ($kelasModels as $className => $kelas) {
+            $gmkLookup[$className] = [];
+            foreach ($mapelModels as $mapelName => $mapel) {
+                $assignedTeacher = ($mapel->jenis === 'tahfidz') ? $gurus['hasan'] : $gurus['budi'];
+                if ($className === '7A') {
+                    $assignedTeacher = ($mapel->jenis === 'tahfidz') ? $gurus['hasan'] : $gurus['guru'];
+                } elseif ($className === '7B' || $className === '9A') {
+                    $assignedTeacher = ($mapel->jenis === 'tahfidz') ? $gurus['hasan'] : $gurus['lutfi'];
+                } elseif ($className === '8A') {
+                    $assignedTeacher = ($mapel->jenis === 'tahfidz') ? $gurus['dewi'] : $gurus['fatma'];
+                }
+
+                $gmk = GuruMapelKelas::firstOrCreate([
+                    'guru_id' => $assignedTeacher->id,
+                    'kelas_id' => $kelas->id,
+                    'mapel_id' => $mapel->id,
+                    'semester_id' => $semesterGenap->id,
+                ]);
+
+                $gmkLookup[$className][$mapelName] = $gmk;
+            }
+        }
+
+        // 6b. Seed Jadwal Pelajaran (Schedules) for each class
+        $schedulePattern = [
+            'senin' => [
+                ['mapel' => 'Matematika', 'start' => '07:30:00', 'end' => '09:00:00'],
+                ['mapel' => 'IPA', 'start' => '09:00:00', 'end' => '10:30:00'],
+                ['mapel' => 'Tahfidz Al-Quran', 'start' => '10:30:00', 'end' => '12:00:00'],
+            ],
+            'selasa' => [
+                ['mapel' => 'IPS', 'start' => '07:30:00', 'end' => '09:00:00'],
+                ['mapel' => 'Bahasa Indonesia', 'start' => '09:00:00', 'end' => '10:30:00'],
+                ['mapel' => 'Matematika', 'start' => '10:30:00', 'end' => '12:00:00'],
+            ],
+            'rabu' => [
+                ['mapel' => 'IPA', 'start' => '07:30:00', 'end' => '09:00:00'],
+                ['mapel' => 'IPS', 'start' => '09:00:00', 'end' => '10:30:00'],
+                ['mapel' => 'Tahfidz Al-Quran', 'start' => '10:30:00', 'end' => '12:00:00'],
+            ],
+            'kamis' => [
+                ['mapel' => 'Bahasa Indonesia', 'start' => '07:30:00', 'end' => '09:00:00'],
+                ['mapel' => 'Matematika', 'start' => '09:00:00', 'end' => '10:30:00'],
+                ['mapel' => 'IPA', 'start' => '10:30:00', 'end' => '12:00:00'],
+            ],
+            'jumat' => [
+                ['mapel' => 'Tahfidz Al-Quran', 'start' => '07:30:00', 'end' => '09:00:00'],
+                ['mapel' => 'IPS', 'start' => '09:00:00', 'end' => '10:30:00'],
+            ],
+        ];
+
+        foreach ($kelasModels as $className => $kelas) {
+            foreach ($schedulePattern as $day => $sessions) {
+                foreach ($sessions as $session) {
+                    $mapelName = $session['mapel'];
+                    $gmk = $gmkLookup[$className][$mapelName] ?? null;
+                    if ($gmk) {
+                        JadwalPelajaran::firstOrCreate([
+                            'guru_mapel_kelas_id' => $gmk->id,
+                            'hari' => $day,
+                            'jam_mulai' => $session['start'],
+                            'jam_selesai' => $session['end'],
+                        ]);
+                    }
+                }
+            }
+        }
+
+        // 7. Seed Financial Billings & Payments (Juli 2025 - Juni 2026)
+        $months = [
+            ['nama' => 'Juli', 'tahun' => 2025, 'date' => '2025-07'],
+            ['nama' => 'Agustus', 'tahun' => 2025, 'date' => '2025-08'],
+            ['nama' => 'September', 'tahun' => 2025, 'date' => '2025-09'],
+            ['nama' => 'Oktober', 'tahun' => 2025, 'date' => '2025-10'],
+            ['nama' => 'November', 'tahun' => 2025, 'date' => '2025-11'],
+            ['nama' => 'Desember', 'tahun' => 2025, 'date' => '2025-12'],
+            ['nama' => 'Januari', 'tahun' => 2026, 'date' => '2026-01'],
+            ['nama' => 'Februari', 'tahun' => 2026, 'date' => '2026-02'],
+            ['nama' => 'Maret', 'tahun' => 2026, 'date' => '2026-03'],
+            ['nama' => 'April', 'tahun' => 2026, 'date' => '2026-04'],
+            ['nama' => 'Mei', 'tahun' => 2026, 'date' => '2026-05'],
+            ['nama' => 'Juni', 'tahun' => 2026, 'date' => '2026-06'],
+        ];
+
+        $jtSpp = JenisTagihan::where('nama', 'SPP')->first();
+        $jtInfaq = JenisTagihan::where('nama', 'Infaq')->first();
+        $jtBuku = JenisTagihan::where('nama', 'Uang Buku')->first();
+        $jtPendaftaran = JenisTagihan::where('nama', 'Uang Pendaftaran')->first();
+        $methods = ['Transfer Bank', 'Cash', 'QRIS', 'Virtual Account'];
+
+        // Seed one-time admission & books at the start of school year (July 2025)
+        foreach ($siswaModels as $siswa) {
+            // Uang Pendaftaran
+            $tagihanDaftar = Tagihan::create([
+                'siswa_id' => $siswa->id,
+                'jenis_tagihan_id' => $jtPendaftaran->id,
+                'tahun_ajaran_id' => $tahunAjaran->id,
+                'bulan' => 'Juli',
+                'nominal' => $jtPendaftaran->default_nominal,
+                'total_dibayar' => $jtPendaftaran->default_nominal,
+                'status' => 'lunas',
+                'jatuh_tempo' => '2025-07-10',
+            ]);
+
+            Pembayaran::create([
+                'tagihan_id' => $tagihanDaftar->id,
+                'tanggal_bayar' => '2025-07-05',
+                'nominal_dibayar' => $jtPendaftaran->default_nominal,
+                'metode_bayar' => $methods[rand(0, 3)],
+                'petugas_id' => $userFinance->id,
+            ]);
+
+            // Uang Buku
+            $tagihanBuku = Tagihan::create([
+                'siswa_id' => $siswa->id,
+                'jenis_tagihan_id' => $jtBuku->id,
+                'tahun_ajaran_id' => $tahunAjaran->id,
+                'bulan' => 'Juli',
+                'nominal' => $jtBuku->default_nominal,
+                'total_dibayar' => $jtBuku->default_nominal,
+                'status' => 'lunas',
+                'jatuh_tempo' => '2025-07-20',
+            ]);
+
+            Pembayaran::create([
+                'tagihan_id' => $tagihanBuku->id,
+                'tanggal_bayar' => '2025-07-15',
+                'nominal_dibayar' => $jtBuku->default_nominal,
+                'metode_bayar' => $methods[rand(0, 3)],
+                'petugas_id' => $userFinance->id,
+            ]);
+        }
+
+        // Seed SPP & Infaq over 12 months
+        foreach ($months as $monthIdx => $m) {
+            foreach ($siswaModels as $siswaIdx => $siswa) {
+                // Determine payment status realistically
+                // Most are lunas. A few become late in recent months (May/June 2026).
+                $status = 'lunas';
+                if ($monthIdx >= 10 && $siswaIdx % 8 == 0) {
+                    $status = 'belum_bayar'; // arrears
+                } elseif ($monthIdx >= 11 && $siswaIdx % 6 == 0) {
+                    $status = 'sebagian'; // partial
+                }
+
+                // SPP Bill
+                $totalPaidSpp = ($status === 'lunas') ? $jtSpp->default_nominal : (($status === 'sebagian') ? 150000 : 0);
+                $tagihanSpp = Tagihan::create([
+                    'siswa_id' => $siswa->id,
+                    'jenis_tagihan_id' => $jtSpp->id,
+                    'tahun_ajaran_id' => $tahunAjaran->id,
+                    'bulan' => $m['nama'],
+                    'nominal' => $jtSpp->default_nominal,
+                    'total_dibayar' => $totalPaidSpp,
+                    'status' => $status,
+                    'jatuh_tempo' => $m['date'] . '-10',
+                ]);
+
+                if ($totalPaidSpp > 0) {
+                    Pembayaran::create([
+                        'tagihan_id' => $tagihanSpp->id,
+                        'tanggal_bayar' => $m['date'] . '-' . sprintf('%02d', rand(1, 9)),
+                        'nominal_dibayar' => $totalPaidSpp,
+                        'metode_bayar' => $methods[rand(0, 3)],
+                        'petugas_id' => $userFinance->id,
+                    ]);
+                }
+
+                // Infaq (Voluntary payment: only created if paid / 'lunas')
+                if ($status === 'lunas') {
+                    $tagihanInfaq = Tagihan::create([
+                        'siswa_id' => $siswa->id,
+                        'jenis_tagihan_id' => $jtInfaq->id,
+                        'tahun_ajaran_id' => $tahunAjaran->id,
+                        'bulan' => $m['nama'],
+                        'nominal' => $jtInfaq->default_nominal,
+                        'total_dibayar' => $jtInfaq->default_nominal,
+                        'status' => 'lunas',
+                        'jatuh_tempo' => $m['date'] . '-15',
+                    ]);
+
+                    Pembayaran::create([
+                        'tagihan_id' => $tagihanInfaq->id,
+                        'tanggal_bayar' => $m['date'] . '-' . sprintf('%02d', rand(10, 14)),
+                        'nominal_dibayar' => $jtInfaq->default_nominal,
+                        'metode_bayar' => $methods[rand(0, 3)],
+                        'petugas_id' => $userFinance->id,
+                    ]);
+                }
+            }
+        }
+
+        // 8. Seed Operational Expenditures (Pengeluaran)
+        $expenseCategories = KategoriPengeluaran::all();
+        $catInternet = $expenseCategories->where('nama', 'Lainnya')->first(); // fallback
+        $catSosial = $expenseCategories->where('nama', 'Sosial')->first();
+        
+        // Find specific categories or fall back
+        $catListrik = KategoriPengeluaran::firstOrCreate(['nama' => 'Listrik & Air'], ['jenis' => 'operasional']);
+        $catInternet = KategoriPengeluaran::firstOrCreate(['nama' => 'Internet & Telepon'], ['jenis' => 'operasional']);
+        $catAtk = KategoriPengeluaran::firstOrCreate(['nama' => 'ATK & Fotokopi'], ['jenis' => 'operasional']);
+        $catPemeliharaan = KategoriPengeluaran::firstOrCreate(['nama' => 'Pemeliharaan Gedung'], ['jenis' => 'operasional']);
+
+        foreach ($months as $m) {
+            // Internet (Monthly)
+            Pengeluaran::create([
+                'kategori_pengeluaran_id' => $catInternet->id,
+                'jumlah' => 350000.00,
+                'tanggal' => $m['date'] . '-03',
+                'keterangan' => 'Tagihan Internet IndiHome Wifi Sekolah periode ' . $m['nama'] . ' ' . $m['tahun'],
+                'petugas_id' => $userFinance->id,
+            ]);
+
+            // Listrik & Air (Monthly)
+            Pengeluaran::create([
+                'kategori_pengeluaran_id' => $catListrik->id,
+                'jumlah' => rand(1100000, 1400000),
+                'tanggal' => $m['date'] . '-10',
+                'keterangan' => 'Pembayaran listrik PLN & air PDAM sekolah periode ' . $m['nama'] . ' ' . $m['tahun'],
+                'petugas_id' => $userFinance->id,
+            ]);
+
+            // ATK (Monthly)
+            Pengeluaran::create([
+                'kategori_pengeluaran_id' => $catAtk->id,
+                'jumlah' => rand(400000, 600000),
+                'tanggal' => $m['date'] . '-15',
+                'keterangan' => 'Pembelian ATK, kertas HVS, spidol, tinta printer periode ' . $m['nama'] . ' ' . $m['tahun'],
+                'petugas_id' => $userFinance->id,
+            ]);
+
+            // Irregular Pemeliharaan
+            if (rand(0, 1) === 1) {
+                Pengeluaran::create([
+                    'kategori_pengeluaran_id' => $catPemeliharaan->id,
+                    'jumlah' => rand(1500000, 3000000),
+                    'tanggal' => $m['date'] . '-22',
+                    'keterangan' => 'Servis AC ruang guru dan pengecatan gerbang sekolah',
+                    'petugas_id' => $userFinance->id,
+                ]);
+            }
+        }
+
+        // 9. Seed Dana BOS Transactions
+        $catBos = KategoriPengeluaran::where('nama', 'Dana BOS')->first();
+        // BOS Stage 1 Masuk (August 2025)
+        DanaBos::create([
+            'tahun_ajaran_id' => $tahunAjaran->id,
+            'jenis' => 'masuk',
+            'tanggal' => '2025-08-05',
+            'nominal' => 45000000.00,
+            'kategori' => 'BOS Reguler Tahap I',
+            'keterangan' => 'Pencairan Dana BOS Reguler Semester Ganjil',
+        ]);
+
+        // BOS Stage 2 Masuk (February 2026)
+        DanaBos::create([
+            'tahun_ajaran_id' => $tahunAjaran->id,
+            'jenis' => 'masuk',
+            'tanggal' => '2026-02-12',
+            'nominal' => 45000000.00,
+            'kategori' => 'BOS Reguler Tahap II',
+            'keterangan' => 'Pencairan Dana BOS Reguler Semester Genap',
+        ]);
+
+        // BOS Keluar (Belanja Buku, Laptop)
+        DanaBos::create([
+            'tahun_ajaran_id' => $tahunAjaran->id,
+            'jenis' => 'keluar',
+            'tanggal' => '2025-08-20',
+            'nominal' => 15000000.00,
+            'kategori' => 'Belanja Buku Perpustakaan',
+            'keterangan' => 'Pembelian buku paket Kurikulum Merdeka kelas 7 & 8',
+        ]);
+
+        DanaBos::create([
+            'tahun_ajaran_id' => $tahunAjaran->id,
+            'jenis' => 'keluar',
+            'tanggal' => '2026-03-05',
+            'nominal' => 18000000.00,
+            'kategori' => 'Belanja Chromebook & Media Pembelajaran',
+            'keterangan' => 'Pengadaan 4 Unit Chromebook untuk Asesmen Nasional',
+        ]);
+
+        // 10. Seed Peminjaman / Kasbon Guru
+        // Loan for Budi
+        $loanBudi = Peminjaman::create([
+            'guru_id' => $gurus['budi']->id,
+            'tanggal_pinjam' => '2025-10-05',
+            'nominal' => 3000000.00,
+            'tenor_bulan' => 10,
+            'cicilan_per_bulan' => 300000.00,
+            'sisa_pinjaman' => 300000.00, // already paid 9 installments (repaid 2,700,000)
+            'status' => 'berjalan',
+        ]);
+
+        // Loan for Lutfi
+        $loanLutfi = Peminjaman::create([
+            'guru_id' => $gurus['lutfi']->id,
+            'tanggal_pinjam' => '2026-02-10',
+            'nominal' => 2000000.00,
+            'tenor_bulan' => 5,
+            'cicilan_per_bulan' => 400000.00,
+            'sisa_pinjaman' => 0.00, // Paid off (February, March, April, May, June)
+            'status' => 'lunas',
+        ]);
+
+        // Loan for Hasan
+        $loanHasan = Peminjaman::create([
+            'guru_id' => $gurus['hasan']->id,
+            'tanggal_pinjam' => '2026-05-15',
+            'nominal' => 5000000.00,
+            'tenor_bulan' => 10,
+            'cicilan_per_bulan' => 500000.00,
+            'sisa_pinjaman' => 4000000.00, // Repaid 2 installments (May, June)
+            'status' => 'berjalan',
+        ]);
+
+        // 11. Seed Teacher Salaries (Gaji Guru) - Jan 2026 to Jun 2026
+        $catGaji = KategoriPengeluaran::where('nama', 'Gaji Guru')->first();
+        $salaryMonths = [
+            ['nama' => 'Januari', 'tahun' => 2026, 'date' => '2026-01-25'],
+            ['nama' => 'Februari', 'tahun' => 2026, 'date' => '2026-02-25'],
+            ['nama' => 'Maret', 'tahun' => 2026, 'date' => '2026-03-25'],
+            ['nama' => 'April', 'tahun' => 2026, 'date' => '2026-04-25'],
+            ['nama' => 'Mei', 'tahun' => 2026, 'date' => '2026-05-25'],
+            ['nama' => 'Juni', 'tahun' => 2026, 'date' => '2026-06-25'],
+        ];
+
+        foreach ($salaryMonths as $sm) {
+            foreach ($gurus as $uname => $guru) {
+                $gajiPokok = 2500000.00;
+                $insentifBpjs = 150000.00;
+                $insentifMaghrib = 200000.00;
+                $potonganLainnya = 0.00;
+
+                // Determine loans active during that month
+                $potonganPeminjaman = 0.00;
+                if ($uname === 'budi') {
+                    $potonganPeminjaman = 300000.00; // Loan budget
+                } elseif ($uname === 'lutfi' && $sm['tahun'] == 2026 && in_array($sm['nama'], ['Februari', 'Maret', 'April', 'Mei', 'Juni'])) {
+                    $potonganPeminjaman = 400000.00;
+                } elseif ($uname === 'hasan' && $sm['tahun'] == 2026 && in_array($sm['nama'], ['Mei', 'Juni'])) {
+                    $potonganPeminjaman = 500000.00;
+                }
+
+                $totalDiterima = ($gajiPokok + $insentifBpjs + $insentifMaghrib) - ($potonganPeminjaman + $potonganLainnya);
+
+                // Create Expenditure record first
+                $exp = Pengeluaran::create([
+                    'kategori_pengeluaran_id' => $catGaji->id,
+                    'jumlah' => $totalDiterima,
+                    'tanggal' => $sm['date'],
+                    'keterangan' => "Gaji Guru: {$guru->user->nama} - Periode {$sm['nama']} {$sm['tahun']}",
+                    'petugas_id' => $userFinance->id,
+                ]);
+
+                // Create salary record
+                GajiGuru::create([
+                    'guru_id' => $guru->id,
+                    'pengeluaran_id' => $exp->id,
+                    'bulan' => $sm['nama'],
+                    'tahun' => $sm['tahun'],
+                    'gaji_pokok' => $gajiPokok,
+                    'insentif_bpjs' => $insentifBpjs,
+                    'insentif_maghrib_mengaji' => $insentifMaghrib,
+                    'potongan_peminjaman' => $potonganPeminjaman,
+                    'potongan_lainnya' => $potonganLainnya,
+                    'total_diterima' => $totalDiterima,
+                    'tanggal_bayar' => $sm['date'],
+                    'status' => 'dibayar',
+                ]);
+            }
+        }
+
+        // Seed July 2026 Gaji as DRAFT
+        foreach ($gurus as $uname => $guru) {
+            $gajiPokok = 2500000.00;
+            $insentifBpjs = 150000.00;
+            $insentifMaghrib = 200000.00;
+            $potonganLainnya = 0.00;
+
+            $potonganPeminjaman = 0.00;
+            if ($uname === 'budi') {
+                $potonganPeminjaman = 300000.00;
+            } elseif ($uname === 'hasan') {
+                $potonganPeminjaman = 500000.00;
+            }
+
+            $totalDiterima = ($gajiPokok + $insentifBpjs + $insentifMaghrib) - ($potonganPeminjaman + $potonganLainnya);
+
+            GajiGuru::create([
+                'guru_id' => $guru->id,
+                'bulan' => 'Juli',
+                'tahun' => 2026,
+                'gaji_pokok' => $gajiPokok,
+                'insentif_bpjs' => $insentifBpjs,
+                'insentif_maghrib_mengaji' => $insentifMaghrib,
+                'potongan_peminjaman' => $potonganPeminjaman,
+                'potongan_lainnya' => $potonganLainnya,
+                'total_diterima' => $totalDiterima,
+                'tanggal_bayar' => '2026-07-25',
+                'status' => 'draft',
+            ]);
+        }
+
+        // 12. Seed Notifications
+        foreach ($siswaModels as $idx => $siswa) {
+            Notifikasi::create([
+                'user_id' => $siswa->user_id,
+                'siswa_id' => $siswa->id,
+                'judul' => 'Tagihan Terbit',
+                'isi_pesan' => 'Tagihan SPP dan Infaq untuk bulan Juli 2026 telah terbit. Silakan lakukan pembayaran sebelum tanggal jatuh tempo.',
+                'jenis' => 'tagihan',
+                'channel' => 'in_app',
+                'status_kirim' => 'terkirim',
+                'dikirim_pada' => '2026-07-01 08:00:00',
+            ]);
+
+            if ($idx % 3 === 0) {
+                Notifikasi::create([
+                    'user_id' => $siswa->user_id,
+                    'siswa_id' => $siswa->id,
+                    'judul' => 'Pembayaran SPP Diterima',
+                    'isi_pesan' => 'Terima kasih, pembayaran SPP bulan Juni 2026 sebesar Rp 350.000 telah kami terima.',
+                    'jenis' => 'tagihan',
+                    'channel' => 'in_app',
+                    'status_kirim' => 'terkirim',
+                    'dikirim_pada' => '2026-06-08 10:15:00',
+                    'dibaca_pada' => '2026-06-08 12:30:00',
+                ]);
+            }
+        }
+
+        // 13. Seed Grades & Rapor for Semester Ganjil (2025/2026)
+        $knUlangan = KomponenNilai::where('nama', 'like', '%UH%')->first();
+        $knUts = KomponenNilai::where('nama', 'like', '%PTS%')->first();
+        $knUas = KomponenNilai::where('nama', 'like', '%PAS%')->first();
+
+        foreach ($siswaModels as $siswa) {
+            $catatanWali = 'Ananda ' . $siswa->user->nama . ' menunjukkan peningkatan belajar yang luar biasa. Pertahankan prestasi ini di semester depan!';
+            $rapor = Rapor::create([
+                'siswa_id' => $siswa->id,
+                'semester_id' => $semesterGanjil->id,
+                'kelas_id' => $siswa->kelas_id,
+                'catatan_wali_kelas' => $catatanWali,
+                'tanggal_terbit' => '2025-12-19',
+            ]);
+
+            foreach ($mapelModels as $mapel) {
+                // Determine randomized scores for kognitif, psikomotor, afektif, keagamaan
+                $cog = rand(75, 95);
+                $psy = rand(78, 93);
+                $aff = rand(80, 95);
+                $rel = rand(82, 98);
+                $avg = round(($cog + $psy + $aff + $rel) / 4, 2);
+
+                $pred = 'B';
+                if ($avg >= 90) $pred = 'A';
+                elseif ($avg < 80) $pred = 'C';
+
+                RaporDetail::create([
+                    'rapor_id' => $rapor->id,
+                    'mapel_id' => $mapel->id,
+                    'nilai_pengetahuan' => $cog,
+                    'nilai_keterampilan' => $psy,
+                    'nilai_sikap' => $aff,
+                    'nilai_keagamaan' => $rel,
+                    'nilai_akhir' => $avg,
+                    'predikat' => $pred,
+                ]);
+
+                // Create underlying daily marks in `nilai`
+                $className = $siswa->kelas->nama_kelas;
+                $gmk = $gmkLookup[$className][$mapel->nama_mapel] ?? null;
+                $teacherId = $gmk ? $gmk->guru_id : ($siswa->kelas->guru_umum_id ?? $gurus['budi']->id);
+
+                Nilai::create([
+                    'siswa_id' => $siswa->id,
+                    'mapel_id' => $mapel->id,
+                    'guru_id' => $teacherId,
+                    'kelas_id' => $siswa->kelas_id,
+                    'semester_id' => $semesterGanjil->id,
+                    'komponen_nilai_id' => $knUlangan->id,
+                    'tanggal' => '2025-09-12',
+                    'nilai' => $cog - 2,
+                ]);
+
+                Nilai::create([
+                    'siswa_id' => $siswa->id,
+                    'mapel_id' => $mapel->id,
+                    'guru_id' => $teacherId,
+                    'kelas_id' => $siswa->kelas_id,
+                    'semester_id' => $semesterGenap->id,
+                    'komponen_nilai_id' => $knUts->id,
+                    'tanggal' => '2026-03-15',
+                    'nilai' => rand(75, 95),
+                ]);
+            }
+        }
+
+        // 14. Seed Attendance History (AbsensiSiswa) for last 20 weekdays
+        $days = [];
+        $current = Carbon::now();
+        while (count($days) < 20) {
+            if (!$current->isWeekend()) {
+                $days[] = $current->toDateString();
+            }
+            $current->subDay();
+        }
+        $days = array_reverse($days);
+
+        foreach ($siswaModels as $siswa) {
+            foreach ($days as $day) {
+                // Determine status: 90% hadir, 7% izin, 3% tidak_hadir
+                $rand = rand(1, 100);
+                $status = 'hadir';
+                $catatan = null;
+                if ($rand > 97) {
+                    $status = 'tidak_hadir';
+                    $catatan = 'Alasan tidak jelas';
+                } elseif ($rand > 90) {
+                    $status = 'izin';
+                    $catatan = 'Sakit / Keperluan keluarga';
+                }
+
+                if ($siswa->kelas_id) {
+                    $className = $siswa->kelas->nama_kelas;
+                    $gmk = $gmkLookup[$className]['Matematika'] ?? null;
+                    $teacherId = $gmk ? $gmk->guru_id : ($siswa->kelas->guru_umum_id ?? $gurus['budi']->id);
+
+                    \App\Models\AbsensiSiswa::firstOrCreate([
+                        'siswa_id' => $siswa->id,
+                        'kelas_id' => $siswa->kelas_id,
+                        'tanggal' => $day,
+                    ], [
+                        'guru_id' => $teacherId,
+                        'status' => $status,
+                        'catatan' => $catatan,
+                    ]);
+                }
+            }
+        }
+
+        // 15. Seed Activity Logs for Default Student (siswa_id of defaultSiswa)
+        if ($defaultSiswa) {
+            $causerTeacher = $defaultGuruModel->user ?? $gurus['budi']->user;
+            $causerFinance = $userFinance;
+
+            $activities = [
+                [
+                    'description' => 'Penempatan kelas akademik oleh Tata Usaha',
+                    'subject_type' => 'App\Models\SiswaKelas',
+                    'subject_id' => 1,
+                    'event' => 'created',
+                    'causer_type' => 'App\Models\User',
+                    'causer_id' => 1,
+                    'created_at' => Carbon::now()->subMonths(6)->toDateString() . ' 08:30:00',
+                ],
+                [
+                    'description' => 'Penerbitan tagihan SPP bulanan',
+                    'subject_type' => 'App\Models\Tagihan',
+                    'subject_id' => 1,
+                    'event' => 'created',
+                    'causer_type' => 'App\Models\User',
+                    'causer_id' => $causerFinance->id,
+                    'created_at' => Carbon::now()->subMonths(3)->toDateString() . ' 09:00:00',
+                ],
+                [
+                    'description' => 'Pengisian absensi harian kelas 7A',
+                    'subject_type' => 'App\Models\AbsensiSiswa',
+                    'subject_id' => 1,
+                    'event' => 'created',
+                    'causer_type' => 'App\Models\User',
+                    'causer_id' => $causerTeacher->id,
+                    'created_at' => Carbon::now()->subDays(5)->toDateString() . ' 07:45:00',
+                ],
+                [
+                    'description' => 'Penginputan nilai Ulangan Harian Matematika',
+                    'subject_type' => 'App\Models\Nilai',
+                    'subject_id' => 1,
+                    'event' => 'created',
+                    'causer_type' => 'App\Models\User',
+                    'causer_id' => $causerTeacher->id,
+                    'created_at' => Carbon::now()->subDays(3)->toDateString() . ' 14:20:00',
+                ],
+                [
+                    'description' => 'Pembayaran tagihan SPP Lunas',
+                    'subject_type' => 'App\Models\Pembayaran',
+                    'subject_id' => 1,
+                    'event' => 'created',
+                    'causer_type' => 'App\Models\User',
+                    'causer_id' => $causerFinance->id,
+                    'created_at' => Carbon::now()->subDays(2)->toDateString() . ' 10:15:00',
+                ],
+                [
+                    'description' => 'Penerbitan Rapor Hasil Belajar Semester Ganjil',
+                    'subject_type' => 'App\Models\Rapor',
+                    'subject_id' => 1,
+                    'event' => 'created',
+                    'causer_type' => 'App\Models\User',
+                    'causer_id' => $causerTeacher->id,
+                    'created_at' => Carbon::now()->subDays(1)->toDateString() . ' 16:00:00',
+                ],
+            ];
+
+            foreach ($activities as $act) {
+                DB::table('activity_log')->insert(array_merge($act, [
+                    'siswa_id' => $defaultSiswa->id,
+                    'ip_address' => '127.0.0.1',
+                    'updated_at' => $act['created_at'],
+                ]));
+            }
+        }
+
+        // 16. Seed AbsensiGuru for the default teacher (guru)
+        if ($defaultGuruModel) {
+            foreach ($days as $day) {
+                // Determine status: 95% hadir, 5% izin
+                $rand = rand(1, 100);
+                $status = 'hadir';
+                $waktuDatang = '07:15:00';
+                $waktuPulang = '15:30:00';
+                if ($rand > 95) {
+                    $status = 'izin';
+                    $waktuDatang = null;
+                    $waktuPulang = null;
+                }
+
+                \App\Models\AbsensiGuru::firstOrCreate([
+                    'guru_id' => $defaultGuruModel->id,
+                    'tanggal' => $day,
+                ], [
+                    'waktu_datang' => $waktuDatang,
+                    'waktu_pulang' => $waktuPulang,
+                    'status' => $status,
+                    'catatan' => $status === 'izin' ? 'Sakit / Keperluan dinas' : null,
+                ]);
+            }
+        }
+    }
+}

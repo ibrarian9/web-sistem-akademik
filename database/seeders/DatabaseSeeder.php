@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
             PengaturanSeeder::class,
             JenisTagihanSeeder::class,
             KategoriPengeluaranSeeder::class,
-            DemoDataSeeder::class,
+            ProductionDataSeeder::class,
         ]);
     }
 }

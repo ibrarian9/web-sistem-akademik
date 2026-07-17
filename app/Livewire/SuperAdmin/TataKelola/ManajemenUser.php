@@ -60,7 +60,7 @@ class ManajemenUser extends Component
         $rules = [
             'nama' => 'required|string|max:255',
             'username' => 'required|string|max:50|unique:users,username,' . ($this->userId ?? 'NULL'),
-            'role_id' => 'required|exists:role,id',
+            'role_id' => 'required|exists:roles,id',
             'status' => 'required|in:aktif,nonaktif',
         ];
 

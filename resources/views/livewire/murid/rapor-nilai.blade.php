@@ -38,9 +38,15 @@
                         <span class="px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-[10px] font-bold uppercase tracking-wider">Rapor Resmi Terbit</span>
                         <h3 class="text-base font-bold text-white mt-1">Laporan Hasil Belajar Semester</h3>
                     </div>
-                    <div class="text-right text-xs">
-                        <span class="text-slate-500 block">Tanggal Terbit</span>
-                        <span class="text-white font-semibold">{{ date('d-m-Y', strtotime($rapor->tanggal_terbit)) }}</span>
+                    <div class="flex items-center gap-4">
+                        <button wire:click="downloadPdf" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-indigo-600/10">
+                            <x-lucide-download class="w-4 h-4" />
+                            <span>Unduh PDF</span>
+                        </button>
+                        <div class="text-right text-xs">
+                            <span class="text-slate-500 block">Tanggal Terbit</span>
+                            <span class="text-white font-semibold">{{ date('d-m-Y', strtotime($rapor->tanggal_terbit)) }}</span>
+                        </div>
                     </div>
                 </div>
 
