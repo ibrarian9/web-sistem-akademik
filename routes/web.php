@@ -74,12 +74,29 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/laporan/absensi-siswa', \App\Livewire\Shared\Laporan\RekapAbsensiSiswa::class)->name('laporan.absensi-siswa');
         Route::get('/laporan/absensi-guru', \App\Livewire\Shared\Laporan\RekapAbsensiGuru::class)->name('laporan.absensi-guru');
         Route::get('/laporan/rekap-nilai', \App\Livewire\Shared\Laporan\RekapNilai::class)->name('laporan.rekap-nilai');
+        
+        // Revision Routes
+        Route::get('/karyawan', \App\Livewire\TataUsaha\ManajemenKaryawan::class)->name('karyawan');
+        Route::get('/piket', \App\Livewire\TataUsaha\ManajemenPiketGuru::class)->name('piket');
+        Route::get('/alumni', \App\Livewire\TataUsaha\DataAlumni::class)->name('alumni');
+    });
+
+    // Koordinator Group
+    Route::middleware(['role:koordinator,super_admin'])->prefix('koordinator')->name('koordinator.')->group(function () {
+        Route::get('/dashboard', \App\Livewire\Koordinator\ManajemenKoreksiNilai::class)->name('dashboard');
+        Route::get('/koreksi-nilai', \App\Livewire\Koordinator\ManajemenKoreksiNilai::class)->name('koreksi-nilai');
+    });
+
+    // Kepala Sekolah Group
+    Route::middleware(['role:kepala_sekolah,super_admin'])->prefix('kepala-sekolah')->name('kepala-sekolah.')->group(function () {
+        Route::get('/dashboard', \App\Livewire\KepalaSekolah\Dashboard::class)->name('dashboard');
     });
 
     // Guru Group
     Route::middleware(['role:guru'])->prefix('guru')->name('guru.')->group(function () {
         Route::get('/dashboard', \App\Livewire\Guru\Dashboard::class)->name('dashboard');
         Route::get('/input-nilai', \App\Livewire\Guru\InputNilaiSiswa::class)->name('input-nilai');
+        Route::get('/bobot-nilai', \App\Livewire\Guru\PengaturanBobotNilai::class)->name('bobot-nilai');
         Route::get('/absensi-siswa', \App\Livewire\Guru\AbsensiSiswa::class)->name('absensi-siswa');
         Route::get('/absensi-diri', \App\Livewire\Guru\AbsensiDiri::class)->name('absensi-diri');
         Route::get('/jadwal-mengajar', \App\Livewire\Guru\JadwalMengajar::class)->name('jadwal-mengajar');
@@ -106,13 +123,21 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/overview-pembayaran', \App\Livewire\Finance\OverviewPembayaran::class)->name('overview-pembayaran');
         Route::get('/tagihan', \App\Livewire\Finance\ManajemenTagihan::class)->name('tagihan');
         Route::get('/input-pembayaran', \App\Livewire\Finance\InputPembayaran::class)->name('input-pembayaran');
-        Route::get('/arus-kas', \App\Livewire\Finance\ArusKas::class)->name('arus-kas');
+        Route::get('/pembayaran/resi/{id}', [\App\Http\Controllers\FinanceReportController::class, 'cetakResi'])->name('pembayaran.resi');
+        Route::get('/cetak-resi/{id}', [\App\Http\Controllers\FinanceReportController::class, 'cetakResi'])->name('cetak-resi');
+        Route::get('/arus-masuk', \App\Livewire\Finance\ArusMasuk::class)->name('arus-masuk');
+        Route::get('/arus-kas-masuk', \App\Livewire\Finance\ArusKasMasuk::class)->name('arus-kas-masuk');
+        Route::get('/arus-kas-keluar', \App\Livewire\Finance\ArusKasKeluar::class)->name('arus-kas-keluar');
+        Route::get('/arus-kas', \App\Livewire\Finance\ArusKasKeluar::class)->name('arus-kas');
         Route::get('/dana-bos', \App\Livewire\Finance\DanaBos::class)->name('dana-bos');
 
         // Stage 2: Peminjaman & Gaji Guru
         Route::get('/peminjaman', \App\Livewire\Finance\ManajemenPeminjaman::class)->name('peminjaman');
         Route::get('/gaji-guru', \App\Livewire\Finance\ManajemenGajiGuru::class)->name('gaji-guru');
         Route::get('/gaji-guru/slip/{id}', [\App\Http\Controllers\FinanceReportController::class, 'slipGaji'])->name('gaji-guru.slip');
+
+        // Pengajuan Dana (Approval Tier)
+        Route::get('/pengajuan-dana', \App\Livewire\Finance\PengajuanDanaIndex::class)->name('pengajuan-dana');
 
         // Stage 2: Laporan Keuangan
         Route::get('/laporan/tunggakan', \App\Livewire\Finance\Laporan\LaporanTunggakan::class)->name('laporan.tunggakan');

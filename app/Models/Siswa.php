@@ -23,13 +23,17 @@ class Siswa extends Model
         'nama_wali',
         'no_hp_wali',
         'kelas_id',
+        'saldo_deposit',
         'tanggal_masuk',
         'status',
+        'tahun_lulus',
+        'catatan_alumni',
     ];
 
     protected $casts = [
         'tanggal_lahir' => 'date',
         'tanggal_masuk' => 'date',
+        'saldo_deposit' => 'decimal:2',
     ];
 
     public function user()
@@ -70,5 +74,10 @@ class Siswa extends Model
     public function auditLogs()
     {
         return $this->hasMany(\Spatie\Activitylog\Models\Activity::class, 'siswa_id');
+    }
+
+    public function ekstrakurikuler()
+    {
+        return $this->hasMany(SiswaEkstrakurikuler::class);
     }
 }

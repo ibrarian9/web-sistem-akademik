@@ -13,6 +13,7 @@ class Dashboard extends Component
     public float $incomeThisMonth = 0.00;
     public float $expenseThisMonth = 0.00;
     public float $outstandingBills = 0.00;
+    public float $totalStudentDeposit = 0.00;
     public array $recentPayments = [];
 
     public function mount()
@@ -25,9 +26,10 @@ class Dashboard extends Component
         $startOfMonth = Carbon::now()->startOfMonth()->toDateString();
         $endOfMonth = Carbon::now()->endOfMonth()->toDateString();
 
-        // Income this month
+        // Income this month (excluding void)
         $this->incomeThisMonth = floatval(
-            Pembayaran::whereBetween('tanggal_bayar', [$startOfMonth, $endOfMonth])
+            Pembayaran::where('is_void', false)
+                ->whereBetween('tanggal_bayar', [$startOfMonth, $endOfMonth])
                 ->sum('nominal_dibayar')
         );
 
@@ -44,12 +46,18 @@ class Dashboard extends Component
                 ->sum(fn($t) => $t->nominal - $t->total_dibayar)
         );
 
+        // Total student deposit balance
+        $this->totalStudentDeposit = floatval(\App\Models\Siswa::sum('saldo_deposit'));
+
         // Recent Payments
-        $this->recentPayments = Pembayaran::with(['tagihan.siswa.user', 'tagihan.jenisTagihan'])
+        $this->recentPayments = Pembayaran::where('is_void', false)
+            ->with(['tagihan.siswa.user', 'tagihan.jenisTagihan'])
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get()
             ->map(fn($p) => [
+                'id' => $p->id,
+                'no_resi' => $p->no_resi ?? '-',
                 'siswa' => $p->tagihan->siswa->user->nama ?? '-',
                 'jenis' => $p->tagihan->jenisTagihan->nama ?? 'Tagihan',
                 'nominal' => floatval($p->nominal_dibayar),

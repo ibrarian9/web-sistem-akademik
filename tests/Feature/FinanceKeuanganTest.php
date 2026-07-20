@@ -100,7 +100,6 @@ test('finance can record payment for a student and generate notification', funct
     ]);
 
     Livewire::test(InputPembayaran::class)
-        ->set('kelas_id', $this->siswa->kelas_id)
         ->set('siswa_id', $this->siswa->id)
         ->set('tagihan_id', $tagihan->id)
         ->set('nominal_dibayar', 300000)

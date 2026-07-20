@@ -81,7 +81,8 @@ test('murid with outstanding bills is blocked from viewing rapor', function () {
 
     // Ensure there is at least one unpaid invoice
     $activeTA = TahunAjaran::where('status_aktif', true)->first();
-    $jt = JenisTagihan::first();
+    $jt = JenisTagihan::where('is_blocking', true)->first() ?? JenisTagihan::first();
+    $jt->update(['is_blocking' => true]);
     
     Tagihan::create([
         'siswa_id' => $this->siswa->id,
@@ -91,7 +92,7 @@ test('murid with outstanding bills is blocked from viewing rapor', function () {
         'nominal' => 200000,
         'total_dibayar' => 0,
         'status' => 'belum_bayar',
-        'jatuh_tempo' => now()->addDays(5),
+        'jatuh_tempo' => now()->subDays(1),
     ]);
 
     Livewire::test(RaporNilai::class)

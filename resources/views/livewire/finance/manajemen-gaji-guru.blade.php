@@ -10,6 +10,39 @@
         </button>
     </div>
 
+    <!-- Guidance Card -->
+    <div x-data="{ openGuide: true }" class="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-4 transition-all shadow-sm">
+        <div class="flex items-center justify-between cursor-pointer" @click="openGuide = !openGuide">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
+                    <x-lucide-info class="w-5 h-5" />
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-emerald-950 uppercase tracking-wider">Petunjuk Pengelolaan Gaji &amp; Payroll Guru</h4>
+                    <p class="text-xs text-emerald-800">Generate draf payroll bulanan, hitung insentif BPJS/Maghrib Mengaji, potong kasbon, dan lunasi.</p>
+                </div>
+            </div>
+            <button class="text-emerald-700 hover:text-emerald-900 text-xs font-semibold flex items-center gap-1">
+                <span x-text="openGuide ? 'Sembunyikan' : 'Tampilkan'"></span>
+                <x-lucide-chevron-down class="w-4 h-4 transition-transform" ::class="openGuide ? 'rotate-180' : ''" />
+            </button>
+        </div>
+        <div x-show="openGuide" class="mt-3 pt-3 border-t border-emerald-200/60 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-emerald-900">
+            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
+                <x-lucide-users class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                <span><strong>1. Generate Draf:</strong> Klik "Generate Draf Gaji" untuk membuat slip gaji seluruh guru pada bulan berjalan.</span>
+            </div>
+            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
+                <x-lucide-edit class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                <span><strong>2. Edit &amp; Potongan:</strong> Sesuaikan insentif Maghrib Mengaji dan potongan peminjaman/kasbon guru.</span>
+            </div>
+            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
+                <x-lucide-check-circle-2 class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                <span><strong>3. Bayar Gaji:</strong> Tandai "Sudah Dibayar" untuk otomatis mencatat pengeluaran kas dan memotong sisa pinjaman.</span>
+            </div>
+        </div>
+    </div>
+
     @if (session()->has('message'))
         <div class="p-4 bg-green-50 border border-green-200 text-green-800 rounded-xl text-sm font-semibold flex items-center gap-2">
             <x-lucide-check-circle class="w-5 h-5 text-green-600" />
@@ -104,7 +137,7 @@
                                             <x-lucide-trash-2 class="w-4 h-4" />
                                         </button>
                                     @else
-                                        <a href="/finance/gaji-guru/slip/{{ $sal->id }}" target="_blank" class="px-2.5 py-1 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Unduh Slip Gaji">
+                                        <a href="{{ route('finance.gaji-guru.slip', $sal->id) }}" target="_blank" class="px-2.5 py-1 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Unduh Slip Gaji">
                                             <x-lucide-file-text class="w-3.5 h-3.5" />
                                             <span>Slip PDF</span>
                                         </a>

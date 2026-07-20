@@ -15,6 +15,7 @@ class MataPelajaran extends Model
         'nama_mapel',
         'jenis',
         'deskripsi',
+        'kkm',
     ];
 
     public function guruMapelKelas()

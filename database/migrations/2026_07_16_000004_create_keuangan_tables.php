@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('bulan')->nullable();
             $table->decimal('nominal', 12, 2);
             $table->decimal('total_dibayar', 12, 2)->default(0);
-            $table->enum('status', ['belum_bayar', 'sebagian', 'lunas'])->default('belum_bayar');
+            $table->enum('status', ['belum_bayar', 'sebagian', 'lunas', 'batal'])->default('belum_bayar');
             $table->date('jatuh_tempo');
             $table->softDeletes();
             $table->timestamps();
@@ -35,11 +35,14 @@ return new class extends Migration
 
         Schema::create('pembayaran', function (Blueprint $table) {
             $table->id();
+            $table->string('no_resi')->nullable()->unique();
             $table->foreignId('tagihan_id')->constrained('tagihan');
             $table->date('tanggal_bayar');
             $table->decimal('nominal_dibayar', 12, 2);
+            $table->decimal('kelebihan_bayar', 12, 2)->default(0.00);
             $table->string('metode_bayar');
             $table->string('bukti_bayar')->nullable();
+            $table->boolean('is_void')->default(false);
             $table->foreignId('petugas_id')->constrained('users');
             $table->softDeletes();
             $table->timestamps();

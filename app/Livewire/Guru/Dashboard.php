@@ -17,6 +17,9 @@ class Dashboard extends Component
     public ?string $waktuCheckIn = null;
     public array $schedules = [];
 
+    public bool $hasPiketHariIni = false;
+    public string $targetJamMasuk = '07:00';
+
     public function mount()
     {
         $user = auth()->user();
@@ -47,6 +50,21 @@ class Dashboard extends Component
             6 => 'sabtu',
         ];
         $hariIni = $hariMap[Carbon::now()->dayOfWeek] ?? 'senin';
+
+        // Check piket schedule for today
+        $this->hasPiketHariIni = \App\Models\JadwalPiketGuru::where('guru_id', $guru->id)
+            ->where('hari', $hariIni)
+            ->whereHas('semester', function ($q) {
+                $q->where('status_aktif', true);
+            })->exists();
+
+        // Determine target jam masuk
+        $jenis = strtolower($guru->jenis_guru);
+        if ($jenis === 'umum') {
+            $this->targetJamMasuk = '09:30';
+        } else { // tahfidz / keduanya
+            $this->targetJamMasuk = $this->hasPiketHariIni ? '06:30' : '06:45';
+        }
 
         $todaySchedules = JadwalPelajaran::whereHas('guruMapelKelas', function ($q) use ($guru) {
             $q->where('guru_id', $guru->id)

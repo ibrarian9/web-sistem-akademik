@@ -4,9 +4,12 @@
             <h2 class="text-xl font-bold text-white tracking-tight">Absensi Mandiri Guru</h2>
             <p class="text-xs text-slate-500">Lakukan pencatatan waktu kehadiran masuk dan pulang mengajar setiap hari kerja.</p>
         </div>
-        <div class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-2xl text-right">
+        <div class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-2xl text-right space-y-0.5">
             <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Jam Masuk Toleransi</span>
-            <span class="text-xs font-bold text-white">{{ $targetJamMasuk }} (Toleransi {{ $toleransiMenit }}m)</span>
+            <span class="text-xs font-bold text-white block">{{ $targetJamMasuk }} WIB (Toleransi {{ $toleransiMenit }}m)</span>
+            <span class="text-[10px] {{ $hasPiketToday ? 'text-emerald-400 font-semibold' : 'text-slate-400' }} block">
+                {{ $hasPiketToday ? 'Tugas Piket Hari Ini' : 'Normal (Tanpa Piket)' }}
+            </span>
         </div>
     </div>
 

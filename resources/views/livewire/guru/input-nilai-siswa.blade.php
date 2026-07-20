@@ -59,6 +59,14 @@
     <!-- Student Grades Input Table -->
     @if ($kelas_id && $mapel_id && $komponen_nilai_id)
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Daftar Nilai Siswa</h3>
+                <div class="flex items-center gap-2 px-3 py-1 bg-indigo-950/60 border border-indigo-800/60 rounded-xl text-xs font-bold text-indigo-300">
+                    <x-lucide-target class="w-4 h-4 text-indigo-400" />
+                    <span>KKM Mata Pelajaran: {{ number_format($selectedMapelKkm, 2) }}</span>
+                </div>
+            </div>
+
             <form wire:submit.prevent="save" class="space-y-6">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">

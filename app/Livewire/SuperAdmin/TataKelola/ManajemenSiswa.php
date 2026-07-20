@@ -125,6 +125,14 @@ class ManajemenSiswa extends Component
                     'tanggal_masuk' => $this->tanggal_masuk,
                     'status' => $this->status,
                 ]);
+
+                // If student status changed to 'pindah' or 'keluar', cancel future unpaid bills
+                if (in_array($this->status, ['pindah', 'keluar'])) {
+                    \App\Models\Tagihan::where('siswa_id', $siswa->id)
+                        ->where('status', 'belum_bayar')
+                        ->whereDate('jatuh_tempo', '>', now())
+                        ->update(['status' => 'batal']);
+                }
             } else {
                 // Create
                 $user = User::create([

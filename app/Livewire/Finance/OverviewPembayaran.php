@@ -71,7 +71,7 @@ class OverviewPembayaran extends Component
             if ($this->filterTahunAjaran) {
                 $query->where('tahun_ajaran_id', $this->filterTahunAjaran);
             }
-            $query->with('jenisTagihan')->latest();
+            $query->with(['jenisTagihan', 'pembayarans'])->latest();
         }])->findOrFail($siswaId);
     }
 
@@ -107,6 +107,52 @@ class OverviewPembayaran extends Component
         ]);
 
         session()->flash('message', "Reminder tunggakan berhasil dikirim ke siswa/wali {$siswa->user->nama}.");
+    }
+
+    public function voidPayment(int $pembayaranId)
+    {
+        DB::transaction(function () use ($pembayaranId) {
+            $pembayaran = Pembayaran::lockForUpdate()->find($pembayaranId);
+            if (!$pembayaran || $pembayaran->is_void) {
+                return;
+            }
+
+            // Mark void
+            $pembayaran->update(['is_void' => true]);
+
+            // Revert tagihan total_dibayar and status
+            $tagihan = Tagihan::lockForUpdate()->find($pembayaran->tagihan_id);
+            if ($tagihan) {
+                $pembayaranEfektif = floatval($pembayaran->nominal_dibayar) - floatval($pembayaran->kelebihan_bayar);
+                $newTotalDibayar = max(0, floatval($tagihan->total_dibayar) - $pembayaranEfektif);
+                
+                $status = 'belum_bayar';
+                if ($newTotalDibayar >= floatval($tagihan->nominal)) {
+                    $status = 'lunas';
+                } elseif ($newTotalDibayar > 0) {
+                    $status = 'sebagian';
+                }
+
+                $tagihan->update([
+                    'total_dibayar' => $newTotalDibayar,
+                    'status' => $status,
+                ]);
+
+                // Revert student deposit if any overpayment occurred
+                if ($pembayaran->kelebihan_bayar > 0) {
+                    $siswa = Siswa::lockForUpdate()->find($tagihan->siswa_id);
+                    if ($siswa) {
+                        $newDeposit = max(0, floatval($siswa->saldo_deposit) - floatval($pembayaran->kelebihan_bayar));
+                        $siswa->update(['saldo_deposit' => $newDeposit]);
+                    }
+                }
+            }
+        });
+
+        session()->flash('message', 'Transaksi pembayaran berhasil dibatalkan (VOID).');
+        if ($this->selectedSiswaId) {
+            $this->viewDetails($this->selectedSiswaId);
+        }
     }
 
     public function render()

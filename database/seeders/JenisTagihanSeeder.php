@@ -35,12 +35,6 @@ class JenisTagihanSeeder extends Seeder
                 'is_blocking' => true,
             ],
             [
-                'nama' => 'Infaq',
-                'kategori' => 'rutin',
-                'default_nominal' => 50000.00,
-                'is_blocking' => false,
-            ],
-            [
                 'nama' => 'Sertifikasi',
                 'kategori' => 'rutin',
                 'default_nominal' => 0.00,
@@ -49,18 +43,6 @@ class JenisTagihanSeeder extends Seeder
             [
                 'nama' => 'Qurban',
                 'kategori' => 'one_time',
-                'default_nominal' => 0.00,
-                'is_blocking' => false,
-            ],
-            [
-                'nama' => 'Sedekah Subuh',
-                'kategori' => 'rutin',
-                'default_nominal' => 0.00,
-                'is_blocking' => false,
-            ],
-            [
-                'nama' => 'Sedekah Maghrib Mengaji',
-                'kategori' => 'rutin',
                 'default_nominal' => 0.00,
                 'is_blocking' => false,
             ],

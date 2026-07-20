@@ -26,6 +26,13 @@ use App\Models\Rapor;
 use App\Models\RaporDetail;
 use App\Models\DanaBos;
 use App\Models\JadwalPelajaran;
+use App\Models\Ekstrakurikuler;
+use App\Models\SiswaEkstrakurikuler;
+use App\Models\PemasukanKas;
+use App\Models\PengajuanDana;
+use App\Models\JadwalPiketGuru;
+use App\Models\BobotNilaiGuru;
+use App\Models\PengajuanKoreksiNilai;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -359,10 +366,10 @@ class ProductionDataSeeder extends Seeder
             ['nama' => 'Juni', 'tahun' => 2026, 'date' => '2026-06'],
         ];
 
-        $jtSpp = JenisTagihan::where('nama', 'SPP')->first();
-        $jtInfaq = JenisTagihan::where('nama', 'Infaq')->first();
-        $jtBuku = JenisTagihan::where('nama', 'Uang Buku')->first();
-        $jtPendaftaran = JenisTagihan::where('nama', 'Uang Pendaftaran')->first();
+        $jtSpp = JenisTagihan::where('nama', 'like', '%SPP%')->first() ?: JenisTagihan::create(['nama' => 'SPP', 'kategori' => 'rutin', 'default_nominal' => 350000, 'is_blocking' => true]);
+        $jtInfaq = JenisTagihan::where('nama', 'like', '%Infaq%')->first() ?: JenisTagihan::create(['nama' => 'Infaq', 'kategori' => 'one_time', 'default_nominal' => 50000, 'is_blocking' => false]);
+        $jtBuku = JenisTagihan::where('nama', 'like', '%Buku%')->first() ?: JenisTagihan::create(['nama' => 'Uang Buku', 'kategori' => 'tahunan', 'default_nominal' => 250000, 'is_blocking' => true]);
+        $jtPendaftaran = JenisTagihan::where('nama', 'like', '%Pendaftaran%')->first() ?: JenisTagihan::create(['nama' => 'Uang Pendaftaran', 'kategori' => 'one_time', 'default_nominal' => 150000, 'is_blocking' => true]);
         $methods = ['Transfer Bank', 'Cash', 'QRIS', 'Virtual Account'];
 
         // Seed one-time admission & books at the start of school year (July 2025)
@@ -516,7 +523,78 @@ class ProductionDataSeeder extends Seeder
                     'petugas_id' => $userFinance->id,
                 ]);
             }
+
+            // 8b. Seed Non-SPP Cash Inflow Records (PemasukanKas: Infaq Subuh, Sedekah, Maghrib Mengaji)
+            PemasukanKas::create([
+                'kategori' => 'Infaq Subuh',
+                'jumlah' => rand(250000, 600000),
+                'tanggal' => $m['date'] . '-07',
+                'keterangan' => 'Kotak Infaq Jamaah Subuh Masjid Sekolah - pekan pertama ' . $m['nama'],
+                'petugas_id' => $userFinance->id,
+            ]);
+
+            PemasukanKas::create([
+                'kategori' => 'Sedekah Maghrib Mengaji',
+                'jumlah' => rand(300000, 750000),
+                'tanggal' => $m['date'] . '-18',
+                'keterangan' => 'Donasi Wali Murid program Maghrib Mengaji & Tahfizh Quran ' . $m['nama'],
+                'petugas_id' => $userFinance->id,
+            ]);
+
+            PemasukanKas::create([
+                'kategori' => 'Donasi Perorangan',
+                'jumlah' => rand(500000, 1500000),
+                'tanggal' => $m['date'] . '-25',
+                'keterangan' => 'Sumbangan H. Ahmad Subarkah (Donatur) untuk fasilitas sekolah',
+                'petugas_id' => $userFinance->id,
+            ]);
         }
+
+        // 8c. Seed Budget Submissions (PengajuanDana)
+        PengajuanDana::create([
+            'judul' => 'Pengadaan Buku Pengayaan Kurikulum Merdeka',
+            'pemohon_id' => $userFinance->id,
+            'kategori' => 'Pembelian Buku',
+            'nominal' => 750000.00, // < 1 JT -> cukup Koordinator
+            'tanggal_pengajuan' => now()->subDays(6)->toDateString(),
+            'keterangan' => 'Pembelian 15 eksemplar modul pendamping siswa kelas 7 & 8',
+            'status' => 'disetujui',
+            'tanggal_persetujuan_koordinator' => now()->subDays(5),
+        ]);
+
+        PengajuanDana::create([
+            'judul' => 'Pengadaan 2 Unit Router WiFi & Kategori LAN',
+            'pemohon_id' => $userFinance->id,
+            'kategori' => 'Sarana Prasarana',
+            'nominal' => 450000.00, // < 1 JT -> cukup Koordinator
+            'tanggal_pengajuan' => now()->subDays(15)->toDateString(),
+            'keterangan' => 'Peremajaan jaringan internet untuk mendukung Ujian Asesmen Nasional',
+            'status' => 'direalisasi',
+            'tanggal_persetujuan_koordinator' => now()->subDays(12),
+        ]);
+
+        PengajuanDana::create([
+            'judul' => 'Perbaikan & Pengecatan Atap Gedung Kelas 9',
+            'pemohon_id' => $userFinance->id,
+            'kategori' => 'Operasional',
+            'nominal' => 2800000.00, // > 1 JT -> Koordinator & Kepala Yayasan
+            'tanggal_pengajuan' => now()->subDays(5)->toDateString(),
+            'keterangan' => 'Perbaikan kebocoran genteng dan pengecatan dinding kelas',
+            'status' => 'disetujui',
+            'tanggal_persetujuan_koordinator' => now()->subDays(3),
+            'tanggal_persetujuan_kepala_yayasan' => now()->subDays(1),
+        ]);
+
+        PengajuanDana::create([
+            'judul' => 'Pengadaan Seragam Kontingen Lomba PMR & Pramuka',
+            'pemohon_id' => $userFinance->id,
+            'kategori' => 'Seragam',
+            'nominal' => 1850000.00, // > 1 JT
+            'tanggal_pengajuan' => now()->subDays(3)->toDateString(),
+            'keterangan' => 'Pengadaan 20 stel kaos seragam perlombaan tingkat kabupaten',
+            'status' => 'menunggu_kepala_yayasan',
+            'tanggal_persetujuan_koordinator' => now()->subDays(2),
+        ]);
 
         // 9. Seed Dana BOS Transactions
         $catBos = KategoriPengeluaran::where('nama', 'Dana BOS')->first();
@@ -633,11 +711,12 @@ class ProductionDataSeeder extends Seeder
                 ]);
 
                 // Create salary record
-                GajiGuru::create([
+                GajiGuru::firstOrCreate([
                     'guru_id' => $guru->id,
-                    'pengeluaran_id' => $exp->id,
                     'bulan' => $sm['nama'],
                     'tahun' => $sm['tahun'],
+                ], [
+                    'pengeluaran_id' => $exp->id,
                     'gaji_pokok' => $gajiPokok,
                     'insentif_bpjs' => $insentifBpjs,
                     'insentif_maghrib_mengaji' => $insentifMaghrib,
@@ -666,10 +745,11 @@ class ProductionDataSeeder extends Seeder
 
             $totalDiterima = ($gajiPokok + $insentifBpjs + $insentifMaghrib) - ($potonganPeminjaman + $potonganLainnya);
 
-            GajiGuru::create([
+            GajiGuru::firstOrCreate([
                 'guru_id' => $guru->id,
                 'bulan' => 'Juli',
                 'tahun' => 2026,
+            ], [
                 'gaji_pokok' => $gajiPokok,
                 'insentif_bpjs' => $insentifBpjs,
                 'insentif_maghrib_mengaji' => $insentifMaghrib,
@@ -914,6 +994,177 @@ class ProductionDataSeeder extends Seeder
                     'catatan' => $status === 'izin' ? 'Sakit / Keperluan dinas' : null,
                 ]);
             }
+        }
+
+        // 17. Seed Ekstrakurikuler & SiswaEkstrakurikuler
+        $gurus = Guru::all();
+        if ($gurus->count() > 0) {
+            $ekskulsData = [
+                ['nama' => 'Pramuka / Hizbul Wathan', 'deskripsi' => 'Pengembangan karakter, kepemimpinan, dan kecakapan kepanduan.'],
+                ['nama' => 'Tahfidz Club', 'deskripsi' => 'Program pendalaman dan murojaah hafalan Al-Qur\'an santri.'],
+                ['nama' => 'Pencak Silat Tapak Suci', 'deskripsi' => 'Olahraga seni beladiri tradisional dan kebugaran jasmani.'],
+                ['nama' => 'Karya Ilmiah Remaja (KIR)', 'deskripsi' => 'Pengembangan riset, karya tulis ilmiah, dan eksplorasi sains.'],
+                ['nama' => 'Futsal & Olahraga', 'deskripsi' => 'Pengembangan minat bakat olahraga sepak bola mini.'],
+            ];
+
+            $createdEkskuls = [];
+            foreach ($ekskulsData as $idx => $eData) {
+                $pembina = $gurus[$idx % $gurus->count()];
+                $ekskul = Ekstrakurikuler::firstOrCreate(
+                    ['nama' => $eData['nama']],
+                    [
+                        'pembina_guru_id' => $pembina->id,
+                        'deskripsi' => $eData['deskripsi'],
+                    ]
+                );
+                $createdEkskuls[] = $ekskul;
+            }
+
+            // Assign active students to extracurriculars
+            $activeStudents = Siswa::where('status', 'aktif')->limit(20)->get();
+            $predikats = ['A', 'A', 'B', 'B', 'A'];
+            foreach ($activeStudents as $sIdx => $st) {
+                $ekskulTarget = $createdEkskuls[$sIdx % count($createdEkskuls)];
+                SiswaEkstrakurikuler::firstOrCreate([
+                    'siswa_id' => $st->id,
+                    'ekstrakurikuler_id' => $ekskulTarget->id,
+                    'semester_id' => $semesterGanjil->id,
+                ], [
+                    'predikat' => $predikats[$sIdx % count($predikats)],
+                    'catatan' => 'Menunjukkan kedisiplinan dan keaktifan yang sangat baik.',
+                ]);
+            }
+        }
+
+        // 18. Seed JadwalPiketGuru
+        $hariList = ['senin', 'selasa', 'rabu', 'kamis', 'jumat'];
+        if ($gurus->count() > 0) {
+            foreach ($hariList as $hIdx => $hari) {
+                $guruPiket = $gurus[$hIdx % $gurus->count()];
+                JadwalPiketGuru::firstOrCreate([
+                    'guru_id' => $guruPiket->id,
+                    'hari' => $hari,
+                    'semester_id' => $semesterGanjil->id,
+                ]);
+            }
+        }
+
+        // 19. Seed BobotNilaiGuru
+        $guruMapelKelases = GuruMapelKelas::limit(10)->get();
+        $komponens = KomponenNilai::all();
+        if ($guruMapelKelases->count() > 0 && $komponens->count() > 0) {
+            foreach ($guruMapelKelases as $gmk) {
+                foreach ($komponens as $k) {
+                    $defaultBobot = match ($k->kode) {
+                        'UH' => 30.00,
+                        'UTS' => 30.00,
+                        'UAS' => 40.00,
+                        default => 20.00,
+                    };
+
+                    BobotNilaiGuru::firstOrCreate([
+                        'guru_mapel_kelas_id' => $gmk->id,
+                        'komponen_nilai_id' => $k->id,
+                    ], [
+                        'bobot' => $defaultBobot,
+                    ]);
+                }
+            }
+        }
+
+        // 20. Seed PengajuanKoreksiNilai
+        $sampleNilaiList = Nilai::with('guru')->limit(5)->get();
+        $userKoordinator = User::whereHas('role', function ($q) {
+            $q->where('nama', 'koordinator');
+        })->first();
+
+        if ($sampleNilaiList->count() > 0) {
+            $reasons = [
+                'Salah input nilai ulangan harian #2 karena kekeliruan lembar jawaban.',
+                'Siswa telah mengikuti ujian susulan dan mendapatkan perbaikan nilai.',
+                'Koreksi penjumlahan bobot tugas mandiri.',
+            ];
+
+            foreach ($sampleNilaiList as $nIdx => $n) {
+                $teacher = $n->guru ?? $gurus->first();
+                if (!$teacher) continue;
+
+                $status = $nIdx === 0 ? 'pending' : ($nIdx === 1 ? 'disetujui' : 'ditolak');
+
+                PengajuanKoreksiNilai::firstOrCreate([
+                    'nilai_id' => $n->id,
+                    'diajukan_oleh_guru_id' => $teacher->id,
+                ], [
+                    'nilai_baru' => min(100, floatval($n->nilai) + 10),
+                    'alasan' => $reasons[$nIdx % count($reasons)],
+                    'status' => $status,
+                    'disetujui_oleh_user_id' => $status !== 'pending' ? ($userKoordinator->id ?? 1) : null,
+                ]);
+            }
+        }
+
+        // 21. Seed Alumni Students
+        $alumniData = [
+            [
+                'nis' => '8001',
+                'nisn' => '0080000001',
+                'nama' => 'Muhammad Rizky Pratama',
+                'tahun_lulus' => 2025,
+                'catatan' => 'Lulus Cumlaude. Melanjutkan ke SMP Negeri 1 Yogyakarta.',
+            ],
+            [
+                'nis' => '8002',
+                'nisn' => '0080000002',
+                'nama' => 'Aisyah Humaira',
+                'tahun_lulus' => 2025,
+                'catatan' => 'Hafal 5 Juz Al-Qur\'an. Melanjutkan ke Pondok Pesantren Mu\'allimat.',
+            ],
+            [
+                'nis' => '8003',
+                'nisn' => '0080000003',
+                'nama' => 'Farhan Abdillah',
+                'tahun_lulus' => 2024,
+                'catatan' => 'Melanjutkan ke SMP IT Abu Bakar Yogyakarta.',
+            ],
+            [
+                'nis' => '8004',
+                'nisn' => '0080000004',
+                'nama' => 'Nabila Az-Zahra',
+                'tahun_lulus' => 2024,
+                'catatan' => 'Juara 1 Lomba MTQ Tingkat Kabupaten. Melanjutkan ke MTsN 1 Yogyakarta.',
+            ],
+        ];
+
+        foreach ($alumniData as $a) {
+            $userAlumni = User::firstOrCreate([
+                'username' => strtolower(str_replace(' ', '', $a['nama'])),
+            ], [
+                'nama' => $a['nama'],
+                'email' => strtolower(str_replace(' ', '', $a['nama'])) . '@alumni.yayasan.or.id',
+                'password' => Hash::make('alumni123'),
+                'role_id' => $roleMurid->id,
+                'no_hp' => '089' . rand(10000000, 99999999),
+                'alamat' => 'Sleman, Yogyakarta',
+                'status' => 'nonaktif',
+            ]);
+
+            Siswa::firstOrCreate([
+                'nis' => $a['nis'],
+            ], [
+                'user_id' => $userAlumni->id,
+                'nisn' => $a['nisn'],
+                'jenis_kelamin' => rand(0, 1) ? 'L' : 'P',
+                'tempat_lahir' => 'Yogyakarta',
+                'tanggal_lahir' => '2010-05-12',
+                'alamat' => 'Sleman, Yogyakarta',
+                'nama_wali' => 'Orang Tua ' . $a['nama'],
+                'no_hp_wali' => '0812' . rand(10000000, 99999999),
+                'kelas_id' => null,
+                'tanggal_masuk' => '2020-07-15',
+                'status' => 'lulus',
+                'tahun_lulus' => $a['tahun_lulus'],
+                'catatan_alumni' => $a['catatan'],
+            ]);
         }
     }
 }

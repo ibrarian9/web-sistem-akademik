@@ -17,6 +17,39 @@
         </div>
     </div>
 
+    <!-- Guidance Card -->
+    <div x-data="{ openGuide: true }" class="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-4 transition-all shadow-sm">
+        <div class="flex items-center justify-between cursor-pointer" @click="openGuide = !openGuide">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
+                    <x-lucide-info class="w-5 h-5" />
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-emerald-950 uppercase tracking-wider">Petunjuk Overview Pembayaran Siswa</h4>
+                    <p class="text-xs text-emerald-800">Cari siswa menunggak, filter per kelas, dan proses pembayaran pelunasan.</p>
+                </div>
+            </div>
+            <button class="text-emerald-700 hover:text-emerald-900 text-xs font-semibold flex items-center gap-1">
+                <span x-text="openGuide ? 'Sembunyikan' : 'Tampilkan'"></span>
+                <x-lucide-chevron-down class="w-4 h-4 transition-transform" ::class="openGuide ? 'rotate-180' : ''" />
+            </button>
+        </div>
+        <div x-show="openGuide" class="mt-3 pt-3 border-t border-emerald-200/60 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-emerald-900">
+            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
+                <x-lucide-check-circle-2 class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                <span><strong>Lunas vs Menunggak:</strong> Gunakan tab filter untuk langsung menampilkan daftar siswa yang belum melunasi SPP.</span>
+            </div>
+            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
+                <x-lucide-check-circle-2 class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                <span><strong>Bayar Cepat:</strong> Klik tombol "Input Bayar" pada baris siswa untuk langsung membuka form kasir pembayaran.</span>
+            </div>
+            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
+                <x-lucide-check-circle-2 class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                <span><strong>Integritas Data:</strong> Data pembayaran terlindungi dan tidak memiliki tombol hapus demi audit trail.</span>
+            </div>
+        </div>
+    </div>
+
     <!-- Alert / Toast Banner -->
     @if (session()->has('message'))
         <x-alert-banner type="success" :message="session('message')" />
@@ -200,7 +233,7 @@
                 </div>
 
                 <!-- Modal Body -->
-                <div class="p-6 overflow-y-auto space-y-4 custom-scrollbar flex-1">
+                <div class="p-6 overflow-y-auto space-y-6 custom-scrollbar flex-1">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-stone-200">
@@ -228,11 +261,46 @@
                                             @case('sebagian')
                                                 <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Sebagian</span>
                                                 @break
+                                            @case('batal')
+                                                <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-stone-100 text-stone-500 border border-stone-200">Batal</span>
+                                                @break
                                             @default
                                                 <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">Belum Bayar</span>
                                         @endswitch
                                     </td>
                                 </tr>
+                                @if ($t->pembayarans && $t->pembayarans->count() > 0)
+                                    <tr>
+                                        <td colspan="6" class="bg-stone-50/70 p-3 rounded-xl border border-stone-200 text-xs my-1">
+                                            <span class="font-bold text-stone-700 block mb-2">Riwayat Setoran Pembayaran:</span>
+                                            <div class="space-y-1.5">
+                                                @foreach ($t->pembayarans as $p)
+                                                    <div class="flex items-center justify-between bg-white p-2 rounded-lg border border-stone-200">
+                                                        <div class="flex items-center gap-3">
+                                                            <span class="font-mono font-bold text-stone-800 text-[11px]">{{ $p->no_resi ?? '-' }}</span>
+                                                            <span class="text-stone-500">{{ date('d/m/Y', strtotime($p->tanggal_bayar)) }}</span>
+                                                            <span class="px-2 py-0.5 bg-stone-100 text-stone-600 rounded font-semibold text-[10px] capitalize">{{ $p->metode_bayar }}</span>
+                                                            @if ($p->is_void)
+                                                                <span class="px-2 py-0.5 bg-rose-100 text-rose-700 rounded font-bold text-[10px]">VOID</span>
+                                                            @endif
+                                                        </div>
+                                                        <div class="flex items-center gap-3">
+                                                            <span class="font-bold text-emerald-700">Rp {{ number_format($p->nominal_dibayar, 0, ',', '.') }}</span>
+                                                            @if (!$p->is_void)
+                                                                <a href="{{ route('finance.pembayaran.resi', $p->id) }}" target="_blank" class="p-1 text-stone-500 hover:text-emerald-700 hover:bg-emerald-50 rounded" title="Cetak Resi">
+                                                                    <x-lucide-printer class="w-3.5 h-3.5" />
+                                                                </a>
+                                                                <button wire:click="voidPayment({{ $p->id }})" wire:confirm="Apakah Anda yakin ingin membatalkan (VOID) transaksi pembayaran ini?" class="p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded" title="Batalkan (VOID) Pembayaran">
+                                                                    <x-lucide-trash-2 class="w-3.5 h-3.5" />
+                                                                </button>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endif
                             @empty
                                 <tr>
                                     <td colspan="6" class="py-6 text-center text-stone-400 font-medium text-sm">

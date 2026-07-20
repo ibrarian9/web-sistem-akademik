@@ -98,7 +98,28 @@
                         <h4 class="text-xs font-bold">Absensi Siswa</h4>
                         <p class="text-[10px] text-slate-500">Input kehadiran harian siswa.</p>
                     </div>
+                <a href="{{ route('guru.kelola-rapor') }}" class="flex items-center gap-3 p-4 bg-slate-950/40 hover:bg-slate-905 border border-slate-850 hover:border-slate-800 rounded-2xl text-white transition-all duration-200 group">
+                    <div class="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                        <x-lucide-book-open class="w-4 h-4" />
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold">Terbitkan &amp; Cetak Rapor</h4>
+                        <p class="text-[10px] text-slate-500">Wali kelas: terbitkan rapor siswa.</p>
+                    </div>
                 </a>
+            </div>
+
+            <!-- Piket Duty Status Notice -->
+            <div class="p-4 bg-slate-950/60 border border-slate-800 rounded-2xl flex items-center justify-between text-xs">
+                <div class="space-y-0.5">
+                    <span class="font-bold text-white block">Tugas Piket Hari Ini:</span>
+                    <span class="text-[11px] {{ $hasPiketHariIni ? 'text-emerald-400 font-semibold' : 'text-slate-400' }}">
+                        {{ $hasPiketHariIni ? 'Terdapat Jadwal Piket (Masuk: ' . $targetJamMasuk . ' WIB)' : 'Tidak Ada Jadwal Piket (Masuk: ' . $targetJamMasuk . ' WIB)' }}
+                    </span>
+                </div>
+                <div class="p-2 {{ $hasPiketHariIni ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400' }} rounded-xl">
+                    <x-lucide-shield-check class="w-5 h-5" />
+                </div>
             </div>
         </div>
     </div>

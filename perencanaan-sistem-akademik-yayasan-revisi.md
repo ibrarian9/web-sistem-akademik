@@ -32,8 +32,8 @@ Dokumen ini merangkum kebutuhan yang sudah dijelaskan, lalu diturunkan menjadi a
 
 - Setiap kelas **hanya punya 2 guru**: 1 Guru Umum + 1 Guru Tahfidz.
 - Guru hanya bisa melihat/menginput data untuk kelas yang ia ampu.
-- **Bobot Penilaian & Mata Pelajaran Diatur Guru**: Guru pembuat komponen dan pengisi bobot persentase nilai akhir rapor (`bobot_nilai_guru`) secara dinamis untuk mata pelajarannya sendiri, tidak lagi bersifat seragam/global.
-- **Alur Koreksi Nilai**: Jika guru salah menginput nilai yang sudah disimpan, guru tidak bisa menyunting langsung melainkan harus mengajukan permintaan koreksi nilai (`pengajuan_koreksi_nilai`) beserta alasan ke **Koordinator** untuk mendapatkan persetujuan.
+- **Bobot Penilaian & Mata Pelajaran Diatur Guru (dengan Fallback Master)**: Guru pembuat komponen dan pengisi bobot persentase nilai akhir rapor (`bobot_nilai_guru`) secara dinamis untuk mata pelajarannya sendiri. Jika Guru belum mengatur bobot mandiri, sistem secara otomatis menggunakan bobot default master (`komponen_nilai.bobot`) yang dikelola Super Admin sebagai *fallback*. Total bobot seluruh komponen wajib berjumlah 100%.
+- **Alur Koreksi Nilai & Auto-Recalculate Rapor**: Jika guru salah menginput nilai yang sudah disimpan, guru harus mengajukan permintaan koreksi nilai (`pengajuan_koreksi_nilai`) beserta alasan ke **Koordinator** untuk mendapatkan persetujuan. Ketika persetujuan diberikan, sistem tidak hanya memperbarui record `nilai` tetapi juga **secara otomatis melakukan kalkulasi ulang (*recalculate*) snapshot `rapor_detail`** untuk semester ybs jika Rapor murid sudah terbit.
 - **Absensi Guru & Jadwal Piket**:
   - Guru melakukan self check-in manual tanpa fingerprint.
   - TU mengatur **Jadwal Piket Guru** (`jadwal_piket_guru`).
@@ -42,22 +42,22 @@ Dokumen ini merangkum kebutuhan yang sudah dijelaskan, lalu diturunkan menjadi a
     - **Guru Umum**: Selalu masuk pukul **09:30** dan tidak mendapatkan tugas piket.
 - **Absensi Murid**: 3 status — Hadir, Tidak Hadir, Izin, diinput manual oleh guru secara harian.
 - **Ekstrakurikuler**: Menyimpan data ekskul aktif dan catatan perkembangan serta nilai predikat siswa pada rapor umum.
-- **Pemisahan Rapor**: Murid menerima dua bentuk rapor yang terpisah secara visual maupun cetak PDF, yaitu **Rapor Umum** (mata pelajaran umum) dan **Rapor Tahfizh** (mata pelajaran tahfidz, hafalan, dan perkembangan keagamaan).
+- **Pemisahan Rapor**: Murid menerima dua bentuk rapor yang terpisah secara visual maupun cetak PDF, yaitu **Rapor Umum** (mata pelajaran umum) mecakup deskripsi ekskul, dan **Rapor Tahfizh** (mata pelajaran tahfidz, hafalan, dan perkembangan keagamaan).
 - **Otomatisasi & Penguncian (Lock) SPP**:
-  - Tagihan SPP bulanan otomatis di-generate setiap tanggal 1 bulan berjalan untuk seluruh siswa aktif.
-  - Mulai **tanggal 10** ke atas, jika ada tagihan SPP bulanan (bulan berjalan maupun bulan sebelumnya) yang belum lunas (`status != 'lunas'`), portal rapor & nilai siswa otomatis **terkunci (lock)**.
+  - Tagihan SPP bulanan otomatis di-generate setiap tanggal 1 bulan berjalan untuk seluruh siswa aktif lewat scheduled job idempotent (`app:generate-monthly-spp` — aman di-run catch-up jika server terhenti).
+  - Mulai **tanggal 10** ke atas (atau jika tagihan bertipe blocking telah melewati tanggal jatuh tempo `jatuh_tempo <= CURRENT_DATE`), jika ada tagihan SPP bulanan (bulan berjalan maupun tunggakan bulan sebelumnya) yang belum lunas (`status != 'lunas'`), portal rapor & nilai siswa otomatis **terkunci (lock)**. Pada tanggal 1 s/d 9 bulan berjalan, tagihan SPP bulan berjalan belum mengunci portal.
   - Menampilkan pesan untuk menghubungi bagian Finance.
 - **Resi Bukti Bayar**: Cetak kuitansi resmi pembayaran tagihan yang memuat detail nominal, kasir, dan kolom tanda tangan dari pihak Tata Usaha (TU).
 - **Soft Delete**: Diterapkan pada tabel-tabel krusial (`users`, `guru`, `siswa`, `kelas`, `tagihan`, `pembayaran`, `pengeluaran`, `gaji_guru`).
 - **Mekanisme Kenaikan Kelas**:
   - Dilakukan di akhir tahun ajaran (selesai semester genap) oleh Super Admin / Tata Usaha melalui Wizard Kenaikan Kelas.
-  - Syarat kenaikan kelas: Kehadiran siswa >= 85%, menyelesaikan seluruh tagihan SPP/keuangan bertipe blocking, dan tidak memiliki nilai mata pelajaran di bawah standar ketuntasan minimal (KKM) sekolah.
+  - Syarat kenaikan kelas: Kehadiran siswa >= 85%, menyelesaikan seluruh tagihan SPP/keuangan bertipe blocking, dan tidak memiliki nilai mata pelajaran di bawah standar ketuntasan minimal (KKM, diatur per mata pelajaran dengan default 70.00).
   - Ketika proses kenaikan kelas dieksekusi:
     1. Siswa yang naik kelas akan diperbarui field `siswa.kelas_id` ke kelas tingkat berikutnya.
-    2. Riwayat kelas siswa dicatat ke tabel pivot `siswa_kelas` untuk semester baru.
+    2. Riwayat kelas siswa dicatat ke tabel pivot `siswa_kelas` untuk semester baru dengan status `'naik_kelas'` (atau `'tinggal_kelas'` jika tidak memenuhi syarat).
     3. Untuk siswa tingkat akhir (lulus), status siswa diubah dari `aktif` menjadi `lulus` (alumni), dan kolom `tahun_lulus` serta `catatan_alumni` diisi secara otomatis.
 - **Riwayat Alumni**: Murid yang berstatus lulus dipindahkan dari daftar siswa aktif ke modul **Data Alumni** dengan pelacakan tahun kelulusan dan studi lanjut.
-- **Sinkronisasi Pembayaran → Tagihan**: Setiap kali `pembayaran` dibuat/diupdate/dihapus, service layer otomatis menghitung ulang `tagihan.status` berdasarkan `SUM(pembayaran.nominal_dibayar)` vs `tagihan.nominal`. Field `tagihan.total_dibayar` digunakan sebagai cached column.
+- **Sinkronisasi Pembayaran → Tagihan (Atomik & Safe)**: Setiap kali `pembayaran` dibuat/diupdate/dihapus, transaksi dibungkus dalam `DB::transaction()` dengan `lockForUpdate()` pada baris `tagihan`. Service layer otomatis menghitung ulang `tagihan.status` berdasarkan `SUM(pembayaran.nominal_dibayar)` vs `tagihan.nominal` tanpa risiko *race condition*. Field `tagihan.total_dibayar` digunakan sebagai cached column.
 
 ---
 
@@ -122,9 +122,110 @@ flowchart TD
 
     KO --> KO1[Meninjau & Memverifikasi Pengajuan Koreksi Nilai Guru]
 
-    TU --> TU1[Kelola Jadwal Pelajaran & Mengajar]
-    TU --> TU2[Kelola Jadwal Piket Guru]
-    TU --> TU3[Kelola Data Alumni & Karyawan (Guru & Staff)]
+    TU --> TU1[Dashboard & Direktori Karyawan: Guru & Staff]
+    TU --> TU2[Kelola Jadwal Mengajar & Jadwal Piket Guru]
+    TU --> TU3[Kelola Master Data Siswa & Data Alumni]
+    TU --> TU4[Tanda Tangan Manual Struk Resi Pembayaran]
+```
+
+## 2.1 KDM Diagram (Knowledge Data Model Architecture)
+
+Berikut adalah KDM Diagram yang memetakan seluruh domain pengetahuan, entitas data utama, relasi antar-komponen, serta alur informasi sistem akademik dan keuangan yayasan:
+
+```mermaid
+graph TD
+    subgraph KDM_Identity["Domain Identity & Security Management"]
+        U["User (Autentikasi & Profile)"]
+        R["Role (Permissions & Privileges)"]
+        AL["Activity Log (Audit Trail)"]
+        NOTIF["Notifikasi (In-App Messaging)"]
+        U -->|Memiliki| R
+        U -->|Menghasilkan| AL
+        U -->|Menerima| NOTIF
+    end
+
+    subgraph KDM_Academic_Core["Domain Core Akademik & Kurikulum"]
+        TA["Tahun Ajaran"]
+        SEM["Semester"]
+        KL["Kelas (Perwalian Guru)"]
+        MP["Mata Pelajaran (Umum / Tahfizh)"]
+        KN["Komponen Nilai (UH, UTS, UAS)"]
+        GMK["Guru Mapel Kelas (Penugasan Mengajar)"]
+        BNG["Bobot Nilai Guru (Otonomi Guru)"]
+
+        TA -->|Memiliki| SEM
+        SEM -->|Menaungi| KL
+        KL -->|Memiliki| GMK
+        MP -->|Dugunakan Dalam| GMK
+        GMK -->|Mengonfigurasi| BNG
+        KN -->|Diatur Persentasenya| BNG
+    end
+
+    subgraph KDM_SDM["Domain SDM, Kepegawaian & Piket"]
+        G["Guru (Umum / Tahfizh)"]
+        DIR["Direktori Karyawan (Guru & Staff)"]
+        AG["Absensi Guru (Jam Masuk Dinamis)"]
+        JPG["Jadwal Piket Guru (diatur TU)"]
+
+        U -->|Profil SDM| G
+        G -->|Tercatat di| DIR
+        G -->|Melakukan| AG
+        G -->|Bertugas di| JPG
+        JPG -->|Menentukan Target Jam| AG
+    end
+
+    subgraph KDM_Students["Domain Kesiswaan & Alumni"]
+        S["Siswa (Status Aktif)"]
+        AS["Absensi Siswa (Harian Guru)"]
+        SEK["Siswa Ekstrakurikuler"]
+        ALUM["Data Alumni (Status Lulus)"]
+
+        U -->|Profil Siswa| S
+        KL -->|Menampung| S
+        S -->|Memiliki| AS
+        S -->|Mengikuti| SEK
+        S -->|Mekanisme Naik/Lulus| ALUM
+    end
+
+    subgraph KDM_Evaluation["Domain Evaluasi & Rapor"]
+        NIL["Nilai Siswa"]
+        PKN["Pengajuan Koreksi Nilai (Otorisasi Koordinator)"]
+        RAP["Rapor Hasil Belajar"]
+        RAP_DET["Rapor Detail (Umum vs Tahfizh)"]
+
+        S -->|Menerima| NIL
+        GMK -->|Menginput| NIL
+        G -->|Mengajukan Salah Input| PKN
+        PKN -->|Disetujui oleh| R
+        NIL -->|Kalkulasi Snapshot| RAP
+        RAP -->|Mencakup Detail| RAP_DET
+        MP -->|Memisahkan Tipe| RAP_DET
+    end
+
+    subgraph KDM_Finance["Domain Keuangan, Tagihan & Arus Kas"]
+        JT["Jenis Tagihan (SPP, Tahunan, Pembangunan)"]
+        TAG["Tagihan Siswa"]
+        PEMB["Pembayaran & Resi STT (TU Signature)"]
+        PENG["Pengeluaran Operasional"]
+        KPENG["Kategori Pengeluaran"]
+        GAJI["Gaji Guru & Insentif"]
+        BOS["Dana BOS (Masuk / Keluar)"]
+
+        JT -->|Generate Otomatis Tgl 1| TAG
+        S -->|Memiliki| TAG
+        TAG -->|Melakukan Setoran| PEMB
+        PEMB -->|Sinkronisasi Status & Total| TAG
+        KPENG -->|Mengkategorikan| PENG
+        G -->|Menerima Slip| GAJI
+        GAJI -->|Dicatat Ke| PENG
+        PEMB -->|Membentuk| ARUS["Arus Masuk Keuangan"]
+        BOS -->|Variasi Arus Kas| ARUS
+    end
+
+    %% Cross Domain Knowledge Interactions
+    TAG -->|Tunggakan SPP >= Tgl 10| LOCK{"Lock Portal Rapor Murid"}
+    LOCK -.->|Membatasi Akses| RAP
+    PKN -.->|Koordinator Approval| NIL
 ```
 
 ---
@@ -346,7 +447,7 @@ erDiagram
 | siswa_id | BIGINT FK → siswa.id | |
 | kelas_id | BIGINT FK → kelas.id | |
 | semester_id | BIGINT FK → semester.id | |
-| status | ENUM('aktif','pindah','naik_kelas') | |
+| status | ENUM('aktif','pindah','naik_kelas','tinggal_kelas') | |
 
 > **Catatan**: Tabel baru. Menyimpan riwayat lengkap kelas yang pernah ditempati siswa. `UNIQUE(siswa_id, semester_id)` — 1 siswa hanya di 1 kelas per semester.
 
@@ -368,6 +469,7 @@ erDiagram
 | nama_mapel | VARCHAR | |
 | jenis | ENUM('umum','tahfidz') | |
 | deskripsi | TEXT | |
+| kkm | DECIMAL(5,2) | Kriteria Ketuntasan Minimal, default 70.00 (dipakai wizard Kenaikan Kelas) |
 
 **guru_mapel_kelas** _(tabel pivot: guru mengajar mapel apa di kelas mana)_
 | Field | Tipe | Keterangan |
@@ -700,13 +802,17 @@ erDiagram
 - **Blocking Rapor/Nilai**: Akses menu Rapor/Nilai murid harus mengecek:
   ```sql
   EXISTS(
-    tagihan t
+    SELECT 1 FROM tagihan t
     JOIN jenis_tagihan jt ON t.jenis_tagihan_id = jt.id
     JOIN tahun_ajaran ta ON t.tahun_ajaran_id = ta.id
-    WHERE t.siswa_id = ? AND t.status != 'lunas'
-    AND jt.is_blocking = true AND ta.status_aktif = true
+    WHERE t.siswa_id = ? 
+      AND t.status != 'lunas'
+      AND jt.is_blocking = true 
+      AND ta.status_aktif = true
+      AND t.jatuh_tempo <= CURRENT_DATE
   )
   ```
+- **Pencegahan Race Condition Pembayaran Finansial**: Setiap pembuatan/perubahan `pembayaran` wajib dibungkus dalam `DB::transaction()` dan menggunakan `Tagihan::lockForUpdate()->find(...)` pada baris tagihan terkait untuk menjamin konsistensi agregasi `total_dibayar` dan `status` secara atomik jika terdapat request concurrent dari multiple user finance.
 - **Unique Constraints** (ditegakkan di level database):
     - `guru_mapel_kelas`: `UNIQUE(guru_id, kelas_id, mapel_id, semester_id)`
     - `jadwal_pelajaran`: `UNIQUE(guru_mapel_kelas_id, hari, jam_mulai)`
@@ -1051,3 +1157,41 @@ Karena Finance mengakses seluruh data keuangan siswa & bisa mengubah status pemb
 ### 9.5 Precompute Dashboard Super Admin
 
 Widget dashboard Super Admin (5.7) meng-agregasi banyak tabel (pemasukan, pengeluaran, kehadiran guru, dsb). Selama jumlah data masih kecil, query langsung (on-the-fly) sudah cukup cepat. Kalau nanti data sudah beberapa tahun ajaran, pertimbangkan scheduled job harian yang menghitung ringkasan ke tabel cache (mis. `ringkasan_harian`) supaya dashboard tetap cepat dibuka tanpa agregasi berat tiap request — ini optimasi Fase 3, bukan sesuatu yang perlu dikerjakan sekarang.
+
+---
+
+## 10. Catatan Perubahan & Revisi Logika Bisnis (Hasil Audit Lengkap)
+
+Dokumen perencanaan ini telah diperbarui berdasarkan hasil review menyeluruh logika bisnis (8 area kritis). Berikut rincian perbaikan yang telah diselaraskan pada skema database, aturan bisnis, dan controller aplikasi:
+
+1. **Perbaikan Query Penguncian (Lock) Rapor Murid (§1.3 & §4.3)**
+   - *Masalah*: Query blocking berisiko mengunci portal murid pada tanggal 1–9 bulan berjalan saat tagihan SPP baru di-generate.
+   - *Solusi*: Ditambahkan syarat `AND t.jatuh_tempo <= CURRENT_DATE`. Portal murid hanya terkunci mulai tanggal 10 bulan berjalan atau jika terdapat tunggakan SPP dari bulan sebelumnya.
+
+2. **Penambahan Kolom KKM pada Master Data Mata Pelajaran (§1.3 & §4.2)**
+   - *Masalah*: Syarat Kenaikan Kelas memerlukan KKM, tetapi kolom KKM belum ada di ERD.
+   - *Solusi*: Menambahkan kolom `kkm DECIMAL(5,2) DEFAULT 70.00` pada tabel `mata_pelajaran` sebagai acuan evaluasi otomatis pada Wizard Kenaikan Kelas.
+
+3. **Penyelarasan Arsitektur Bobot Nilai Guru & Master Fallback (§1.3 & §4.2)**
+   - *Masalah*: Ambiguitas antara bobot seragam global vs bobot dinamis per guru.
+   - *Solusi*: `komponen_nilai.bobot` ditetapkan sebagai **fallback default global** (dikelola Super Admin), sedangkan Guru dapat mengatur persentase mandiri via `bobot_nilai_guru`.
+
+4. **Kalkulasi Ulang Snapshot Rapor Pasca Persetujuan Koreksi Nilai (§1.3 & Livewire)**
+   - *Masalah*: Persetujuan koreksi nilai oleh Koordinator tidak langsung memperbarui `rapor_detail` yang sudah di-snapshot.
+   - *Solusi*: Ditambahkan fungsi *auto-recalculate*: Saat `pengajuan_koreksi_nilai` disetujui, sistem memperbarui `nilai` dan otomatis mengkalkulasi ulang snapshot `rapor_detail` untuk semester ybs.
+
+5. **Pencegahan Race Condition Finansial & Idempotensi Automasi Tagihan (§1.3, §4.3 & §6)**
+   - *Masalah*: Potensi race condition pada concurrent payment input dan risiko tagihan terlewat jika scheduler terhenti.
+   - *Solusi*: Pembayaran menggunakan `DB::transaction()` dengan `Tagihan::lockForUpdate()`. Console command `app:generate-monthly-spp` dipastikan bersifat **idempotent** (aman dijalankan *catch-up*).
+
+6. **Fleksibilitas Guru Dual-Role (Umum & Tahfidz) (§1.3 & §4.2 `guru`)**
+   - *Masalah*: `guru.jenis_guru` kaku (`'umum'`/`'tahfidz'`), menghalangi ustadz yang mengajar mapel umum sekaligus tahfidz.
+   - *Solusi*: Enum `guru.jenis_guru` diperbarui menjadi `['umum', 'tahfidz', 'keduanya']` agar fleksibel untuk penugasan kelas.
+
+7. **Penanganan Kelebihan Bayar / Overpayment SPP & Saldo Deposit (§1.3, §4.2 & §4.3)**
+   - *Masalah*: Pembayaran melebihi nominal tagihan tidak tercatat dan sisa uang tidak memiliki penampung.
+   - *Solusi*: Ditambahkan kolom `kelebihan_bayar DECIMAL(12,2)` pada tabel `pembayaran` dan `saldo_deposit DECIMAL(12,2)` pada tabel `siswa`. Kelebihan pembayaran secara otomatis masuk ke saldo deposit siswa.
+
+8. **Pengelolaan Resi Fisik, Nomor Resi Unik, & Pembatalan Tagihan Mid-Year (§1.3 & §4.2)**
+   - *Masalah*: Pembayaran di-void tidak memiliki tracking nomor resi unik, dan siswa pindah/keluar mid-year meninggalkan tagihan mengambang.
+   - *Solusi*: Added `no_resi VARCHAR UNIQUE` dan `is_void BOOLEAN` pada `pembayaran`. Ditambahkan enum `'batal'` pada `tagihan.status` dan enum `'tinggal_kelas'` pada `siswa_kelas.status`. Saat siswa pindah/keluar, tagihan masa depan otomatis di-set ke status `'batal'`.

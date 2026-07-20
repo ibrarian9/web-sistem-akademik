@@ -23,4 +23,26 @@ class FinanceReportController extends Controller
             echo $pdf->stream();
         }, 'slip_gaji_' . str_replace(' ', '_', strtolower($gaji->guru->user->nama ?? 'guru')) . '_' . strtolower($gaji->bulan) . '_' . $gaji->tahun . '.pdf');
     }
+
+    public function cetakResi(int $id)
+    {
+        if (!auth()->check()) {
+            abort(403, 'Akses tidak sah.');
+        }
+
+        $pembayaran = \App\Models\Pembayaran::with(['tagihan.siswa.user', 'tagihan.jenisTagihan', 'petugas'])->findOrFail($id);
+
+        $staffFinance = \App\Models\User::whereHas('role', function ($q) {
+            $q->where('nama', 'finance');
+        })->first();
+
+        $pdf = Pdf::loadView('livewire.shared.laporan.pdf-resi-pembayaran', [
+            'pembayaran' => $pembayaran,
+            'staffFinance' => $pembayaran->petugas ?? $staffFinance,
+        ]);
+
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->stream();
+        }, 'resi_pembayaran_' . $pembayaran->id . '.pdf');
+    }
 }

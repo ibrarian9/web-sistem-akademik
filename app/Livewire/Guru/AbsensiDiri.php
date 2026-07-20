@@ -25,10 +25,43 @@ class AbsensiDiri extends Component
         $this->loadHistory();
     }
 
+    public bool $hasPiketToday = false;
+
     public function loadSettings()
     {
-        $this->targetJamMasuk = Pengaturan::where('key', 'jam_masuk')->value('value') ?? '07:00';
         $this->toleransiMenit = intval(Pengaturan::where('key', 'toleransi_keterlambatan')->value('value') ?? 15);
+        
+        $guru = auth()->user()->guru;
+        if ($guru) {
+            $jenis = strtolower($guru->jenis_guru);
+            if ($jenis === 'umum') {
+                $this->targetJamMasuk = '09:30';
+                $this->hasPiketToday = false;
+            } else { // tahfidz / keduanya
+                $todayDayNameIndonesian = match (Carbon::today()->dayOfWeekIso) {
+                    1 => 'senin',
+                    2 => 'selasa',
+                    3 => 'rabu',
+                    4 => 'kamis',
+                    5 => 'jumat',
+                    default => null
+                };
+
+                $this->hasPiketToday = false;
+                if ($todayDayNameIndonesian) {
+                    $this->hasPiketToday = \App\Models\JadwalPiketGuru::where('guru_id', $guru->id)
+                        ->where('hari', $todayDayNameIndonesian)
+                        ->whereHas('semester', function ($q) {
+                            $q->where('status_aktif', true);
+                        })
+                        ->exists();
+                }
+
+                $this->targetJamMasuk = $this->hasPiketToday ? '06:30' : '06:45';
+            }
+        } else {
+            $this->targetJamMasuk = Pengaturan::where('key', 'jam_masuk')->value('value') ?? '07:00';
+        }
     }
 
     public function checkTodayAttendance()

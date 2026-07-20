@@ -6,7 +6,14 @@
         'super_admin' => [
             ['title' => 'Dashboard', 'route' => 'super-admin.dashboard', 'icon' => 'home'],
             ['title' => 'Keuangan', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Overview Pembayaran', 'route' => 'finance.overview-pembayaran', 'icon' => 'eye'],
             ['title' => 'Kelola Tagihan', 'route' => 'finance.tagihan', 'icon' => 'file-text'],
+            ['title' => 'Input Pembayaran', 'route' => 'finance.input-pembayaran', 'icon' => 'plus-circle'],
+            ['title' => 'Arus Kas Masuk (Infaq/Donasi)', 'route' => 'finance.arus-kas-masuk', 'icon' => 'heart-handshake'],
+            ['title' => 'Arus Kas Keluar (Pengeluaran)', 'route' => 'finance.arus-kas-keluar', 'icon' => 'trending-down'],
+            ['title' => 'Pengajuan Dana', 'route' => 'finance.pengajuan-dana', 'icon' => 'banknote'],
+            ['title' => 'Gaji Guru', 'route' => 'finance.gaji-guru', 'icon' => 'wallet'],
+            ['title' => 'Dana BOS', 'route' => 'finance.dana-bos', 'icon' => 'box'],
             ['title' => 'Laporan', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Laporan Absensi Siswa', 'route' => 'super-admin.laporan.absensi-siswa', 'icon' => 'file-text'],
             ['title' => 'Laporan Absensi Guru', 'route' => 'super-admin.laporan.absensi-guru', 'icon' => 'clipboard'],
@@ -20,11 +27,14 @@
         ],
         'tata_usaha' => [
             ['title' => 'Dashboard', 'route' => 'tata-usaha.dashboard', 'icon' => 'home'],
+            ['title' => 'Manajemen SDM', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Direktori Karyawan', 'route' => 'tata-usaha.karyawan', 'icon' => 'users'],
+            ['title' => 'Jadwal Piket Guru', 'route' => 'tata-usaha.piket', 'icon' => 'clock'],
             ['title' => 'Data Master', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Data Siswa', 'route' => 'tata-usaha.siswa', 'icon' => 'users'],
+            ['title' => 'Data Alumni', 'route' => 'tata-usaha.alumni', 'icon' => 'award'],
             ['title' => 'Data Guru', 'route' => 'tata-usaha.guru', 'icon' => 'user-check'],
             ['title' => 'Kelas & Mapel', 'route' => 'tata-usaha.kelas', 'icon' => 'layers'],
-            ['title' => 'Penugasan Guru', 'route' => 'tata-usaha.dashboard', 'icon' => 'link'],
             ['title' => 'Jadwal & Akademik', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Jadwal Pelajaran', 'route' => 'tata-usaha.jadwal', 'icon' => 'calendar'],
             ['title' => 'Komponen Nilai', 'route' => 'tata-usaha.komponen-nilai', 'icon' => 'sliders'],
@@ -35,10 +45,25 @@
             ['title' => 'Lainnya', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Notifikasi', 'route' => 'shared.notifications', 'icon' => 'bell'],
         ],
+        'koordinator' => [
+            ['title' => 'Dashboard', 'route' => 'koordinator.dashboard', 'icon' => 'home'],
+            ['title' => 'Akademik & Pengajuan', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Persetujuan Nilai', 'route' => 'koordinator.koreksi-nilai', 'icon' => 'user-check'],
+            ['title' => 'Pengajuan Dana', 'route' => 'finance.pengajuan-dana', 'icon' => 'banknote'],
+            ['title' => 'Notifikasi', 'route' => 'shared.notifications', 'icon' => 'bell'],
+        ],
+        'kepala_sekolah' => [
+            ['title' => 'Dashboard', 'route' => 'kepala-sekolah.dashboard', 'icon' => 'home'],
+            ['title' => 'Monitoring & Yayasan', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Performa & Keuangan', 'route' => 'kepala-sekolah.dashboard', 'icon' => 'bar-chart-2'],
+            ['title' => 'Persetujuan Pengajuan Dana', 'route' => 'finance.pengajuan-dana', 'icon' => 'banknote'],
+            ['title' => 'Notifikasi', 'route' => 'shared.notifications', 'icon' => 'bell'],
+        ],
         'guru' => [
             ['title' => 'Dashboard', 'route' => 'guru.dashboard', 'icon' => 'home'],
             ['title' => 'Kelas Saya', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Input Nilai Siswa', 'route' => 'guru.input-nilai', 'icon' => 'edit-3'],
+            ['title' => 'Bobot Penilaian', 'route' => 'guru.bobot-nilai', 'icon' => 'sliders'],
             ['title' => 'Absensi Siswa', 'route' => 'guru.absensi-siswa', 'icon' => 'clipboard'],
             ['title' => 'Terbitkan Rapor', 'route' => 'guru.kelola-rapor', 'icon' => 'book-open'],
             ['title' => 'Kehadiran', 'route' => null, 'icon' => null, 'section' => true],
@@ -66,10 +91,13 @@
             ['title' => 'Dashboard', 'route' => 'finance.dashboard', 'icon' => 'home'],
             ['title' => 'Pemasukan', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Overview Pembayaran', 'route' => 'finance.overview-pembayaran', 'icon' => 'eye'],
+            ['title' => 'Rincian Arus Masuk', 'route' => 'finance.arus-masuk', 'icon' => 'arrow-down-left'],
+            ['title' => 'Arus Kas Masuk (Infaq)', 'route' => 'finance.arus-kas-masuk', 'icon' => 'heart-handshake'],
             ['title' => 'Manajemen Tagihan', 'route' => 'finance.tagihan', 'icon' => 'file-text'],
             ['title' => 'Input Pembayaran', 'route' => 'finance.input-pembayaran', 'icon' => 'plus-circle'],
-            ['title' => 'Pengeluaran & Guru', 'route' => null, 'icon' => null, 'section' => true],
-            ['title' => 'Arus Kas', 'route' => 'finance.arus-kas', 'icon' => 'trending-down'],
+            ['title' => 'Pengeluaran & Anggaran', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Arus Kas Keluar', 'route' => 'finance.arus-kas-keluar', 'icon' => 'trending-down'],
+            ['title' => 'Pengajuan Dana', 'route' => 'finance.pengajuan-dana', 'icon' => 'banknote'],
             ['title' => 'Gaji Guru', 'route' => 'finance.gaji-guru', 'icon' => 'wallet'],
             ['title' => 'Kasbon Guru', 'route' => 'finance.peminjaman', 'icon' => 'link'],
             ['title' => 'Laporan Keuangan', 'route' => null, 'icon' => null, 'section' => true],
@@ -110,48 +138,51 @@
     <!-- Navigation Links -->
     <nav class="flex-1 px-4 py-5 space-y-1 overflow-y-auto custom-scrollbar">
         @foreach ($menuItems as $item)
-            @if (isset($item['section']) && $item['section'])
-                {{-- Section Label --}}
+            @if (!empty($item['section']))
                 <div class="pt-4 pb-1.5 px-3">
                     <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider">{{ $item['title'] }}</span>
                 </div>
             @else
                 @php
-                    $isActive = $item['route'] && request()->routeIs($item['route']);
-                    // Prevent false positives on items sharing the dashboard route
+                    $isActive = !empty($item['route']) && request()->routeIs($item['route']);
                     if ($isActive && str_contains($item['route'], 'dashboard') && $item['title'] !== 'Dashboard') {
                         $isActive = false;
                     }
                 @endphp
-                <a href="{{ $item['route'] ? route($item['route']) : '#' }}" 
+                <a href="{{ !empty($item['route']) ? route($item['route']) : '#' }}" 
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group
                           {{ $isActive 
-                              ? 'bg-green-50 text-green-700 border-l-[3px] border-green-600 shadow-sm' 
+                              ? 'bg-green-50 text-green-700 border-l-[3px] border-green-600 shadow-sm font-bold' 
                               : 'text-stone-600 hover:bg-stone-100 hover:text-stone-800' }}">
                     
                     @switch($item['icon'])
                         @case('home') <x-lucide-home class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('users') <x-lucide-users class="w-[18px] h-[18px] shrink-0" /> @break
-                        @case('user-check') <x-lucide-user-check class="w-[18px] h-[18px] shrink-0" /> @break
-                        @case('layers') <x-lucide-layers class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('book-open') <x-lucide-book-open class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('calendar') <x-lucide-calendar class="w-[18px] h-[18px] shrink-0" /> @break
-                        @case('sliders') <x-lucide-sliders class="w-[18px] h-[18px] shrink-0" /> @break
-                        @case('bell') <x-lucide-bell class="w-[18px] h-[18px] shrink-0" /> @break
-                        @case('activity') <x-lucide-activity class="w-[18px] h-[18px] shrink-0" /> @break
-                        @case('settings') <x-lucide-settings class="w-[18px] h-[18px] shrink-0" /> @break
-                        @case('edit-3') <x-lucide-edit-3 class="w-[18px] h-[18px] shrink-0" /> @break
-                        @case('clipboard') <x-lucide-clipboard class="w-[18px] h-[18px] shrink-0" /> @break
-                        @case('clock') <x-lucide-clock class="w-[18px] h-[18px] shrink-0" /> @break
-                        @case('award') <x-lucide-award class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('graduation-cap') <x-lucide-graduation-cap class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('credit-card') <x-lucide-credit-card class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('file-text') <x-lucide-file-text class="w-[18px] h-[18px] shrink-0" /> @break
-                        @case('plus-circle') <x-lucide-plus-circle class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('trending-down') <x-lucide-trending-down class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('plus-circle') <x-lucide-plus-circle class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('eye') <x-lucide-eye class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('settings') <x-lucide-settings class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('activity') <x-lucide-activity class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('user-check') <x-lucide-user-check class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('bell') <x-lucide-bell class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('wallet') <x-lucide-wallet class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('box') <x-lucide-box class="w-[18px] h-[18px] shrink-0" /> @break
-                        @case('eye') <x-lucide-eye class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('bar-chart-2') <x-lucide-bar-chart-2 class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('link') <x-lucide-link class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('banknote') <x-lucide-banknote class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('arrow-down-left') <x-lucide-arrow-down-left class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('heart-handshake') <x-lucide-heart-handshake class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('layers') <x-lucide-layers class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('clock') <x-lucide-clock class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('award') <x-lucide-award class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('sliders') <x-lucide-sliders class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('edit-3') <x-lucide-edit-3 class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('clipboard') <x-lucide-clipboard class="w-[18px] h-[18px] shrink-0" /> @break
                     @endswitch
 
                     <span>{{ $item['title'] }}</span>
@@ -176,9 +207,9 @@
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" 
-                class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-stone-200 hover:border-red-300 text-sm font-medium text-stone-500 hover:text-red-600 hover:bg-red-50 transition duration-200">
+                class="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-stone-200 hover:border-red-200 text-xs font-semibold text-stone-600 hover:text-red-600 hover:bg-red-50 transition duration-150">
                 <x-lucide-log-out class="w-4 h-4" />
-                <span>Keluar Aplikasi</span>
+                <span>Keluar</span>
             </button>
         </form>
     </div>

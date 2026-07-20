@@ -17,6 +17,8 @@ class RaporNilai extends Component
     public ?Rapor $rapor = null;
     public array $raporDetails = [];
     public array $liveGrades = []; // Fallback live grades grouped by subject
+    public array $ekskulList = [];
+    public string $activeTab = 'umum';
 
     public function mount()
     {
@@ -53,12 +55,13 @@ class RaporNilai extends Component
             return;
         }
 
-        // Check for unpaid/partially paid billing (only blocking bills like SPP)
+        // Check for unpaid/partially paid billing (only blocking bills like SPP that have passed due date)
         $this->hasOutstanding = Tagihan::where('siswa_id', $siswa->id)
             ->whereIn('status', ['belum_bayar', 'sebagian'])
             ->whereHas('jenisTagihan', function ($q) {
                 $q->where('is_blocking', true);
             })
+            ->whereDate('jatuh_tempo', '<=', \Carbon\Carbon::today())
             ->exists();
 
         if ($this->hasOutstanding) {
@@ -76,6 +79,13 @@ class RaporNilai extends Component
         if (!$activeSemester) {
             return;
         }
+
+        // Fetch extracurricular activities
+        $this->ekskulList = \App\Models\SiswaEkstrakurikuler::where('siswa_id', $siswa->id)
+            ->where('semester_id', $activeSemester->id)
+            ->with('ekstrakurikuler.pembina.user')
+            ->get()
+            ->toArray();
 
         // Fetch official Rapor
         $this->rapor = Rapor::where('siswa_id', $siswa->id)
@@ -98,10 +108,12 @@ class RaporNilai extends Component
             foreach ($nilaiRecords as $n) {
                 $mapelId = $n->mapel_id;
                 $mapelName = $n->mapel->nama_mapel ?? '-';
+                $jenis = $n->mapel->jenis ?? 'umum';
                 
                 if (!isset($grouped[$mapelId])) {
                     $grouped[$mapelId] = [
                         'nama_mapel' => $mapelName,
+                        'jenis' => $jenis,
                         'komponen' => [],
                         'avg' => 0.0,
                     ];

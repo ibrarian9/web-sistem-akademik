@@ -116,9 +116,18 @@ class InputNilaiSiswa extends Component
         }
     }
 
+    public float $selectedMapelKkm = 70.00;
+
     // Load students on filter change
     public function updatedKelasId() { $this->loadStudents(); }
-    public function updatedMapelId() { $this->loadStudents(); }
+    public function updatedMapelId() 
+    { 
+        if ($this->mapel_id) {
+            $mapel = \App\Models\MataPelajaran::find($this->mapel_id);
+            $this->selectedMapelKkm = floatval($mapel->kkm ?? 70.00);
+        }
+        $this->loadStudents(); 
+    }
     public function updatedKomponenNilaiId() { $this->loadStudents(); }
     public function updatedTanggal() { $this->loadStudents(); }
 

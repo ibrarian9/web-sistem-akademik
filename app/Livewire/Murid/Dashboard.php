@@ -73,7 +73,10 @@ class Dashboard extends Component
             ->get();
 
         $this->pendingInvoicesCount = $pendingInvoices->count();
-        $this->hasOutstanding = $pendingInvoices->contains(fn($t) => $t->jenisTagihan->is_blocking ?? false);
+        $this->hasOutstanding = $pendingInvoices->contains(fn($t) => 
+            ($t->jenisTagihan->is_blocking ?? false) && 
+            Carbon::parse($t->jatuh_tempo)->startOfDay()->lte(Carbon::today())
+        );
 
         // Today's schedule
         $todayName = strtolower(Carbon::now()->locale('id')->dayName);

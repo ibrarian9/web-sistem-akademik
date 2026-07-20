@@ -29,6 +29,9 @@ class KelolaRapor extends Component
     public $students = [];
     public $existingRapor = null;
 
+    public string $guruJenis = 'umum'; // 'umum' or 'tahfizh'
+    public string $tipeRapor = 'umum'; // 'umum' or 'tahfizh'
+
     protected $rules = [
         'kelasId' => 'required|exists:kelas,id',
         'siswaId' => 'required|exists:siswa,id',
@@ -38,7 +41,15 @@ class KelolaRapor extends Component
 
     public function mount()
     {
-        // 1. Get active semester
+        // 1. Determine logged-in teacher type
+        $user = Auth::user();
+        if ($user && $user->role?->nama === 'guru' && $user->guru) {
+            $rawJenis = strtolower($user->guru->jenis_guru);
+            $this->guruJenis = $rawJenis === 'tahfidz' ? 'tahfizh' : $rawJenis;
+            $this->tipeRapor = ($this->guruJenis === 'tahfizh') ? 'tahfizh' : 'umum';
+        }
+
+        // 2. Get active semester
         $activeSem = DB::table('semester')
             ->join('tahun_ajaran', 'semester.tahun_ajaran_id', '=', 'tahun_ajaran.id')
             ->where('tahun_ajaran.status_aktif', true)
@@ -54,12 +65,14 @@ class KelolaRapor extends Component
 
         $this->tanggalTerbit = date('Y-m-d');
 
-        // 2. Find classes where current teacher is Wali Kelas (guru_umum_id or guru_tahfidz_id)
-        $user = Auth::user();
-        if ($user && $user->role->nama === 'guru' && $user->guru) {
+        // 3. Find classes where current teacher is assigned
+        if ($user && $user->guru) {
             $guruId = $user->guru->id;
             $this->myClasses = Kelas::where('guru_umum_id', $guruId)
                 ->orWhere('guru_tahfidz_id', $guruId)
+                ->orWhereHas('guruMapelKelas', function ($q) use ($guruId) {
+                    $q->where('guru_id', $guruId);
+                })
                 ->get();
                 
             if ($this->myClasses->count() > 0) {
@@ -113,17 +126,26 @@ class KelolaRapor extends Component
         }
     }
 
+    public function updatedTipeRapor()
+    {
+        $this->updatedSiswaId();
+    }
+
     public function getCalculatedPreviewGradesProperty()
     {
         if (!$this->siswaId || !$this->activeSemester || !$this->kelasId) {
             return [];
         }
 
-        // Get subjects taught in this class
-        $mapelIds = GuruMapelKelas::where('kelas_id', $this->kelasId)
-            ->pluck('mapel_id')
-            ->unique();
-        $subjects = MataPelajaran::whereIn('id', $mapelIds)->orderBy('nama_mapel')->get();
+        // Filter subjects taught in this class according to selected report type
+        $mapelQuery = MataPelajaran::query();
+        if ($this->tipeRapor === 'tahfizh') {
+            $mapelQuery->whereIn('jenis', ['tahfidz', 'tahfizh', 'agama']);
+        } else {
+            $mapelQuery->where('jenis', 'umum');
+        }
+
+        $subjects = $mapelQuery->orderBy('nama_mapel')->get();
 
         // Get all student's grades for this class, student, and active semester
         $allNilais = Nilai::where([
@@ -154,7 +176,7 @@ class KelolaRapor extends Component
                 $categoryScores[$cat] = count($catGrades) > 0 ? round(array_sum($catGrades) / count($catGrades), 2) : null;
             }
 
-            // 2. Calculate overall Nilai Akhir (weighted average of components)
+            // 2. Calculate overall Nilai Akhir
             $finalGrade = 0.00;
             $totalWeight = 0.00;
             foreach ($components as $comp) {
@@ -183,6 +205,7 @@ class KelolaRapor extends Component
             $preview[] = [
                 'mapel_id' => $mapel->id,
                 'nama_mapel' => $mapel->nama_mapel,
+                'jenis_mapel' => $mapel->jenis,
                 'nilai_pengetahuan' => $categoryScores['pengetahuan'],
                 'nilai_keterampilan' => $categoryScores['keterampilan'],
                 'nilai_sikap' => $categoryScores['sikap'],
@@ -212,13 +235,13 @@ class KelolaRapor extends Component
 
         $grades = $this->calculatedPreviewGrades;
         if (count($grades) === 0) {
-            session()->flash('error', 'Tidak ada data nilai atau mata pelajaran untuk siswa ini pada semester aktif.');
+            session()->flash('error', 'Tidak ada data nilai ' . strtoupper($this->tipeRapor) . ' untuk siswa ini pada semester aktif.');
             return;
         }
 
         DB::beginTransaction();
         try {
-            // 1. Create or update Rapor header
+            // Create or update Rapor header
             $rapor = Rapor::updateOrCreate([
                 'siswa_id' => $this->siswaId,
                 'semester_id' => $this->activeSemester->id,
@@ -228,7 +251,7 @@ class KelolaRapor extends Component
                 'tanggal_terbit' => $this->tanggalTerbit,
             ]);
 
-            // 2. Create or update Rapor details
+            // Create or update Rapor details
             foreach ($grades as $grade) {
                 RaporDetail::updateOrCreate([
                     'rapor_id' => $rapor->id,
@@ -243,12 +266,14 @@ class KelolaRapor extends Component
                 ]);
             }
 
-            // 3. Create Notification for Student
-            $message = "Rapor Hasil Belajar Anda untuk Semester " . ucfirst($this->activeSemester->semester) . " (" . ($this->activeSemester->tahunAjaran->nama ?? '') . ") telah resmi diterbitkan oleh wali kelas.";
+            // Notification
+            $namaRapor = $this->guruJenis === 'tahfizh' ? 'Rapor Tahfizh Al-Qur\'an' : 'Rapor Akademik Umum';
+            $message = $namaRapor . " Anda untuk Semester " . ucfirst($this->activeSemester->semester) . " (" . ($this->activeSemester->tahunAjaran->nama ?? '') . ") telah resmi diterbitkan oleh guru.";
+            
             Notifikasi::create([
                 'user_id' => $siswa->user_id,
                 'siswa_id' => $siswa->id,
-                'judul' => 'Rapor Resmi Diterbitkan',
+                'judul' => 'Penerbitan ' . $namaRapor,
                 'isi_pesan' => $message,
                 'jenis' => 'rapor_terbit',
                 'channel' => 'in_app',
@@ -256,25 +281,10 @@ class KelolaRapor extends Component
                 'dikirim_pada' => now(),
             ]);
 
-            // 4. Log to Audit/Activity log
-            DB::table('activity_log')->insert([
-                'description' => 'Penerbitan Rapor Hasil Belajar',
-                'subject_type' => 'App\Models\Rapor',
-                'subject_id' => $rapor->id,
-                'event' => $this->existingRapor ? 'updated' : 'created',
-                'causer_type' => 'App\Models\User',
-                'causer_id' => Auth::id(),
-                'siswa_id' => $siswa->id,
-                'properties' => json_encode(['kelas_id' => $this->kelasId, 'semester_id' => $this->activeSemester->id]),
-                'ip_address' => request()->ip() ?? '127.0.0.1',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
             DB::commit();
 
-            session()->flash('success', 'Rapor siswa ' . $siswa->user->nama . ' berhasil diterbitkan.');
-            $this->updatedSiswaId(); // refresh state
+            session()->flash('success', 'Berhasil menerbitkan ' . $namaRapor . ' untuk siswa ' . $siswa->user->nama . '.');
+            $this->updatedSiswaId();
         } catch (\Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Gagal menerbitkan rapor: ' . $e->getMessage());
@@ -284,6 +294,6 @@ class KelolaRapor extends Component
     public function render()
     {
         return view('livewire.guru.kelola-rapor')
-            ->layout('components.layouts.app', ['title' => 'Kelola Rapor Kelas']);
+            ->layout('components.layouts.app', ['title' => 'Terbitkan Rapor']);
     }
 }

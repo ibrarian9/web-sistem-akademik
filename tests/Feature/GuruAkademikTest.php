@@ -175,9 +175,10 @@ test('wali kelas can access kelola rapor and publish student report card', funct
 test('teacher who is not a wali kelas gets locked access notice', function () {
     $this->actingAs($this->userGuru);
 
-    // Make sure $this->guru is NOT wali kelas of any class
+    // Make sure $this->guru is NOT wali kelas or teaching any class
     Kelas::where('guru_umum_id', $this->guru->id)->update(['guru_umum_id' => null]);
     Kelas::where('guru_tahfidz_id', $this->guru->id)->update(['guru_tahfidz_id' => null]);
+    GuruMapelKelas::where('guru_id', $this->guru->id)->delete();
 
     Livewire::test(KelolaRapor::class)
         ->assertStatus(200)

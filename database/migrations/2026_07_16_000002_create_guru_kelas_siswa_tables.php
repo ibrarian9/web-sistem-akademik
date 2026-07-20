@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('nip')->unique();
-            $table->enum('jenis_guru', ['umum', 'tahfidz']);
+            $table->enum('jenis_guru', ['umum', 'tahfidz', 'keduanya'])->default('umum');
             $table->string('no_hp')->nullable();
             $table->text('alamat')->nullable();
             $table->date('tanggal_masuk');
@@ -44,6 +44,7 @@ return new class extends Migration
             $table->string('nama_wali')->nullable();
             $table->string('no_hp_wali')->nullable();
             $table->foreignId('kelas_id')->nullable()->constrained('kelas')->nullOnDelete();
+            $table->decimal('saldo_deposit', 12, 2)->default(0.00);
             $table->date('tanggal_masuk');
             $table->enum('status', ['aktif', 'lulus', 'pindah', 'keluar'])->default('aktif');
             $table->softDeletes();
@@ -55,7 +56,7 @@ return new class extends Migration
             $table->foreignId('siswa_id')->constrained('siswa')->cascadeOnDelete();
             $table->foreignId('kelas_id')->constrained('kelas');
             $table->foreignId('semester_id')->constrained('semester');
-            $table->enum('status', ['aktif', 'pindah', 'naik_kelas'])->default('aktif');
+            $table->enum('status', ['aktif', 'pindah', 'naik_kelas', 'tinggal_kelas'])->default('aktif');
             $table->timestamps();
 
             $table->unique(['siswa_id', 'semester_id']);
