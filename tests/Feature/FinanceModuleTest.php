@@ -232,3 +232,30 @@ test('pengajuan dana tier approval workflow works', function () {
     $proposal2->refresh();
     expect($proposal2->status)->toBe('disetujui');
 });
+
+test('finance user can delete single unpaid tagihan', function () {
+    $this->actingAs($this->userFinance);
+
+    $siswa = Siswa::first();
+    $activeTA = TahunAjaran::where('status_aktif', true)->first() ?? TahunAjaran::first();
+    $jt = JenisTagihan::first();
+
+    $tagihan = Tagihan::create([
+        'siswa_id' => $siswa->id,
+        'jenis_tagihan_id' => $jt->id,
+        'tahun_ajaran_id' => $activeTA->id,
+        'bulan' => 'Agustus',
+        'nominal' => 250000,
+        'total_dibayar' => 0,
+        'status' => 'belum_bayar',
+        'jatuh_tempo' => now()->addDays(10),
+    ]);
+
+    Livewire::test(ManajemenTagihan::class)
+        ->call('deleteTagihan', $tagihan->id)
+        ->assertHasNoErrors();
+
+    $this->assertSoftDeleted('tagihan', [
+        'id' => $tagihan->id,
+    ]);
+});

@@ -1,4 +1,15 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Pengelolaan Mata Pelajaran Kurikulum"
+        :steps="[
+            ['title' => 'Daftarkan Mapel', 'desc' => 'Klik Tambah Mapel untuk membuat kode dan nama mata pelajaran baru.'],
+            ['title' => 'Pengelompokan Kurikulum', 'desc' => 'Tentukan kelompok mata pelajaran (Umum, Keagamaan, Tahfidz, atau Mulok) agar terkelompokkan dengan tepat di Rapor.'],
+            ['title' => 'Komponen Nilai Terkait', 'desc' => 'Mata pelajaran dengan kelompok Tahfidz akan otomatis menggunakan komponen nilai khusus Tahfidz saat penginputan nilai.']
+        ]"
+        notes="Kode mapel harus unik dan disarankan menggunakan singkatan standar (contoh: PAI-7, MTK-8, THF-1)."
+    />
+
     <div class="flex items-center justify-between">
         <div>
             <h2 class="text-xl font-bold text-white tracking-tight">Manajemen Mata Pelajaran</h2>

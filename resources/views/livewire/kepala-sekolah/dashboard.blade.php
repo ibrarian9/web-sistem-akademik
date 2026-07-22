@@ -1,4 +1,14 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Executive Monitoring Kepala Sekolah"
+        :steps="[
+            ['title' => 'Monitoring Eksekutif', 'desc' => 'Ringkasan performa akademik siswa, rasio pengajar, serta mutasi finansial kas sekolah.'],
+            ['title' => 'Capaian Per Kelas', 'desc' => 'Amati statistik rata-rata capaian nilai per kelas perwalian untuk mengevaluasi mutu pembelajaran.'],
+            ['title' => 'Akses Read-Only', 'desc' => 'Sebagai Pimpinan, akun ini memiliki akses peninjauan tanpa mengubah langsung entri operasional.']
+        ]"
+    />
+
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h2 class="text-xl font-bold text-stone-800 tracking-tight">Dashboard Pemantauan Kepala Sekolah</h2>

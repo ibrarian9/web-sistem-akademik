@@ -1,4 +1,14 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Absensi Mandiri Guru"
+        :steps="[
+            ['title' => 'Check-In Datang', 'desc' => 'Klik tombol Check-In Datang saat baru tiba di sekolah sebelum batas jam toleransi.'],
+            ['title' => 'Check-Out Pulang', 'desc' => 'Klik tombol Check-Out Pulang setelah selesai seluruh tugas mengajar/piket hari berjalan.'],
+            ['title' => 'Jadwal Piket', 'desc' => 'Bagi guru bertugas piket, jam toleransi masuk akan menyesuaikan jadwal piket sekolah.']
+        ]"
+    />
+
     <div class="flex items-center justify-between">
         <div>
             <h2 class="text-xl font-bold text-white tracking-tight">Absensi Mandiri Guru</h2>

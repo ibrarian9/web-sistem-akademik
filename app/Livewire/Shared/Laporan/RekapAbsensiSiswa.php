@@ -7,6 +7,7 @@ use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\AbsensiSiswa;
 use App\Models\GuruMapelKelas;
+use App\Models\KalenderAkademik;
 use Carbon\Carbon;
 use Barryvdh\Dompdf\Facade\Pdf;
 
@@ -104,7 +105,8 @@ class RekapAbsensiSiswa extends Component
                     }
                     $days[$day] = $status;
                 } else {
-                    $days[$day] = null;
+                    $isHoliday = KalenderAkademik::isHolidayDate($dateStr);
+                    $days[$day] = $isHoliday ? 'libur' : null;
                 }
             }
 

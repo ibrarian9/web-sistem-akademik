@@ -20,6 +20,9 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+// Public Document Electronic Signature Verification Route
+Route::get('/verifikasi-dokumen/{code}', [\App\Http\Controllers\VerifikasiDokumenController::class, 'verify'])->name('verifikasi.dokumen');
+
 // Guest-only Login Route
 Route::middleware('guest')->group(function () {
     Route::get('/login', Login::class)->name('login');
@@ -35,6 +38,7 @@ Route::post('/logout', function (\Illuminate\Http\Request $request) {
 
 // Role-based Protected Routes
 Route::middleware(['auth'])->group(function () {
+    Route::get('/profil', \App\Livewire\Shared\ProfilSaya::class)->name('profil');
     
     // Shared Notifications Route (accessible by any authenticated user)
     Route::get('/notifikasi', \App\Livewire\Shared\NotificationsList::class)->name('shared.notifications');
@@ -53,6 +57,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/jadwal', \App\Livewire\SuperAdmin\TataKelola\ManajemenJadwal::class)->name('jadwal');
         Route::get('/mapel', \App\Livewire\SuperAdmin\TataKelola\ManajemenMapel::class)->name('mapel');
         Route::get('/komponen-nilai', \App\Livewire\SuperAdmin\TataKelola\ManajemenKomponenNilai::class)->name('komponen-nilai');
+        Route::get('/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik');
+        Route::get('/kenaikan-kelas', \App\Livewire\TataUsaha\ProsesKenaikanKelas::class)->name('kenaikan-kelas');
         
         // Laporan
         Route::get('/laporan/absensi-siswa', \App\Livewire\Shared\Laporan\RekapAbsensiSiswa::class)->name('laporan.absensi-siswa');
@@ -69,6 +75,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/jadwal', \App\Livewire\SuperAdmin\TataKelola\ManajemenJadwal::class)->name('jadwal');
         Route::get('/mapel', \App\Livewire\SuperAdmin\TataKelola\ManajemenMapel::class)->name('mapel');
         Route::get('/komponen-nilai', \App\Livewire\SuperAdmin\TataKelola\ManajemenKomponenNilai::class)->name('komponen-nilai');
+        Route::get('/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik');
+        Route::get('/kenaikan-kelas', \App\Livewire\TataUsaha\ProsesKenaikanKelas::class)->name('kenaikan-kelas');
         
         // Laporan
         Route::get('/laporan/absensi-siswa', \App\Livewire\Shared\Laporan\RekapAbsensiSiswa::class)->name('laporan.absensi-siswa');
@@ -112,6 +120,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', \App\Livewire\Murid\Dashboard::class)->name('dashboard');
         Route::get('/rapor', \App\Livewire\Murid\RaporNilai::class)->name('rapor');
         Route::get('/kehadiran', \App\Livewire\Murid\KehadiranSaya::class)->name('kehadiran');
+        Route::get('/ekskul', \App\Livewire\Murid\EkstrakurikulerSaya::class)->name('ekskul');
         Route::get('/jadwal', \App\Livewire\Murid\JadwalPelajaran::class)->name('jadwal');
         Route::get('/tagihan', \App\Livewire\Murid\TagihanSpp::class)->name('tagihan');
         Route::get('/riwayat-aktivitas', \App\Livewire\Murid\RiwayatAktivitas::class)->name('riwayat-aktivitas');
@@ -143,6 +152,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/laporan/tunggakan', \App\Livewire\Finance\Laporan\LaporanTunggakan::class)->name('laporan.tunggakan');
         Route::get('/laporan/pemasukan', \App\Livewire\Finance\Laporan\LaporanPemasukan::class)->name('laporan.pemasukan');
         Route::get('/laporan/pengeluaran', \App\Livewire\Finance\Laporan\LaporanPengeluaran::class)->name('laporan.pengeluaran');
+
+        // Excel / CSV Exports
+        Route::get('/export/tunggakan', [\App\Http\Controllers\FinanceExportController::class, 'exportTunggakan'])->name('export.tunggakan');
+        Route::get('/export/pemasukan', [\App\Http\Controllers\FinanceExportController::class, 'exportPemasukan'])->name('export.pemasukan');
+        Route::get('/export/pengeluaran', [\App\Http\Controllers\FinanceExportController::class, 'exportPengeluaran'])->name('export.pengeluaran');
     });
 
 });

@@ -89,6 +89,11 @@
             background-color: #fee2e2;
             font-weight: bold;
         }
+        .status-l {
+            color: #1e40af;
+            background-color: #dbeafe;
+            font-weight: bold;
+        }
         .status-empty {
             color: #d4d4d8;
         }
@@ -190,6 +195,9 @@
                             } elseif ($status === 'tidak_hadir') {
                                 $cellClass = 'status-a';
                                 $cellText = 'A';
+                            } elseif ($status === 'libur') {
+                                $cellClass = 'status-l';
+                                $cellText = 'L';
                             }
                         @endphp
                         <td class="{{ $cellClass }}">{{ $cellText }}</td>
@@ -217,6 +225,31 @@
         <span>
             <span class="status-empty">•</span> Belum Diinput
         </span>
+    </div>
+
+    <div style="margin-top: 30px; width: 100%;">
+        <table style="width: 100%;">
+            <tr>
+                <td style="width: 50%; vertical-align: top;">
+                    <x-ttd-elektronik 
+                        role="wali_kelas" 
+                        docType="ABS" 
+                        :docId="$kelas->id" 
+                        :user="$kelas->guruUmum->user ?? null" 
+                        title="Wali Kelas" 
+                        :showLocation="false" 
+                    />
+                </td>
+                <td style="width: 50%; vertical-align: top;">
+                    <x-ttd-elektronik 
+                        role="kepala_sekolah" 
+                        docType="ABS" 
+                        :docId="$kelas->id" 
+                        title="Kepala Sekolah / Madrasah" 
+                    />
+                </td>
+            </tr>
+        </table>
     </div>
 
 </body>

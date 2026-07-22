@@ -1,4 +1,14 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Terbit & Kelola Rapor Siswa (Wali Kelas)"
+        :steps="[
+            ['title' => 'Pilih Kelas & Siswa', 'desc' => 'Tentukan kelas perwalian, pilih nama siswa, dan sesuaikan tanggal cetak terbit rapor.'],
+            ['title' => 'Tulis Catatan Wali Kelas', 'desc' => 'Tuliskan evaluasi perkembangan hafalan, sikap, dan motivasi belajar siswa pada kolom catatan.'],
+            ['title' => 'Terbitkan Rapor Resmi', 'desc' => 'Klik Terbitkan Rapor Resmi untuk mempublikasikan hasil belajar siswa ke portal murid & orang tua.']
+        ]"
+    />
+
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h2 class="text-xl font-bold text-stone-800 tracking-tight flex items-center gap-2">

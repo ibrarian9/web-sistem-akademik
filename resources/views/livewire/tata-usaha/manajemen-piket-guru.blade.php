@@ -1,4 +1,15 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Manajemen Jadwal Piket Guru"
+        :steps="[
+            ['title' => 'Penugasan Piket', 'desc' => 'Pilih nama guru dan hari piket (Senin - Jumat) lalu klik Simpan Jadwal Piket.'],
+            ['title' => 'Ketentuan Jam Hadir', 'desc' => 'Guru Piket Tahfidz diwajibkan check-in maksimal pukul 06:30 WIB, sedangkan piket umum 06:45 WIB.'],
+            ['title' => 'Hapus Penugasan', 'desc' => 'Klik ikon tempat sampah pada nama guru di kolom hari untuk menghapus jadwal piket.']
+        ]"
+        notes="Sistem absensi mandiri guru secara otomatis menyesuaikan batas keterlambatan berdasarkan penugasan piket ini."
+    />
+
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h2 class="text-xl font-bold text-stone-800 tracking-tight">Kelola Jadwal Piket Guru</h2>

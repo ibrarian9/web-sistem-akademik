@@ -39,6 +39,7 @@ class TagihanSpp extends Component
             $payments = [];
             foreach ($r->pembayarans as $p) {
                 $payments[] = [
+                    'id' => $p->id,
                     'tanggal' => date('d-m-Y', strtotime($p->tanggal_bayar)),
                     'jumlah' => floatval($p->nominal_dibayar),
                     'metode' => $p->metode_bayar,
@@ -48,7 +49,7 @@ class TagihanSpp extends Component
 
             $this->invoices[] = [
                 'id' => $r->id,
-                'jenis' => $r->jenisTagihan->nama ?? 'Tagihan',
+                'jenis' => $r->jenisTagihan->nama ?? 'Tagihan SPP / Administrasi',
                 'bulan' => $r->bulan ?: '-',
                 'nominal' => floatval($r->nominal),
                 'total_dibayar' => floatval($r->total_dibayar),

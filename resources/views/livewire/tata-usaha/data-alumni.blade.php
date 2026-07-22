@@ -1,4 +1,15 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Direktori Alumni & Kelulusan"
+        :steps="[
+            ['title' => 'Filter Tahun Lulus', 'desc' => 'Gunakan dropdown filter tahun lulus untuk memilah daftar angkatan alumni sekolah.'],
+            ['title' => 'Pencarian Alumni', 'desc' => 'Ketik nama alumni atau NIS pada kolom pencarian untuk melacak rekap lulusan.'],
+            ['title' => 'Edit Studi Lanjut', 'desc' => 'Klik tombol Edit Catatan untuk menginput sekolah tujuan / pesantren kelanjutan studi alumni.']
+        ]"
+        notes="Data alumni secara otomatis terbentuk ketika proses Kenaikan & Kelulusan Kelas dijalankan oleh Tata Usaha."
+    />
+
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h2 class="text-xl font-bold text-stone-800 tracking-tight">Data Alumni Lulusan</h2>

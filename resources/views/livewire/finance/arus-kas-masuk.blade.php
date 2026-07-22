@@ -14,38 +14,7 @@
                 <span class="text-lg font-black text-emerald-900">Rp {{ number_format($totalPemasukanKas, 0, ',', '.') }}</span>
             </div>
         </div>
-    </div>
-    <div x-data="{ openGuide: true }" class="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-4 transition-all shadow-sm">
-        <div class="flex items-center justify-between cursor-pointer" @click="openGuide = !openGuide">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
-                    <x-lucide-info class="w-5 h-5" />
-                </div>
-                <div>
-                    <h4 class="text-xs font-bold text-emerald-950 uppercase tracking-wider">Petunjuk Arus Kas Masuk Non-SPP</h4>
-                    <p class="text-xs text-emerald-800">Catat penerimaan Infaq Subuh, Sedekah Maghrib Mengaji, Donasi Donatur, dan Wakaf.</p>
-                </div>
-            </div>
-            <button class="text-emerald-700 hover:text-emerald-900 text-xs font-semibold flex items-center gap-1">
-                <span x-text="openGuide ? 'Sembunyikan' : 'Tampilkan'"></span>
-                <x-lucide-chevron-down class="w-4 h-4 transition-transform" ::class="openGuide ? 'rotate-180' : ''" />
-            </button>
-        </div>
-        <div x-show="openGuide" class="mt-3 pt-3 border-t border-emerald-200/60 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-emerald-900">
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-heart-handshake class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Pemisahan Tagihan:</strong> Infaq &amp; Sedekah dipisahkan dari tagihan SPP agar transparansi kas masjid/yayasan terjaga.</span>
-            </div>
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-plus-circle class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Form Input:</strong> Pilih kategori penerimaan (Infaq, Sedekah, Donasi), masukkan jumlah, tanggal, dan bukti.</span>
-            </div>
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-lock class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Audit Trail:</strong> Seluruh riwayat kas masuk tersimpan permanen dan terlindungi dari penghapusan.</span>
-            </div>
-        </div>
-    </div>
+
 
     @if (session()->has('message'))
         <x-alert-banner type="success" :message="session('message')" />

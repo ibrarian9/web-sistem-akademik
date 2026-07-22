@@ -1,4 +1,14 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Informasi Jadwal Mengajar Guru"
+        :steps="[
+            ['title' => 'Jadwal Per Hari', 'desc' => 'Tabel menampilkan alokasi waktu jam tatap muka pengajaran dari Senin hingga Sabtu.'],
+            ['title' => 'Ruang & Rombel', 'desc' => 'Setiap kartu sesi menyantumkan rombel kelas pengampuan dan waktu pelaksanaan pelajaran.'],
+            ['title' => 'Perubahan Jadwal', 'desc' => 'Apabila terdapat bentrok jam atau perubahan ruang, hubungi Bagian Tata Usaha.']
+        ]"
+    />
+
     <div>
         <h2 class="text-xl font-bold text-white tracking-tight">Jadwal Mengajar Anda</h2>
         <p class="text-xs text-slate-500">Berikut adalah jadwal mengajar mingguan Anda pada tahun ajaran aktif.</p>

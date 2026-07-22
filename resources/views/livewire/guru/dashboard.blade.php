@@ -1,4 +1,14 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Panduan Portal Guru & Wali Kelas"
+        :steps="[
+            ['title' => 'Absensi Mandiri', 'desc' => 'Lakukan Check-In saat tiba di sekolah dan Check-Out sebelum pulang pada menu Absensi Mandiri.'],
+            ['title' => 'Input Nilai Siswa', 'desc' => 'Isi nilai mata pelajaran umum/tahfidz siswa serta atur pembobotan komponen pada menu Bobot Nilai.'],
+            ['title' => 'Cetak & Terbitkan Rapor', 'desc' => 'Khusus Wali Kelas: verifikasi capaian nilai, absensi, dan sikap sebelum menerbitkan rapor digital.']
+        ]"
+    />
+
     <!-- Welcome Header -->
     <div class="flex items-center justify-between">
         <div>

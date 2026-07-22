@@ -21,14 +21,13 @@ class ManajemenTagihan extends Component
     public string $filterStatus = '';
     public string $search = '';
 
-    // Mode: 'kolektif' vs 'perorangan' vs 'otomatis'
-    public string $modeTagihan = 'kolektif';
+    // Mode: 'perorangan' vs 'otomatis'
+    public string $modeTagihan = 'perorangan';
 
     // Create Tagihan Form properties
-    public ?int $kelas_id = null;
     public ?int $single_siswa_id = null;
     public ?int $jenis_tagihan_id = null;
-    public string $bulan = '';
+    public string $bulan = 'Juli';
     public float $nominal = 0.00;
     public string $jatuh_tempo = '';
 
@@ -40,6 +39,11 @@ class ManajemenTagihan extends Component
     // Option lists
     public array $classes = [];
     public array $jenisTagihans = [];
+    public array $bulanOptions = [
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Semester Ganjil', 'Semester Genap', 'Tahunan'
+    ];
 
     public function mount()
     {
@@ -80,65 +84,7 @@ class ManajemenTagihan extends Component
         }
     }
 
-    public function createBulkTagihan()
-    {
-        $this->validate([
-            'kelas_id' => 'required|exists:kelas,id',
-            'jenis_tagihan_id' => 'required|exists:jenis_tagihan,id',
-            'bulan' => 'required|string|max:50',
-            'nominal' => 'required|numeric|min:1',
-            'jatuh_tempo' => 'required|date',
-        ]);
 
-        $activeTA = TahunAjaran::where('status_aktif', true)->first();
-        if (!$activeTA) {
-            session()->flash('error', 'Tidak ada tahun ajaran aktif.');
-            return;
-        }
-
-        $students = Siswa::where('kelas_id', $this->kelas_id)
-            ->where('status', 'aktif')
-            ->get();
-
-        if ($students->isEmpty()) {
-            session()->flash('error', 'Tidak ada siswa aktif terdaftar di kelas terpilih.');
-            return;
-        }
-
-        $createdCount = 0;
-
-        DB::transaction(function () use ($students, $activeTA, &$createdCount) {
-            foreach ($students as $student) {
-                $exists = Tagihan::where([
-                    'siswa_id' => $student->id,
-                    'jenis_tagihan_id' => $this->jenis_tagihan_id,
-                    'tahun_ajaran_id' => $activeTA->id,
-                    'bulan' => $this->bulan,
-                ])->exists();
-
-                if (!$exists) {
-                    Tagihan::create([
-                        'siswa_id' => $student->id,
-                        'jenis_tagihan_id' => $this->jenis_tagihan_id,
-                        'tahun_ajaran_id' => $activeTA->id,
-                        'bulan' => $this->bulan,
-                        'nominal' => $this->nominal,
-                        'total_dibayar' => 0.00,
-                        'status' => 'belum_bayar',
-                        'jatuh_tempo' => $this->jatuh_tempo,
-                    ]);
-                    $createdCount++;
-                }
-            }
-        });
-
-        $targetKelas = Kelas::find($this->kelas_id);
-        $namaKelasStr = $targetKelas ? " " . $targetKelas->nama_kelas : "";
-
-        session()->flash('message', "Berhasil merilis {$createdCount} tagihan baru untuk siswa Kelas{$namaKelasStr}.");
-        $this->reset(['kelas_id', 'jenis_tagihan_id', 'bulan', 'nominal']);
-        $this->resetPage();
-    }
 
     public function createSingleTagihan()
     {

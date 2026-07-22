@@ -37,6 +37,8 @@
             ['title' => 'Kelas & Mapel', 'route' => 'tata-usaha.kelas', 'icon' => 'layers'],
             ['title' => 'Jadwal & Akademik', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Jadwal Pelajaran', 'route' => 'tata-usaha.jadwal', 'icon' => 'calendar'],
+            ['title' => 'Kalender & Libur', 'route' => 'tata-usaha.kalender-akademik', 'icon' => 'calendar'],
+            ['title' => 'Kenaikan & Kelulusan', 'route' => 'tata-usaha.kenaikan-kelas', 'icon' => 'user-check'],
             ['title' => 'Komponen Nilai', 'route' => 'tata-usaha.komponen-nilai', 'icon' => 'sliders'],
             ['title' => 'Laporan', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Laporan Absensi Siswa', 'route' => 'tata-usaha.laporan.absensi-siswa', 'icon' => 'file-text'],
@@ -80,6 +82,7 @@
             ['title' => 'Akademik', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Rapor & Nilai', 'route' => 'murid.rapor', 'icon' => 'award'],
             ['title' => 'Kehadiran Saya', 'route' => 'murid.kehadiran', 'icon' => 'clipboard'],
+            ['title' => 'Ekstrakurikuler', 'route' => 'murid.ekskul', 'icon' => 'star'],
             ['title' => 'Jadwal Pelajaran', 'route' => 'murid.jadwal', 'icon' => 'calendar'],
             ['title' => 'Keuangan', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Tagihan SPP', 'route' => 'murid.tagihan', 'icon' => 'credit-card'],
@@ -180,6 +183,7 @@
                         @case('layers') <x-lucide-layers class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('clock') <x-lucide-clock class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('award') <x-lucide-award class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('star') <x-lucide-star class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('sliders') <x-lucide-sliders class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('edit-3') <x-lucide-edit-3 class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('clipboard') <x-lucide-clipboard class="w-[18px] h-[18px] shrink-0" /> @break
@@ -193,24 +197,31 @@
 
     <!-- User Profile Footer -->
     <div class="p-4 border-t border-stone-200 bg-stone-50/60">
-        <div class="flex items-center gap-3 mb-3">
-            <div class="w-9 h-9 rounded-full bg-green-50 border border-green-200 flex items-center justify-center font-bold text-green-700 text-sm select-none">
-                {{ substr(auth()->user()->nama ?? 'U', 0, 2) }}
+        <a href="{{ route('profil') }}" class="flex items-center gap-3 mb-3 hover:bg-stone-100 p-1.5 -mx-1.5 rounded-xl transition group">
+            <div class="w-9 h-9 rounded-full bg-green-50 border border-green-200 flex items-center justify-center font-bold text-green-700 text-sm select-none group-hover:scale-105 transition">
+                {{ strtoupper(substr(auth()->user()->nama ?? 'U', 0, 2)) }}
             </div>
             <div class="min-w-0 flex-1">
-                <p class="text-sm font-semibold text-stone-800 truncate">{{ auth()->user()->nama ?? 'User' }}</p>
-                <p class="text-xs text-stone-500 truncate">{{ auth()->user()->email ?? auth()->user()->username }}</p>
+                <p class="text-sm font-semibold text-stone-800 truncate group-hover:text-green-700 transition">{{ auth()->user()->nama ?? 'User' }}</p>
+                <p class="text-xs text-stone-500 truncate">Profil & TTD Digital</p>
             </div>
-        </div>
+        </a>
         
-        <!-- Logout Form -->
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" 
-                class="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-stone-200 hover:border-red-200 text-xs font-semibold text-stone-600 hover:text-red-600 hover:bg-red-50 transition duration-150">
-                <x-lucide-log-out class="w-4 h-4" />
-                <span>Keluar</span>
-            </button>
-        </form>
+        <div class="grid grid-cols-2 gap-2">
+            <a href="{{ route('profil') }}" class="flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl border border-stone-200 hover:border-green-300 text-xs font-semibold text-stone-600 hover:text-green-700 hover:bg-green-50 transition duration-150">
+                <x-lucide-user class="w-3.5 h-3.5" />
+                <span>Profil</span>
+            </a>
+            
+            <!-- Logout Form -->
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" 
+                    class="w-full flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl border border-stone-200 hover:border-red-200 text-xs font-semibold text-stone-600 hover:text-red-600 hover:bg-red-50 transition duration-150">
+                    <x-lucide-log-out class="w-3.5 h-3.5" />
+                    <span>Keluar</span>
+                </button>
+            </form>
+        </div>
     </div>
 </aside>

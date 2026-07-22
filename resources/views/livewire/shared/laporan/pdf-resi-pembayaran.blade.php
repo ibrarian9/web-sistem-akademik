@@ -136,15 +136,16 @@
 
     <table class="footer-signature">
         <tr>
-            <td>
-                <p>Pembayar / Orang Tua Siswa</p>
-                <div class="signature-space"></div>
-                <p class="signature-name">( {{ $pembayaran->tagihan->siswa->nama_wali ?: 'Wali Siswa' }} )</p>
-            </td>
-            <td>
-                <p>Yogyakarta, {{ date('d F Y', strtotime($pembayaran->tanggal_bayar)) }}<br>Staf Keuangan / Bendahara</p>
-                <div class="signature-space"></div>
-                <p class="signature-name">( {{ $pembayaran->petugas->nama ?? ($staffFinance->nama ?? 'Bendahara Keuangan') }} )</p>
+            <td style="width: 50%;"></td>
+            <td style="width: 50%; text-align: center; vertical-align: top;">
+                <x-ttd-elektronik 
+                    role="bendahara" 
+                    docType="RES" 
+                    :docId="$pembayaran->id" 
+                    :user="$pembayaran->petugas ?? ($staffFinance ?? null)" 
+                    title="Staf Keuangan / Bendahara" 
+                    :tanggal="date('d F Y', strtotime($pembayaran->tanggal_bayar))" 
+                />
             </td>
         </tr>
     </table>

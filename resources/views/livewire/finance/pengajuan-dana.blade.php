@@ -1,4 +1,14 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Pengajuan Anggaran & Pencairan Dana"
+        :steps="[
+            ['title' => 'Buat Pengajuan', 'desc' => 'Klik Buat Pengajuan Dana untuk mengisi judul proposal, bidang pengaju, rincian biaya, serta nota pendukung.'],
+            ['title' => 'Verifikasi & Approval', 'desc' => 'Staf Finance dan Kepala Sekolah akan meninjau kelayakan anggaran sebelum persetujuan diberikan.'],
+            ['title' => 'Pencairan Dana', 'desc' => 'Proposal yang disetujui dapat dicairkan oleh Finance dan tercatat otomatis pada buku kas keluar.']
+        ]"
+    />
+
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h2 class="text-2xl font-bold text-stone-800 tracking-tight">Pengajuan Penggunaan Dana</h2>
@@ -19,38 +29,7 @@
         <x-alert-banner type="error" :message="session('error')" />
     @endif
 
-    <!-- Guidance Card -->
-    <div x-data="{ openGuide: true }" class="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-4 transition-all shadow-sm">
-        <div class="flex items-center justify-between cursor-pointer" @click="openGuide = !openGuide">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
-                    <x-lucide-info class="w-5 h-5" />
-                </div>
-                <div>
-                    <h4 class="text-xs font-bold text-emerald-950 uppercase tracking-wider">Petunjuk &amp; Aturan Approval Pengajuan Dana</h4>
-                    <p class="text-xs text-emerald-800">Alur persetujuan bertingkat untuk pengadaan buku, baju, ATK, dan sarana prasarana.</p>
-                </div>
-            </div>
-            <button class="text-emerald-700 hover:text-emerald-900 text-xs font-semibold flex items-center gap-1">
-                <span x-text="openGuide ? 'Sembunyikan' : 'Tampilkan'"></span>
-                <x-lucide-chevron-down class="w-4 h-4 transition-transform" ::class="openGuide ? 'rotate-180' : ''" />
-            </button>
-        </div>
-        <div x-show="openGuide" class="mt-3 pt-3 border-t border-emerald-200/60 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-emerald-900">
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-check-circle-2 class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Nominal &le; Rp 1 Juta:</strong> Cukup persetujuan 1 tahap dari <strong>Koordinator</strong>.</span>
-            </div>
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-shield-check class="w-4 h-4 text-purple-600 mt-0.5 shrink-0" />
-                <span><strong>Nominal &gt; Rp 1 Juta:</strong> Memerlukan persetujuan 2 tahap: <strong>Koordinator</strong> lalu <strong>Kepala Yayasan</strong>.</span>
-            </div>
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-banknote class="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
-                <span><strong>Pencairan / Realisasi:</strong> Setelah disetujui, Staf Keuangan dapat mengeklik "Cairkan Dana".</span>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Main Content Table Panel -->
     <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-6">

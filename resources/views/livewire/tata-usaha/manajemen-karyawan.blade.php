@@ -1,4 +1,15 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Direktori Karyawan & Staff Sekolah"
+        :steps="[
+            ['title' => 'Pencarian & Filter Role', 'desc' => 'Gunakan kotak pencarian atau dropdown role untuk melihat staf Guru, TU, Finance, Koordinator, atau Kepala Sekolah.'],
+            ['title' => 'Informasi Ketenagakerjaan', 'desc' => 'Setiap kartu karyawan menampilkan NIP, jenis guru (Umum/Tahfidz), email, serta kontak darurat.'],
+            ['title' => 'Status Akun', 'desc' => 'Status akun menunjukkan hak akses aktif dalam sistem akademik & keuangan yayasan.']
+        ]"
+        notes="Gunakan menu Manajemen Guru untuk mengubah detail NIP dan status kepegawaian tenaga pendidik."
+    />
+
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h2 class="text-xl font-bold text-stone-800 tracking-tight">Direktori Karyawan &amp; Staff</h2>

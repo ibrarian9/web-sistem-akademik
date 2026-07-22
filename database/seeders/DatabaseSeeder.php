@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             JenisTagihanSeeder::class,
             KategoriPengeluaranSeeder::class,
             ProductionDataSeeder::class,
+            FinanceSeeder::class,
         ]);
     }
 }

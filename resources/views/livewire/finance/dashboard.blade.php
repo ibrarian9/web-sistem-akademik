@@ -1,4 +1,15 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Panduan Pusat Kendali Keuangan Sekolah (Finance)"
+        :steps="[
+            ['title' => 'Ringkasan Kas', 'desc' => 'Pantau saldo total kas, pemasukan bulan berjalan, dan pengeluaran operasional secara realtime.'],
+            ['title' => 'Cek Tagihan & SPP', 'desc' => 'Kelola pembayaran SPP siswa, beri persetujuan keringanan, dan buat tagihan rutin bulanan.'],
+            ['title' => 'Pengajuan Dana', 'desc' => 'Tinjau proposal pengajuan anggaran belanja dari unit dan beri persetujuan pencairan dana.']
+        ]"
+        notes="Gunakan tombol Ekspor Laporan pada menu Arus Kas untuk mengunduh laporan keuangan berformat Excel/PDF."
+    />
+
     <!-- Header -->
     <div class="flex items-center justify-between">
         <div>
@@ -11,38 +22,7 @@
         </div>
     </div>
 
-    <!-- Guidance Card -->
-    <div x-data="{ openGuide: true }" class="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-4 transition-all shadow-sm">
-        <div class="flex items-center justify-between cursor-pointer" @click="openGuide = !openGuide">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
-                    <x-lucide-info class="w-5 h-5" />
-                </div>
-                <div>
-                    <h4 class="text-xs font-bold text-emerald-950 uppercase tracking-wider">Petunjuk Ringkas Dashboard Keuangan</h4>
-                    <p class="text-xs text-emerald-800">Pusat pemantauan transaksi, kas masuk, pengeluaran, dan persetujuan dana.</p>
-                </div>
-            </div>
-            <button class="text-emerald-700 hover:text-emerald-900 text-xs font-semibold flex items-center gap-1">
-                <span x-text="openGuide ? 'Sembunyikan' : 'Tampilkan'"></span>
-                <x-lucide-chevron-down class="w-4 h-4 transition-transform" ::class="openGuide ? 'rotate-180' : ''" />
-            </button>
-        </div>
-        <div x-show="openGuide" class="mt-3 pt-3 border-t border-emerald-200/60 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-emerald-900">
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-check-circle-2 class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Pantau Realisasi SPP:</strong> Cek langsung total tunggakan vs pembayaran SPP bulan berjalan.</span>
-            </div>
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-check-circle-2 class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Arus Kas Masuk Non-SPP:</strong> Catat infaq subuh, sedekah, dan donasi di menu Arus Kas Masuk.</span>
-            </div>
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-check-circle-2 class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Pengajuan Dana:</strong> Pengajuan &lt; Rp 1 Juta butuh ACC Koordinator, &gt; Rp 1 Juta plus ACC Yayasan.</span>
-            </div>
-        </div>
-    </div>
+    <!-- Header -->
 
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -1,4 +1,15 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Pengelolaan Data Siswa Aktif"
+        :steps="[
+            ['title' => 'Tambah Siswa', 'desc' => 'Klik Tambah Siswa untuk mendaftarkan data NIS, NISN, biodata, serta wali murid.'],
+            ['title' => 'Penempatan Kelas', 'desc' => 'Tentukan kelas siswa pada form pendaftaran atau ubah jika ada perubahan ruang kelas.'],
+            ['title' => 'Perubahan Status', 'desc' => 'Ubah status keaktifan menjadi Lulus, Pindah, atau Keluar saat terjadi pembaruan status pendidikan.']
+        ]"
+        notes="Username & password otomatis dibuatkan untuk akses portal siswa dan wali murid."
+    />
+
     <div class="flex items-center justify-between">
         <div>
             <h2 class="text-xl font-bold text-white tracking-tight">Manajemen Siswa</h2>

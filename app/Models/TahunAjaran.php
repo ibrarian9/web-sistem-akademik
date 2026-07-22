@@ -31,4 +31,9 @@ class TahunAjaran extends Model
     {
         return $this->hasMany(DanaBos::class);
     }
+
+    public function kalenderAkademiks()
+    {
+        return $this->hasMany(KalenderAkademik::class);
+    }
 }

@@ -1,4 +1,14 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Pencatatan Presensi Kehadiran Siswa"
+        :steps="[
+            ['title' => 'Pilih Kelas & Tanggal', 'desc' => 'Tentukan rombel kelas dan tanggal presensi pada bar seleksi di atas.'],
+            ['title' => 'Set Status Masal', 'desc' => 'Gunakan tombol "Set Hadir" untuk menandai seluruh siswa hadir secara otomatis.'],
+            ['title' => 'Status Individual', 'desc' => 'Pilih opsi (Hadir, Sakit, Izin, Alpa) dan beri catatan khusus pada siswa jika diperlukan.']
+        ]"
+    />
+
     <div>
         <h2 class="text-xl font-bold text-white tracking-tight">Absensi Siswa</h2>
         <p class="text-xs text-slate-500">Rekam dan perbarui status kehadiran harian siswa di kelas yang diampu.</p>

@@ -1,4 +1,14 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Laporan Rekap Nilai Akademik Siswa"
+        :steps="[
+            ['title' => 'Pilih Kelas, Mapel & Semester', 'desc' => 'Gunakan filter di atas untuk menentukan rombel kelas, mata pelajaran, serta semester berjalan.'],
+            ['title' => 'Perhitungan Otomatis', 'desc' => 'Nilai akhir dihitung secara otomatis dari pembobotan persentase tiap komponen (UH, UTS, UAS, Tahfidz).'],
+            ['title' => 'Predikat Rapor', 'desc' => 'Tabel langsung mengonversi nilai akhir menjadi predikat mutu A, B, C, D, atau E.']
+        ]"
+    />
+
     <!-- Page Header -->
     <div>
         <h2 class="text-xl font-bold text-stone-800 tracking-tight">Rekap Nilai Akademik</h2>

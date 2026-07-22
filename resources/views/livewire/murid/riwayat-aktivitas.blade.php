@@ -1,74 +1,94 @@
 <div class="space-y-6">
-    <!-- Page Header -->
-    <div>
-        <h2 class="text-xl font-bold text-stone-800 tracking-tight">Riwayat Aktivitas</h2>
-        <p class="text-sm text-stone-500 font-medium">Jejak aktivitas akademik, absensi, dan keuangan Anda yang tercatat oleh sistem.</p>
+    <!-- Header Page -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2">
+                <h2 class="text-xl font-bold text-stone-900 tracking-tight">Riwayat Aktivitas & Log System</h2>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
+                    Audit Trail Siswa
+                </span>
+            </div>
+            <p class="text-xs text-stone-500 mt-1">Jejak aktivitas akademik, absensi, dan transaksi keuangan Anda yang tercatat oleh sistem.</p>
+        </div>
     </div>
+
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Pencatatan Log Aktivitas Sistem"
+        :steps="[
+            ['title' => 'Audit Trail Real-time', 'desc' => 'Setiap perubahan presensi, nilai, pembayaran, dan status akademis tercatat otomatis.'],
+            ['title' => 'Kategori Log', 'desc' => 'Guna transparansi, log dipisahkan berdasarkan kategori Kehadiran, Nilai, Keuangan, dan Sistem.'],
+            ['title' => 'Informasi Pengubah', 'desc' => 'Setiap riwayat menyantumkan nama petugas atau pengajar yang melakukan entri data.']
+        ]"
+    />
 
     <!-- Timeline Wrapper Card -->
     <div class="bg-white border border-stone-200 rounded-2xl shadow-sm p-6 md:p-8">
-        @if ($activities && $activities->count() > 0)
-            <div class="relative pl-6 md:pl-8 space-y-8 before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-0.5 before:bg-stone-200">
-                @foreach ($activities as $log)
-                    @php
-                        $formatted = $this->formatLog($log);
-                    @endphp
-                    <!-- Timeline Item -->
-                    <div class="relative flex flex-col md:flex-row md:items-center gap-4 group">
-                        <!-- Icon Circle -->
-                        <div class="absolute -left-[32px] md:-left-[36px] w-9 h-9 rounded-xl border bg-white flex items-center justify-center shrink-0 shadow-sm z-10 {{ $formatted['color'] }}">
-                            @switch($formatted['icon'])
-                                @case('edit-3') <x-lucide-edit-3 class="w-4 h-4" /> @break
-                                @case('calendar') <x-lucide-calendar class="w-4 h-4" /> @break
-                                @case('credit-card') <x-lucide-credit-card class="w-4 h-4" /> @break
-                                @case('file-text') <x-lucide-file-text class="w-4 h-4" /> @break
-                                @case('award') <x-lucide-award class="w-4 h-4" /> @break
-                                @case('layers') <x-lucide-layers class="w-4 h-4" /> @break
-                                @default <x-lucide-activity class="w-4 h-4" />
-                            @endswitch
-                        </div>
-
-                        <!-- Content details -->
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-stone-700 leading-relaxed">
-                                {{ $formatted['text'] }}
-                            </p>
-                            <!-- Technical context description (fallback if available) -->
-                            @if ($formatted['icon'] === 'activity' && $log->description)
-                                <p class="text-xs text-stone-500 italic mt-0.5">
-                                    Detail: {{ $log->description }}
-                                </p>
+        <div class="flow-root">
+            <ul class="-mb-8">
+                @forelse ($activityLogs as $index => $log)
+                    <li>
+                        <div class="relative pb-8">
+                            @if (!$loop->last)
+                                <span class="absolute top-5 left-5 -ml-px h-full w-0.5 bg-stone-200" aria-hidden="true"></span>
                             @endif
-                        </div>
 
-                        <!-- Timestamp -->
-                        <div class="md:w-36 text-left md:text-right shrink-0">
-                            <span class="text-xs text-stone-400 font-bold block" title="{{ $log->created_at->format('d M Y, H:i') }}">
-                                {{ $log->created_at->diffForHumans() }}
-                            </span>
-                            <span class="text-[10px] text-stone-300 font-medium block">
-                                {{ $log->created_at->format('d/m/Y H:i') }}
-                            </span>
+                            <div class="relative flex items-start space-x-4">
+                                <!-- Circle Icon Accent -->
+                                <div>
+                                    <span class="h-10 w-10 rounded-xl border flex items-center justify-center shadow-sm
+                                        {{ $log['type'] === 'kehadiran' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : '' }}
+                                        {{ $log['type'] === 'nilai' ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : '' }}
+                                        {{ $log['type'] === 'keuangan' ? 'bg-amber-50 border-amber-200 text-amber-700' : '' }}
+                                        {{ $log['type'] === 'sistem' ? 'bg-sky-50 border-sky-200 text-sky-700' : '' }}
+                                    ">
+                                        @if ($log['type'] === 'kehadiran')
+                                            <x-lucide-user-check class="w-5 h-5" />
+                                        @elseif ($log['type'] === 'nilai')
+                                            <x-lucide-award class="w-5 h-5" />
+                                        @elseif ($log['type'] === 'keuangan')
+                                            <x-lucide-credit-card class="w-5 h-5" />
+                                        @else
+                                            <x-lucide-activity class="w-5 h-5" />
+                                        @endif
+                                    </span>
+                                </div>
+
+                                <!-- Log Content -->
+                                <div class="flex-1 min-w-0 pt-0.5 bg-stone-50 border border-stone-200 rounded-xl p-4 shadow-sm hover:border-stone-300 transition">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <h4 class="text-xs font-bold text-stone-900">{{ $log['title'] }}</h4>
+                                        <span class="text-[10px] font-bold text-stone-500 bg-white px-2.5 py-1 rounded-lg border border-stone-200 shrink-0">
+                                            {{ $log['time'] }}
+                                        </span>
+                                    </div>
+
+                                    <p class="text-xs text-stone-700 font-medium mt-1 leading-relaxed">
+                                        {{ $log['description'] }}
+                                    </p>
+
+                                    @if ($log['actor'])
+                                        <div class="mt-2 pt-2 border-t border-stone-200/80 flex items-center justify-between text-[10px] text-stone-500 font-semibold">
+                                            <span class="flex items-center gap-1">
+                                                <x-lucide-user class="w-3 h-3 text-stone-400" />
+                                                Oleh: {{ $log['actor'] }}
+                                            </span>
+                                            <span class="capitalize text-stone-600 font-bold bg-white px-2 py-0.5 rounded border border-stone-200">
+                                                {{ $log['type'] }}
+                                            </span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
+                    </li>
+                @empty
+                    <div class="py-12 text-center text-stone-500 space-y-2">
+                        <x-lucide-activity class="w-10 h-10 mx-auto text-stone-400" />
+                        <p class="text-xs font-semibold">Belum ada riwayat aktivitas yang dicatat oleh sistem.</p>
                     </div>
-                @endforeach
-            </div>
-
-            <!-- Pagination Footer -->
-            @if ($activities->hasPages())
-                <div class="pt-6 mt-6 border-t border-stone-200">
-                    {{ $activities->links() }}
-                </div>
-            @endif
-        @else
-            <!-- Empty State -->
-            <div class="py-16 text-center">
-                <div class="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center mx-auto text-stone-400 mb-3">
-                    <x-lucide-activity class="w-6 h-6" />
-                </div>
-                <h3 class="text-sm font-bold text-stone-700">Belum ada riwayat aktivitas</h3>
-                <p class="text-xs text-stone-400 mt-1">Jejak aktivitas Anda yang terdaftar akan muncul di sini secara kronologis.</p>
-            </div>
-        @endif
+                @endforelse
+            </ul>
+        </div>
     </div>
 </div>

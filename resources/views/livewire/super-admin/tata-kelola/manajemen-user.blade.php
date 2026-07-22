@@ -1,4 +1,14 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Manajemen Pengguna & Hak Akses"
+        :steps="[
+            ['title' => 'Tambah User Baru', 'desc' => 'Klik Tambah Pengguna untuk membuat akun login baru serta menentukan role hak akses.'],
+            ['title' => 'Reset Password & Status', 'desc' => 'Klik tombol Edit untuk memperbarui password akun atau mengubah status keaktifan user.'],
+            ['title' => 'Filter & Pencarian', 'desc' => 'Gunakan kotak pencarian untuk menemukan akun berdasarkan nama, username, atau email.']
+        ]"
+    />
+
     <div class="flex items-center justify-between">
         <div>
             <h2 class="text-xl font-bold text-white tracking-tight">Manajemen Pengguna</h2>

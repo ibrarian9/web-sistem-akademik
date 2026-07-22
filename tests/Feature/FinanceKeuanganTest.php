@@ -50,35 +50,30 @@ test('finance can render dashboard', function () {
         ->assertSee('Dashboard Keuangan');
 });
 
-test('finance can release bulk tagihan to a class', function () {
+test('finance can create single tagihan for a student', function () {
     $this->actingAs($this->userFinance);
 
-    $kelas = Kelas::first();
     $jt = JenisTagihan::first();
-    $activeTA = TahunAjaran::where('status_aktif', true)->first();
-
-    // Clear existing tagihans to verify precise insertion count
-    Tagihan::query()->delete();
-
-    $studentCount = Siswa::where('kelas_id', $kelas->id)->where('status', 'aktif')->count();
+    $siswa = Siswa::first();
 
     Livewire::test(ManajemenTagihan::class)
-        ->set('kelas_id', $kelas->id)
+        ->set('single_siswa_id', $siswa->id)
         ->set('jenis_tagihan_id', $jt->id)
         ->set('bulan', 'Agustus')
         ->set('nominal', 400000)
         ->set('jatuh_tempo', now()->addDays(15)->toDateString())
-        ->call('createBulkTagihan')
+        ->call('createSingleTagihan')
         ->assertHasNoErrors();
 
-    // Check tagihan records count
+    // Check tagihan record count
     $inserted = Tagihan::where([
+        'siswa_id' => $siswa->id,
         'jenis_tagihan_id' => $jt->id,
         'bulan' => 'Agustus',
         'nominal' => 400000
     ])->count();
 
-    expect($inserted)->toBe($studentCount);
+    expect($inserted)->toBeGreaterThan(0);
 });
 
 test('finance can record payment for a student and generate notification', function () {

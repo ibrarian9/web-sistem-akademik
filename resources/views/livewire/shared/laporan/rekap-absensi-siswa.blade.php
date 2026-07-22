@@ -1,4 +1,14 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Laporan Rekap Presensi Siswa"
+        :steps="[
+            ['title' => 'Pilih Filter Kelas & Periode', 'desc' => 'Pilih nama kelas, bulan, dan tahun anggaran untuk memuat matriks kehadiran harian.'],
+            ['title' => 'Matriks Kehadiran', 'desc' => 'Tabel menampilkan kode H (Hadir), I (Izin), A (Alpa) per tanggal beserta kalkulasi persentase kehadiran.'],
+            ['title' => 'Cetak PDF Resmi', 'desc' => 'Klik tombol Ekspor PDF untuk mengunduh laporan fisik resmi lengkap dengan tanda tangan elektronik sekolah.']
+        ]"
+    />
+
     <!-- Page Header -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>

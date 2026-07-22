@@ -1,4 +1,14 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Konfigurasi Bobot Penilaian Guru"
+        :steps="[
+            ['title' => 'Pilih Rombel & Mapel', 'desc' => 'Pilih kelas dan mata pelajaran yang Anda ampu untuk menyesuaikan porsi bobot.'],
+            ['title' => 'Atur Persentase Bobot', 'desc' => 'Tentukan persentase bobot tiap komponen (UH, UTS, UAS, Tahfizh). Total persentase harus 100%.'],
+            ['title' => 'Simpan Bobot', 'desc' => 'Klik Simpan Bobot Penilaian untuk memberlakukan rumus kalkulasi pada Rapor Akhir.']
+        ]"
+    />
+
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h2 class="text-xl font-bold text-stone-800 tracking-tight">Pengaturan Bobot Penilaian Guru</h2>
@@ -37,9 +47,21 @@
 
         @if ($selectedGmkId)
             <form wire:submit.prevent="saveBobot" class="space-y-6 pt-4 border-t border-stone-200">
-                <div class="space-y-3">
-                    <h3 class="text-xs font-bold text-stone-800 uppercase tracking-wider">Persentase Bobot Per Komponen Nilai</h3>
-                    <p class="text-xs text-stone-500">Nilai akhir murid dihitung berdasarkan persentase bobot yang Anda tetapkan di bawah ini.</p>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-xs font-bold text-stone-800 uppercase tracking-wider">Persentase Bobot Per Komponen Nilai</h3>
+                            @if (!empty($selectedAssignment['mapel']))
+                                @php
+                                    $isTahfidzMapel = $selectedAssignment['mapel']['is_tahfidz'] ?? (strtolower($selectedAssignment['mapel']['kategori'] ?? '') === 'tahfidz');
+                                @endphp
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase {{ $isTahfidzMapel ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-blue-100 text-blue-800 border border-blue-300' }}">
+                                    {{ $isTahfidzMapel ? '📖 Mapel Tahfidz' : '📘 Mapel Umum' }}
+                                </span>
+                            @endif
+                        </div>
+                        <p class="text-xs text-stone-500">Nilai akhir murid dihitung berdasarkan persentase bobot yang Anda tetapkan khusus untuk mata pelajaran ini.</p>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

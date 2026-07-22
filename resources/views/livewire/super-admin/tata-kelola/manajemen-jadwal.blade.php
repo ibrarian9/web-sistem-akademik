@@ -1,4 +1,15 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Pengelolaan Jadwal Pelajaran"
+        :steps="[
+            ['title' => 'Input Jadwal Pelajaran', 'desc' => 'Klik Tambah Jadwal untuk memetakan penugasan guru, kelas, hari, serta jam pelajaran.'],
+            ['title' => 'Deteksi Bentrok Otomatis', 'desc' => 'Sistem secara cerdas memeriksa jika ada jadwal mengajar guru atau penggunaan kelas yang bentrok di jam yang sama.'],
+            ['title' => 'Filter Per Hari', 'desc' => 'Gunakan dropdown filter hari untuk memeriksa kepadatan jadwal belajar harian sekolah.']
+        ]"
+        notes="Pastikan guru pengampu telah dipetakan pada kelas di menu Manajemen Mapel sebelum membuat jadwal."
+    />
+
     <div class="flex items-center justify-between">
         <div>
             <h2 class="text-xl font-bold text-white tracking-tight">Jadwal Pelajaran</h2>

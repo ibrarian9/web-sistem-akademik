@@ -1,4 +1,14 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Penggajian Guru & Tenaga Pendidik"
+        :steps="[
+            ['title' => 'Generate Draf Gaji', 'desc' => 'Klik Generate Draf Gaji untuk menghitung gaji pokok, tunjangan jam mengajar, serta insentif piket bulanan.'],
+            ['title' => 'Potongan Kasbon', 'desc' => 'Sistem secara otomatis memperhitungkan potongan cicilan pinjaman/kasbon guru yang masih berjalan.'],
+            ['title' => 'Pencairan & Slip Gaji', 'desc' => 'Klik Cairkan Gaji untuk mengonfirmasi pembayaran dan mengunduh Slip Gaji fisik ber-QR Code & TTD.']
+        ]"
+    />
+
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h2 class="text-2xl font-bold text-stone-800 tracking-tight">Manajemen Gaji Guru</h2>
@@ -10,38 +20,7 @@
         </button>
     </div>
 
-    <!-- Guidance Card -->
-    <div x-data="{ openGuide: true }" class="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-4 transition-all shadow-sm">
-        <div class="flex items-center justify-between cursor-pointer" @click="openGuide = !openGuide">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
-                    <x-lucide-info class="w-5 h-5" />
-                </div>
-                <div>
-                    <h4 class="text-xs font-bold text-emerald-950 uppercase tracking-wider">Petunjuk Pengelolaan Gaji &amp; Payroll Guru</h4>
-                    <p class="text-xs text-emerald-800">Generate draf payroll bulanan, hitung insentif BPJS/Maghrib Mengaji, potong kasbon, dan lunasi.</p>
-                </div>
-            </div>
-            <button class="text-emerald-700 hover:text-emerald-900 text-xs font-semibold flex items-center gap-1">
-                <span x-text="openGuide ? 'Sembunyikan' : 'Tampilkan'"></span>
-                <x-lucide-chevron-down class="w-4 h-4 transition-transform" ::class="openGuide ? 'rotate-180' : ''" />
-            </button>
-        </div>
-        <div x-show="openGuide" class="mt-3 pt-3 border-t border-emerald-200/60 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-emerald-900">
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-users class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>1. Generate Draf:</strong> Klik "Generate Draf Gaji" untuk membuat slip gaji seluruh guru pada bulan berjalan.</span>
-            </div>
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-edit class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>2. Edit &amp; Potongan:</strong> Sesuaikan insentif Maghrib Mengaji dan potongan peminjaman/kasbon guru.</span>
-            </div>
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-check-circle-2 class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>3. Bayar Gaji:</strong> Tandai "Sudah Dibayar" untuk otomatis mencatat pengeluaran kas dan memotong sisa pinjaman.</span>
-            </div>
-        </div>
-    </div>
+
 
     @if (session()->has('message'))
         <div class="p-4 bg-green-50 border border-green-200 text-green-800 rounded-xl text-sm font-semibold flex items-center gap-2">

@@ -52,7 +52,7 @@ test('murid can view class schedule', function () {
 
     Livewire::test(JadwalPelajaran::class)
         ->assertStatus(200)
-        ->assertSee('Jadwal Pelajaran Kelas');
+        ->assertSee('Jadwal Pelajaran Saya');
 });
 
 test('murid can view invoice list', function () {
@@ -60,7 +60,7 @@ test('murid can view invoice list', function () {
 
     Livewire::test(TagihanSpp::class)
         ->assertStatus(200)
-        ->assertSee('Daftar Tagihan Murid');
+        ->assertSee('Keuangan Murid');
 });
 
 test('murid without outstanding bills can see rapor', function () {

@@ -7,38 +7,15 @@
         </div>
     </div>
 
-    <!-- Guidance Card -->
-    <div x-data="{ openGuide: true }" class="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-4 transition-all shadow-sm">
-        <div class="flex items-center justify-between cursor-pointer" @click="openGuide = !openGuide">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
-                    <x-lucide-info class="w-5 h-5" />
-                </div>
-                <div>
-                    <h4 class="text-xs font-bold text-emerald-950 uppercase tracking-wider">Petunjuk Kasir &amp; Input Pembayaran</h4>
-                    <p class="text-xs text-emerald-800">Cari siswa menunggak, pilih tagihan, tentukan metode pembayaran, dan cetak resi.</p>
-                </div>
-            </div>
-            <button class="text-emerald-700 hover:text-emerald-900 text-xs font-semibold flex items-center gap-1">
-                <span x-text="openGuide ? 'Sembunyikan' : 'Tampilkan'"></span>
-                <x-lucide-chevron-down class="w-4 h-4 transition-transform" ::class="openGuide ? 'rotate-180' : ''" />
-            </button>
-        </div>
-        <div x-show="openGuide" class="mt-3 pt-3 border-t border-emerald-200/60 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-emerald-900">
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-user-check class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Langkah 1:</strong> Pilih siswa dari tabel daftar penunggak di sebelah kanan untuk memicu pengisian otomatis.</span>
-            </div>
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-credit-card class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Langkah 2:</strong> Pilih metode pembayaran (Tunai, Bank, E-Wallet) dan masukkan nominal setoran.</span>
-            </div>
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-printer class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Langkah 3:</strong> Setelah simpan, klik tombol "Cetak Resi Bukti Bayar" yang disertai tanda tangan Staf Keuangan.</span>
-            </div>
-        </div>
-    </div>
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Kasir & Input Setoran Pembayaran Siswa"
+        :steps="[
+            ['title' => 'Pilih Siswa', 'desc' => 'Pilih nama siswa dari daftar penunggak untuk mengisi otomatis data tagihan.'],
+            ['title' => 'Metode & Nominal', 'desc' => 'Tentukan metode pembayaran (Tunai, Transfer Bank, E-Wallet) dan masukkan nominal setoran.'],
+            ['title' => 'Cetak Kuitansi Resi', 'desc' => 'Setelah disimpan, klik Cetak Resi untuk mencetak kuitansi pembayaran sah ber-QR Code & TTD.']
+        ]"
+    />
 
     @if (session()->has('message'))
         <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">

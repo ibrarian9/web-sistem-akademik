@@ -1,4 +1,14 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Laporan Pengeluaran Keuangan"
+        :steps="[
+            ['title' => 'Filter Rentang Tanggal', 'desc' => 'Tentukan periode tanggal pengeluaran yang ingin ditinjau.'],
+            ['title' => 'Cetak & Ekspor PDF', 'desc' => 'Cetak dokumen laporan pengeluaran kas resmi ber-QR Code & TTD untuk arsip bendahara.'],
+            ['title' => 'Kategori Operasional', 'desc' => 'Tabel merangkum beban pengadaan, gaji guru, pengajuan dana BOS, dan pemeliharaan.']
+        ]"
+    />
+
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h2 class="text-2xl font-bold text-stone-800 tracking-tight">Laporan Pengeluaran</h2>
@@ -9,45 +19,15 @@
                 <x-lucide-file-text class="w-4 h-4" />
                 <span>Ekspor PDF</span>
             </button>
-            <button wire:click="exportCsv" class="px-4 py-2.5 bg-stone-800 hover:bg-stone-900 text-white rounded-xl text-sm font-bold transition flex items-center gap-2 shadow-md shadow-stone-800/10">
+            <a href="{{ route('finance.export.pengeluaran', ['start_date' => $startDate, 'end_date' => $endDate]) }}" target="_blank"
+                class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold transition flex items-center gap-2 shadow-md shadow-emerald-600/10">
                 <x-lucide-download class="w-4 h-4" />
-                <span>Ekspor CSV</span>
-            </button>
+                <span>Ekspor Excel (.xlsx)</span>
+            </a>
         </div>
     </div>
 
-    <!-- Guidance Card -->
-    <div x-data="{ openGuide: true }" class="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-4 transition-all shadow-sm">
-        <div class="flex items-center justify-between cursor-pointer" @click="openGuide = !openGuide">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
-                    <x-lucide-info class="w-5 h-5" />
-                </div>
-                <div>
-                    <h4 class="text-xs font-bold text-emerald-950 uppercase tracking-wider">Petunjuk Laporan Pengeluaran</h4>
-                    <p class="text-xs text-emerald-800">Rekap beban belanja operasional, gaji guru, dan perawatan fasilitas dalam format PDF/CSV.</p>
-                </div>
-            </div>
-            <button class="text-emerald-700 hover:text-emerald-900 text-xs font-semibold flex items-center gap-1">
-                <span x-text="openGuide ? 'Sembunyikan' : 'Tampilkan'"></span>
-                <x-lucide-chevron-down class="w-4 h-4 transition-transform" ::class="openGuide ? 'rotate-180' : ''" />
-            </button>
-        </div>
-        <div x-show="openGuide" class="mt-3 pt-3 border-t border-emerald-200/60 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-emerald-900">
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-filter class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Filter Periode:</strong> Tentukan tanggal awal dan akhir untuk audit pengeluaran mingguan / bulanan.</span>
-            </div>
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-layers class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Filter Kategori:</strong> Pisahkan pengeluaran rutin, pemeliharaan gedung, atau belanja ATK.</span>
-            </div>
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-download class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Ekspor Laporan:</strong> Unduh cetakan resmi berformat PDF atau spreadsheet CSV.</span>
-            </div>
-        </div>
-    </div>
+    <!-- Filters Bar -->
 
     <!-- Filters Bar -->
     <div class="bg-white border border-stone-200 rounded-2xl p-4 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4">

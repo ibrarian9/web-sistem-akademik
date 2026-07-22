@@ -176,15 +176,24 @@
     <div class="footer">
         <table class="footer-table">
             <tr>
-                <td>
-                    Penerima,
-                    <div class="signature-space"></div>
-                    <strong>{{ $gaji->guru->user->nama ?? '-' }}</strong>
+                <td style="width: 50%; vertical-align: top;">
+                    <x-ttd-elektronik 
+                        role="penerima" 
+                        docType="SLI" 
+                        :docId="$gaji->id" 
+                        :user="$gaji->guru->user ?? null" 
+                        title="Penerima Gaji / Guru" 
+                        :showLocation="false" 
+                    />
                 </td>
-                <td>
-                    Bendahara Yayasan,
-                    <div class="signature-space"></div>
-                    <strong>Siti Aminah, S.E.</strong>
+                <td style="width: 50%; vertical-align: top;">
+                    <x-ttd-elektronik 
+                        role="bendahara" 
+                        docType="SLI" 
+                        :docId="$gaji->id" 
+                        title="Bendahara Keuangan Yayasan" 
+                        :tanggal="$gaji->tanggal_bayar ? $gaji->tanggal_bayar->format('d M Y') : date('d M Y')" 
+                    />
                 </td>
             </tr>
         </table>

@@ -1,4 +1,14 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Laporan Pemasukan Keuangan"
+        :steps="[
+            ['title' => 'Filter Periode', 'desc' => 'Pilih tanggal mulai dan tanggal selesai untuk memfilter penerimaan kas sekolah.'],
+            ['title' => 'Cetak & Ekspor PDF', 'desc' => 'Klik Ekspor PDF untuk mencetak dokumen fisik laporan penerimaan yang disahkan QR Code & TTD.'],
+            ['title' => 'Rincian Transaksi', 'desc' => 'Tabel menampilkan rincian nama siswa, jenis tagihan, kanal pembayaran, serta nominal terbayar.']
+        ]"
+    />
+
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h2 class="text-2xl font-bold text-stone-800 tracking-tight">Laporan Pemasukan</h2>
@@ -9,45 +19,15 @@
                 <x-lucide-file-text class="w-4 h-4" />
                 <span>Ekspor PDF</span>
             </button>
-            <button wire:click="exportCsv" class="px-4 py-2.5 bg-stone-800 hover:bg-stone-900 text-white rounded-xl text-sm font-bold transition flex items-center gap-2 shadow-md shadow-stone-800/10">
+            <a href="{{ route('finance.export.pemasukan', ['start_date' => $startDate, 'end_date' => $endDate]) }}" target="_blank"
+                class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold transition flex items-center gap-2 shadow-md shadow-emerald-600/10">
                 <x-lucide-download class="w-4 h-4" />
-                <span>Ekspor CSV</span>
-            </button>
+                <span>Ekspor Excel (.xlsx)</span>
+            </a>
         </div>
     </div>
 
-    <!-- Guidance Card -->
-    <div x-data="{ openGuide: true }" class="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-4 transition-all shadow-sm">
-        <div class="flex items-center justify-between cursor-pointer" @click="openGuide = !openGuide">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
-                    <x-lucide-info class="w-5 h-5" />
-                </div>
-                <div>
-                    <h4 class="text-xs font-bold text-emerald-950 uppercase tracking-wider">Petunjuk Laporan Pemasukan</h4>
-                    <p class="text-xs text-emerald-800">Filter transaksi penerimaan SPP &amp; tagihan, lalu ekspor dokumen resmi PDF / CSV.</p>
-                </div>
-            </div>
-            <button class="text-emerald-700 hover:text-emerald-900 text-xs font-semibold flex items-center gap-1">
-                <span x-text="openGuide ? 'Sembunyikan' : 'Tampilkan'"></span>
-                <x-lucide-chevron-down class="w-4 h-4 transition-transform" ::class="openGuide ? 'rotate-180' : ''" />
-            </button>
-        </div>
-        <div x-show="openGuide" class="mt-3 pt-3 border-t border-emerald-200/60 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-emerald-900">
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-filter class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Rentang Tanggal:</strong> Pilih periode awal &amp; akhir untuk mempersempit rekapitulasi laporan.</span>
-            </div>
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-credit-card class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Filter Metode:</strong> Saring penerimaan berdasarkan Tunai, Transfer Bank, atau E-Wallet.</span>
-            </div>
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-download class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Ekspor Laporan:</strong> Klik tombol PDF / CSV di pojok kanan atas untuk mengunduh rekap transaksi.</span>
-            </div>
-        </div>
-    </div>
+    <!-- Filter Card -->
 
     <!-- Filters Bar -->
     <div class="bg-white border border-stone-200 rounded-2xl p-4 shadow-sm grid grid-cols-1 md:grid-cols-5 gap-4">

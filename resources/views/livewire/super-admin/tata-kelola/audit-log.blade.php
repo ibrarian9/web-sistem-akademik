@@ -1,4 +1,14 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Monitoring Audit Log Sistem"
+        :steps="[
+            ['title' => 'Jejak Audit Real-time', 'desc' => 'Tabel mencatat seluruh aksi entri, update, dan penghapusan data beserta IP pelakunya.'],
+            ['title' => 'Filter Jenis Event', 'desc' => 'Gunakan filter event (Created, Updated, Deleted) untuk mempersempit penelusuran audit.'],
+            ['title' => 'Pencarian Pengguna', 'desc' => 'Cari nama user atau alamat IP tertentu pada kotak pencarian di bagian atas.']
+        ]"
+    />
+
     <div>
         <h2 class="text-xl font-bold text-white tracking-tight">Audit Log Aktivitas</h2>
         <p class="text-xs text-slate-500">Pantau seluruh riwayat aksi, perubahan data, alamat IP, dan aktivitas user pada sistem secara real-time.</p>

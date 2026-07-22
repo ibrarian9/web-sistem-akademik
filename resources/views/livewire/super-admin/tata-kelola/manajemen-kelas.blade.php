@@ -1,8 +1,19 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Pengelolaan Rombongan Belajar (Kelas)"
+        :steps="[
+            ['title' => 'Buat Rombel Kelas', 'desc' => 'Klik Tambah Kelas untuk membuat ruang kelas baru beserta penetapan tingkatnya (7, 8, 9).'],
+            ['title' => 'Penetapan Wali Kelas', 'desc' => 'Pilih Wali Kelas Umum (penanggung jawab kelas) dan Guru Tahfidz pendamping kelompok mengaji.'],
+            ['title' => 'Integrasi Nilai Rapor', 'desc' => 'Wali Kelas Umum bertanggung jawab menyetujui cetak rapor siswa di akhir semester.']
+        ]"
+        notes="Satu guru dapat menjadi Wali Kelas Umum sekaligus pendamping Tahfidz sesuai penugasan dari Tata Usaha."
+    />
+
     <div class="flex items-center justify-between">
         <div>
             <h2 class="text-xl font-bold text-white tracking-tight">Manajemen Kelas</h2>
-            <p class="text-xs text-slate-500">Buat kelas akademik baru dan tentukan Wali Kelas Umum & Tahfidz.</p>
+            <p class="text-xs text-slate-500">Buat kelas akademik baru dan tentukan Wali Kelas Umum &amp; Tahfidz.</p>
         </div>
         <button wire:click="openCreate" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold tracking-wide transition duration-200 flex items-center gap-1.5 shadow-lg shadow-indigo-600/10">
             <x-lucide-plus class="w-4 h-4" />

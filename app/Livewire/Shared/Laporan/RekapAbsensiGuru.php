@@ -5,6 +5,7 @@ namespace App\Livewire\Shared\Laporan;
 use Livewire\Component;
 use App\Models\Guru;
 use App\Models\AbsensiGuru;
+use App\Models\KalenderAkademik;
 use Carbon\Carbon;
 use Barryvdh\Dompdf\Facade\Pdf;
 
@@ -73,7 +74,8 @@ class RekapAbsensiGuru extends Component
                     }
                     $days[$day] = $status;
                 } else {
-                    $days[$day] = null;
+                    $isHoliday = KalenderAkademik::isHolidayDate($dateStr);
+                    $days[$day] = $isHoliday ? 'libur' : null;
                 }
             }
 

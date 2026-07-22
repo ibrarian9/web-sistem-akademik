@@ -1,4 +1,14 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Pencatatan Arus Kas Yayasan"
+        :steps="[
+            ['title' => 'Pilih Mode Kas', 'desc' => 'Gunakan tombol tab di pojok kanan atas untuk beralih antara Kas Keluar (Pengeluaran) dan Kas Masuk (Infaq/Non-SPP).'],
+            ['title' => 'Input Transaksi', 'desc' => 'Isi kategori, nominal, tanggal, dan deskripsi pengeluaran atau donasi masuk.'],
+            ['title' => 'Filter Riwayat', 'desc' => 'Gunakan filter kategori untuk mengelompokkan pencatatan transaksi kas per periode.']
+        ]"
+    />
+
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h2 class="text-2xl font-bold text-stone-800 tracking-tight">Arus Kas Operasional Yayasan</h2>

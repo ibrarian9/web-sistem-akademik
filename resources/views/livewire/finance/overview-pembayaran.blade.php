@@ -1,4 +1,14 @@
 <div class="space-y-8">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Monitoring Status Pembayaran Siswa"
+        :steps="[
+            ['title' => 'Filter Tahun Ajaran', 'desc' => 'Pilih tahun ajaran aktif pada pojok kanan atas untuk memuat statistik kelunasan siswa.'],
+            ['title' => 'Pencarian & Status', 'desc' => 'Cari berdasarkan nama/NIS atau filter status: Lunas, Ada Tunggakan, atau Belum Bayar.'],
+            ['title' => 'Detail Transaksi', 'desc' => 'Klik tombol Detail Pembayaran pada siswa untuk melihat riwayat tagihan dan cetak kuitansi resi.']
+        ]"
+    />
+
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -17,38 +27,7 @@
         </div>
     </div>
 
-    <!-- Guidance Card -->
-    <div x-data="{ openGuide: true }" class="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-4 transition-all shadow-sm">
-        <div class="flex items-center justify-between cursor-pointer" @click="openGuide = !openGuide">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
-                    <x-lucide-info class="w-5 h-5" />
-                </div>
-                <div>
-                    <h4 class="text-xs font-bold text-emerald-950 uppercase tracking-wider">Petunjuk Overview Pembayaran Siswa</h4>
-                    <p class="text-xs text-emerald-800">Cari siswa menunggak, filter per kelas, dan proses pembayaran pelunasan.</p>
-                </div>
-            </div>
-            <button class="text-emerald-700 hover:text-emerald-900 text-xs font-semibold flex items-center gap-1">
-                <span x-text="openGuide ? 'Sembunyikan' : 'Tampilkan'"></span>
-                <x-lucide-chevron-down class="w-4 h-4 transition-transform" ::class="openGuide ? 'rotate-180' : ''" />
-            </button>
-        </div>
-        <div x-show="openGuide" class="mt-3 pt-3 border-t border-emerald-200/60 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-emerald-900">
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-check-circle-2 class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Lunas vs Menunggak:</strong> Gunakan tab filter untuk langsung menampilkan daftar siswa yang belum melunasi SPP.</span>
-            </div>
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-check-circle-2 class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Bayar Cepat:</strong> Klik tombol "Input Bayar" pada baris siswa untuk langsung membuka form kasir pembayaran.</span>
-            </div>
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-check-circle-2 class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Integritas Data:</strong> Data pembayaran terlindungi dan tidak memiliki tombol hapus demi audit trail.</span>
-            </div>
-        </div>
-    </div>
+    <!-- Stats Grid -->
 
     <!-- Alert / Toast Banner -->
     @if (session()->has('message'))

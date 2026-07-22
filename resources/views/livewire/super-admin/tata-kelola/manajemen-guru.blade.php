@@ -1,7 +1,18 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Pengelolaan Data Guru & Tenaga Pendidik"
+        :steps="[
+            ['title' => 'Input Profil & Login', 'desc' => 'Klik Tambah Guru untuk mendaftarkan biodata lengkap, NIP, serta membuatkan username & password login.'],
+            ['title' => 'Status Kepegawaian', 'desc' => 'Tentukan status kepegawaian (PNS, GTT, atau Honorer) agar terintegrasi dengan penggajian & administrasi.'],
+            ['title' => 'Manajemen Status Kerja', 'desc' => 'Ubah status mengajar menjadi Nonaktif jika guru yang bersangkutan sedang mutasi, berhenti, atau cuti.']
+        ]"
+        notes="NIP bersifat opsional tetapi sangat disarankan diisi lengkap demi keperluan pencetakan dokumen resmi/rapor."
+    />
+
     <div class="flex items-center justify-between">
         <div>
-            <h2 class="text-xl font-bold text-white tracking-tight">Manajemen Guru & Pegawai</h2>
+            <h2 class="text-xl font-bold text-white tracking-tight">Manajemen Guru &amp; Pegawai</h2>
             <p class="text-xs text-slate-500">Kelola data kepegawaian, status kerja, dan kredensial login guru.</p>
         </div>
         <button wire:click="openCreate" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold tracking-wide transition duration-200 flex items-center gap-1.5 shadow-lg shadow-indigo-600/10">

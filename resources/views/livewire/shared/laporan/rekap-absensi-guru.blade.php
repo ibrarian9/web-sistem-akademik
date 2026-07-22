@@ -1,4 +1,14 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Laporan Rekap Presensi Guru & Tenaga Pendidik"
+        :steps="[
+            ['title' => 'Filter Bulan & Tahun', 'desc' => 'Pilih bulan dan tahun periode presensi untuk menampilkan rekap kehadiran seluruh dewan guru.'],
+            ['title' => 'Indikator Kehadiran', 'desc' => 'Menampilkan status H (Hadir), T (Terlambat), I (Izin), dan A (Alpa) berdasarkan waktu check-in mandiri guru.'],
+            ['title' => 'Ekspor Dokumen PDF', 'desc' => 'Unduh laporan rekapitulasi presensi bulanan dalam format PDF siap cetak dengan TTD elektronik.']
+        ]"
+    />
+
     <!-- Page Header -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>

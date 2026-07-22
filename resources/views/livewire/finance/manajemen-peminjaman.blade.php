@@ -4,6 +4,16 @@
         <p class="text-sm text-stone-500">Kelola pinjaman kasbon para guru beserta riwayat cicilan bulanan yang terintegrasi dengan pemotongan gaji.</p>
     </div>
 
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Kasbon & Peminjaman Guru"
+        :steps="[
+            ['title' => 'Catat Pinjaman Baru', 'desc' => 'Pilih nama guru, tentukan nominal pinjaman, tenor bulan, serta alasan pengajuan kasbon.'],
+            ['title' => 'Potong Gaji Otomatis', 'desc' => 'Cicilan per bulan akan terpotong secara otomatis pada perhitungan slip gaji bulanan guru.'],
+            ['title' => 'Pelunasan Kasbon', 'desc' => 'Status pinjaman akan otomatis berubah menjadi Lunas setelah seluruh angsuran terpenuhi.']
+        ]"
+    />
+
     @if (session()->has('message'))
         <div class="p-4 bg-green-50 border border-green-200 text-green-800 rounded-xl text-sm font-semibold flex items-center gap-2">
             <x-lucide-check-circle class="w-5 h-5 text-green-600" />

@@ -1,4 +1,14 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Persetujuan Koreksi Nilai (Koordinator)"
+        :steps="[
+            ['title' => 'Verifikasi Alasan Koreksi', 'desc' => 'Periksa alasan pergantian nilai, nilai asal, serta nilai baru yang diajukan oleh guru.'],
+            ['title' => 'Setujui / Tolak', 'desc' => 'Klik Setujui untuk memperbarui nilai siswa secara otomatis pada basis data rapor.'],
+            ['title' => 'Filter Status', 'desc' => 'Gunakan dropdown filter status di kanan atas untuk memilah permohonan pending atau riwayat.']
+        ]"
+    />
+
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h2 class="text-xl font-bold text-stone-800 tracking-tight">Persetujuan Koreksi Nilai Siswa</h2>

@@ -14,11 +14,11 @@ class PengaturanBobotNilai extends Component
 
     public array $assignments = [];
     public array $komponens = [];
+    public ?array $selectedAssignment = null;
 
     public function mount()
     {
         $this->loadAssignments();
-        $this->komponens = KomponenNilai::orderBy('urutan')->get()->toArray();
     }
 
     public function loadAssignments()
@@ -49,6 +49,19 @@ class PengaturanBobotNilai extends Component
     {
         if (!$this->selectedGmkId) return;
 
+        $gmk = GuruMapelKelas::with('mapel')->find($this->selectedGmkId);
+        if (!$gmk) return;
+
+        $this->selectedAssignment = $gmk->toArray();
+
+        $isTahfidz = $gmk->mapel ? ($gmk->mapel->is_tahfidz || strtolower($gmk->mapel->kategori ?? '') === 'tahfidz') : false;
+        $berlakuFilter = $isTahfidz ? ['tahfidz', 'semua'] : ['umum', 'semua'];
+
+        $this->komponens = KomponenNilai::whereIn('berlaku_untuk', $berlakuFilter)
+            ->orderBy('urutan')
+            ->get()
+            ->toArray();
+
         $existingBobot = BobotNilaiGuru::where('guru_mapel_kelas_id', $this->selectedGmkId)
             ->get()
             ->pluck('bobot', 'komponen_nilai_id')
@@ -57,7 +70,8 @@ class PengaturanBobotNilai extends Component
         $this->bobotInputs = [];
         foreach ($this->komponens as $k) {
             $kid = $k['id'];
-            $this->bobotInputs[$kid] = isset($existingBobot[$kid]) ? floatval($existingBobot[$kid]) : 0;
+            // If teacher hasn't customized weight yet, use TU's default recommendation weight
+            $this->bobotInputs[$kid] = isset($existingBobot[$kid]) ? floatval($existingBobot[$kid]) : floatval($k['bobot']);
         }
     }
 
@@ -79,7 +93,8 @@ class PengaturanBobotNilai extends Component
             ]);
         }
 
-        session()->flash('message', 'Pengaturan bobot penilaian mata pelajaran berhasil disimpan.');
+        session()->flash('message', 'Pengaturan persentase bobot penilaian mata pelajaran berhasil disimpan.');
+        $this->loadBobot();
     }
 
     public function render()

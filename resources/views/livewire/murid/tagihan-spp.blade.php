@@ -1,84 +1,110 @@
 <div class="space-y-6">
     <div>
-        <h2 class="text-xl font-bold text-white tracking-tight">Tagihan & Keuangan Murid</h2>
-        <p class="text-xs text-slate-500">Lihat status pembayaran SPP dan tagihan administrasi sekolah lainnya.</p>
+        <h2 class="text-xl font-bold text-stone-900 tracking-tight">Tagihan & Keuangan Murid</h2>
+        <p class="text-xs text-stone-500">Lihat status pembayaran SPP dan tagihan administrasi sekolah lainnya.</p>
     </div>
+
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk & Ketentuan Pembayaran Keuangan SPP"
+        :steps="[
+            ['title' => 'Jatuh Tempo Tanggal 10', 'desc' => 'Batas akhir pembayaran SPP bulanan adalah tanggal 10 setiap bulannya.'],
+            ['title' => 'Metode Pembayaran', 'desc' => 'Pembayaran dapat dilakukan tunai di kasir bendahara sekolah atau via Transfer Bank / QRIS.'],
+            ['title' => 'Cetak Kuitansi Resi', 'desc' => 'Klik tombol Cetak Resi pada baris tagihan lunas untuk menyimpan bukti fisik pembayaran.']
+        ]"
+    />
+
+    @php
+        $unpaidInvoices = array_filter($invoices, fn($i) => ($i['status'] ?? '') !== 'lunas');
+        $unpaidCount = count($unpaidInvoices);
+    @endphp
 
     <!-- Outstanding Summary Card -->
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="space-y-1 text-center sm:text-left">
-            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total Tunggakan Aktif</span>
-            <span class="text-2xl font-black text-rose-400 tracking-tight">Rp {{ number_format($totalTunggakan, 0, ',', '.') }}</span>
+            <span class="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">Total Tunggakan Aktif</span>
+            <span class="text-3xl font-black {{ $totalTunggakan > 0 ? 'text-rose-600' : 'text-emerald-600' }}">
+                Rp {{ number_format($totalTunggakan, 0, ',', '.') }}
+            </span>
         </div>
-        
-        <div class="px-5 py-3 rounded-2xl text-xs font-bold text-center
-            {{ $totalTunggakan > 0 ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400' : 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' }}
-        ">
-            {{ $totalTunggakan > 0 ? 'Terdapat Tunggakan Aktif' : 'Semua Tagihan Lunas' }}
+        <div class="px-4 py-2 bg-stone-50 border border-stone-200 rounded-xl text-center sm:text-right">
+            <span class="text-xs text-stone-600 font-semibold block">Status Pembayaran SPP:</span>
+            @if ($totalTunggakan > 0)
+                <span class="text-xs font-bold text-rose-600 inline-flex items-center gap-1 mt-0.5">
+                    <x-lucide-alert-circle class="w-3.5 h-3.5" /> Ada {{ $unpaidCount }} Tagihan Aktif
+                </span>
+            @else
+                <span class="text-xs font-bold text-emerald-600 inline-flex items-center gap-1 mt-0.5">
+                    <x-lucide-check-circle class="w-3.5 h-3.5" /> Seluruh Tagihan Lunas
+                </span>
+            @endif
         </div>
     </div>
 
-    <!-- Invoices List -->
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
-        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Daftar Tagihan Murid</h3>
-        
-        <div class="space-y-4">
-            @forelse ($invoices as $inv)
-                <div class="p-4 bg-slate-950/40 border border-slate-850 rounded-2xl space-y-3">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-850 pb-2">
-                        <div>
-                            <h4 class="text-xs font-bold text-white">{{ $inv['jenis'] }}</h4>
-                            <span class="text-[9px] text-slate-500 font-bold block uppercase tracking-wider">Periode: {{ $inv['bulan'] }} | Jatuh Tempo: {{ $inv['jatuh_tempo'] }}</span>
-                        </div>
-                        <div>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider
-                                {{ $inv['status'] === 'lunas' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : '' }}
-                                {{ $inv['status'] === 'sebagian' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : '' }}
-                                {{ $inv['status'] === 'belum_bayar' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : '' }}
-                            ">
-                                {{ $inv['status'] === 'belum_bayar' ? 'Belum Bayar' : ($inv['status'] === 'sebagian' ? 'Dibayar Sebagian' : 'Lunas') }}
-                            </span>
-                        </div>
-                    </div>
+    <!-- Invoices Table Card -->
+    <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
+        <h3 class="text-sm font-bold text-stone-900 uppercase tracking-wider">Daftar Tagihan SPP & Administrasi</h3>
 
-                    <div class="grid grid-cols-3 gap-4 text-center">
-                        <div class="p-2 bg-slate-900/60 border border-slate-850 rounded-xl">
-                            <span class="text-[8px] text-slate-500 font-bold block uppercase tracking-wider">Nominal Tagihan</span>
-                            <span class="text-xs font-black text-white block mt-0.5">Rp {{ number_format($inv['nominal'], 0, ',', '.') }}</span>
-                        </div>
-                        <div class="p-2 bg-slate-900/60 border border-slate-850 rounded-xl">
-                            <span class="text-[8px] text-slate-500 font-bold block uppercase tracking-wider">Telah Dibayar</span>
-                            <span class="text-xs font-black text-emerald-400 block mt-0.5">Rp {{ number_format($inv['total_dibayar'], 0, ',', '.') }}</span>
-                        </div>
-                        <div class="p-2 bg-slate-900/60 border border-slate-850 rounded-xl">
-                            <span class="text-[8px] text-slate-500 font-bold block uppercase tracking-wider">Sisa Pembayaran</span>
-                            <span class="text-xs font-black text-rose-400 block mt-0.5">Rp {{ number_format($inv['sisa'], 0, ',', '.') }}</span>
-                        </div>
-                    </div>
-
-                    <!-- Payment Sub-logs (History of payment cycles) -->
-                    @if (count($inv['pembayaran']) > 0)
-                        <div class="pt-2">
-                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Riwayat Pembayaran Cicilan / Pelunasan</span>
-                            <div class="space-y-1.5">
-                                @foreach ($inv['pembayaran'] as $pay)
-                                    <div class="px-3 py-1.5 bg-slate-900/40 border border-slate-850 rounded-lg flex items-center justify-between text-[10px]">
-                                        <div class="space-y-0.5">
-                                            <span class="text-slate-400 block">Metode: {{ $pay['metode'] }}</span>
-                                            <span class="text-[8px] text-slate-500 block">Tanggal: {{ $pay['tanggal'] }}</span>
-                                        </div>
-                                        <span class="font-bold text-emerald-400">Rp {{ number_format($pay['jumlah'], 0, ',', '.') }}</span>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-                </div>
-            @empty
-                <div class="py-8 text-center text-slate-500 font-semibold text-xs">
-                    Belum ada tagihan terdaftar untuk akun Anda.
-                </div>
-            @endforelse
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-stone-200 bg-stone-50">
+                        <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider">Keterangan / Bulan</th>
+                        <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider text-right">Nominal Tagihan</th>
+                        <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider text-right">Terbayar</th>
+                        <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider text-center">Status</th>
+                        <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider text-center">Resi / Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-200">
+                    @forelse ($invoices as $inv)
+                        <tr class="hover:bg-stone-50 transition">
+                            <td class="py-3.5 px-4 text-xs font-bold text-stone-900">
+                                {{ $inv['jenis'] }} {{ $inv['bulan'] !== '-' ? '(' . $inv['bulan'] . ')' : '' }}
+                            </td>
+                            <td class="py-3.5 px-4 text-xs text-stone-800 font-bold text-right">
+                                Rp {{ number_format($inv['nominal'], 0, ',', '.') }}
+                            </td>
+                            <td class="py-3.5 px-4 text-xs text-emerald-700 font-bold text-right">
+                                Rp {{ number_format($inv['total_dibayar'], 0, ',', '.') }}
+                            </td>
+                            <td class="py-3.5 px-4 text-center">
+                                @if ($inv['status'] === 'lunas')
+                                    <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-bold">Lunas</span>
+                                @elseif ($inv['status'] === 'sebagian')
+                                    <span class="px-2.5 py-1 bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-xs font-bold">Sebagian</span>
+                                @else
+                                    <span class="px-2.5 py-1 bg-rose-100 text-rose-800 border border-rose-200 rounded-lg text-xs font-bold">Belum Bayar</span>
+                                @endif
+                            </td>
+                            <td class="py-3.5 px-4 text-center">
+                                @if (!empty($inv['pembayaran']))
+                                    @php
+                                        $lastBayar = end($inv['pembayaran']);
+                                    @endphp
+                                    @if ($lastBayar && isset($lastBayar['id']))
+                                        <a href="{{ route('finance.cetak-resi', $lastBayar['id']) }}" target="_blank" 
+                                           class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition shadow-sm">
+                                            <x-lucide-printer class="w-3.5 h-3.5" />
+                                            Cetak Resi
+                                        </a>
+                                    @else
+                                        <span class="text-xs text-stone-400 font-medium">-</span>
+                                    @endif
+                                @else
+                                    <span class="text-xs text-stone-400 font-medium">-</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="py-8 text-center text-xs text-stone-500 font-medium">
+                                Belum ada tagihan SPP yang tercatat untuk Anda.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

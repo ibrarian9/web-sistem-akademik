@@ -1,4 +1,14 @@
 <div class="space-y-8">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Super Admin & Pengendalian Sistem"
+        :steps="[
+            ['title' => 'Statistik Sistem', 'desc' => 'Tinjau total pengguna aktif, kelas berjalan, serta ikhtisar keuangan yayasan.'],
+            ['title' => 'Akses Cepat Pengelolaan', 'desc' => 'Gunakan pintasan navigasi untuk mengelola user, keuangan, audit log, dan pengaturan global.'],
+            ['title' => 'Status Server', 'desc' => 'Pantau kesehatan basis data dan versi framework sistem sekolah secara berkala.']
+        ]"
+    />
+
     <!-- Welcome Header -->
     <div class="flex flex-col gap-1">
         <h2 class="text-2xl font-bold text-stone-800 tracking-tight">Selamat Datang, {{ auth()->user()->nama }}</h2>

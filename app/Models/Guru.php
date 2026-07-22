@@ -16,6 +16,9 @@ class Guru extends Model
         'user_id',
         'nip',
         'jenis_guru',
+        'status_kepegawaian',
+        'tempat_lahir',
+        'tanggal_lahir',
         'no_hp',
         'alamat',
         'tanggal_masuk',
@@ -23,6 +26,7 @@ class Guru extends Model
     ];
 
     protected $casts = [
+        'tanggal_lahir' => 'date',
         'tanggal_masuk' => 'date',
         'status_aktif' => 'boolean',
     ];

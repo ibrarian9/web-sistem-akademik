@@ -20,6 +20,9 @@ class User extends Authenticatable
         'no_hp',
         'alamat',
         'status',
+        'ttd_digital',
+        'nip',
+        'jabatan',
     ];
 
     protected $hidden = [

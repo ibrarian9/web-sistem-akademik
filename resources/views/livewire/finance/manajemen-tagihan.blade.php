@@ -4,38 +4,16 @@
         <p class="text-sm text-stone-500">Buat, filter, dan pantau status tagihan operasional/SPP siswa (kolektif maupun perorangan).</p>
     </div>
 
-    <!-- Guidance Card -->
-    <div x-data="{ openGuide: true }" class="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-4 transition-all shadow-sm">
-        <div class="flex items-center justify-between cursor-pointer" @click="openGuide = !openGuide">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
-                    <x-lucide-info class="w-5 h-5" />
-                </div>
-                <div>
-                    <h4 class="text-xs font-bold text-emerald-950 uppercase tracking-wider">Petunjuk Manajemen Tagihan &amp; Otomatisasi SPP</h4>
-                    <p class="text-xs text-emerald-800">Rilis tagihan per kelas, perorangan, atau secara otomatis untuk seluruh siswa per bulan.</p>
-                </div>
-            </div>
-            <button class="text-emerald-700 hover:text-emerald-900 text-xs font-semibold flex items-center gap-1">
-                <span x-text="openGuide ? 'Sembunyikan' : 'Tampilkan'"></span>
-                <x-lucide-chevron-down class="w-4 h-4 transition-transform" ::class="openGuide ? 'rotate-180' : ''" />
-            </button>
-        </div>
-        <div x-show="openGuide" class="mt-3 pt-3 border-t border-emerald-200/60 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-emerald-900">
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-zap class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Otomatis SPP Bulanan:</strong> Gunakan tab "Otomatis SPP" untuk membuat tagihan SPP 1-Klik bagi seluruh siswa aktif.</span>
-            </div>
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-terminal class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Perintah CLI / Server:</strong> Jalankan <code>php artisan tagihan:generate-spp</code> via Cron Job setiap tanggal 1.</span>
-            </div>
-            <div class="flex items-start gap-2 bg-white/70 p-2.5 rounded-xl border border-emerald-100">
-                <x-lucide-shield-check class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <span><strong>Proteksi Duplikasi:</strong> Tagihan tidak akan terduplikasi jika siswa sudah memiliki tagihan bulan yang sama.</span>
-            </div>
-        </div>
-    </div>
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Manajemen Tagihan & Otomatisasi SPP"
+        :steps="[
+            ['title' => 'Otomatis SPP 1-Klik', 'desc' => 'Gunakan tab Otomatis SPP untuk membuat tagihan SPP bulanan serentak bagi seluruh siswa aktif.'],
+            ['title' => 'Tagihan Khusus', 'desc' => 'Rilis tagihan perorangan atau per kelas untuk pembayaran gedung, seragam, atau uang buku.'],
+            ['title' => 'Proteksi Duplikasi', 'desc' => 'Sistem secara otomatis mencegah adanya tagihan SPP ganda untuk siswa pada bulan yang sama.']
+        ]"
+        notes="Jalankan command php artisan tagihan:generate-spp via Cron Job setiap tanggal 1 bulan berjalan."
+    />
 
     @if (session()->has('message'))
         <x-alert-banner type="success" :message="session('message')" />
@@ -52,73 +30,16 @@
                 <h3 class="text-sm font-bold text-stone-800 uppercase tracking-wider">Rilis Tagihan</h3>
                 <!-- Mode Switcher -->
                 <div class="flex bg-stone-100 p-1 rounded-xl text-xs font-bold gap-1">
-                    <button type="button" wire:click="$set('modeTagihan', 'kolektif')" class="px-2 py-1 rounded-lg transition {{ $modeTagihan === 'kolektif' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500 hover:text-stone-800' }}">
-                        Kolektif
-                    </button>
-                    <button type="button" wire:click="$set('modeTagihan', 'perorangan')" class="px-2 py-1 rounded-lg transition {{ $modeTagihan === 'perorangan' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500 hover:text-stone-800' }}">
+                    <button type="button" wire:click="$set('modeTagihan', 'perorangan')" class="px-2.5 py-1 rounded-lg transition {{ $modeTagihan === 'perorangan' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500 hover:text-stone-800' }}">
                         Perorangan
                     </button>
-                    <button type="button" wire:click="$set('modeTagihan', 'otomatis')" class="px-2 py-1 rounded-lg transition {{ $modeTagihan === 'otomatis' ? 'bg-emerald-600 text-white shadow-sm' : 'text-stone-500 hover:text-stone-800' }}">
+                    <button type="button" wire:click="$set('modeTagihan', 'otomatis')" class="px-2.5 py-1 rounded-lg transition {{ $modeTagihan === 'otomatis' ? 'bg-emerald-600 text-white shadow-sm' : 'text-stone-500 hover:text-stone-800' }}">
                         Otomatis SPP
                     </button>
                 </div>
             </div>
 
-            @if ($modeTagihan === 'kolektif')
-                <!-- FORM KOLEKTIF -->
-                <form wire:submit.prevent="createBulkTagihan" class="space-y-4">
-                    <!-- Kelas -->
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Pilih Kelas Target</label>
-                        <select wire:model.live="kelas_id" class="w-full px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:ring-2 focus:ring-green-500/50 focus:border-green-500">
-                            <option value="">Pilih Kelas</option>
-                            @foreach ($classes as $c)
-                                <option value="{{ $c['id'] }}">Kelas {{ $c['nama_kelas'] }}</option>
-                            @endforeach
-                        </select>
-                        @error('kelas_id') <span class="text-red-600 text-xs block mt-1">{{ $message }}</span> @enderror
-                    </div>
-
-                    <!-- Jenis Tagihan -->
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Kategori Tagihan</label>
-                        <select wire:model.live="jenis_tagihan_id" class="w-full px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:ring-2 focus:ring-green-500/50 focus:border-green-500">
-                            <option value="">Pilih Kategori</option>
-                            @foreach ($jenisTagihans as $jt)
-                                <option value="{{ $jt['id'] }}">{{ $jt['nama'] }}</option>
-                            @endforeach
-                        </select>
-                        @error('jenis_tagihan_id') <span class="text-red-600 text-xs block mt-1">{{ $message }}</span> @enderror
-                    </div>
-
-                    <!-- Bulan/Periode -->
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Bulan / Periode</label>
-                        <input wire:model="bulan" type="text" class="w-full px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:ring-2 focus:ring-green-500/50 focus:border-green-500" placeholder="Contoh: Juli, Agustus..." />
-                        @error('bulan') <span class="text-red-600 text-xs block mt-1">{{ $message }}</span> @enderror
-                    </div>
-
-                    <!-- Nominal -->
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Nominal (Rp)</label>
-                        <input wire:model="nominal" type="number" class="w-full px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:ring-2 focus:ring-green-500/50 focus:border-green-500 text-right font-bold" />
-                        @error('nominal') <span class="text-red-600 text-xs block mt-1">{{ $message }}</span> @enderror
-                    </div>
-
-                    <!-- Jatuh Tempo -->
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Tanggal Jatuh Tempo</label>
-                        <input wire:model="jatuh_tempo" type="date" class="w-full px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:ring-2 focus:ring-green-500/50 focus:border-green-500" />
-                        @error('jatuh_tempo') <span class="text-red-600 text-xs block mt-1">{{ $message }}</span> @enderror
-                    </div>
-
-                    <div class="pt-4">
-                        <button type="submit" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold transition duration-200 shadow-md shadow-green-600/10">
-                            Rilis Tagihan Kolektif
-                        </button>
-                    </div>
-                </form>
-            @elseif ($modeTagihan === 'perorangan')
+            @if ($modeTagihan === 'perorangan')
                 <!-- FORM PERORANGAN -->
                 <form wire:submit.prevent="createSingleTagihan" class="space-y-4">
                     <!-- Siswa -->
@@ -147,8 +68,12 @@
 
                     <!-- Bulan/Periode -->
                     <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Bulan / Periode</label>
-                        <input wire:model="bulan" type="text" class="w-full px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:ring-2 focus:ring-green-500/50 focus:border-green-500" placeholder="Contoh: Juli, Agustus..." />
+                        <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Bulan / Periode Tagihan</label>
+                        <select wire:model="bulan" class="w-full px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:ring-2 focus:ring-green-500/50 focus:border-green-500">
+                            @foreach ($bulanOptions as $b)
+                                <option value="{{ $b }}">{{ $b }}</option>
+                            @endforeach
+                        </select>
                         @error('bulan') <span class="text-red-600 text-xs block mt-1">{{ $message }}</span> @enderror
                     </div>
 
@@ -305,7 +230,15 @@
                                     <x-status-badge :status="$tagihan->status" />
                                 </td>
                                 <td class="py-3 text-center">
-                                    <span class="text-xs text-stone-500 font-semibold">{{ $tagihan->status === 'lunas' ? 'Lunas' : 'Aktif' }}</span>
+                                    @if ($tagihan->total_dibayar == 0)
+                                        <button type="button" wire:click="deleteTagihan({{ $tagihan->id }})" wire:confirm="Hapus tagihan ini?"
+                                            class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition inline-flex items-center gap-1 text-xs font-semibold" title="Hapus Tagihan">
+                                            <x-lucide-trash-2 class="w-3.5 h-3.5" />
+                                            <span>Hapus</span>
+                                        </button>
+                                    @else
+                                        <span class="text-xs text-stone-400 font-medium">Ada Pembayaran</span>
+                                    @endif
                                 </td>
                             </tr>
                         @empty

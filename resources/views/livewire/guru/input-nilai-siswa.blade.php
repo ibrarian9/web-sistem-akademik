@@ -1,4 +1,14 @@
 <div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Input Nilai Mata Pelajaran Siswa"
+        :steps="[
+            ['title' => 'Pilih Kelas, Mapel & Komponen', 'desc' => 'Tentukan kelas, mata pelajaran, serta komponen penilaian (UH, UTS, UAS, Tahfidz).'],
+            ['title' => 'Input Skala 0-100', 'desc' => 'Masukkan skor nilai angka siswa (0.0 - 100.0) dan amati acuan standar KKM mata pelajaran.'],
+            ['title' => 'Simpan Penilaian', 'desc' => 'Klik Simpan Seluruh Nilai untuk menyimpan nilai akhir ke basis data rapor.']
+        ]"
+    />
+
     <div>
         <h2 class="text-xl font-bold text-white tracking-tight">Input Nilai Siswa</h2>
         <p class="text-xs text-slate-500">Pilih kelas, mata pelajaran, dan komponen penilaian untuk menginput nilai siswa secara kolektif.</p>

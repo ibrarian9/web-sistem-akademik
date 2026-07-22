@@ -1,4 +1,15 @@
-<div class="space-y-8">
+<div class="space-y-6">
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Panduan Pusat Kendali Tata Usaha (TU)"
+        :steps="[
+            ['title' => 'Kelola Data Master', 'desc' => 'Gunakan menu Siswa, Guru, & Karyawan untuk menginput serta memverifikasi biodata kepegawaian & siswa.'],
+            ['title' => 'Penjadwalan & Komponen', 'desc' => 'Atur Jadwal Pelajaran, Kelas, serta Komponen Nilai Mapel Umum dan Tahfidz pada menu Tata Kelola.'],
+            ['title' => 'Kenaikan & Kalender', 'desc' => 'Jalankan Proses Kenaikan Kelas di akhir semester dan atur agenda akademik di Kalender Akademik.']
+        ]"
+        notes="Selalu pastikan Tahun Ajaran & Semester Aktif telah sesuai pada pengaturan sistem."
+    />
+
     <!-- Welcome Header -->
     <div class="flex flex-col gap-1">
         <h2 class="text-2xl font-bold text-stone-800 tracking-tight">Selamat Datang, {{ auth()->user()->nama }}</h2>
@@ -77,4 +88,5 @@
             </div>
         </div>
     </div>
+</div>
 </div>
