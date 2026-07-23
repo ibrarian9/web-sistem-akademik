@@ -45,8 +45,8 @@ class VerifikasiDokumenController extends Controller
                 $isValid = true;
             }
 
-            // Assign default signers based on doc type
-            if (in_array($typeCode, ['RES', 'SLI', 'PEM', 'PEN', 'TUN'])) {
+            $isFinancial = in_array($typeCode, ['RES', 'SLI', 'PEM', 'PEN', 'TUN']);
+            if ($isFinancial) {
                 $signerName = Pengaturan::getValue('bendahara_nama', 'Siti Aminah, S.E.');
                 $signerRole = Pengaturan::getValue('bendahara_jabatan', 'Bendahara Keuangan Yayasan');
             } else {
@@ -64,6 +64,7 @@ class VerifikasiDokumenController extends Controller
             'signerRole' => $signerRole,
             'institution' => $institution,
             'issueDate' => $issueDate,
+            'isFinancial' => $isFinancial ?? false,
         ]);
     }
 }

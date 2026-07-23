@@ -14,7 +14,7 @@
             </div>
             <div>
                 <h4 class="text-xs font-bold text-emerald-950 uppercase tracking-wider flex items-center gap-1.5">
-                    <span>💡 {{ $title }}</span>
+                    <span>{{ $title }}</span>
                 </h4>
                 <p class="text-xs text-emerald-800 font-medium mt-0.5">Klik untuk menyembunyikan / menampilkan petunjuk penggunaan.</p>
             </div>

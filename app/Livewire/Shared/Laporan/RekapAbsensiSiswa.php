@@ -9,7 +9,7 @@ use App\Models\AbsensiSiswa;
 use App\Models\GuruMapelKelas;
 use App\Models\KalenderAkademik;
 use Carbon\Carbon;
-use Barryvdh\Dompdf\Facade\Pdf;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class RekapAbsensiSiswa extends Component
 {

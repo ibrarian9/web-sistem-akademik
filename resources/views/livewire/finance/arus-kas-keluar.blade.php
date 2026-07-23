@@ -5,13 +5,19 @@
             <p class="text-sm text-stone-500">Pencatatan dan pemantauan pengeluaran kas operasional sekolah dan yayasan.</p>
         </div>
 
-        <div class="bg-red-50 border border-red-200 rounded-2xl px-5 py-3 flex items-center gap-3">
-            <div class="p-2 bg-red-600 text-white rounded-xl">
-                <x-lucide-receipt class="w-5 h-5" />
-            </div>
-            <div>
-                <span class="text-xs font-semibold text-red-700 uppercase tracking-wider block">Total Pengeluaran Kas</span>
-                <span class="text-lg font-black text-red-900">Rp {{ number_format($totalPengeluaranKas, 0, ',', '.') }}</span>
+        <div class="flex items-center gap-3">
+            <button wire:click="exportPdf" class="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-md shadow-red-600/10 shrink-0">
+                <x-lucide-file-text class="w-4 h-4" />
+                <span>Ekspor PDF</span>
+            </button>
+            <div class="bg-red-50 border border-red-200 rounded-2xl px-5 py-3 flex items-center gap-3">
+                <div class="p-2 bg-red-600 text-white rounded-xl">
+                    <x-lucide-receipt class="w-5 h-5" />
+                </div>
+                <div>
+                    <span class="text-xs font-semibold text-red-700 uppercase tracking-wider block">Total Pengeluaran Kas</span>
+                    <span class="text-lg font-black text-red-900">Rp {{ number_format($totalPengeluaranKas, 0, ',', '.') }}</span>
+                </div>
             </div>
         </div>
     </div>

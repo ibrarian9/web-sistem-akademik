@@ -182,36 +182,6 @@
         </div>
     @endif
 
-    <div class="footer">
-        <table class="footer-table">
-            <tr>
-                <td style="width: 30%; vertical-align: top;">
-                    <div style="height: 15px; line-height: 15px; margin-bottom: 3px;">&nbsp;</div>
-                    <div style="font-weight: bold; margin-bottom: 4px; font-size: 10px;">Orang Tua / Wali Siswa,</div>
-                    <div class="signature-space" style="height: 70px;"></div>
-                    ..................................
-                </td>
-                <td style="width: 35%; vertical-align: top;">
-                    <x-ttd-elektronik 
-                        role="wali_kelas" 
-                        docType="RAP" 
-                        :docId="$rapor->id" 
-                        :user="$siswa->kelas->waliKelas->user ?? null" 
-                        title="Wali Kelas" 
-                        :showLocation="false" 
-                    />
-                </td>
-                <td style="width: 35%; vertical-align: top;">
-                    <x-ttd-elektronik 
-                        role="kepala_sekolah" 
-                        docType="RAP" 
-                        :docId="$rapor->id" 
-                        title="Kepala Madrasah" 
-                        :tanggal="$rapor->tanggal_terbit ? \Carbon\Carbon::parse($rapor->tanggal_terbit)->format('d M Y') : date('d M Y')" 
-                    />
-                </td>
-            </tr>
-        </table>
-    </div>
+    <x-ttd-elektronik role="kepala_sekolah" docType="RAP" :docId="$rapor->id" />
 </body>
 </html>

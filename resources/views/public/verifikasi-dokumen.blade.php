@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verifikasi Tanda Tangan Elektronik - {{ $code }}</title>
+    <title>Verifikasi Dokumen Resmi - {{ $code }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,7 +15,7 @@
         }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #064e3b 50%, #0f172a 100%);
             color: #f8fafc;
             min-height: 100vh;
             display: flex;
@@ -26,12 +26,12 @@
         .container {
             width: 100%;
             max-width: 580px;
-            background: rgba(30, 41, 59, 0.85);
+            background: rgba(15, 23, 42, 0.88);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 24px;
             padding: 40px 32px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
             text-align: center;
         }
         .icon-badge {
@@ -44,13 +44,13 @@
             margin-bottom: 20px;
         }
         .icon-badge.valid {
-            background: rgba(16, 185, 129, 0.15);
-            border: 2px solid #10b981;
+            background: rgba(16, 185, 129, 0.18);
+            border: 2.5px solid #10b981;
             color: #10b981;
         }
         .icon-badge.invalid {
-            background: rgba(239, 68, 68, 0.15);
-            border: 2px solid #ef4444;
+            background: rgba(239, 68, 68, 0.18);
+            border: 2.5px solid #ef4444;
             color: #ef4444;
         }
         .status-title {
@@ -62,12 +62,12 @@
         .status-title.valid { color: #34d399; }
         .status-title.invalid { color: #f87171; }
         .subtitle {
-            font-size: 14px;
+            font-size: 13.5px;
             color: #94a3b8;
             margin-bottom: 28px;
         }
         .info-card {
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(30, 41, 59, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 16px;
             padding: 20px;
@@ -79,7 +79,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 10px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
             font-size: 13px;
         }
         .info-row:last-child {
@@ -97,9 +97,9 @@
         .code-badge {
             display: inline-block;
             font-family: monospace;
-            background: rgba(99, 102, 241, 0.2);
-            color: #818cf8;
-            border: 1px solid rgba(99, 102, 241, 0.4);
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
             padding: 4px 10px;
             border-radius: 8px;
             font-size: 12px;
@@ -133,8 +133,8 @@
                     <polyline points="22 4 12 14.01 9 11.01"></polyline>
                 </svg>
             </div>
-            <h1 class="status-title valid">DOKUMEN SAH & TERVERIFIKASI</h1>
-            <p class="subtitle">Tanda Tangan Elektronik Asli Terdaftar Pada Sistem Akademik</p>
+            <h1 class="status-title valid">DOKUMEN RESMI SAH & TERVERIFIKASI</h1>
+            <p class="subtitle">Dokumen Diterbitkan Secara Resmi Oleh Sistem Akademik & Keuangan Lembaga</p>
         @else
             <div class="icon-badge invalid">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -144,7 +144,7 @@
                 </svg>
             </div>
             <h1 class="status-title invalid">DOKUMEN TIDAK DITEMUKAN</h1>
-            <p class="subtitle">Kode Tanda Tangan Elektronik Tidak Valid / Tidak Terdaftar</p>
+            <p class="subtitle">Kode Verifikasi Dokumen Tidak Valid Atau Tidak Terdaftar Pada Sistem</p>
         @endif
 
         <div class="info-card">
@@ -161,7 +161,7 @@
                 <span class="info-val">#{{ $docId }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Penerbit / Instansi</span>
+                <span class="info-label">Penerbit / Lembaga</span>
                 <span class="info-val">{{ $institution }}</span>
             </div>
             <div class="info-row">
@@ -175,16 +175,22 @@
             <div class="info-row">
                 <span class="info-label">Status Keabsahan</span>
                 <span class="info-val" style="color: {{ $isValid ? '#34d399' : '#f87171' }};">
-                    {{ $isValid ? 'TERVERIFIKASI & SAH DEMI HUKUM' : 'TIDAK VALID' }}
+                    {{ $isValid ? 'TERVERIFIKASI & SAH SECARA PUBLIK' : 'TIDAK VALID' }}
                 </span>
             </div>
+            @if ($isValid && ($isFinancial ?? false))
+            <div class="info-row" style="background: rgba(16, 185, 129, 0.12); padding: 12px; border-radius: 10px; margin-top: 8px;">
+                <span class="info-label" style="color: #34d399; font-weight: bold;">Status Pembayaran</span>
+                <span class="info-val" style="color: #34d399; font-weight: 800; letter-spacing: 0.5px;">✓ TELAH DIBAYAR &amp; LUNAS (RESMI)</span>
+            </div>
+            @endif
         </div>
 
         <div class="cert-seal">
             <svg viewBox="0 0 24 24">
                 <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5zm-2 16l-4-4 1.41-1.41L10 15.17l6.59-6.59L18 10l-8 8z"/>
             </svg>
-            <span>Verifikasi Keamanan Digital Sistem Informasi Akademik & Keuangan Yayasan</span>
+            <span>Layanan Verifikasi Publik Sistem Informasi Akademik & Keuangan Yayasan</span>
         </div>
     </div>
 

@@ -134,21 +134,7 @@
         </table>
     </div>
 
-    <table class="footer-signature">
-        <tr>
-            <td style="width: 50%;"></td>
-            <td style="width: 50%; text-align: center; vertical-align: top;">
-                <x-ttd-elektronik 
-                    role="bendahara" 
-                    docType="RES" 
-                    :docId="$pembayaran->id" 
-                    :user="$pembayaran->petugas ?? ($staffFinance ?? null)" 
-                    title="Staf Keuangan / Bendahara" 
-                    :tanggal="date('d F Y', strtotime($pembayaran->tanggal_bayar))" 
-                />
-            </td>
-        </tr>
-    </table>
+    <x-ttd-elektronik role="bendahara" docType="RES" :docId="$pembayaran->id" />
 
 </body>
 </html>

@@ -15,10 +15,12 @@
             <p class="text-sm text-stone-500">Menu pengajuan anggaran operasional (buku, seragam, dll.) dengan persetujuan bertingkat.</p>
         </div>
 
+        @if ($userRole === 'finance')
         <button wire:click="openModal" class="py-2.5 px-5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold transition duration-200 shadow-md shadow-green-600/10 flex items-center gap-2 w-fit">
             <x-lucide-plus-circle class="w-4 h-4" />
             <span>Buat Pengajuan Dana</span>
         </button>
+        @endif
     </div>
 
     @if (session()->has('message'))
@@ -104,9 +106,9 @@
 
                             <!-- Status -->
                             <td class="py-4 text-center">
-                                @if ($item->status === 'menunggu_koordinator')
+                                @if ($item->status === 'menunggu_koordinator' || $item->status === 'menunggu_pengawas')
                                     <span class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-xs font-bold inline-flex items-center gap-1">
-                                        <x-lucide-clock class="w-3.5 h-3.5" /> Menunggu Koordinator
+                                        <x-lucide-clock class="w-3.5 h-3.5" /> Menunggu Pengawas
                                     </span>
                                 @elseif ($item->status === 'menunggu_kepala_yayasan')
                                     <span class="px-2.5 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-lg text-xs font-bold inline-flex items-center gap-1">
@@ -130,9 +132,9 @@
                             <!-- Aksi -->
                             <td class="py-4 text-center">
                                 <div class="flex items-center justify-center gap-2">
-                                    <!-- Koordinator Approval Action -->
-                                    @if ($item->status === 'menunggu_koordinator' && in_array($userRole, ['koordinator', 'super_admin']))
-                                        <button wire:click="approveByKoordinator({{ $item->id }})" title="Setujui sebagai Koordinator" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 shadow-sm">
+                                    <!-- Pengawas / Super Admin Approval Action -->
+                                    @if (in_array($item->status, ['menunggu_koordinator', 'menunggu_pengawas']) && in_array($userRole, ['pengawas', 'koordinator', 'super_admin']))
+                                        <button wire:click="approveByKoordinator({{ $item->id }})" title="Setujui sebagai Pengawas" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 shadow-sm">
                                             <x-lucide-check class="w-3.5 h-3.5" />
                                             <span>Setujui</span>
                                         </button>

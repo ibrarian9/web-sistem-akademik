@@ -105,15 +105,17 @@
                             <td class="py-3.5 text-center">
                                 <div class="flex items-center justify-center gap-2">
                                     @if ($sal->status === 'draft')
-                                        <button wire:click="openEditModal({{ $sal->id }})" class="p-1.5 text-stone-500 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition" title="Edit Draf">
-                                            <x-lucide-edit-3 class="w-4 h-4" />
+                                        <button wire:click="openEditModal({{ $sal->id }})" class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-500 border border-amber-200 hover:border-amber-500 text-amber-700 hover:text-slate-950 rounded-xl text-[11px] font-bold transition-all duration-150 inline-flex items-center gap-1.5 shadow-xs" title="Edit Draf">
+                                            <x-lucide-edit class="w-3.5 h-3.5" />
+                                            <span>Edit</span>
                                         </button>
-                                        <button wire:click="paySalary({{ $sal->id }})" class="px-2.5 py-1 bg-green-100 hover:bg-green-200 text-green-800 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Bayar">
+                                        <button wire:click="paySalary({{ $sal->id }})" class="px-2.5 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-sm" title="Bayar">
                                             <x-lucide-credit-card class="w-3.5 h-3.5" />
                                             <span>Bayar</span>
                                         </button>
-                                        <button wire:click="deleteDraft({{ $sal->id }})" wire:confirm="Apakah Anda yakin ingin menghapus draf gaji ini?" class="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition" title="Hapus Draf">
-                                            <x-lucide-trash-2 class="w-4 h-4" />
+                                        <button wire:click="deleteDraft({{ $sal->id }})" wire:confirm="Apakah Anda yakin ingin menghapus draf gaji ini?" class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-600 border border-rose-200 hover:border-rose-600 text-rose-700 hover:text-white rounded-xl text-[11px] font-bold transition-all duration-150 inline-flex items-center gap-1.5 shadow-xs" title="Hapus Draf">
+                                            <x-lucide-trash-2 class="w-3.5 h-3.5" />
+                                            <span>Hapus</span>
                                         </button>
                                     @else
                                         <a href="{{ route('finance.gaji-guru.slip', $sal->id) }}" target="_blank" class="px-2.5 py-1 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Unduh Slip Gaji">

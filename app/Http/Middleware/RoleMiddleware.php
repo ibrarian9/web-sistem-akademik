@@ -44,7 +44,7 @@ class RoleMiddleware
             'murid' => redirect()->route('murid.dashboard'),
             'finance' => redirect()->route('finance.dashboard'),
             'kepala_sekolah' => redirect()->route('kepala-sekolah.dashboard'),
-            'koordinator' => redirect()->route('koordinator.dashboard'),
+            'pengawas', 'koordinator' => redirect()->route('pengawas.dashboard'),
             default => abort(403, 'Akses tidak sah.'),
         };
     }

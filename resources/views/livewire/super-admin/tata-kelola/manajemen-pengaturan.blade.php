@@ -1,17 +1,17 @@
 <div class="space-y-6">
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
-        title="Petunjuk Pengaturan Global & TTD Digital"
+        title="Petunjuk Pengaturan Global Instansi"
         :steps="[
-            ['title' => 'Profil Instansi', 'desc' => 'Kelola nama yayasan, logo sekolah, alamat, serta nomor kontak resmi lembaga.'],
-            ['title' => 'TTD Digital Pejabat', 'desc' => 'Upload berkas gambar TTD transparan PNG atau buat TTD digital langsung di kanvas web.'],
-            ['title' => 'Simpan Preferensi', 'desc' => 'Klik Simpan Pengaturan untuk memberlakukan TTD pada slip gaji, resi, dan rapor siswa.']
+            ['title' => 'Profil Lembaga', 'desc' => 'Kelola nama yayasan, logo sekolah, alamat resmi, serta nomor telepon instansi.'],
+            ['title' => 'Nama Pejabat Resmi', 'desc' => 'Kelola nama dan NIP Kepala Sekolah, Bendahara Keuangan, serta Kepala Tata Usaha.'],
+            ['title' => 'Verifikasi Otomatis', 'desc' => 'Seluruh dokumen PDF yang dicetak akan terbit dengan QR Code Verifikasi Publik resmi.']
         ]"
     />
 
     <div>
-        <h2 class="text-xl font-bold text-white tracking-tight">Pengaturan Sistem & TTD Elektronik</h2>
-        <p class="text-xs text-slate-500">Konfigurasi data instansi, tanda tangan elektronik resmi (Kepala Sekolah & Bendahara), dan preferensi sistem.</p>
+        <h2 class="text-xl font-bold text-white tracking-tight">Pengaturan Global Sistem & Dokumen</h2>
+        <p class="text-xs text-slate-500">Konfigurasi data instansi dan identitas pejabat resmi penyah dokumen.</p>
     </div>
 
     @if (session()->has('message'))
@@ -52,7 +52,7 @@
             <div class="flex items-center justify-between border-t border-slate-800 pt-4 mt-6">
                 <div class="text-[11px] text-emerald-400 font-medium flex items-center gap-1.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                    TTD Elektronik & QR Code Verifikasi Aktif Otomatis di Seluruh Dokumen
+                    QR Code Verifikasi Publik Aktif Otomatis di Seluruh Dokumen
                 </div>
                 <button type="submit" class="py-2.5 px-6 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition duration-200 shadow-lg shadow-indigo-600/10">
                     Simpan Pengaturan

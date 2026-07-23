@@ -69,6 +69,34 @@ class ArusKasMasuk extends Component
         session()->flash('message', 'Catatan pemasukan kas berhasil dihapus.');
     }
 
+    public function exportPdf()
+    {
+        $query = PemasukanKas::with('petugas')->orderBy('tanggal', 'desc');
+
+        if ($this->filterKategori !== '') {
+            $query->where('kategori', $this->filterKategori);
+        }
+
+        if ($this->search !== '') {
+            $query->where(function ($q) {
+                $q->where('kategori', 'like', '%' . $this->search . '%')
+                  ->orWhere('keterangan', 'like', '%' . $this->search . '%');
+            });
+        }
+
+        $data = $query->get();
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('livewire.shared.laporan.pdf-laporan-kas-masuk', [
+            'data' => $data,
+            'kategori' => $this->filterKategori ?: 'Semua Kategori',
+            'totalPemasukan' => $data->sum('jumlah'),
+        ])->setPaper('a4', 'portrait');
+
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->stream();
+        }, 'laporan_kas_masuk_' . date('Ymd_His') . '.pdf');
+    }
+
     public function render()
     {
         $query = PemasukanKas::with('petugas')->latest('tanggal');

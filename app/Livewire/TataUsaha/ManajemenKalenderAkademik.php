@@ -65,8 +65,18 @@ class ManajemenKalenderAkademik extends Component
         $this->resetPage();
     }
 
+    public function canManage(): bool
+    {
+        $role = auth()->user()->role->nama ?? '';
+        return in_array($role, ['tata_usaha', 'super_admin']);
+    }
+
     public function openCreateModal()
     {
+        if (!$this->canManage()) {
+            session()->flash('error', 'Hanya Tata Usaha dan Super Admin yang dapat mengelola kalender akademik.');
+            return;
+        }
         $this->resetForm();
         $this->isEditing = false;
         $this->showModal = true;
@@ -74,6 +84,10 @@ class ManajemenKalenderAkademik extends Component
 
     public function openEditModal($id)
     {
+        if (!$this->canManage()) {
+            session()->flash('error', 'Hanya Tata Usaha dan Super Admin yang dapat mengelola kalender akademik.');
+            return;
+        }
         $event = KalenderAkademik::findOrFail($id);
         $this->eventId = $event->id;
         $this->tahun_ajaran_id = $event->tahun_ajaran_id;
@@ -110,6 +124,10 @@ class ManajemenKalenderAkademik extends Component
 
     public function save()
     {
+        if (!$this->canManage()) {
+            session()->flash('error', 'Hanya Tata Usaha dan Super Admin yang dapat mengelola kalender akademik.');
+            return;
+        }
         $validated = $this->validate();
 
         if ($this->isEditing && $this->eventId) {
@@ -126,6 +144,10 @@ class ManajemenKalenderAkademik extends Component
 
     public function delete($id)
     {
+        if (!$this->canManage()) {
+            session()->flash('error', 'Hanya Tata Usaha dan Super Admin yang dapat mengelola kalender akademik.');
+            return;
+        }
         KalenderAkademik::findOrFail($id)->delete();
         session()->flash('message', 'Agenda kalender akademik berhasil dihapus.');
     }
@@ -151,6 +173,7 @@ class ManajemenKalenderAkademik extends Component
         return view('livewire.tata-usaha.manajemen-kalender-akademik', [
             'events' => $events,
             'tahunAjarans' => $tahunAjarans,
+            'canManage' => $this->canManage(),
         ])->layout('components.layouts.app', ['title' => 'Kalender Akademik & Hari Libur']);
     }
 }

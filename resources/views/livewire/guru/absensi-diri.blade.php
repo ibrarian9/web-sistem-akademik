@@ -59,21 +59,12 @@
                 </div>
             </div>
 
-            <!-- Action buttons -->
-            <div class="space-y-3 pt-6">
-                @if (!$waktu_datang)
-                    <button wire:click="checkIn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold tracking-wide transition duration-200 shadow-lg shadow-indigo-600/10">
-                        Check-In Datang
-                    </button>
-                @elseif (!$waktu_pulang)
-                    <button wire:click="checkOut" class="w-full py-3 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold tracking-wide transition duration-200 shadow-lg shadow-sky-600/10">
-                        Check-Out Pulang
-                    </button>
-                @else
-                    <div class="w-full py-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-center rounded-xl text-xs font-bold uppercase tracking-wide">
-                        Selesai Absensi Hari Ini
-                    </div>
-                @endif
+            <!-- Action info box -->
+            <div class="space-y-3 pt-4">
+                <div class="p-4 bg-emerald-50/90 border border-emerald-200/90 text-emerald-950 rounded-2xl text-xs space-y-1.5 text-center shadow-xs">
+                    <span class="font-bold block uppercase tracking-wide text-emerald-950">Pencatatan Terpusat oleh TU</span>
+                    <p class="text-[11px] text-emerald-800 font-medium leading-relaxed">Presensi kehadiran dikelola &amp; diinput oleh Tata Usaha. Guru tidak perlu mengisi absensi mandiri.</p>
+                </div>
             </div>
         </div>
 

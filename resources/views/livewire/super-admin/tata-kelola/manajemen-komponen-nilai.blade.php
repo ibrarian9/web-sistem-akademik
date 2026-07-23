@@ -42,7 +42,7 @@
         </button>
         <button wire:click="$set('filterBerlaku', 'tahfidz')" type="button" 
             class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 {{ $filterBerlaku === 'tahfidz' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-stone-100 text-stone-600 hover:bg-stone-200' }}">
-            <span>📖 Mapel Tahfidz</span>
+            <span>📖 Mapel Tahfizh</span>
         </button>
     </div>
 
@@ -78,11 +78,13 @@
                                 </div>
                             </div>
 
-                            <button wire:click="openEdit({{ $komponen['id'] }})" type="button" class="p-2 text-stone-400 hover:text-indigo-600 hover:bg-stone-100 rounded-xl transition" title="Edit Detail">
-                                <x-lucide-pencil class="w-4 h-4" />
+                            <button wire:click="openEdit({{ $komponen['id'] }})" type="button" class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-500 border border-amber-200 hover:border-amber-500 text-amber-700 hover:text-slate-950 rounded-xl text-[11px] font-bold transition-all duration-150 inline-flex items-center gap-1.5 shadow-xs" title="Edit Detail">
+                                <x-lucide-edit class="w-3.5 h-3.5" />
+                                <span>Edit</span>
                             </button>
-                            <button wire:click="delete({{ $komponen['id'] }})" wire:confirm="Yakin ingin menghapus komponen nilai ini?" type="button" class="p-2 text-stone-400 hover:text-rose-600 hover:bg-stone-100 rounded-xl transition" title="Hapus">
-                                <x-lucide-trash-2 class="w-4 h-4" />
+                            <button wire:click="delete({{ $komponen['id'] }})" wire:confirm="Yakin ingin menghapus komponen nilai ini?" type="button" class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-600 border border-rose-200 hover:border-rose-600 text-rose-700 hover:text-white rounded-xl text-[11px] font-bold transition-all duration-150 inline-flex items-center gap-1.5 shadow-xs" title="Hapus">
+                                <x-lucide-trash-2 class="w-3.5 h-3.5" />
+                                <span>Hapus</span>
                             </button>
                         </div>
                     </div>

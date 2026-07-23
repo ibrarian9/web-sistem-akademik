@@ -102,7 +102,7 @@ class ManajemenKoreksiNilai extends Component
                 Notifikasi::create([
                     'user_id' => $pengajuan->guru->user_id,
                     'judul' => 'Pengajuan Koreksi Nilai Disetujui',
-                    'isi_pesan' => "Pengajuan koreksi nilai Anda untuk siswa telah disetujui oleh Koordinator.",
+                    'isi_pesan' => "Pengajuan koreksi nilai Anda untuk siswa telah disetujui oleh Pengawas.",
                     'jenis' => 'info',
                     'status_kirim' => 'terkirim',
                 ]);
@@ -130,7 +130,7 @@ class ManajemenKoreksiNilai extends Component
             Notifikasi::create([
                 'user_id' => $pengajuan->guru->user_id,
                 'judul' => 'Pengajuan Koreksi Nilai Ditolak',
-                'isi_pesan' => "Pengajuan koreksi nilai Anda ditolak oleh Koordinator.",
+                'isi_pesan' => "Pengajuan koreksi nilai Anda ditolak oleh Pengawas.",
                 'jenis' => 'peringatan',
                 'status_kirim' => 'terkirim',
             ]);

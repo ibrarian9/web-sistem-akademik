@@ -6,7 +6,7 @@
     'tanggal' => null,
     'location' => 'Sleman',
     'showLocation' => true,
-    'title' => null
+    'title' => null,
 ])
 
 @php
@@ -17,55 +17,49 @@
         $user,
         $tanggal ?: date('d-m-Y')
     );
-    $locationStr = $showLocation ? ($location . ', ' . $sigData['tanggal']) : '';
 @endphp
 
-<div class="ttd-box" style="text-align: center; font-size: 10px; color: #1e293b; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; display: inline-block; width: 100%;">
-    <!-- Baris Tanggal/Lokasi dengan Tinggi Tetap untuk Penjajaran Horisontal 100% Presisi -->
-    <div style="height: 15px; line-height: 15px; margin-bottom: 3px; font-size: 9.5px; color: #334155; text-align: center;">
-        {!! !empty($locationStr) ? e($locationStr) : '&nbsp;' !!}
-    </div>
+<!-- Kotak QR Code Besar Verifikasi Publik Resmi Dokumen -->
+<div style="margin: 25px auto 10px auto; text-align: center; width: 100%; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+    <div style="display: inline-block; padding: 16px 20px; border: 2.5px solid #059669; background-color: #f0fdf4; border-radius: 14px; width: 360px; max-width: 90%; text-align: center; box-sizing: border-box; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+        
+        <!-- Tanggal & Lokasi Penetapan -->
+        <div style="font-size: 9px; color: #475569; font-weight: bold; margin-bottom: 8px;">
+            {{ $location }}, {{ $sigData['tanggal'] }}
+        </div>
 
-    <!-- Jabatan Pejabat Penandatangan -->
-    <div style="font-weight: bold; height: 15px; line-height: 15px; margin-bottom: 5px; color: #0f172a; font-size: 10px;">
-        {{ $title ?: $sigData['jabatan'] }}
-    </div>
-    
-    <!-- Kotak TTD Elektronik & QR Code (Besar & Jelas) -->
-    <div style="margin: 3px auto 6px auto; padding: 6px; border: 1.5px dashed #047857; background-color: #f0fdf4; border-radius: 8px; width: 220px; text-align: center; box-sizing: border-box;">
-        <table style="width: 100%; border-collapse: collapse; margin: 0 auto;">
-            <tr>
-                <!-- QR Code (Diperbesar 64px x 64px) -->
-                <td style="width: 68px; text-align: center; vertical-align: middle; padding-right: 4px;">
-                    <img src="{{ $sigData['qr_code'] }}" style="width: 64px; height: 64px; display: block; margin: 0 auto;" />
-                </td>
+        <!-- Penandatangan Resmi -->
+        <div style="font-size: 10px; font-weight: bold; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">
+            {{ $sigData['jabatan'] }}
+        </div>
 
-                <!-- Gambar TTD Manual (Jika Ada) + Lencana Verifikasi Elektronik -->
-                <td style="text-align: left; vertical-align: middle; padding-left: 4px;">
-                    @if(!empty($sigData['ttd_image']) && file_exists(public_path($sigData['ttd_image'])))
-                        <div style="margin-bottom: 3px;">
-                            <img src="{{ public_path($sigData['ttd_image']) }}" style="height: 36px; max-width: 120px; object-fit: contain; display: block;" />
-                        </div>
-                    @endif
-                    <div style="font-size: 7.5px; font-weight: bold; color: #047857; text-transform: uppercase; letter-spacing: 0.5px;">TTD ELEKTRONIK</div>
-                    <div style="font-size: 7px; color: #0f172a; font-weight: bold; font-family: monospace; margin: 1px 0;">{{ $sigData['code'] }}</div>
-                    <div style="font-size: 6.5px; color: #059669; font-weight: bold;">Dokumen Sah Terverifikasi</div>
-                </td>
-            </tr>
-        </table>
-    </div>
+        <!-- QR Code Besar Publik (140px x 140px) -->
+        <div style="margin: 10px auto; text-align: center;">
+            <img src="{{ $sigData['qr_code'] }}" style="width: 140px; height: 140px; display: inline-block; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; background-color: #ffffff;" alt="QR Code Verifikasi Dokumen" />
+        </div>
+        
+        <!-- Status Keabsahan Dokumen -->
+        <div style="font-size: 11px; font-weight: 800; color: #047857; text-transform: uppercase; letter-spacing: 0.6px; margin-top: 4px;">
+            ✓ DOKUMEN RESMI SAH &amp; TERVERIFIKASI
+        </div>
 
-    <!-- Nama Penandatangan -->
-    <div style="font-weight: bold; text-decoration: underline; color: #0f172a; font-size: 10.5px; height: 15px; line-height: 15px;">
-        {{ $sigData['nama'] }}
-    </div>
-
-    <!-- NIP Penandatangan (Tinggi Tetap Presisi) -->
-    <div style="font-size: 9px; color: #475569; height: 14px; line-height: 14px; margin-top: 1px;">
-        @if(!empty($sigData['nip']) && $sigData['nip'] !== '-')
-            NIP: {{ $sigData['nip'] }}
-        @else
-            &nbsp;
+        <div style="font-size: 10.5px; font-weight: bold; color: #0f172a; text-decoration: underline; margin-top: 4px;">
+            {{ $sigData['nama'] }}
+        </div>
+        @if ($sigData['nip'] && $sigData['nip'] !== '-')
+            <div style="font-size: 8.5px; color: #475569; font-weight: bold; margin-top: 1px;">
+                NIP: {{ $sigData['nip'] }}
+            </div>
         @endif
+
+        <!-- Kode Verifikasi Unik -->
+        <div style="font-size: 9px; color: #0f172a; font-weight: bold; font-family: monospace; background-color: #dcfce7; border: 1px solid #86efac; border-radius: 6px; padding: 3px 8px; margin: 8px auto 6px auto; display: inline-block;">
+            KODE VERIFIKASI: {{ $sigData['code'] }}
+        </div>
+
+        <!-- Petunjuk Scan QR Code Publik -->
+        <div style="font-size: 8px; color: #047857; font-weight: bold; line-height: 1.35; margin-top: 4px;">
+            Scan QR Code ini untuk memverifikasi keaslian &amp; keabsahan dokumen secara langsung di website tanpa perlu login.
+        </div>
     </div>
 </div>

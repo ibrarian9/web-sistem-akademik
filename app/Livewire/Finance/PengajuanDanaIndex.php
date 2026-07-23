@@ -49,6 +49,12 @@ class PengajuanDanaIndex extends Component
 
     public function openModal()
     {
+        $userRole = auth()->user()->role->nama ?? '';
+        if ($userRole !== 'finance') {
+            session()->flash('error', 'Hanya bagian Keuangan yang dapat membuat pengajuan dana.');
+            return;
+        }
+
         $this->reset(['judul', 'jumlah', 'keterangan', 'target_realisasi']);
         $this->kategori = 'Pembelian Buku / Literasi';
         $this->showModal = true;
@@ -61,6 +67,12 @@ class PengajuanDanaIndex extends Component
 
     public function createPengajuan()
     {
+        $userRole = auth()->user()->role->nama ?? '';
+        if ($userRole !== 'finance') {
+            session()->flash('error', 'Hanya bagian Keuangan yang dapat membuat pengajuan dana.');
+            return;
+        }
+
         $this->validate();
 
         PengajuanDana::create([
@@ -73,17 +85,28 @@ class PengajuanDanaIndex extends Component
             'status' => 'menunggu_koordinator',
         ]);
 
-        session()->flash('message', 'Pengajuan penggunaan dana berhasil dibuat.');
+        session()->flash('message', 'Pengajuan penggunaan dana berhasil dibuat oleh Keuangan.');
         $this->closeModal();
         $this->resetPage();
     }
 
+    public function approveByPengawas(int $id)
+    {
+        return $this->approveByKoordinator($id);
+    }
+
     public function approveByKoordinator(int $id)
     {
+        $userRole = auth()->user()->role->nama ?? '';
+        if (!in_array($userRole, ['pengawas', 'koordinator', 'super_admin'])) {
+            session()->flash('error', 'Anda tidak memiliki hak akses persetujuan pengajuan dana.');
+            return;
+        }
+
         $pengajuan = PengajuanDana::findOrFail($id);
 
-        if ($pengajuan->status !== 'menunggu_koordinator') {
-            session()->flash('error', 'Status pengajuan tidak valid untuk persetujuan Koordinator.');
+        if (!in_array($pengajuan->status, ['menunggu_koordinator', 'menunggu_pengawas'])) {
+            session()->flash('error', 'Status pengajuan tidak valid untuk persetujuan.');
             return;
         }
 
@@ -97,8 +120,8 @@ class PengajuanDanaIndex extends Component
         ]);
 
         $msg = $newStatus === 'disetujui' 
-            ? 'Pengajuan dana berhasil disetujui oleh Koordinator (di bawah Rp 1 Juta).' 
-            : 'Pengajuan dana disetujui Koordinator dan diteruskan ke Kepala Yayasan (di atas Rp 1 Juta).';
+            ? 'Pengajuan dana berhasil disetujui oleh Pengawas / Super Admin (di bawah Rp 1 Juta).' 
+            : 'Pengajuan dana disetujui Pengawas / Super Admin dan diteruskan ke Kepala Yayasan (di atas Rp 1 Juta).';
 
         session()->flash('message', $msg);
     }

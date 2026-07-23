@@ -56,7 +56,7 @@
                                     $isTahfidzMapel = $selectedAssignment['mapel']['is_tahfidz'] ?? (strtolower($selectedAssignment['mapel']['kategori'] ?? '') === 'tahfidz');
                                 @endphp
                                 <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase {{ $isTahfidzMapel ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-blue-100 text-blue-800 border border-blue-300' }}">
-                                    {{ $isTahfidzMapel ? '📖 Mapel Tahfidz' : '📘 Mapel Umum' }}
+                                    {{ $isTahfidzMapel ? '📖 Mapel Tahfizh' : '📘 Mapel Umum' }}
                                 </span>
                             @endif
                         </div>

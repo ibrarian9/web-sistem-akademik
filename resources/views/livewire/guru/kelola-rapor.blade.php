@@ -257,9 +257,9 @@
                                 <x-lucide-lightbulb class="w-4 h-4 text-amber-500" />
                                 <span>Informasi Penerbitan Rapor {{ $guruJenis === 'tahfizh' ? 'Tahfizh' : 'Umum' }}:</span>
                             </p>
-                            <p>1. **Penerbitan Khusus**: Guru Tahfizh hanya dapat mengelola &amp; menerbitkan Rapor Tahfizh Al-Qur'an, sedangkan Guru Umum mengelola Rapor Akademik Umum.</p>
-                            <p>2. **Notifikasi Otomatis**: Murid menerima notifikasi in-app ketika rapor resmi diterbitkan.</p>
-                            <p>3. **Integrasi Status Keuangan**: Rapor murid yang menunggak SPP per tanggal 10 otomatis terkunci di portal murid sampai tunggakan diselesaikan.</p>
+                            <p>1. Penerbitan Khusus: Guru Tahfizh hanya dapat mengelola &amp; menerbitkan Rapor Tahfizh Al-Qur'an, sedangkan Guru Umum mengelola Rapor Akademik Umum.</p>
+                            <p>2. Notifikasi Otomatis: Murid menerima notifikasi in-app ketika rapor resmi diterbitkan.</p>
+                            <p>3. Integrasi Status Keuangan: Rapor murid yang menunggak SPP per tanggal 10 otomatis terkunci di portal murid sampai tunggakan diselesaikan.</p>
                         </div>
                     </div>
                 </div>

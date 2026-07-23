@@ -37,12 +37,26 @@ Route::post('/logout', function (\Illuminate\Http\Request $request) {
 })->name('logout');
 
 // Role-based Protected Routes
+// Role-based Protected Routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/profil', \App\Livewire\Shared\ProfilSaya::class)->name('profil');
     
-    // Shared Notifications Route (accessible by any authenticated user)
+    // Shared Notifications & Documents Route (accessible by any authenticated user)
     Route::get('/notifikasi', \App\Livewire\Shared\NotificationsList::class)->name('shared.notifications');
+    Route::get('/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik.shared');
     
+    // Multi-role Protected Documents (Authorization Handled in Controller)
+    Route::get('/pembayaran/resi/{id}', [\App\Http\Controllers\FinanceReportController::class, 'cetakResi'])->name('pembayaran.resi');
+    Route::get('/cetak-resi/{id}', [\App\Http\Controllers\FinanceReportController::class, 'cetakResi'])->name('cetak-resi');
+    Route::get('/finance/cetak-resi/{id}', [\App\Http\Controllers\FinanceReportController::class, 'cetakResi'])->name('finance.cetak-resi');
+    Route::get('/gaji-guru/slip/{id}', [\App\Http\Controllers\FinanceReportController::class, 'slipGaji'])->name('gaji-guru.slip');
+    Route::get('/finance/gaji-guru/slip/{id}', [\App\Http\Controllers\FinanceReportController::class, 'slipGaji'])->name('finance.gaji-guru.slip');
+
+    // Pengajuan Dana Route — Accessible strictly by Finance only
+    Route::middleware(['role:finance'])
+        ->get('/finance/pengajuan-dana', \App\Livewire\Finance\PengajuanDanaIndex::class)
+        ->name('finance.pengajuan-dana');
+
     // Super Admin Group — Oversight, Keuangan, User Management, Audit
     Route::middleware(['role:super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
         Route::get('/dashboard', \App\Livewire\SuperAdmin\Dashboard::class)->name('dashboard');
@@ -53,6 +67,7 @@ Route::middleware(['auth'])->group(function () {
         // Master Data Oversight
         Route::get('/siswa', \App\Livewire\SuperAdmin\TataKelola\ManajemenSiswa::class)->name('siswa');
         Route::get('/guru', \App\Livewire\SuperAdmin\TataKelola\ManajemenGuru::class)->name('guru');
+        Route::get('/karyawan', \App\Livewire\TataUsaha\ManajemenKaryawan::class)->name('karyawan');
         Route::get('/kelas', \App\Livewire\SuperAdmin\TataKelola\ManajemenKelas::class)->name('kelas');
         Route::get('/jadwal', \App\Livewire\SuperAdmin\TataKelola\ManajemenJadwal::class)->name('jadwal');
         Route::get('/mapel', \App\Livewire\SuperAdmin\TataKelola\ManajemenMapel::class)->name('mapel');
@@ -71,6 +86,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', \App\Livewire\TataUsaha\Dashboard::class)->name('dashboard');
         Route::get('/siswa', \App\Livewire\SuperAdmin\TataKelola\ManajemenSiswa::class)->name('siswa');
         Route::get('/guru', \App\Livewire\SuperAdmin\TataKelola\ManajemenGuru::class)->name('guru');
+        Route::get('/user', \App\Livewire\SuperAdmin\TataKelola\ManajemenUser::class)->name('user');
+        Route::get('/absensi-karyawan', \App\Livewire\TataUsaha\InputAbsensiKaryawan::class)->name('absensi-karyawan');
         Route::get('/kelas', \App\Livewire\SuperAdmin\TataKelola\ManajemenKelas::class)->name('kelas');
         Route::get('/jadwal', \App\Livewire\SuperAdmin\TataKelola\ManajemenJadwal::class)->name('jadwal');
         Route::get('/mapel', \App\Livewire\SuperAdmin\TataKelola\ManajemenMapel::class)->name('mapel');
@@ -89,15 +106,30 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/alumni', \App\Livewire\TataUsaha\DataAlumni::class)->name('alumni');
     });
 
-    // Koordinator Group
-    Route::middleware(['role:koordinator,super_admin'])->prefix('koordinator')->name('koordinator.')->group(function () {
-        Route::get('/dashboard', \App\Livewire\Koordinator\ManajemenKoreksiNilai::class)->name('dashboard');
-        Route::get('/koreksi-nilai', \App\Livewire\Koordinator\ManajemenKoreksiNilai::class)->name('koreksi-nilai');
+    // Pengawas Group (Renamed from Koordinator)
+    Route::middleware(['role:pengawas,koordinator,super_admin'])->prefix('pengawas')->name('pengawas.')->group(function () {
+        Route::get('/dashboard', \App\Livewire\Pengawas\ManajemenKoreksiNilai::class)->name('dashboard');
+        Route::get('/koreksi-nilai', \App\Livewire\Pengawas\ManajemenKoreksiNilai::class)->name('koreksi-nilai');
+        Route::get('/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik');
+    });
+
+    // Alias legacy Koordinator routes to Pengawas dashboard
+    Route::middleware(['role:pengawas,koordinator,super_admin'])->prefix('koordinator')->name('koordinator.')->group(function () {
+        Route::get('/dashboard', \App\Livewire\Pengawas\ManajemenKoreksiNilai::class)->name('dashboard');
+        Route::get('/koreksi-nilai', \App\Livewire\Pengawas\ManajemenKoreksiNilai::class)->name('koreksi-nilai');
+        Route::get('/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik');
     });
 
     // Kepala Sekolah Group
     Route::middleware(['role:kepala_sekolah,super_admin'])->prefix('kepala-sekolah')->name('kepala-sekolah.')->group(function () {
         Route::get('/dashboard', \App\Livewire\KepalaSekolah\Dashboard::class)->name('dashboard');
+        Route::get('/audit-log', \App\Livewire\SuperAdmin\TataKelola\AuditLog::class)->name('audit-log');
+        Route::get('/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik');
+        
+        // Laporan Monitoring
+        Route::get('/laporan/absensi-siswa', \App\Livewire\Shared\Laporan\RekapAbsensiSiswa::class)->name('laporan.absensi-siswa');
+        Route::get('/laporan/absensi-guru', \App\Livewire\Shared\Laporan\RekapAbsensiGuru::class)->name('laporan.absensi-guru');
+        Route::get('/laporan/rekap-nilai', \App\Livewire\Shared\Laporan\RekapNilai::class)->name('laporan.rekap-nilai');
     });
 
     // Guru Group
@@ -108,7 +140,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/absensi-siswa', \App\Livewire\Guru\AbsensiSiswa::class)->name('absensi-siswa');
         Route::get('/absensi-diri', \App\Livewire\Guru\AbsensiDiri::class)->name('absensi-diri');
         Route::get('/jadwal-mengajar', \App\Livewire\Guru\JadwalMengajar::class)->name('jadwal-mengajar');
+        Route::get('/piket', \App\Livewire\TataUsaha\ManajemenPiketGuru::class)->name('piket');
         Route::get('/kelola-rapor', \App\Livewire\Guru\KelolaRapor::class)->name('kelola-rapor');
+        Route::get('/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik');
         
         // Laporan
         Route::get('/laporan/absensi-siswa', \App\Livewire\Shared\Laporan\RekapAbsensiSiswa::class)->name('laporan.absensi-siswa');
@@ -124,31 +158,26 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/jadwal', \App\Livewire\Murid\JadwalPelajaran::class)->name('jadwal');
         Route::get('/tagihan', \App\Livewire\Murid\TagihanSpp::class)->name('tagihan');
         Route::get('/riwayat-aktivitas', \App\Livewire\Murid\RiwayatAktivitas::class)->name('riwayat-aktivitas');
+        Route::get('/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik');
     });
 
-    // Finance Group
-    Route::middleware(['role:finance,super_admin'])->prefix('finance')->name('finance.')->group(function () {
+    // Finance Group — Accessible by Finance, Super Admin, & Kepala Sekolah (for Monitoring)
+    Route::middleware(['role:finance,super_admin,kepala_sekolah'])->prefix('finance')->name('finance.')->group(function () {
         Route::get('/dashboard', \App\Livewire\Finance\Dashboard::class)->name('dashboard');
         Route::get('/overview-pembayaran', \App\Livewire\Finance\OverviewPembayaran::class)->name('overview-pembayaran');
         Route::get('/tagihan', \App\Livewire\Finance\ManajemenTagihan::class)->name('tagihan');
         Route::get('/input-pembayaran', \App\Livewire\Finance\InputPembayaran::class)->name('input-pembayaran');
-        Route::get('/pembayaran/resi/{id}', [\App\Http\Controllers\FinanceReportController::class, 'cetakResi'])->name('pembayaran.resi');
-        Route::get('/cetak-resi/{id}', [\App\Http\Controllers\FinanceReportController::class, 'cetakResi'])->name('cetak-resi');
         Route::get('/arus-masuk', \App\Livewire\Finance\ArusMasuk::class)->name('arus-masuk');
         Route::get('/arus-kas-masuk', \App\Livewire\Finance\ArusKasMasuk::class)->name('arus-kas-masuk');
         Route::get('/arus-kas-keluar', \App\Livewire\Finance\ArusKasKeluar::class)->name('arus-kas-keluar');
         Route::get('/arus-kas', \App\Livewire\Finance\ArusKasKeluar::class)->name('arus-kas');
         Route::get('/dana-bos', \App\Livewire\Finance\DanaBos::class)->name('dana-bos');
 
-        // Stage 2: Peminjaman & Gaji Guru
+        // Peminjaman & Gaji Guru
         Route::get('/peminjaman', \App\Livewire\Finance\ManajemenPeminjaman::class)->name('peminjaman');
         Route::get('/gaji-guru', \App\Livewire\Finance\ManajemenGajiGuru::class)->name('gaji-guru');
-        Route::get('/gaji-guru/slip/{id}', [\App\Http\Controllers\FinanceReportController::class, 'slipGaji'])->name('gaji-guru.slip');
 
-        // Pengajuan Dana (Approval Tier)
-        Route::get('/pengajuan-dana', \App\Livewire\Finance\PengajuanDanaIndex::class)->name('pengajuan-dana');
-
-        // Stage 2: Laporan Keuangan
+        // Laporan Keuangan
         Route::get('/laporan/tunggakan', \App\Livewire\Finance\Laporan\LaporanTunggakan::class)->name('laporan.tunggakan');
         Route::get('/laporan/pemasukan', \App\Livewire\Finance\Laporan\LaporanPemasukan::class)->name('laporan.pemasukan');
         Route::get('/laporan/pengeluaran', \App\Livewire\Finance\Laporan\LaporanPengeluaran::class)->name('laporan.pengeluaran');

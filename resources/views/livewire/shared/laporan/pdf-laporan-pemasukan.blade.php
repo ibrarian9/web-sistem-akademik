@@ -169,28 +169,6 @@
         TOTAL PEMASUKAN KESELURUHAN: Rp {{ number_format($totalPemasukan, 0, ',', '.') }}
     </div>
 
-    <div class="footer">
-        <table class="footer-table">
-            <tr>
-                <td style="width: 50%; vertical-align: top;">
-                    <x-ttd-elektronik 
-                        role="bendahara" 
-                        docType="PEM" 
-                        :docId="date('Ymd')" 
-                        title="Bendahara Keuangan Yayasan" 
-                        :showLocation="false" 
-                    />
-                </td>
-                <td style="width: 50%; vertical-align: top;">
-                    <x-ttd-elektronik 
-                        role="kepala_sekolah" 
-                        docType="PEM" 
-                        :docId="date('Ymd')" 
-                        title="Kepala Sekolah / Madrasah" 
-                    />
-                </td>
-            </tr>
-        </table>
-    </div>
+    <x-ttd-elektronik role="bendahara" docType="PEM" :docId="date('Ymd')" />
 </body>
 </html>

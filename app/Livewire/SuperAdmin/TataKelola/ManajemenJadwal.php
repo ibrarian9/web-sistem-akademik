@@ -14,7 +14,12 @@ class ManajemenJadwal extends Component
 
     public string $search = '';
     public string $filterHari = '';
+    public ?int $filterKelasId = null;
     public int $perPage = 15;
+
+    // View mode & selected class for timetable matrix
+    public string $viewMode = 'grid'; // 'grid' or 'table'
+    public ?int $selectedKelasId = null;
 
     // Form fields
     public ?int $jadwalId = null;
@@ -28,7 +33,17 @@ class ManajemenJadwal extends Component
     protected $queryString = [
         'search' => ['except' => ''],
         'filterHari' => ['except' => ''],
+        'filterKelasId' => ['except' => null],
+        'viewMode' => ['except' => 'grid'],
+        'selectedKelasId' => ['except' => null],
     ];
+
+    public function selectKelas(int $kelasId)
+    {
+        $this->selectedKelasId = $kelasId;
+        $this->filterKelasId = $kelasId;
+        $this->resetPage();
+    }
 
     public function updatingSearch()
     {
@@ -40,21 +55,54 @@ class ManajemenJadwal extends Component
         $this->resetPage();
     }
 
+    public function updatingFilterKelasId()
+    {
+        if ($this->filterKelasId) {
+            $this->selectedKelasId = $this->filterKelasId;
+        }
+        $this->resetPage();
+    }
+
     public function openCreate()
     {
         $this->resetForm();
+        if ($this->selectedKelasId) {
+            $firstAsg = GuruMapelKelas::where('kelas_id', $this->selectedKelasId)->first();
+            if ($firstAsg) {
+                $this->guru_mapel_kelas_id = $firstAsg->id;
+            }
+        }
+        $this->isFormOpen = true;
+    }
+
+    public function openCreateForDay(string $hari, ?int $kelasId = null)
+    {
+        $this->resetForm();
+        $this->hari = strtolower($hari);
+        if ($kelasId) {
+            $this->selectedKelasId = $kelasId;
+            $this->filterKelasId = $kelasId;
+            $firstAsg = GuruMapelKelas::where('kelas_id', $kelasId)->first();
+            if ($firstAsg) {
+                $this->guru_mapel_kelas_id = $firstAsg->id;
+            }
+        }
         $this->isFormOpen = true;
     }
 
     public function openEdit(int $id)
     {
         $this->resetForm();
-        $jadwal = JadwalPelajaran::findOrFail($id);
+        $jadwal = JadwalPelajaran::with('guruMapelKelas')->findOrFail($id);
         $this->jadwalId = $jadwal->id;
         $this->guru_mapel_kelas_id = $jadwal->guru_mapel_kelas_id;
         $this->hari = $jadwal->hari;
         $this->jam_mulai = date('H:i', strtotime($jadwal->jam_mulai));
         $this->jam_selesai = date('H:i', strtotime($jadwal->jam_selesai));
+
+        if ($jadwal->guruMapelKelas) {
+            $this->selectedKelasId = $jadwal->guruMapelKelas->kelas_id;
+        }
 
         $this->isFormOpen = true;
     }
@@ -117,12 +165,47 @@ class ManajemenJadwal extends Component
 
     public function render()
     {
+        $kelases = \App\Models\Kelas::orderBy('nama_kelas')->get();
+
+        if (is_null($this->selectedKelasId) && $kelases->count() > 0) {
+            $this->selectedKelasId = $kelases->first()->id;
+        }
+
+        $activeKelas = $kelases->firstWhere('id', $this->selectedKelasId);
+
+        // Fetch Weekly Timetable Grid for selected class
+        $days = ['senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
+        $weeklyGrid = [];
+
+        if ($this->selectedKelasId) {
+            $classSchedules = JadwalPelajaran::with([
+                'guruMapelKelas.kelas',
+                'guruMapelKelas.mapel',
+                'guruMapelKelas.guru.user'
+            ])
+            ->whereHas('guruMapelKelas', function ($q) {
+                $q->where('kelas_id', $this->selectedKelasId);
+            })
+            ->orderBy('jam_mulai')
+            ->get();
+
+            foreach ($days as $day) {
+                $weeklyGrid[$day] = $classSchedules->filter(fn($item) => strtolower($item->hari) === $day)->values();
+            }
+        }
+
+        // Fetch list table schedules
         $jadwals = JadwalPelajaran::with([
             'guruMapelKelas.kelas',
             'guruMapelKelas.mapel',
             'guruMapelKelas.guru.user',
             'guruMapelKelas.semester.tahunAjaran'
         ])
+        ->when($this->filterKelasId, function ($query) {
+            $query->whereHas('guruMapelKelas', function ($q) {
+                $q->where('kelas_id', $this->filterKelasId);
+            });
+        })
         ->when($this->filterHari, function ($query) {
             $query->where('hari', $this->filterHari);
         })
@@ -148,9 +231,33 @@ class ManajemenJadwal extends Component
             })
             ->get();
 
+        $assignmentsGrouped = $assignments->groupBy(fn($item) => $item->kelas->nama_kelas ?? 'Lainnya');
+
+        // Existing schedules helper for form modal
+        $formExistingSchedules = collect();
+        if ($this->isFormOpen && $this->guru_mapel_kelas_id) {
+            $asg = $assignments->firstWhere('id', $this->guru_mapel_kelas_id);
+            if ($asg) {
+                $formExistingSchedules = JadwalPelajaran::with(['guruMapelKelas.mapel', 'guruMapelKelas.guru.user'])
+                    ->whereHas('guruMapelKelas', function ($q) use ($asg) {
+                        $q->where('kelas_id', $asg->kelas_id);
+                    })
+                    ->where('hari', strtolower($this->hari))
+                    ->when($this->jadwalId, fn($q) => $q->where('id', '!=', $this->jadwalId))
+                    ->orderBy('jam_mulai')
+                    ->get();
+            }
+        }
+
         return view('livewire.super-admin.tata-kelola.manajemen-jadwal', [
             'jadwals' => $jadwals,
             'assignments' => $assignments,
+            'assignmentsGrouped' => $assignmentsGrouped,
+            'kelases' => $kelases,
+            'activeKelas' => $activeKelas,
+            'days' => $days,
+            'weeklyGrid' => $weeklyGrid,
+            'formExistingSchedules' => $formExistingSchedules,
         ])->layout('components.layouts.app', ['title' => 'Jadwal Pelajaran']);
     }
 }

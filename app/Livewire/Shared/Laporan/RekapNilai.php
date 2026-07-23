@@ -180,6 +180,31 @@ class RekapNilai extends Component
         ];
     }
 
+    public function downloadPdf()
+    {
+        $data = $this->getMatrixData();
+        if (!$data['kelas'] || !$data['mapel'] || !$data['semester']) {
+            return;
+        }
+
+        $pdfData = [
+            'matrix' => $data['matrix'],
+            'components' => $data['components'],
+            'kelas' => $data['kelas'],
+            'mapel' => $data['mapel'],
+            'semester' => $data['semester'],
+        ];
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('livewire.shared.laporan.pdf-rekap-nilai', $pdfData)
+            ->setPaper('a4', 'landscape');
+
+        $filename = 'rekap-nilai-' . strtolower(str_replace(' ', '-', $data['kelas']->nama_kelas)) . '-' . strtolower(str_replace(' ', '-', $data['mapel']->nama_mapel)) . '.pdf';
+
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->output();
+        }, $filename);
+    }
+
     public function render()
     {
         $classes = $this->getAvailableClasses();

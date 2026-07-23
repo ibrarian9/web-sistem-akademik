@@ -74,12 +74,14 @@
                             <x-status-badge :status="$siswa->status" />
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <div class="inline-flex gap-2">
-                                <button wire:click="openEdit({{ $siswa->id }})" class="p-1.5 bg-slate-800 border border-slate-750 text-indigo-400 hover:text-white hover:bg-indigo-600 rounded-lg transition duration-200">
+                            <div class="inline-flex items-center justify-end gap-2">
+                                <button wire:click="openEdit({{ $siswa->id }})" class="px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500 border border-amber-500/30 hover:border-amber-500 text-amber-400 hover:text-slate-950 rounded-xl text-[11px] font-bold transition-all duration-150 inline-flex items-center gap-1.5 shadow-sm" title="Edit Siswa">
                                     <x-lucide-edit class="w-3.5 h-3.5" />
+                                    <span>Edit</span>
                                 </button>
-                                <button onclick="confirm('Apakah Anda yakin ingin menghapus data siswa ini?') || event.stopImmediatePropagation()" wire:click="delete({{ $siswa->id }})" class="p-1.5 bg-slate-800 border border-slate-750 text-rose-400 hover:text-white hover:bg-rose-600 rounded-lg transition duration-200">
+                                <button onclick="confirm('Apakah Anda yakin ingin menghapus data siswa ini?') || event.stopImmediatePropagation()" wire:click="delete({{ $siswa->id }})" class="px-2.5 py-1.5 bg-rose-500/10 hover:bg-rose-600 border border-rose-500/30 hover:border-rose-600 text-rose-400 hover:text-white rounded-xl text-[11px] font-bold transition-all duration-150 inline-flex items-center gap-1.5 shadow-sm" title="Hapus Siswa">
                                     <x-lucide-trash-2 class="w-3.5 h-3.5" />
+                                    <span>Hapus</span>
                                 </button>
                             </div>
                         </td>

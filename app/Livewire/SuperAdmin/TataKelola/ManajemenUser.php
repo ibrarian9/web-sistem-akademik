@@ -34,16 +34,33 @@ class ManajemenUser extends Component
         $this->resetPage();
     }
 
+    public function isTuUser(): bool
+    {
+        return (auth()->user()->role->nama ?? '') === 'tata_usaha';
+    }
+
     public function openCreate()
     {
         $this->resetForm();
+        if ($this->isTuUser()) {
+            $guruRole = Role::where('nama', 'guru')->first();
+            if ($guruRole) {
+                $this->role_id = $guruRole->id;
+            }
+        }
         $this->isFormOpen = true;
     }
 
     public function openEdit(int $id)
     {
         $this->resetForm();
-        $user = User::findOrFail($id);
+        $user = User::with('role')->findOrFail($id);
+
+        if ($this->isTuUser() && in_array($user->role?->nama, ['murid', 'super_admin'])) {
+            session()->flash('error', 'Tata Usaha tidak berhak mengelola data akun ini.');
+            return;
+        }
+
         $this->userId = $user->id;
         $this->nama = $user->nama;
         $this->username = $user->username;
@@ -74,6 +91,14 @@ class ManajemenUser extends Component
 
         $this->validate($rules);
 
+        if ($this->isTuUser()) {
+            $targetRole = Role::find($this->role_id);
+            if (in_array($targetRole?->nama, ['murid', 'super_admin'])) {
+                session()->flash('error', 'Tata Usaha hanya dapat membuat atau mengubah akun karyawan / staf.');
+                return;
+            }
+        }
+
         $data = [
             'nama' => $this->nama,
             'username' => $this->username,
@@ -102,7 +127,14 @@ class ManajemenUser extends Component
             return;
         }
 
-        User::findOrFail($id)->delete();
+        $user = User::with('role')->findOrFail($id);
+
+        if ($this->isTuUser() && in_array($user->role?->nama, ['murid', 'super_admin'])) {
+            session()->flash('error', 'Tata Usaha tidak dapat menghapus akun ini.');
+            return;
+        }
+
+        $user->delete();
         session()->flash('message', 'Pengguna berhasil dihapus.');
     }
 
@@ -120,7 +152,14 @@ class ManajemenUser extends Component
 
     public function render()
     {
+        $isTu = $this->isTuUser();
+
         $users = User::with('role')
+            ->when($isTu, function ($query) {
+                $query->whereHas('role', function ($q) {
+                    $q->whereNotIn('nama', ['murid', 'super_admin']);
+                });
+            })
             ->where(function ($query) {
                 $query->where('nama', 'like', '%' . $this->search . '%')
                     ->orWhere('username', 'like', '%' . $this->search . '%')
@@ -129,11 +168,14 @@ class ManajemenUser extends Component
             ->latest()
             ->paginate($this->perPage);
 
-        $roles = Role::all();
+        $roles = Role::when($isTu, function ($query) {
+            $query->whereNotIn('nama', ['murid', 'super_admin']);
+        })->get();
 
         return view('livewire.super-admin.tata-kelola.manajemen-user', [
             'users' => $users,
             'roles' => $roles,
+            'isTu' => $isTu,
         ])->layout('components.layouts.app', ['title' => 'Manajemen Pengguna']);
     }
 }

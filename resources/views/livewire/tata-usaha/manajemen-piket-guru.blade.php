@@ -1,19 +1,24 @@
 <div class="space-y-6">
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
-        title="Petunjuk Manajemen Jadwal Piket Guru"
-        :steps="[
+        :title="$canManage ? 'Petunjuk Manajemen Jadwal Piket Guru' : 'Petunjuk Jadwal Piket Guru'"
+        :steps="$canManage ? [
             ['title' => 'Penugasan Piket', 'desc' => 'Pilih nama guru dan hari piket (Senin - Jumat) lalu klik Simpan Jadwal Piket.'],
-            ['title' => 'Ketentuan Jam Hadir', 'desc' => 'Guru Piket Tahfidz diwajibkan check-in maksimal pukul 06:30 WIB, sedangkan piket umum 06:45 WIB.'],
+            ['title' => 'Ketentuan Jam Hadir', 'desc' => 'Guru Piket Tahfizh diwajibkan check-in maksimal pukul 06:30 WIB, sedangkan piket umum 06:45 WIB.'],
             ['title' => 'Hapus Penugasan', 'desc' => 'Klik ikon tempat sampah pada nama guru di kolom hari untuk menghapus jadwal piket.']
+        ] : [
+            ['title' => 'Jadwal Harian', 'desc' => 'Lihat penugasan piket guru per hari kerja (Senin - Jumat).'],
+            ['title' => 'Ketentuan Jam Hadir', 'desc' => 'Guru Piket Tahfizh diwajibkan check-in maksimal pukul 06:30 WIB, sedangkan piket umum 06:45 WIB.']
         ]"
         notes="Sistem absensi mandiri guru secara otomatis menyesuaikan batas keterlambatan berdasarkan penugasan piket ini."
     />
 
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h2 class="text-xl font-bold text-stone-800 tracking-tight">Kelola Jadwal Piket Guru</h2>
-            <p class="text-xs text-stone-500">Atur jadwal penugasan piket guru harian. Guru Tahfidz piket diwajibkan check-in pada pukul 06:30 (non-piket: 06:45).</p>
+            <h2 class="text-xl font-bold text-stone-800 tracking-tight">{{ $canManage ? 'Kelola Jadwal Piket Guru' : 'Jadwal Piket Guru' }}</h2>
+            <p class="text-xs text-stone-500">
+                {{ $canManage ? 'Atur jadwal penugasan piket guru harian. Guru Tahfizh piket diwajibkan check-in pada pukul 06:30 (non-piket: 06:45).' : 'Jadwal penugasan piket guru harian. Guru Tahfizh piket diwajibkan check-in pada pukul 06:30 (non-piket: 06:45).' }}
+            </p>
         </div>
     </div>
 
@@ -31,6 +36,7 @@
         </div>
     @endif
 
+    @if ($canManage)
     <!-- ADD PIKET FORM CARD -->
     <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
         <h3 class="text-xs font-bold text-stone-800 uppercase tracking-wider flex items-center gap-2">
@@ -66,6 +72,7 @@
             </div>
         </form>
     </div>
+    @endif
 
     <!-- DAYS GRID -->
     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -85,9 +92,11 @@
                                 <h5 class="text-xs font-bold text-stone-800 leading-tight">{{ $p->guru->user->nama ?? '-' }}</h5>
                                 <span class="text-[9px] text-indigo-600 font-semibold uppercase">{{ $p->guru->jenis_guru ?? 'guru' }}</span>
                             </div>
+                            @if ($canManage)
                             <button wire:click="deletePiket({{ $p->id }})" class="text-stone-400 hover:text-rose-600 p-1 rounded-lg transition" title="Hapus Jadwal Piket">
                                 <x-lucide-trash-2 class="w-3.5 h-3.5" />
                             </button>
+                            @endif
                         </div>
                     @empty
                         <div class="py-6 text-center text-[10px] text-stone-400 italic">

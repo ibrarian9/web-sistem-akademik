@@ -41,15 +41,18 @@ beforeEach(function () {
     }
 
     $this->userKoordinator = User::whereHas('role', function ($q) {
-        $q->where('nama', 'koordinator');
+        $q->whereIn('nama', ['pengawas', 'koordinator']);
     })->first();
 
     if (!$this->userKoordinator) {
-        $roleKoor = Role::where('nama', 'koordinator')->first();
+        $roleKoor = Role::whereIn('nama', ['pengawas', 'koordinator'])->first();
+        if (!$roleKoor) {
+            $roleKoor = Role::create(['nama' => 'pengawas']);
+        }
         $this->userKoordinator = User::create([
-            'nama' => 'Koordinator Test',
-            'username' => 'koordinator_test',
-            'email' => 'koordinator@test.com',
+            'nama' => 'Pengawas Test',
+            'username' => 'pengawas_test',
+            'email' => 'pengawas@test.com',
             'password' => bcrypt('password'),
             'role_id' => $roleKoor->id,
         ]);
@@ -67,6 +70,26 @@ beforeEach(function () {
             'email' => 'superadmin@test.com',
             'password' => bcrypt('password'),
             'role_id' => $roleSA->id,
+        ]);
+    }
+
+    // Ensure a test Siswa exists
+    if (!Siswa::first()) {
+        $roleMurid = Role::where('nama', 'murid')->first();
+        $userSiswa = User::create([
+            'nama' => 'Siswa Test',
+            'username' => 'siswa_test',
+            'email' => 'siswa_test@test.com',
+            'password' => bcrypt('password'),
+            'role_id' => $roleMurid->id,
+        ]);
+        $kelas = \App\Models\Kelas::first() ?? \App\Models\Kelas::create(['nama_kelas' => '7A', 'tingkat' => '7']);
+        Siswa::create([
+            'user_id' => $userSiswa->id,
+            'kelas_id' => $kelas->id,
+            'nisn' => '9999999999',
+            'nis' => '99999',
+            'tanggal_masuk' => date('Y-m-d'),
         ]);
     }
 });

@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
         $roleGuru = Role::where('nama', 'guru')->first();
         $roleMurid = Role::where('nama', 'murid')->first();
         $roleKepalaSekolah = Role::where('nama', 'kepala_sekolah')->first();
-        $roleKoordinator = Role::where('nama', 'koordinator')->first();
+        $rolePengawas = Role::where('nama', 'pengawas')->first();
 
         // 1. Create Super Admin / Kepala Yayasan
         if ($roleAdmin) {
@@ -141,15 +141,20 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        // 7. Create Koordinator
-        if ($roleKoordinator) {
+        $rolePengawas = Role::where('nama', 'pengawas')->first();
+        if (!$rolePengawas) {
+            $rolePengawas = Role::where('nama', 'koordinator')->first();
+        }
+
+        // 7. Create Pengawas
+        if ($rolePengawas) {
             User::firstOrCreate([
-                'username' => 'koordinator',
+                'username' => 'pengawas',
             ], [
-                'nama' => 'Ustadz Ahmad Fauzi, S.Pd.I.',
-                'email' => 'koordinator@yayasan.or.id',
-                'password' => Hash::make('koordinator123'),
-                'role_id' => $roleKoordinator->id,
+                'nama' => 'Ustadz Ahmad Fauzi, S.Pd.I. (Pengawas)',
+                'email' => 'pengawas@yayasan.or.id',
+                'password' => Hash::make('pengawas123'),
+                'role_id' => $rolePengawas->id,
                 'no_hp' => '081234567897',
                 'alamat' => 'Sleman, Yogyakarta',
                 'status' => 'aktif',

@@ -115,7 +115,7 @@
                                 <td class="py-3 text-sm font-bold text-green-700 text-right">Rp {{ number_format($pay['nominal'], 0, ',', '.') }}</td>
                                 <td class="py-3 text-sm text-stone-500 text-center">{{ $pay['tanggal'] }}</td>
                                 <td class="py-3 text-sm text-stone-500 text-center">
-                                    <a href="{{ route('finance.pembayaran.resi', $pay['id']) }}" target="_blank" class="p-1.5 bg-stone-100 hover:bg-emerald-50 text-stone-700 hover:text-emerald-700 rounded-lg inline-flex items-center justify-center border border-stone-200 hover:border-emerald-300">
+                                    <a href="{{ route('pembayaran.resi', $pay['id']) }}" target="_blank" class="p-1.5 bg-stone-100 hover:bg-emerald-50 text-stone-700 hover:text-emerald-700 rounded-lg inline-flex items-center justify-center border border-stone-200 hover:border-emerald-300">
                                         <x-lucide-printer class="w-4 h-4" />
                                     </a>
                                 </td>

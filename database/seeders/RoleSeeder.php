@@ -16,8 +16,11 @@ class RoleSeeder extends Seeder
             'murid',
             'finance',
             'kepala_sekolah',
-            'koordinator',
+            'pengawas',
         ];
+
+        // Rename legacy koordinator role to pengawas if exists
+        Role::where('nama', 'koordinator')->update(['nama' => 'pengawas']);
 
         foreach ($roles as $role) {
             Role::firstOrCreate(['nama' => $role]);

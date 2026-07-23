@@ -57,7 +57,7 @@
                 <th class="px-6 py-3.5">Nama Kelas</th>
                 <th class="px-6 py-3.5">Tingkat</th>
                 <th class="px-6 py-3.5">Guru Umum (Wali Kelas)</th>
-                <th class="px-6 py-3.5">Guru Tahfidz</th>
+                <th class="px-6 py-3.5">Guru Tahfizh</th>
                 <th class="px-6 py-3.5">Jumlah Siswa</th>
                 <th class="px-6 py-3.5 text-right">Aksi</th>
             </x-slot:thead>
@@ -76,12 +76,14 @@
                             {{ $kelas->siswas()->count() }} Siswa
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <div class="inline-flex gap-2">
-                                <button wire:click="openEdit({{ $kelas->id }})" class="p-1.5 bg-slate-800 border border-slate-750 text-indigo-400 hover:text-white hover:bg-indigo-600 rounded-lg transition duration-200">
+                            <div class="inline-flex items-center justify-end gap-2">
+                                <button wire:click="openEdit({{ $kelas->id }})" class="px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500 border border-amber-500/30 hover:border-amber-500 text-amber-400 hover:text-slate-950 rounded-xl text-[11px] font-bold transition-all duration-150 inline-flex items-center gap-1.5 shadow-sm" title="Edit Kelas">
                                     <x-lucide-edit class="w-3.5 h-3.5" />
+                                    <span>Edit</span>
                                 </button>
-                                <button onclick="confirm('Apakah Anda yakin ingin menghapus kelas ini?') || event.stopImmediatePropagation()" wire:click="delete({{ $kelas->id }})" class="p-1.5 bg-slate-800 border border-slate-750 text-rose-400 hover:text-white hover:bg-rose-600 rounded-lg transition duration-200">
+                                <button onclick="confirm('Apakah Anda yakin ingin menghapus kelas ini?') || event.stopImmediatePropagation()" wire:click="delete({{ $kelas->id }})" class="px-2.5 py-1.5 bg-rose-500/10 hover:bg-rose-600 border border-rose-500/30 hover:border-rose-600 text-rose-400 hover:text-white rounded-xl text-[11px] font-bold transition-all duration-150 inline-flex items-center gap-1.5 shadow-sm" title="Hapus Kelas">
                                     <x-lucide-trash-2 class="w-3.5 h-3.5" />
+                                    <span>Hapus</span>
                                 </button>
                             </div>
                         </td>
@@ -144,11 +146,11 @@
                         @error('guru_umum_id') <span class="text-rose-400 text-[10px]">{{ $message }}</span> @enderror
                     </div>
 
-                    <!-- Guru Tahfidz -->
+                    <!-- Guru Tahfizh -->
                     <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Guru Tahfidz</label>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Guru Tahfizh</label>
                         <select wire:model="guru_tahfidz_id" class="w-full px-3 py-2 bg-slate-950/50 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500">
-                            <option value="">Pilih Guru Tahfidz (Opsional)</option>
+                            <option value="">Pilih Guru Tahfizh (Opsional)</option>
                             @foreach ($gurusTahfidz as $g)
                                 <option value="{{ $g->id }}">{{ $g->user->nama }}</option>
                             @endforeach

@@ -102,71 +102,12 @@ class AbsensiDiri extends Component
 
     public function checkIn()
     {
-        $guru = auth()->user()->guru;
-        if (!$guru) {
-            session()->flash('error', 'Data kepegawaian guru tidak ditemukan.');
-            return;
-        }
-
-        // Prevent double check-in
-        $existing = AbsensiGuru::where('guru_id', $guru->id)
-            ->whereDate('tanggal', Carbon::today())
-            ->first();
-
-        if ($existing) {
-            session()->flash('error', 'Anda sudah melakukan check-in hari ini.');
-            return;
-        }
-
-        $now = Carbon::now();
-        $limitTime = Carbon::createFromFormat('H:i', $this->targetJamMasuk)->addMinutes($this->toleransiMenit);
-
-        $status = 'hadir';
-        if ($now->format('H:i') > $limitTime->format('H:i')) {
-            $status = 'telat';
-        }
-
-        AbsensiGuru::create([
-            'guru_id' => $guru->id,
-            'tanggal' => Carbon::today(),
-            'waktu_datang' => $now->toTimeString(),
-            'status' => $status,
-            'diinput_oleh' => auth()->id(),
-        ]);
-
-        session()->flash('message', 'Check-in berhasil dilakukan.');
-        $this->checkTodayAttendance();
-        $this->loadHistory();
+        session()->flash('error', 'Pencatatan presensi kehadiran guru dan karyawan dikelola secara terpusat oleh Tata Usaha. Guru tidak dapat melakukan absensi mandiri.');
     }
 
     public function checkOut()
     {
-        $guru = auth()->user()->guru;
-        if (!$guru) {
-            return;
-        }
-
-        $absensi = AbsensiGuru::where('guru_id', $guru->id)
-            ->whereDate('tanggal', Carbon::today())
-            ->first();
-
-        if (!$absensi) {
-            session()->flash('error', 'Anda harus check-in terlebih dahulu.');
-            return;
-        }
-
-        if ($absensi->waktu_pulang) {
-            session()->flash('error', 'Anda sudah melakukan check-out hari ini.');
-            return;
-        }
-
-        $absensi->update([
-            'waktu_pulang' => Carbon::now()->toTimeString(),
-        ]);
-
-        session()->flash('message', 'Check-out berhasil dilakukan.');
-        $this->checkTodayAttendance();
-        $this->loadHistory();
+        session()->flash('error', 'Pencatatan presensi kehadiran guru dan karyawan dikelola secara terpusat oleh Tata Usaha. Guru tidak dapat melakukan absensi mandiri.');
     }
 
     public function render()

@@ -12,8 +12,19 @@ class ManajemenPiketGuru extends Component
     public ?int $selectedGuruId = null;
     public string $selectedHari = 'senin';
 
+    public function canManage(): bool
+    {
+        $role = auth()->user()->role->nama ?? '';
+        return in_array($role, ['tata_usaha', 'super_admin']);
+    }
+
     public function addPiket()
     {
+        if (!$this->canManage()) {
+            session()->flash('error', 'Anda hanya memiliki hak akses untuk melihat jadwal piket guru.');
+            return;
+        }
+
         $this->validate([
             'selectedGuruId' => 'required|exists:guru,id',
             'selectedHari' => 'required|in:senin,selasa,rabu,kamis,jumat',
@@ -47,6 +58,11 @@ class ManajemenPiketGuru extends Component
 
     public function deletePiket($id)
     {
+        if (!$this->canManage()) {
+            session()->flash('error', 'Anda hanya memiliki hak akses untuk melihat jadwal piket guru.');
+            return;
+        }
+
         JadwalPiketGuru::destroy($id);
         session()->flash('message', 'Jadwal piket guru berhasil dihapus.');
     }
@@ -73,6 +89,7 @@ class ManajemenPiketGuru extends Component
             'piketSchedules' => $piketSchedules,
             'gurus' => $gurus,
             'days' => $days,
-        ])->layout('components.layouts.app', ['title' => 'Kelola Jadwal Piket Guru']);
+            'canManage' => $this->canManage(),
+        ])->layout('components.layouts.app', ['title' => $this->canManage() ? 'Kelola Jadwal Piket Guru' : 'Jadwal Piket Guru']);
     }
 }

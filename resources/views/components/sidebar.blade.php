@@ -11,14 +11,21 @@
             ['title' => 'Input Pembayaran', 'route' => 'finance.input-pembayaran', 'icon' => 'plus-circle'],
             ['title' => 'Arus Kas Masuk (Infaq/Donasi)', 'route' => 'finance.arus-kas-masuk', 'icon' => 'heart-handshake'],
             ['title' => 'Arus Kas Keluar (Pengeluaran)', 'route' => 'finance.arus-kas-keluar', 'icon' => 'trending-down'],
-            ['title' => 'Pengajuan Dana', 'route' => 'finance.pengajuan-dana', 'icon' => 'banknote'],
             ['title' => 'Gaji Guru', 'route' => 'finance.gaji-guru', 'icon' => 'wallet'],
             ['title' => 'Dana BOS', 'route' => 'finance.dana-bos', 'icon' => 'box'],
+            ['title' => 'Master Data & SDM', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Data Siswa', 'route' => 'super-admin.siswa', 'icon' => 'users'],
+            ['title' => 'Data Guru', 'route' => 'super-admin.guru', 'icon' => 'user-check'],
+            ['title' => 'Direktori Karyawan', 'route' => 'super-admin.karyawan', 'icon' => 'users'],
+            ['title' => 'Kelas & Mapel', 'route' => 'super-admin.kelas', 'icon' => 'layers'],
+            ['title' => 'Jadwal Pelajaran', 'route' => 'super-admin.jadwal', 'icon' => 'calendar'],
+            ['title' => 'Kalender Akademik', 'route' => 'super-admin.kalender-akademik', 'icon' => 'calendar'],
+            ['title' => 'Kenaikan & Kelulusan', 'route' => 'super-admin.kenaikan-kelas', 'icon' => 'user-check'],
             ['title' => 'Laporan', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Laporan Absensi Siswa', 'route' => 'super-admin.laporan.absensi-siswa', 'icon' => 'file-text'],
             ['title' => 'Laporan Absensi Guru', 'route' => 'super-admin.laporan.absensi-guru', 'icon' => 'clipboard'],
             ['title' => 'Laporan Rekap Nilai', 'route' => 'super-admin.laporan.rekap-nilai', 'icon' => 'award'],
-            ['title' => 'Manajemen', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Manajemen System', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Manajemen User', 'route' => 'super-admin.user', 'icon' => 'users'],
             ['title' => 'Audit Log', 'route' => 'super-admin.audit-log', 'icon' => 'activity'],
             ['title' => 'Pengaturan Sistem', 'route' => 'super-admin.pengaturan', 'icon' => 'settings'],
@@ -27,9 +34,11 @@
         ],
         'tata_usaha' => [
             ['title' => 'Dashboard', 'route' => 'tata-usaha.dashboard', 'icon' => 'home'],
-            ['title' => 'Manajemen SDM', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Manajemen SDM & Presensi', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Input Absensi Karyawan', 'route' => 'tata-usaha.absensi-karyawan', 'icon' => 'clipboard'],
             ['title' => 'Direktori Karyawan', 'route' => 'tata-usaha.karyawan', 'icon' => 'users'],
             ['title' => 'Jadwal Piket Guru', 'route' => 'tata-usaha.piket', 'icon' => 'clock'],
+            ['title' => 'Manajemen Akun Staff', 'route' => 'tata-usaha.user', 'icon' => 'users'],
             ['title' => 'Data Master', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Data Siswa', 'route' => 'tata-usaha.siswa', 'icon' => 'users'],
             ['title' => 'Data Alumni', 'route' => 'tata-usaha.alumni', 'icon' => 'award'],
@@ -47,18 +56,27 @@
             ['title' => 'Lainnya', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Notifikasi', 'route' => 'shared.notifications', 'icon' => 'bell'],
         ],
-        'koordinator' => [
-            ['title' => 'Dashboard', 'route' => 'koordinator.dashboard', 'icon' => 'home'],
-            ['title' => 'Akademik & Pengajuan', 'route' => null, 'icon' => null, 'section' => true],
-            ['title' => 'Persetujuan Nilai', 'route' => 'koordinator.koreksi-nilai', 'icon' => 'user-check'],
-            ['title' => 'Pengajuan Dana', 'route' => 'finance.pengajuan-dana', 'icon' => 'banknote'],
+        'pengawas' => [
+            ['title' => 'Dashboard', 'route' => 'pengawas.dashboard', 'icon' => 'home'],
+            ['title' => 'Akademik', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Persetujuan Nilai', 'route' => 'pengawas.koreksi-nilai', 'icon' => 'user-check'],
+            ['title' => 'Kalender Akademik', 'route' => 'pengawas.kalender-akademik', 'icon' => 'calendar'],
             ['title' => 'Notifikasi', 'route' => 'shared.notifications', 'icon' => 'bell'],
         ],
         'kepala_sekolah' => [
             ['title' => 'Dashboard', 'route' => 'kepala-sekolah.dashboard', 'icon' => 'home'],
-            ['title' => 'Monitoring & Yayasan', 'route' => null, 'icon' => null, 'section' => true],
-            ['title' => 'Performa & Keuangan', 'route' => 'kepala-sekolah.dashboard', 'icon' => 'bar-chart-2'],
-            ['title' => 'Persetujuan Pengajuan Dana', 'route' => 'finance.pengajuan-dana', 'icon' => 'banknote'],
+            ['title' => 'Monitoring & Executive', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Overview Keuangan', 'route' => 'finance.overview-pembayaran', 'icon' => 'eye'],
+            ['title' => 'Laporan Tunggakan', 'route' => 'finance.laporan.tunggakan', 'icon' => 'file-text'],
+            ['title' => 'Laporan Pemasukan', 'route' => 'finance.laporan.pemasukan', 'icon' => 'activity'],
+            ['title' => 'Laporan Pengeluaran', 'route' => 'finance.laporan.pengeluaran', 'icon' => 'trending-down'],
+            ['title' => 'Dana BOS', 'route' => 'finance.dana-bos', 'icon' => 'box'],
+            ['title' => 'Laporan & Audit', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Laporan Absensi Siswa', 'route' => 'kepala-sekolah.laporan.absensi-siswa', 'icon' => 'file-text'],
+            ['title' => 'Rekap Absensi Guru', 'route' => 'kepala-sekolah.laporan.absensi-guru', 'icon' => 'clipboard'],
+            ['title' => 'Laporan Rekap Nilai', 'route' => 'kepala-sekolah.laporan.rekap-nilai', 'icon' => 'award'],
+            ['title' => 'Audit Log Sistem', 'route' => 'kepala-sekolah.audit-log', 'icon' => 'activity'],
+            ['title' => 'Kalender Akademik', 'route' => 'kepala-sekolah.kalender-akademik', 'icon' => 'calendar'],
             ['title' => 'Notifikasi', 'route' => 'shared.notifications', 'icon' => 'bell'],
         ],
         'guru' => [
@@ -68,9 +86,11 @@
             ['title' => 'Bobot Penilaian', 'route' => 'guru.bobot-nilai', 'icon' => 'sliders'],
             ['title' => 'Absensi Siswa', 'route' => 'guru.absensi-siswa', 'icon' => 'clipboard'],
             ['title' => 'Terbitkan Rapor', 'route' => 'guru.kelola-rapor', 'icon' => 'book-open'],
-            ['title' => 'Kehadiran', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Kehadiran & Tugas', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Absensi Diri', 'route' => 'guru.absensi-diri', 'icon' => 'clock'],
             ['title' => 'Jadwal Mengajar', 'route' => 'guru.jadwal-mengajar', 'icon' => 'calendar'],
+            ['title' => 'Jadwal Piket Guru', 'route' => 'guru.piket', 'icon' => 'clock'],
+            ['title' => 'Kalender Akademik', 'route' => 'guru.kalender-akademik', 'icon' => 'calendar'],
             ['title' => 'Laporan', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Laporan Absensi Siswa', 'route' => 'guru.laporan.absensi-siswa', 'icon' => 'file-text'],
             ['title' => 'Laporan Rekap Nilai', 'route' => 'guru.laporan.rekap-nilai', 'icon' => 'award'],
@@ -84,6 +104,7 @@
             ['title' => 'Kehadiran Saya', 'route' => 'murid.kehadiran', 'icon' => 'clipboard'],
             ['title' => 'Ekstrakurikuler', 'route' => 'murid.ekskul', 'icon' => 'star'],
             ['title' => 'Jadwal Pelajaran', 'route' => 'murid.jadwal', 'icon' => 'calendar'],
+            ['title' => 'Kalender Akademik', 'route' => 'murid.kalender-akademik', 'icon' => 'calendar'],
             ['title' => 'Keuangan', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Tagihan SPP', 'route' => 'murid.tagihan', 'icon' => 'credit-card'],
             ['title' => 'Lainnya', 'route' => null, 'icon' => null, 'section' => true],
@@ -109,6 +130,7 @@
             ['title' => 'Laporan Pengeluaran', 'route' => 'finance.laporan.pengeluaran', 'icon' => 'trending-down'],
             ['title' => 'Lainnya', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Dana BOS', 'route' => 'finance.dana-bos', 'icon' => 'box'],
+            ['title' => 'Kalender Akademik', 'route' => 'kalender-akademik.shared', 'icon' => 'calendar'],
             ['title' => 'Notifikasi', 'route' => 'shared.notifications', 'icon' => 'bell'],
         ],
         default => [],
@@ -120,6 +142,7 @@
         'guru' => 'Guru',
         'murid' => 'Murid / Wali',
         'finance' => 'Bendahara',
+        'pengawas' => 'Pengawas Sekolah',
         default => ucwords(str_replace('_', ' ', $role)),
     };
 @endphp
@@ -197,31 +220,24 @@
 
     <!-- User Profile Footer -->
     <div class="p-4 border-t border-stone-200 bg-stone-50/60">
-        <a href="{{ route('profil') }}" class="flex items-center gap-3 mb-3 hover:bg-stone-100 p-1.5 -mx-1.5 rounded-xl transition group">
-            <div class="w-9 h-9 rounded-full bg-green-50 border border-green-200 flex items-center justify-center font-bold text-green-700 text-sm select-none group-hover:scale-105 transition">
+        <div class="flex items-center gap-3 mb-3 p-1.5 -mx-1.5 rounded-xl">
+            <div class="w-9 h-9 rounded-full bg-green-50 border border-green-200 flex items-center justify-center font-bold text-green-700 text-sm select-none">
                 {{ strtoupper(substr(auth()->user()->nama ?? 'U', 0, 2)) }}
             </div>
             <div class="min-w-0 flex-1">
-                <p class="text-sm font-semibold text-stone-800 truncate group-hover:text-green-700 transition">{{ auth()->user()->nama ?? 'User' }}</p>
-                <p class="text-xs text-stone-500 truncate">Profil & TTD Digital</p>
+                <p class="text-sm font-semibold text-stone-800 truncate">{{ auth()->user()->nama ?? 'User' }}</p>
+                <p class="text-xs text-stone-500 truncate capitalize">{{ $roleLabel }}</p>
             </div>
-        </a>
-        
-        <div class="grid grid-cols-2 gap-2">
-            <a href="{{ route('profil') }}" class="flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl border border-stone-200 hover:border-green-300 text-xs font-semibold text-stone-600 hover:text-green-700 hover:bg-green-50 transition duration-150">
-                <x-lucide-user class="w-3.5 h-3.5" />
-                <span>Profil</span>
-            </a>
-            
-            <!-- Logout Form -->
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" 
-                    class="w-full flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl border border-stone-200 hover:border-red-200 text-xs font-semibold text-stone-600 hover:text-red-600 hover:bg-red-50 transition duration-150">
-                    <x-lucide-log-out class="w-3.5 h-3.5" />
-                    <span>Keluar</span>
-                </button>
-            </form>
         </div>
+        
+        <!-- Logout Form -->
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" 
+                class="w-full flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl border border-stone-200 hover:border-red-200 text-xs font-semibold text-stone-600 hover:text-red-600 hover:bg-red-50 transition duration-150">
+                <x-lucide-log-out class="w-3.5 h-3.5" />
+                <span>Keluar</span>
+            </button>
+        </form>
     </div>
 </aside>

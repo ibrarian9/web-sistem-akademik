@@ -66,6 +66,31 @@ class ArusKasKeluar extends Component
         session()->flash('message', 'Catatan pengeluaran kas berhasil dihapus.');
     }
 
+    public function exportPdf()
+    {
+        $query = Pengeluaran::with(['kategori', 'petugas'])->orderBy('tanggal', 'desc');
+
+        if ($this->filterKategori) {
+            $query->where('kategori_pengeluaran_id', $this->filterKategori);
+        }
+
+        if ($this->search !== '') {
+            $query->where('keterangan', 'like', '%' . $this->search . '%');
+        }
+
+        $data = $query->get();
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('livewire.shared.laporan.pdf-laporan-kas-keluar', [
+            'data' => $data,
+            'kategori' => $this->filterKategori ? (\App\Models\KategoriPengeluaran::find($this->filterKategori)?->nama ?? 'Semua') : 'Semua Kategori',
+            'totalPengeluaran' => $data->sum('jumlah'),
+        ])->setPaper('a4', 'portrait');
+
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->stream();
+        }, 'laporan_kas_keluar_' . date('Ymd_His') . '.pdf');
+    }
+
     public function render()
     {
         $query = Pengeluaran::with(['kategori', 'petugas'])->latest('tanggal');

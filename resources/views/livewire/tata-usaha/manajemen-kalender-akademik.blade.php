@@ -16,11 +16,13 @@
             <h2 class="text-xl font-bold text-white tracking-tight">Kalender Akademik &amp; Hari Libur</h2>
             <p class="text-xs text-slate-400">Pengelolaan jadwal libur semester, libur keagamaan, dan kegiatan akademik yayasan.</p>
         </div>
+        @if ($canManage)
         <button wire:click="openCreateModal"
             class="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-indigo-600/20">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             Tambah Agenda / Hari Libur
         </button>
+        @endif
     </div>
 
     @if (session()->has('message'))
@@ -66,7 +68,9 @@
                         <th class="py-3 px-4">Rentang Tanggal</th>
                         <th class="py-3 px-4 text-center">Bebas Presensi</th>
                         <th class="py-3 px-4">Tahun Ajaran</th>
+                        @if ($canManage)
                         <th class="py-3 px-4 text-right">Aksi</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-800/60">
@@ -108,18 +112,20 @@
                             <td class="py-3 px-4 text-slate-400">
                                 {{ $event->tahunAjaran->nama ?? '-' }}
                             </td>
+                            @if ($canManage)
                             <td class="py-3 px-4 text-right">
-                                <div class="flex items-center justify-end gap-2">
-                                    <button wire:click="openEditModal({{ $event->id }})"
-                                        class="p-1.5 bg-slate-800 hover:bg-slate-700 text-indigo-400 rounded-lg transition" title="Edit Agenda">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                <div class="inline-flex items-center justify-end gap-2">
+                                    <button wire:click="openEditModal({{ $event->id }})" class="px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500 border border-amber-500/30 hover:border-amber-500 text-amber-400 hover:text-slate-950 rounded-xl text-[11px] font-bold transition-all duration-150 inline-flex items-center gap-1.5 shadow-sm" title="Edit Agenda">
+                                        <x-lucide-edit class="w-3.5 h-3.5" />
+                                        <span>Edit</span>
                                     </button>
-                                    <button wire:confirm="Apakah Anda yakin ingin menghapus agenda ini?" wire:click="delete({{ $event->id }})"
-                                        class="p-1.5 bg-slate-800 hover:bg-rose-950 text-rose-400 rounded-lg transition" title="Hapus Agenda">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    <button wire:confirm="Apakah Anda yakin ingin menghapus agenda ini?" wire:click="delete({{ $event->id }})" class="px-2.5 py-1.5 bg-rose-500/10 hover:bg-rose-600 border border-rose-500/30 hover:border-rose-600 text-rose-400 hover:text-white rounded-xl text-[11px] font-bold transition-all duration-150 inline-flex items-center gap-1.5 shadow-sm" title="Hapus Agenda">
+                                        <x-lucide-trash-2 class="w-3.5 h-3.5" />
+                                        <span>Hapus</span>
                                     </button>
                                 </div>
                             </td>
+                            @endif
                         </tr>
                     @empty
                         <tr>

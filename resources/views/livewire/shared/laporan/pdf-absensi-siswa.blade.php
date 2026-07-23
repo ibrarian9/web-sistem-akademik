@@ -152,7 +152,7 @@
         </tr>
         <tr>
             <td class="info-label">Wali Kelas</td>
-            <td class="info-value">: {{ $kelas->guruUmum->user->nama ?? '-' }}</td>
+            <td class="info-value">: {{ $kelas->guruUmum?->user?->nama ?? '-' }}</td>
             <td></td>
             <td></td>
         </tr>
@@ -177,7 +177,7 @@
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td class="student-name">
-                        {{ $row['siswa']->user->nama }}
+                        {{ $row['siswa']->user?->nama ?? '-' }}
                         <div style="font-size: 7px; color: #888; font-weight: normal;">NIS: {{ $row['siswa']->nis }}</div>
                     </td>
                     @for ($day = 1; $day <= $daysInMonth; $day++)
@@ -227,30 +227,7 @@
         </span>
     </div>
 
-    <div style="margin-top: 30px; width: 100%;">
-        <table style="width: 100%;">
-            <tr>
-                <td style="width: 50%; vertical-align: top;">
-                    <x-ttd-elektronik 
-                        role="wali_kelas" 
-                        docType="ABS" 
-                        :docId="$kelas->id" 
-                        :user="$kelas->guruUmum->user ?? null" 
-                        title="Wali Kelas" 
-                        :showLocation="false" 
-                    />
-                </td>
-                <td style="width: 50%; vertical-align: top;">
-                    <x-ttd-elektronik 
-                        role="kepala_sekolah" 
-                        docType="ABS" 
-                        :docId="$kelas->id" 
-                        title="Kepala Sekolah / Madrasah" 
-                    />
-                </td>
-            </tr>
-        </table>
-    </div>
+    <x-ttd-elektronik role="kepala_sekolah" docType="ABS" :docId="$kelas->id" />
 
 </body>
 </html>

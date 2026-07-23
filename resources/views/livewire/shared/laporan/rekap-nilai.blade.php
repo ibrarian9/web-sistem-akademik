@@ -4,15 +4,17 @@
         title="Petunjuk Laporan Rekap Nilai Akademik Siswa"
         :steps="[
             ['title' => 'Pilih Kelas, Mapel & Semester', 'desc' => 'Gunakan filter di atas untuk menentukan rombel kelas, mata pelajaran, serta semester berjalan.'],
-            ['title' => 'Perhitungan Otomatis', 'desc' => 'Nilai akhir dihitung secara otomatis dari pembobotan persentase tiap komponen (UH, UTS, UAS, Tahfidz).'],
+            ['title' => 'Perhitungan Otomatis', 'desc' => 'Nilai akhir dihitung secara otomatis dari pembobotan persentase tiap komponen (UH, UTS, UAS, Tahfizh).'],
             ['title' => 'Predikat Rapor', 'desc' => 'Tabel langsung mengonversi nilai akhir menjadi predikat mutu A, B, C, D, atau E.']
         ]"
     />
 
     <!-- Page Header -->
-    <div>
-        <h2 class="text-xl font-bold text-stone-800 tracking-tight">Rekap Nilai Akademik</h2>
-        <p class="text-sm text-stone-500 font-medium">Laporan rekapitulasi nilai siswa per kelas per mata pelajaran per semester.</p>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-xl font-bold text-stone-800 tracking-tight">Rekap Nilai Akademik</h2>
+            <p class="text-sm text-stone-500 font-medium">Laporan rekapitulasi nilai siswa per kelas per mata pelajaran per semester.</p>
+        </div>
     </div>
 
     <!-- Filters Card -->
@@ -65,6 +67,11 @@
                     | Mapel: <span class="text-stone-600 font-semibold">{{ $mapel->nama_mapel }}</span>
                     | Semester: <span class="text-stone-600 font-semibold">{{ $semester->nama_semester }}</span>
                 </div>
+                <button wire:click="downloadPdf" 
+                        class="inline-flex items-center justify-center gap-2 py-2 px-4 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-sm font-semibold text-stone-700 shadow-sm transition duration-150 shrink-0">
+                    <x-lucide-file-text class="w-4 h-4 text-red-600" />
+                    <span>Ekspor PDF</span>
+                </button>
             </div>
 
             <!-- Scrollable Matrix Table -->

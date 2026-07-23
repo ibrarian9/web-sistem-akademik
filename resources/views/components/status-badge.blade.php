@@ -2,7 +2,7 @@
 
 @php
     $classes = match (strtolower(str_replace(' ', '_', $status))) {
-        'aktif', 'lunas', 'hadir', 'terkirim', 'berjalan' => 'bg-green-50 text-green-700 border border-green-200',
+        'aktif', 'lunas', 'hadir', 'terkirim', 'berjalan' => 'bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold',
         'nonaktif', 'belum_bayar', 'tidak_hadir', 'gagal', 'keluar' => 'bg-red-50 text-red-700 border border-red-200',
         'sebagian', 'izin', 'telat', 'pindah', 'draft' => 'bg-amber-50 text-amber-700 border border-amber-200',
         'lulus', 'naik_kelas' => 'bg-blue-50 text-blue-700 border border-blue-200',

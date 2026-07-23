@@ -1,13 +1,13 @@
 <div class="space-y-6">
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
-        title="Petunjuk Proses Kenaikan Kelas & Kelulusan Siswa"
+        title="Petunjuk Kenaikan Kelas & Diskresi Tata Usaha"
         :steps="[
-            ['title' => 'Pilih Kelas Asal', 'desc' => 'Pilih rombongan belajar (rombel) asal siswa yang akan diproses pada akhir tahun ajaran.'],
-            ['title' => 'Pilih Kelas Tujuan / Kelulusan', 'desc' => 'Tentukan kelas tingkat selanjutnya untuk siswa naik kelas, atau pilih Opsi Lulus untuk siswa tingkat akhir.'],
-            ['title' => 'Eksekusi Kenaikan', 'desc' => 'Tandai siswa yang berhak naik/lulus lalu klik Eksekusi Kenaikan Kelas. Siswa lulus akan otomatis masuk ke data Alumni.']
+            ['title' => 'Kenaikan Otomatis', 'desc' => 'Secara bawaan sistem, seluruh siswa aktif tercentang dan diproses Naik Kelas / Lulus.'],
+            ['title' => 'Diskresi Manual TU', 'desc' => 'Gunakan tombol Tandai Tinggal Kelas untuk menahan siswa tertentu jika dinilai belum layak naik.'],
+            ['title' => 'Eksekusi Kenaikan', 'desc' => 'Siswa naik kelas akan berpindah rombel, sedangkan siswa tinggal kelas akan dipertahankan di rombel asal.']
         ]"
-        notes="Pastikan seluruh nilai rapor semester genap telah selesai dimasukkan sebelum melakukan eksekusi kenaikan kelas."
+        notes="Sistem menganut kebijakan otomatis naik kelas. Namun, Staf Tata Usaha memiliki wewenang manual untuk menetapkan siswa tertentu Tinggal Kelas."
     />
 
     <!-- Header -->
@@ -74,9 +74,19 @@
             </div>
         </div>
 
-        <div class="flex items-center justify-between border-t border-slate-800/80 pt-4">
-            <div class="text-xs text-slate-400">
-                Terpilih: <span class="font-bold text-white">{{ count($selectedSiswa) }}</span> dari {{ count($students) }} siswa
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-t border-slate-800/80 pt-4 gap-3">
+            <div class="text-xs text-slate-400 space-x-2">
+                <span>Terpilih: <strong class="text-white">{{ count($selectedSiswa) }}</strong> dari {{ count($students) }} siswa</span>
+                @if ($aksiTujuan === 'naik_kelas')
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold">
+                        Naik: {{ count($selectedSiswa) - count($siswaTinggalKelas) }}
+                    </span>
+                    @if (count($siswaTinggalKelas) > 0)
+                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-400 text-[11px] font-bold">
+                            Tinggal Kelas: {{ count($siswaTinggalKelas) }}
+                        </span>
+                    @endif
+                @endif
             </div>
             <button wire:click="prosesKenaikan" wire:confirm="Apakah Anda yakin ingin memproses aksi ini untuk siswa terpilih?"
                 class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-indigo-600/20 inline-flex items-center gap-2"
@@ -100,12 +110,16 @@
                         <th class="py-3 px-4">NIS / NISN</th>
                         <th class="py-3 px-4">Jenis Kelamin</th>
                         <th class="py-3 px-4">Kelas Saat Ini</th>
-                        <th class="py-3 px-4 text-center">Status Siswa</th>
+                        <th class="py-3 px-4 text-center">Keputusan Kenaikan</th>
+                        <th class="py-3 px-4 text-center">Aksi Diskresi TU</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-800/60">
                     @forelse ($students as $siswa)
-                        <tr class="hover:bg-slate-800/30 transition">
+                        @php
+                            $isTinggal = in_array((string)$siswa->id, $siswaTinggalKelas);
+                        @endphp
+                        <tr class="hover:bg-slate-800/30 transition {{ $isTinggal ? 'bg-rose-950/20' : '' }}">
                             <td class="py-3 px-4 text-center">
                                 <input type="checkbox" wire:model.live="selectedSiswa" value="{{ $siswa->id }}"
                                     class="w-4 h-4 rounded bg-slate-950 border-slate-800 text-indigo-600 focus:ring-indigo-500" />
@@ -123,14 +137,43 @@
                                 {{ $siswa->kelas->nama_kelas ?? '-' }}
                             </td>
                             <td class="py-3 px-4 text-center">
-                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase">
-                                    {{ $siswa->status }}
-                                </span>
+                                @if ($aksiTujuan === 'lulus_alumni')
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase">
+                                        LULUS ALUMNI
+                                    </span>
+                                @elseif ($isTinggal)
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase">
+                                        TINGGAL KELAS
+                                    </span>
+                                @else
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase">
+                                        NAIK KELAS
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="py-3 px-4 text-center">
+                                @if ($aksiTujuan === 'naik_kelas')
+                                    @if ($isTinggal)
+                                        <button wire:click="toggleTinggalKelas({{ $siswa->id }})" 
+                                            class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-semibold transition inline-flex items-center gap-1">
+                                            <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                            Batalkan (Naikkan)
+                                        </button>
+                                    @else
+                                        <button wire:click="toggleTinggalKelas({{ $siswa->id }})" 
+                                            class="px-2.5 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-lg text-[10px] font-semibold transition inline-flex items-center gap-1">
+                                            <svg class="w-3 h-3 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            Tandai Tinggal Kelas
+                                        </button>
+                                    @endif
+                                @else
+                                    <span class="text-slate-500 text-[10px]">-</span>
+                                @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-8 text-center text-slate-500 text-xs">
+                            <td colspan="7" class="py-8 text-center text-slate-500 text-xs">
                                 Tidak ada siswa aktif yang ditemukan pada kelas asal ini.
                             </td>
                         </tr>

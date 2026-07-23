@@ -7,7 +7,7 @@ use App\Models\Guru;
 use App\Models\AbsensiGuru;
 use App\Models\KalenderAkademik;
 use Carbon\Carbon;
-use Barryvdh\Dompdf\Facade\Pdf;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class RekapAbsensiGuru extends Component
 {

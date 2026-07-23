@@ -177,7 +177,7 @@
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td class="teacher-name">
-                        {{ $row['guru']->user->nama }}
+                        {{ $row['guru']->user?->nama ?? '-' }}
                         <div style="font-size: 7px; color: #888; font-weight: normal;">NIP: {{ $row['guru']->nip ?? '-' }}</div>
                     </td>
                     @for ($day = 1; $day <= $daysInMonth; $day++)
@@ -234,29 +234,7 @@
         </span>
     </div>
 
-    <div style="margin-top: 30px; width: 100%;">
-        <table style="width: 100%;">
-            <tr>
-                <td style="width: 50%; vertical-align: top;">
-                    <x-ttd-elektronik 
-                        role="tata_usaha" 
-                        docType="ABG" 
-                        :docId="$bulan . $tahun" 
-                        title="Kepala Tata Usaha" 
-                        :showLocation="false" 
-                    />
-                </td>
-                <td style="width: 50%; vertical-align: top;">
-                    <x-ttd-elektronik 
-                        role="kepala_sekolah" 
-                        docType="ABG" 
-                        :docId="$bulan . $tahun" 
-                        title="Kepala Sekolah / Madrasah" 
-                    />
-                </td>
-            </tr>
-        </table>
-    </div>
+    <x-ttd-elektronik role="kepala_sekolah" docType="ABG" :docId="$bulan . $tahun" />
 
 </body>
 </html>

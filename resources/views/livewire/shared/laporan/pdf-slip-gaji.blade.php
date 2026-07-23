@@ -173,30 +173,6 @@
         <span class="amount">Rp {{ number_format($gaji->total_diterima, 0, ',', '.') }}</span>
     </div>
 
-    <div class="footer">
-        <table class="footer-table">
-            <tr>
-                <td style="width: 50%; vertical-align: top;">
-                    <x-ttd-elektronik 
-                        role="penerima" 
-                        docType="SLI" 
-                        :docId="$gaji->id" 
-                        :user="$gaji->guru->user ?? null" 
-                        title="Penerima Gaji / Guru" 
-                        :showLocation="false" 
-                    />
-                </td>
-                <td style="width: 50%; vertical-align: top;">
-                    <x-ttd-elektronik 
-                        role="bendahara" 
-                        docType="SLI" 
-                        :docId="$gaji->id" 
-                        title="Bendahara Keuangan Yayasan" 
-                        :tanggal="$gaji->tanggal_bayar ? $gaji->tanggal_bayar->format('d M Y') : date('d M Y')" 
-                    />
-                </td>
-            </tr>
-        </table>
-    </div>
+    <x-ttd-elektronik role="bendahara" docType="SLI" :docId="$gaji->id" />
 </body>
 </html>

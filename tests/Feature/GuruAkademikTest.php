@@ -59,24 +59,13 @@ test('guru can render dashboard', function () {
         ->assertSee('Selamat Datang');
 });
 
-test('guru can record self attendance checkin and checkout', function () {
+test('guru receives centralized notice when attempting self attendance checkin', function () {
     $this->actingAs($this->userGuru);
 
     Livewire::test(AbsensiDiri::class)
         ->assertStatus(200)
         ->call('checkIn')
         ->assertHasNoErrors();
-
-    $attendance = AbsensiGuru::where('guru_id', $this->guru->id)->first();
-    expect($attendance)->not->toBeNull();
-    expect($attendance->waktu_datang)->not->toBeNull();
-
-    Livewire::test(AbsensiDiri::class)
-        ->call('checkOut')
-        ->assertHasNoErrors();
-
-    $attendance->refresh();
-    expect($attendance->waktu_pulang)->not->toBeNull();
 });
 
 test('guru can input student grades', function () {
@@ -183,4 +172,37 @@ test('teacher who is not a wali kelas gets locked access notice', function () {
     Livewire::test(KelolaRapor::class)
         ->assertStatus(200)
         ->assertSee('Akses Kelola Rapor Terkunci');
+});
+
+test('guru can download pdf rekap absensi siswa', function () {
+    $this->actingAs($this->userGuru);
+
+    $lw = Livewire::test(RekapAbsensiSiswa::class);
+    $lw->set('kelasId', $this->kelas->id);
+
+    $response = $lw->call('downloadPdf');
+    expect($response)->not->toBeNull();
+});
+
+test('guru can view piket schedule in read only mode', function () {
+    $this->actingAs($this->userGuru);
+
+    Livewire::test(\App\Livewire\TataUsaha\ManajemenPiketGuru::class)
+        ->assertStatus(200)
+        ->assertViewHas('canManage', false)
+        ->assertDontSee('Tambah Penugasan Piket Baru')
+        ->call('addPiket')
+        ->assertHasNoErrors();
+});
+
+test('guru can download pdf rekap nilai', function () {
+    $this->actingAs($this->userGuru);
+
+    $lw = Livewire::test(\App\Livewire\Shared\Laporan\RekapNilai::class);
+    $lw->set('kelasId', $this->kelas->id)
+       ->set('mapelId', $this->mapel->id)
+       ->set('semesterId', $this->semester->id);
+
+    $response = $lw->call('downloadPdf');
+    expect($response)->not->toBeNull();
 });
