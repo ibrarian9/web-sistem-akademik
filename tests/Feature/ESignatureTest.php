@@ -29,7 +29,7 @@ class ESignatureTest extends TestCase
         $response = $this->get('/verifikasi-dokumen/' . $code);
 
         $response->assertStatus(200);
-        $response->assertSee('DOKUMEN SAH');
+        $response->assertSee('DOKUMEN RESMI SAH');
         $response->assertSee($code);
     }
 

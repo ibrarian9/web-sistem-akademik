@@ -170,13 +170,15 @@ class ProductionDataSeeder extends Seeder
             $gurus['guru'] = $defaultGuruModel;
         }
 
-        // 4. Create Kelas
+        // 4. Create Kelas (Sekolah Dasar / SD: Tingkat 1 - 6)
         $kelasData = [
-            ['nama_kelas' => '7A', 'tingkat' => '7', 'umum' => 'guru', 'tahfidz' => 'hasan'],
-            ['nama_kelas' => '7B', 'tingkat' => '7', 'umum' => 'lutfi', 'tahfidz' => 'hasan'],
-            ['nama_kelas' => '8A', 'tingkat' => '8', 'umum' => 'fatma', 'tahfidz' => 'dewi'],
-            ['nama_kelas' => '8B', 'tingkat' => '8', 'umum' => 'budi', 'tahfidz' => 'dewi'],
-            ['nama_kelas' => '9A', 'tingkat' => '9', 'umum' => 'lutfi', 'tahfidz' => 'hasan'],
+            ['nama_kelas' => '1A', 'tingkat' => '1', 'umum' => 'guru', 'tahfidz' => 'hasan'],
+            ['nama_kelas' => '1B', 'tingkat' => '1', 'umum' => 'lutfi', 'tahfidz' => 'hasan'],
+            ['nama_kelas' => '2A', 'tingkat' => '2', 'umum' => 'fatma', 'tahfidz' => 'dewi'],
+            ['nama_kelas' => '3A', 'tingkat' => '3', 'umum' => 'budi', 'tahfidz' => 'dewi'],
+            ['nama_kelas' => '4A', 'tingkat' => '4', 'umum' => 'lutfi', 'tahfidz' => 'hasan'],
+            ['nama_kelas' => '5A', 'tingkat' => '5', 'umum' => 'fatma', 'tahfidz' => 'dewi'],
+            ['nama_kelas' => '6A', 'tingkat' => '6', 'umum' => 'guru', 'tahfidz' => 'hasan'],
         ];
 
         $kelasModels = [];
@@ -201,7 +203,7 @@ class ProductionDataSeeder extends Seeder
         // Check if default student 'siswa' (NIS 9999) exists and add to models first
         $defaultSiswa = Siswa::where('nis', '9999')->first();
         if ($defaultSiswa) {
-            $assignedKelas = $kelasModels['7A'];
+            $assignedKelas = $kelasModels['1A'];
             $defaultSiswa->update([
                 'kelas_id' => $assignedKelas->id,
             ]);
@@ -234,7 +236,7 @@ class ProductionDataSeeder extends Seeder
                 'status' => 'aktif',
             ]);
 
-            // Assign to class rotatingly: 7A, 7B, 8A, 8B, 9A
+            // Assign to class rotatingly: 1A, 1B, 2A, 3A, 4A, 5A, 6A
             $kelasKeys = array_keys($kelasModels);
             $assignedKelasName = $kelasKeys[$i % count($kelasKeys)];
             $assignedKelas = $kelasModels[$assignedKelasName];
@@ -246,7 +248,7 @@ class ProductionDataSeeder extends Seeder
                 'nisn' => '0098' . rand(100000, 999999),
                 'jenis_kelamin' => ($i % 2 == 0) ? 'L' : 'P',
                 'tempat_lahir' => 'Yogyakarta',
-                'tanggal_lahir' => '2012-05-10',
+                'tanggal_lahir' => '2016-05-10',
                 'alamat' => 'Yogyakarta',
                 'nama_wali' => 'Wali dari ' . $nama,
                 'no_hp_wali' => '0899' . rand(10000000, 99999999),
@@ -268,11 +270,11 @@ class ProductionDataSeeder extends Seeder
 
         // 6. Setup Mata Pelajaran & Penugasan
         $mapels = [
-            ['nama_mapel' => 'Matematika', 'jenis' => 'umum', 'deskripsi' => 'Mata pelajaran matematika umum'],
-            ['nama_mapel' => 'IPA', 'jenis' => 'umum', 'deskripsi' => 'Ilmu Pengetahuan Alam'],
-            ['nama_mapel' => 'IPS', 'jenis' => 'umum', 'deskripsi' => 'Ilmu Pengetahuan Sosial'],
-            ['nama_mapel' => 'Bahasa Indonesia', 'jenis' => 'umum', 'deskripsi' => 'Bahasa dan Sastra Indonesia'],
-            ['nama_mapel' => 'Tahfidz Al-Quran', 'jenis' => 'tahfidz', 'deskripsi' => 'Pembelajaran hafalan Al-Quran'],
+            ['nama_mapel' => 'Matematika', 'jenis' => 'umum', 'deskripsi' => 'Mata pelajaran matematika SD'],
+            ['nama_mapel' => 'IPA', 'jenis' => 'umum', 'deskripsi' => 'Ilmu Pengetahuan Alam SD'],
+            ['nama_mapel' => 'IPS', 'jenis' => 'umum', 'deskripsi' => 'Ilmu Pengetahuan Sosial SD'],
+            ['nama_mapel' => 'Bahasa Indonesia', 'jenis' => 'umum', 'deskripsi' => 'Bahasa dan Sastra Indonesia SD'],
+            ['nama_mapel' => 'Tahfidz Al-Quran', 'jenis' => 'tahfidz', 'deskripsi' => 'Pembelajaran hafalan Al-Quran SD'],
         ];
 
         $mapelModels = [];
@@ -286,11 +288,11 @@ class ProductionDataSeeder extends Seeder
             $gmkLookup[$className] = [];
             foreach ($mapelModels as $mapelName => $mapel) {
                 $assignedTeacher = ($mapel->jenis === 'tahfidz') ? $gurus['hasan'] : $gurus['budi'];
-                if ($className === '7A') {
+                if ($className === '1A') {
                     $assignedTeacher = ($mapel->jenis === 'tahfidz') ? $gurus['hasan'] : $gurus['guru'];
-                } elseif ($className === '7B' || $className === '9A') {
+                } elseif ($className === '1B' || $className === '5A') {
                     $assignedTeacher = ($mapel->jenis === 'tahfidz') ? $gurus['hasan'] : $gurus['lutfi'];
-                } elseif ($className === '8A') {
+                } elseif ($className === '2A' || $className === '6A') {
                     $assignedTeacher = ($mapel->jenis === 'tahfidz') ? $gurus['dewi'] : $gurus['fatma'];
                 }
 
@@ -552,12 +554,12 @@ class ProductionDataSeeder extends Seeder
 
         // 8c. Seed Budget Submissions (PengajuanDana)
         PengajuanDana::create([
-            'judul' => 'Pengadaan Buku Pengayaan Kurikulum Merdeka',
+            'judul' => 'Pengadaan Buku Pengayaan Kurikulum Merdeka SD',
             'pemohon_id' => $userFinance->id,
             'kategori' => 'Pembelian Buku',
             'nominal' => 750000.00, // < 1 JT -> cukup Koordinator
             'tanggal_pengajuan' => now()->subDays(6)->toDateString(),
-            'keterangan' => 'Pembelian 15 eksemplar modul pendamping siswa kelas 7 & 8',
+            'keterangan' => 'Pembelian 15 eksemplar modul pendamping siswa SD kelas 1 & 2',
             'status' => 'disetujui',
             'tanggal_persetujuan_koordinator' => now()->subDays(5),
         ]);
@@ -574,7 +576,7 @@ class ProductionDataSeeder extends Seeder
         ]);
 
         PengajuanDana::create([
-            'judul' => 'Perbaikan & Pengecatan Atap Gedung Kelas 9',
+            'judul' => 'Perbaikan & Pengecatan Atap Gedung Kelas 6',
             'pemohon_id' => $userFinance->id,
             'kategori' => 'Operasional',
             'nominal' => 2800000.00, // > 1 JT -> Koordinator & Kepala Yayasan
@@ -625,7 +627,7 @@ class ProductionDataSeeder extends Seeder
             'tanggal' => '2025-08-20',
             'nominal' => 15000000.00,
             'kategori' => 'Belanja Buku Perpustakaan',
-            'keterangan' => 'Pembelian buku paket Kurikulum Merdeka kelas 7 & 8',
+            'keterangan' => 'Pembelian buku paket Kurikulum Merdeka SD kelas 1 & 4',
         ]);
 
         DanaBos::create([

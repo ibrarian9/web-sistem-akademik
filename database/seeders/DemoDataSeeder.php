@@ -112,13 +112,15 @@ class DemoDataSeeder extends Seeder
             $gurus[$t['username']] = $guru;
         }
 
-        // 5. Create Kelas
+        // 5. Create Kelas (Sekolah Dasar / SD)
         $kelasData = [
-            ['nama_kelas' => '7A', 'tingkat' => '7', 'umum' => 'budi', 'tahfidz' => 'hasan'],
-            ['nama_kelas' => '7B', 'tingkat' => '7', 'umum' => 'lutfi', 'tahfidz' => 'hasan'],
-            ['nama_kelas' => '8A', 'tingkat' => '8', 'umum' => 'fatma', 'tahfidz' => 'dewi'],
-            ['nama_kelas' => '8B', 'tingkat' => '8', 'umum' => 'budi', 'tahfidz' => 'dewi'],
-            ['nama_kelas' => '9A', 'tingkat' => '9', 'umum' => 'lutfi', 'tahfidz' => 'hasan'],
+            ['nama_kelas' => '1A', 'tingkat' => '1', 'umum' => 'budi', 'tahfidz' => 'hasan'],
+            ['nama_kelas' => '1B', 'tingkat' => '1', 'umum' => 'lutfi', 'tahfidz' => 'hasan'],
+            ['nama_kelas' => '2A', 'tingkat' => '2', 'umum' => 'fatma', 'tahfidz' => 'dewi'],
+            ['nama_kelas' => '3A', 'tingkat' => '3', 'umum' => 'budi', 'tahfidz' => 'dewi'],
+            ['nama_kelas' => '4A', 'tingkat' => '4', 'umum' => 'lutfi', 'tahfidz' => 'hasan'],
+            ['nama_kelas' => '5A', 'tingkat' => '5', 'umum' => 'fatma', 'tahfidz' => 'dewi'],
+            ['nama_kelas' => '6A', 'tingkat' => '6', 'umum' => 'budi', 'tahfidz' => 'hasan'],
         ];
 
         $kelasModels = [];
@@ -136,16 +138,16 @@ class DemoDataSeeder extends Seeder
 
         // 6. Create Siswa
         $siswaData = [
-            ['nama' => 'Ahmad Fauzi', 'nis' => '1001', 'kelas' => '7A'],
-            ['nama' => 'Bambang Tri', 'nis' => '1002', 'kelas' => '7A'],
-            ['nama' => 'Candra Wijaya', 'nis' => '1003', 'kelas' => '7A'],
-            ['nama' => 'Dina Marlina', 'nis' => '1004', 'kelas' => '7A'],
-            ['nama' => 'Eka Saputra', 'nis' => '1005', 'kelas' => '7A'],
-            ['nama' => 'Farhan Adit', 'nis' => '1006', 'kelas' => '7B'],
-            ['nama' => 'Gita Kirana', 'nis' => '1007', 'kelas' => '7B'],
-            ['nama' => 'Hendra Setiawan', 'nis' => '1008', 'kelas' => '7B'],
-            ['nama' => 'Indah Permata', 'nis' => '1009', 'kelas' => '7B'],
-            ['nama' => 'Joko Susilo', 'nis' => '1010', 'kelas' => '7B'],
+            ['nama' => 'Ahmad Fauzi', 'nis' => '1001', 'kelas' => '1A'],
+            ['nama' => 'Bambang Tri', 'nis' => '1002', 'kelas' => '1A'],
+            ['nama' => 'Candra Wijaya', 'nis' => '1003', 'kelas' => '1A'],
+            ['nama' => 'Dina Marlina', 'nis' => '1004', 'kelas' => '1A'],
+            ['nama' => 'Eka Saputra', 'nis' => '1005', 'kelas' => '1A'],
+            ['nama' => 'Farhan Adit', 'nis' => '1006', 'kelas' => '1B'],
+            ['nama' => 'Gita Kirana', 'nis' => '1007', 'kelas' => '1B'],
+            ['nama' => 'Hendra Setiawan', 'nis' => '1008', 'kelas' => '1B'],
+            ['nama' => 'Indah Permata', 'nis' => '1009', 'kelas' => '1B'],
+            ['nama' => 'Joko Susilo', 'nis' => '1010', 'kelas' => '1B'],
         ];
 
         foreach ($siswaData as $index => $s) {
@@ -169,7 +171,7 @@ class DemoDataSeeder extends Seeder
                 'nisn' => '0098' . rand(100000, 999999),
                 'jenis_kelamin' => ($index % 2 == 0) ? 'L' : 'P',
                 'tempat_lahir' => 'Yogyakarta',
-                'tanggal_lahir' => '2012-05-10',
+                'tanggal_lahir' => '2016-05-10',
                 'alamat' => 'Yogyakarta',
                 'nama_wali' => 'Wali dari ' . $s['nama'],
                 'no_hp_wali' => '0899' . rand(10000000, 99999999),
@@ -189,11 +191,11 @@ class DemoDataSeeder extends Seeder
 
         // 7. Create Mata Pelajaran (Mapel)
         $mapels = [
-            ['nama_mapel' => 'Matematika', 'jenis' => 'umum', 'deskripsi' => 'Mata pelajaran matematika umum'],
-            ['nama_mapel' => 'IPA', 'jenis' => 'umum', 'deskripsi' => 'Ilmu Pengetahuan Alam'],
-            ['nama_mapel' => 'IPS', 'jenis' => 'umum', 'deskripsi' => 'Ilmu Pengetahuan Sosial'],
-            ['nama_mapel' => 'Bahasa Indonesia', 'jenis' => 'umum', 'deskripsi' => 'Bahasa dan Sastra Indonesia'],
-            ['nama_mapel' => 'Tahfidz Al-Quran', 'jenis' => 'tahfidz', 'deskripsi' => 'Pembelajaran hafalan Al-Quran'],
+            ['nama_mapel' => 'Matematika', 'jenis' => 'umum', 'deskripsi' => 'Mata pelajaran matematika SD'],
+            ['nama_mapel' => 'IPA', 'jenis' => 'umum', 'deskripsi' => 'Ilmu Pengetahuan Alam SD'],
+            ['nama_mapel' => 'IPS', 'jenis' => 'umum', 'deskripsi' => 'Ilmu Pengetahuan Sosial SD'],
+            ['nama_mapel' => 'Bahasa Indonesia', 'jenis' => 'umum', 'deskripsi' => 'Bahasa dan Sastra Indonesia SD'],
+            ['nama_mapel' => 'Tahfidz Al-Quran', 'jenis' => 'tahfidz', 'deskripsi' => 'Pembelajaran hafalan Al-Quran SD'],
         ];
 
         $mapelModels = [];
@@ -203,18 +205,13 @@ class DemoDataSeeder extends Seeder
         }
 
         // 8. Penugasan Guru Mapel Kelas (GuruMapelKelas)
-        // Matematika di Kelas 7A diajar oleh budi
-        // Tahfidz di Kelas 7A diajar oleh hasan
-        // IPA di Kelas 7B diajar oleh lutfi
-        // Tahfidz di Kelas 7B diajar oleh hasan
-        
         $penugasans = [
-            ['guru' => 'budi', 'kelas' => '7A', 'mapel' => 'Matematika'],
-            ['guru' => 'budi', 'kelas' => '7A', 'mapel' => 'Bahasa Indonesia'],
-            ['guru' => 'hasan', 'kelas' => '7A', 'mapel' => 'Tahfidz Al-Quran'],
-            ['guru' => 'lutfi', 'kelas' => '7B', 'mapel' => 'IPA'],
-            ['guru' => 'lutfi', 'kelas' => '7B', 'mapel' => 'IPS'],
-            ['guru' => 'hasan', 'kelas' => '7B', 'mapel' => 'Tahfidz Al-Quran'],
+            ['guru' => 'budi', 'kelas' => '1A', 'mapel' => 'Matematika'],
+            ['guru' => 'budi', 'kelas' => '1A', 'mapel' => 'Bahasa Indonesia'],
+            ['guru' => 'hasan', 'kelas' => '1A', 'mapel' => 'Tahfidz Al-Quran'],
+            ['guru' => 'lutfi', 'kelas' => '1B', 'mapel' => 'IPA'],
+            ['guru' => 'lutfi', 'kelas' => '1B', 'mapel' => 'IPS'],
+            ['guru' => 'hasan', 'kelas' => '1B', 'mapel' => 'Tahfidz Al-Quran'],
         ];
 
         foreach ($penugasans as $p) {
