@@ -49,6 +49,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pembayaran/resi/{id}', [\App\Http\Controllers\FinanceReportController::class, 'cetakResi'])->name('pembayaran.resi');
     Route::get('/cetak-resi/{id}', [\App\Http\Controllers\FinanceReportController::class, 'cetakResi'])->name('cetak-resi');
     Route::get('/finance/cetak-resi/{id}', [\App\Http\Controllers\FinanceReportController::class, 'cetakResi'])->name('finance.cetak-resi');
+    Route::get('/finance/pembayaran/resi/{id}', [\App\Http\Controllers\FinanceReportController::class, 'cetakResi'])->name('finance.pembayaran.resi');
     Route::get('/gaji-guru/slip/{id}', [\App\Http\Controllers\FinanceReportController::class, 'slipGaji'])->name('gaji-guru.slip');
     Route::get('/finance/gaji-guru/slip/{id}', [\App\Http\Controllers\FinanceReportController::class, 'slipGaji'])->name('finance.gaji-guru.slip');
 
