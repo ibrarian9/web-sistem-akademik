@@ -179,12 +179,26 @@ class KelolaRapor extends Component
             // 2. Calculate overall Nilai Akhir
             $finalGrade = 0.00;
             $totalWeight = 0.00;
+
+            $gmk = GuruMapelKelas::where([
+                'kelas_id' => $this->kelasId,
+                'mapel_id' => $mapel->id,
+            ])->first();
+
+            $customBobots = [];
+            if ($gmk) {
+                $customBobots = \App\Models\BobotNilaiGuru::where('guru_mapel_kelas_id', $gmk->id)
+                    ->pluck('bobot', 'komponen_nilai_id')
+                    ->toArray();
+            }
+
             foreach ($components as $comp) {
                 $compNilais = $mapelNilais->where('komponen_nilai_id', $comp->id);
                 if ($compNilais->count() > 0) {
                     $avg = $compNilais->avg('nilai');
-                    $finalGrade += $avg * ($comp->bobot / 100);
-                    $totalWeight += $comp->bobot;
+                    $compBobot = isset($customBobots[$comp->id]) ? floatval($customBobots[$comp->id]) : floatval($comp->bobot);
+                    $finalGrade += $avg * ($compBobot / 100);
+                    $totalWeight += $compBobot;
                 }
             }
 

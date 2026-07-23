@@ -125,6 +125,16 @@ class InputNilaiSiswa extends Component
         if ($this->mapel_id) {
             $mapel = \App\Models\MataPelajaran::find($this->mapel_id);
             $this->selectedMapelKkm = floatval($mapel->kkm ?? 70.00);
+
+            $isTahfidz = $mapel ? ($mapel->is_tahfidz || strtolower($mapel->kategori ?? '') === 'tahfidz') : false;
+            $berlakuFilter = $isTahfidz ? ['tahfidz', 'semua'] : ['umum', 'semua'];
+
+            $this->components = KomponenNilai::whereIn('berlaku_untuk', $berlakuFilter)
+                ->orderBy('urutan')
+                ->get()
+                ->toArray();
+        } else {
+            $this->components = KomponenNilai::orderBy('urutan')->get()->toArray();
         }
         $this->loadStudents(); 
     }

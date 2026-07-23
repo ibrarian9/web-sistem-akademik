@@ -69,7 +69,6 @@ class ManajemenKomponenNilai extends Component
             'nama' => 'required|string|max:100',
             'kategori' => 'required|in:pengetahuan,keterampilan,keagamaan,sikap',
             'berlaku_untuk' => 'required|in:umum,tahfidz,semua',
-            'bobot' => 'required|numeric|min:0|max:100',
         ]);
 
         if ($this->editingId) {
@@ -78,7 +77,6 @@ class ManajemenKomponenNilai extends Component
                 'nama' => $this->nama,
                 'kategori' => $this->kategori,
                 'berlaku_untuk' => $this->berlaku_untuk,
-                'bobot' => $this->bobot,
             ]);
             session()->flash('message', "Komponen nilai '{$this->nama}' berhasil diperbarui.");
         } else {
@@ -87,7 +85,7 @@ class ManajemenKomponenNilai extends Component
                 'nama' => $this->nama,
                 'kategori' => $this->kategori,
                 'berlaku_untuk' => $this->berlaku_untuk,
-                'bobot' => $this->bobot,
+                'bobot' => 0,
                 'urutan' => $maxUrutan + 1,
             ]);
             session()->flash('message', "Komponen nilai baru '{$this->nama}' berhasil ditambahkan.");

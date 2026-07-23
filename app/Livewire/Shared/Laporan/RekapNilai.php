@@ -127,6 +127,18 @@ class RekapNilai extends Component
             'semester_id' => $this->semesterId,
         ])->get();
 
+        $gmk = GuruMapelKelas::where([
+            'kelas_id' => $this->kelasId,
+            'mapel_id' => $this->mapelId,
+        ])->first();
+
+        $customBobots = [];
+        if ($gmk) {
+            $customBobots = \App\Models\BobotNilaiGuru::where('guru_mapel_kelas_id', $gmk->id)
+                ->pluck('bobot', 'komponen_nilai_id')
+                ->toArray();
+        }
+
         $matrix = [];
         foreach ($students as $siswa) {
             $compGrades = [];
@@ -144,29 +156,32 @@ class RekapNilai extends Component
                     $compGrades[$comp->id] = round($avg, 2);
                     
                     // Add to final grade calculation (weighted)
-                    $finalGrade += $avg * ($comp->bobot / 100);
-                    $totalWeight += $comp->bobot;
+                    $compBobot = isset($customBobots[$comp->id]) ? floatval($customBobots[$comp->id]) : floatval($comp->bobot);
+                    $finalGrade += $avg * ($compBobot / 100);
+                    $totalWeight += $compBobot;
                 } else {
                     $compGrades[$comp->id] = null;
                 }
             }
 
+            $finalScore = $totalWeight > 0 ? round($finalGrade / ($totalWeight / 100), 2) : 0.00;
+
             // Calculate predicate
             $predikat = 'E';
-            if ($finalGrade >= 90) {
+            if ($finalScore >= 90) {
                 $predikat = 'A';
-            } elseif ($finalGrade >= 80) {
+            } elseif ($finalScore >= 80) {
                 $predikat = 'B';
-            } elseif ($finalGrade >= 70) {
+            } elseif ($finalScore >= 70) {
                 $predikat = 'C';
-            } elseif ($finalGrade >= 60) {
+            } elseif ($finalScore >= 60) {
                 $predikat = 'D';
             }
 
             $matrix[] = [
                 'siswa' => $siswa,
                 'compGrades' => $compGrades,
-                'finalGrade' => round($finalGrade, 2),
+                'finalGrade' => $finalScore,
                 'predikat' => $predikat
             ];
         }
