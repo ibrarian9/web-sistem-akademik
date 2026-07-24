@@ -377,19 +377,21 @@ class ProductionDataSeeder extends Seeder
         // Seed one-time admission & books at the start of school year (July 2025)
         foreach ($siswaModels as $siswa) {
             // Uang Pendaftaran
-            $tagihanDaftar = Tagihan::create([
+            $tagihanDaftar = Tagihan::firstOrCreate([
                 'siswa_id' => $siswa->id,
                 'jenis_tagihan_id' => $jtPendaftaran->id,
                 'tahun_ajaran_id' => $tahunAjaran->id,
                 'bulan' => 'Juli',
+            ], [
                 'nominal' => $jtPendaftaran->default_nominal,
                 'total_dibayar' => $jtPendaftaran->default_nominal,
                 'status' => 'lunas',
                 'jatuh_tempo' => '2025-07-10',
             ]);
 
-            Pembayaran::create([
+            Pembayaran::firstOrCreate([
                 'tagihan_id' => $tagihanDaftar->id,
+            ], [
                 'tanggal_bayar' => '2025-07-05',
                 'nominal_dibayar' => $jtPendaftaran->default_nominal,
                 'metode_bayar' => $methods[rand(0, 3)],
@@ -397,19 +399,21 @@ class ProductionDataSeeder extends Seeder
             ]);
 
             // Uang Buku
-            $tagihanBuku = Tagihan::create([
+            $tagihanBuku = Tagihan::firstOrCreate([
                 'siswa_id' => $siswa->id,
                 'jenis_tagihan_id' => $jtBuku->id,
                 'tahun_ajaran_id' => $tahunAjaran->id,
                 'bulan' => 'Juli',
+            ], [
                 'nominal' => $jtBuku->default_nominal,
                 'total_dibayar' => $jtBuku->default_nominal,
                 'status' => 'lunas',
                 'jatuh_tempo' => '2025-07-20',
             ]);
 
-            Pembayaran::create([
+            Pembayaran::firstOrCreate([
                 'tagihan_id' => $tagihanBuku->id,
+            ], [
                 'tanggal_bayar' => '2025-07-15',
                 'nominal_dibayar' => $jtBuku->default_nominal,
                 'metode_bayar' => $methods[rand(0, 3)],
@@ -431,11 +435,12 @@ class ProductionDataSeeder extends Seeder
 
                 // SPP Bill
                 $totalPaidSpp = ($status === 'lunas') ? $jtSpp->default_nominal : (($status === 'sebagian') ? 150000 : 0);
-                $tagihanSpp = Tagihan::create([
+                $tagihanSpp = Tagihan::firstOrCreate([
                     'siswa_id' => $siswa->id,
                     'jenis_tagihan_id' => $jtSpp->id,
                     'tahun_ajaran_id' => $tahunAjaran->id,
                     'bulan' => $m['nama'],
+                ], [
                     'nominal' => $jtSpp->default_nominal,
                     'total_dibayar' => $totalPaidSpp,
                     'status' => $status,
@@ -443,8 +448,9 @@ class ProductionDataSeeder extends Seeder
                 ]);
 
                 if ($totalPaidSpp > 0) {
-                    Pembayaran::create([
+                    Pembayaran::firstOrCreate([
                         'tagihan_id' => $tagihanSpp->id,
+                    ], [
                         'tanggal_bayar' => $m['date'] . '-' . sprintf('%02d', rand(1, 9)),
                         'nominal_dibayar' => $totalPaidSpp,
                         'metode_bayar' => $methods[rand(0, 3)],
@@ -454,19 +460,21 @@ class ProductionDataSeeder extends Seeder
 
                 // Infaq (Voluntary payment: only created if paid / 'lunas')
                 if ($status === 'lunas') {
-                    $tagihanInfaq = Tagihan::create([
+                    $tagihanInfaq = Tagihan::firstOrCreate([
                         'siswa_id' => $siswa->id,
                         'jenis_tagihan_id' => $jtInfaq->id,
                         'tahun_ajaran_id' => $tahunAjaran->id,
                         'bulan' => $m['nama'],
+                    ], [
                         'nominal' => $jtInfaq->default_nominal,
                         'total_dibayar' => $jtInfaq->default_nominal,
                         'status' => 'lunas',
                         'jatuh_tempo' => $m['date'] . '-15',
                     ]);
 
-                    Pembayaran::create([
+                    Pembayaran::firstOrCreate([
                         'tagihan_id' => $tagihanInfaq->id,
+                    ], [
                         'tanggal_bayar' => $m['date'] . '-' . sprintf('%02d', rand(10, 14)),
                         'nominal_dibayar' => $jtInfaq->default_nominal,
                         'metode_bayar' => $methods[rand(0, 3)],
@@ -798,9 +806,10 @@ class ProductionDataSeeder extends Seeder
 
         foreach ($siswaModels as $siswa) {
             $catatanWali = 'Ananda ' . $siswa->user->nama . ' menunjukkan peningkatan belajar yang luar biasa. Pertahankan prestasi ini di semester depan!';
-            $rapor = Rapor::create([
+            $rapor = Rapor::firstOrCreate([
                 'siswa_id' => $siswa->id,
                 'semester_id' => $semesterGanjil->id,
+            ], [
                 'kelas_id' => $siswa->kelas_id,
                 'catatan_wali_kelas' => $catatanWali,
                 'tanggal_terbit' => '2025-12-19',
@@ -818,9 +827,10 @@ class ProductionDataSeeder extends Seeder
                 if ($avg >= 90) $pred = 'A';
                 elseif ($avg < 80) $pred = 'C';
 
-                RaporDetail::create([
+                RaporDetail::firstOrCreate([
                     'rapor_id' => $rapor->id,
                     'mapel_id' => $mapel->id,
+                ], [
                     'nilai_pengetahuan' => $cog,
                     'nilai_keterampilan' => $psy,
                     'nilai_sikap' => $aff,
@@ -834,27 +844,33 @@ class ProductionDataSeeder extends Seeder
                 $gmk = $gmkLookup[$className][$mapel->nama_mapel] ?? null;
                 $teacherId = $gmk ? $gmk->guru_id : ($siswa->kelas->guru_umum_id ?? $gurus['budi']->id);
 
-                Nilai::create([
-                    'siswa_id' => $siswa->id,
-                    'mapel_id' => $mapel->id,
-                    'guru_id' => $teacherId,
-                    'kelas_id' => $siswa->kelas_id,
-                    'semester_id' => $semesterGanjil->id,
-                    'komponen_nilai_id' => $knUlangan->id,
-                    'tanggal' => '2025-09-12',
-                    'nilai' => $cog - 2,
-                ]);
+                if ($knUlangan) {
+                    Nilai::firstOrCreate([
+                        'siswa_id' => $siswa->id,
+                        'mapel_id' => $mapel->id,
+                        'semester_id' => $semesterGanjil->id,
+                        'komponen_nilai_id' => $knUlangan->id,
+                    ], [
+                        'guru_id' => $teacherId,
+                        'kelas_id' => $siswa->kelas_id,
+                        'tanggal' => '2025-09-12',
+                        'nilai' => $cog - 2,
+                    ]);
+                }
 
-                Nilai::create([
-                    'siswa_id' => $siswa->id,
-                    'mapel_id' => $mapel->id,
-                    'guru_id' => $teacherId,
-                    'kelas_id' => $siswa->kelas_id,
-                    'semester_id' => $semesterGenap->id,
-                    'komponen_nilai_id' => $knUts->id,
-                    'tanggal' => '2026-03-15',
-                    'nilai' => rand(75, 95),
-                ]);
+                if ($knUts) {
+                    Nilai::firstOrCreate([
+                        'siswa_id' => $siswa->id,
+                        'mapel_id' => $mapel->id,
+                        'semester_id' => $semesterGenap->id,
+                        'komponen_nilai_id' => $knUts->id,
+                    ], [
+                        'guru_id' => $teacherId,
+                        'kelas_id' => $siswa->kelas_id,
+                        'tanggal' => '2026-03-15',
+                        'nilai' => rand(75, 95),
+                    ]);
+                }
             }
         }
 
