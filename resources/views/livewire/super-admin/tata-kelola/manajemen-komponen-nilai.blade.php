@@ -31,18 +31,18 @@
     @endif
 
     <!-- Filter Tabs -->
-    <div class="flex items-center gap-2 border-b border-stone-200 pb-3">
+    <div class="flex items-center gap-2 border-b border-stone-200 pb-3 overflow-x-auto">
         <button wire:click="$set('filterBerlaku', 'semua')" type="button" 
-            class="px-4 py-2 rounded-xl text-xs font-bold transition {{ $filterBerlaku === 'semua' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-stone-100 text-stone-600 hover:bg-stone-200' }}">
+            class="px-4 py-2 rounded-xl text-xs font-bold transition shrink-0 whitespace-nowrap {{ $filterBerlaku === 'semua' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-stone-100 text-stone-600 hover:bg-stone-200' }}">
             Semua Komponen
         </button>
         <button wire:click="$set('filterBerlaku', 'umum')" type="button" 
-            class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 {{ $filterBerlaku === 'umum' ? 'bg-blue-600 text-white shadow-sm' : 'bg-stone-100 text-stone-600 hover:bg-stone-200' }}">
-            <span>📘 Mapel Umum</span>
+            class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap {{ $filterBerlaku === 'umum' ? 'bg-blue-600 text-white shadow-sm' : 'bg-stone-100 text-stone-600 hover:bg-stone-200' }}">
+            <span>Mapel Umum</span>
         </button>
         <button wire:click="$set('filterBerlaku', 'tahfidz')" type="button" 
-            class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 {{ $filterBerlaku === 'tahfidz' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-stone-100 text-stone-600 hover:bg-stone-200' }}">
-            <span>📖 Mapel Tahfizh</span>
+            class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap {{ $filterBerlaku === 'tahfidz' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-stone-100 text-stone-600 hover:bg-stone-200' }}">
+            <span>Mapel Tahfizh</span>
         </button>
     </div>
 
@@ -58,7 +58,7 @@
                             <div class="flex items-center gap-2">
                                 <span class="font-bold text-stone-800 text-sm">{{ $komponen['nama'] }}</span>
                                 <span class="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase {{ $komponen['berlaku_untuk'] === 'tahfidz' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($komponen['berlaku_untuk'] === 'umum' ? 'bg-blue-100 text-blue-800 border border-blue-200' : 'bg-purple-100 text-purple-800 border border-purple-200') }}">
-                                    {{ $komponen['berlaku_untuk'] === 'tahfidz' ? '📖 Mapel Tahfidz' : ($komponen['berlaku_untuk'] === 'umum' ? '📘 Mapel Umum' : 'Semua Mapel') }}
+                                    {{ $komponen['berlaku_untuk'] === 'tahfidz' ? 'Mapel Tahfidz' : ($komponen['berlaku_untuk'] === 'umum' ? 'Mapel Umum' : 'Semua Mapel') }}
                                 </span>
                             </div>
                             <div class="text-xs text-stone-400 capitalize">
@@ -121,8 +121,8 @@
                         <div class="space-y-1">
                             <label class="text-xs font-bold text-stone-700">Tipe Pelajaran</label>
                             <select wire:model="berlaku_untuk" class="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-xs text-stone-800 focus:outline-none focus:border-indigo-500 font-semibold">
-                                <option value="umum">📘 Mapel Umum</option>
-                                <option value="tahfidz">📖 Mapel Tahfidz</option>
+                                <option value="umum">Mapel Umum</option>
+                                <option value="tahfidz">Mapel Tahfidz</option>
                                 <option value="semua">Semua Mapel</option>
                             </select>
                             @error('berlaku_untuk') <span class="text-rose-500 text-[10px]">{{ $message }}</span> @enderror

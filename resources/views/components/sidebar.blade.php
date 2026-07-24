@@ -147,18 +147,26 @@
     };
 @endphp
 
-<aside class="fixed inset-y-0 left-0 z-20 flex flex-col w-64 bg-white border-r border-stone-200 shadow-sm transition-all duration-300">
+<aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'" 
+       class="fixed inset-y-0 left-0 z-30 flex flex-col w-64 bg-white border-r border-stone-200 shadow-xl lg:shadow-sm transition-transform duration-300 ease-in-out lg:translate-x-0 -translate-x-full">
     <!-- Header/Brand -->
-    <div class="flex items-center gap-3 px-6 h-16 border-b border-stone-200">
-        <div class="flex items-center justify-center w-9 h-9 rounded-xl bg-green-50 border border-green-200">
-            <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.62 48.62 0 0112 20.904a48.62 48.62 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 019.918 5.842 50.45 50.45 0 00-2.658.814m-15.482 0a50.53 50.53 0 0115.482 0m-15.482 0v3.06c0 5.625 3.338 10.71 8.232 12.839m0-22.742V20.9" />
-            </svg>
+    <div class="flex items-center justify-between px-6 h-16 border-b border-stone-200">
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center w-9 h-9 rounded-xl bg-green-50 border border-green-200">
+                <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.62 48.62 0 0112 20.904a48.62 48.62 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 019.918 5.842 50.45 50.45 0 00-2.658.814m-15.482 0a50.53 50.53 0 0115.482 0m-15.482 0v3.06c0 5.625 3.338 10.71 8.232 12.839m0-22.742V20.9" />
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-sm font-bold text-stone-800 tracking-wide">SIAKAD</h2>
+                <p class="text-xs text-stone-500 font-medium">{{ $roleLabel }}</p>
+            </div>
         </div>
-        <div>
-            <h2 class="text-sm font-bold text-stone-800 tracking-wide">SIAKAD</h2>
-            <p class="text-xs text-stone-500 font-medium">{{ $roleLabel }}</p>
-        </div>
+
+        <!-- Mobile Close Button -->
+        <button @click="sidebarOpen = false" type="button" class="p-1.5 rounded-xl text-stone-400 hover:text-stone-700 hover:bg-stone-100 lg:hidden" aria-label="Close sidebar">
+            <x-lucide-x class="w-5 h-5" />
+        </button>
     </div>
 
     <!-- Navigation Links -->
