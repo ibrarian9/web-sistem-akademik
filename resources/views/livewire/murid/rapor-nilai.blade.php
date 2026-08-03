@@ -94,7 +94,7 @@
                             @php
                                 $filteredDetails = array_filter($raporDetails, function($d) use ($activeTab) {
                                     $jenis = $d['mapel']['jenis'] ?? 'umum';
-                                    return $activeTab === 'tahfidz' ? $jenis === 'tahfidz' : $jenis === 'umum';
+                                    return $activeTab === 'tahfidz' ? in_array($jenis, ['tahfidz', 'tahfizh', 'agama']) : $jenis === 'umum';
                                 });
                             @endphp
 
@@ -177,7 +177,7 @@
                     <div class="space-y-4">
                         @php
                             $filteredLive = array_filter($liveGrades, function($g) use ($activeTab) {
-                                return $activeTab === 'tahfidz' ? ($g['jenis'] ?? '') === 'tahfidz' : ($g['jenis'] ?? '') === 'umum';
+                                return $activeTab === 'tahfidz' ? in_array($g['jenis'] ?? '', ['tahfidz', 'tahfizh', 'agama']) : ($g['jenis'] ?? '') === 'umum';
                             });
                         @endphp
 

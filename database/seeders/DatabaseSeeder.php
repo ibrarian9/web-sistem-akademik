@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             KategoriPengeluaranSeeder::class,
             ProductionDataSeeder::class,
             FinanceSeeder::class,
+            RaporOrangTuaSeeder::class,
         ]);
     }
 }

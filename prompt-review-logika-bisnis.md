@@ -1,72 +1,74 @@
-# Prompt: Review Logika Bisnis — Sistem Informasi Akademik & Keuangan Yayasan
+# Prompt: Review Logika Bisnis — Sistem Informasi Akademik (Kurikulum Merdeka & Tahfizh) & Keuangan Yayasan
 
-> Cara pakai: copy seluruh isi di bawah ini, tempel ke AI agent (Claude/ChatGPT/dsb) bersama file `perencanaan-sistem-akademik-yayasan-revisi.md` sebagai lampiran. Jangan edit bagian "Checklist Titik Rawan" kecuali kamu sudah cek sendiri poin itu tidak relevan.
+> **Cara pakai**: Copy seluruh isi dokumen ini, tempel ke AI Agent (Claude / ChatGPT / DeepSeek / Gemini) bersama lampiran file **`perencanaan-sistem-akademik-yayasan.md`**.
 
 ---
 
 ## PERAN
+Kamu adalah **Senior Business Analyst & Solution Architect** spesialis Sistem Informasi Akademik (SIAKAD) & Keuangan Sekolah/Yayasan di Indonesia. Kamu memiliki pemahaman mendalam tentang Kurikulum Merdeka, Sistem Penilaian Rapor Digital (TP, SAS, Auto-Narasi, P5), Model Pembelajaran Tahfizh, Sistem SPP & Payroll, serta Approval Workflow.
 
-Kamu adalah **business analyst / solution architect senior** dengan pengalaman membangun sistem informasi akademik & keuangan untuk yayasan/sekolah di Indonesia. Kamu paham pola umum sistem SPP, rapor, payroll guru, dan approval workflow. Tugasmu **bukan** review kode, **bukan** review UI/UX, **bukan** review pilihan tech stack — murni **logika bisnis**: apakah aturan yang dituliskan konsisten, lengkap, dan benar-benar terwakili di model data & alur proses.
+Tugas utama kamu adalah melakukan **Review Logika Bisnis**: mengaudit apakah aturan bisnis, alur proses, skema ERD, dan fitur yang dirancang konsisten, lengkap, tidak ada celah/edge case yang terlewat, dan benar-benar siap diimplementasikan ke dalam kode.
 
-## KONTEKS
+---
 
-Dokumen terlampir adalah perencanaan sistem (ringkasan kebutuhan, aturan bisnis, sitemap per role, flowchart proses, ERD, roadmap fase). Sistem ini melayani 7 role: Super Admin, Guru (Umum/Tahfidz), Murid/Wali, Finance, Kepala Sekolah, Koordinator, Tata Usaha — mencakup modul akademik (nilai, rapor, absensi), keuangan (SPP, pengeluaran, gaji, dana BOS), dan kepegawaian (piket, alumni).
+## KONTEKS SISTEM
+Dokumen yang dilampirkan adalah **`perencanaan-sistem-akademik-yayasan.md`** yang mencakup:
+1. **Dual Architecture Akademik**:
+   - **Kurikulum Merdeka (Umum)**: Hirarki Mapel → Lingkup Materi → Tujuan Pembelajaran (TP) → Nilai Sumatif TP (`nilai_sumatif_tp`) + SAS (`nilai_sas`) → Mesin Auto-Narasi Capaian (TP tertinggi & terendah + Tie-breaker) → Kokurikuler P5 (7/8 Dimensi, 3 Proyek, 5 Titik Sumatif).
+   - **Model Khusus Tahfizh**: Terpisah dari KM! Pengampu Ustadz Tahfizh, Kelas Tahfizh, Target Hafalan Surah/Juz, Tajwid, Mutabaah, dan Lembar Rapor Tahfizh khusus.
+2. **Validasi Keabsahan Dokumen Berbasis QR Code**:
+   - Seluruh PDF (Rapor KM, Rapor Tahfizh, Rapor P5, Resi Pembayaran) **tanpa tanda tangan basah/manual**, digantikan oleh **QR Code Verification Block** yang terhubung ke URL publik `/verifikasi/dokumen/{uuid}`.
+3. **Keuangan & Lock Portal SPP**:
+   - Auto-generate SPP tanggal 1, penguncian (lock) portal nilai & rapor mulai **tanggal 10** jika ada tunggakan *blocking* (`jatuh_tempo <= CURRENT_DATE`).
+4. **Peran Pengguna (9 Role)**: Super Admin, Guru Umum, Guru/Ustadz Tahfizh, Wali Kelas, Murid/Wali, Finance, Kepala Sekolah, Koordinator, Tata Usaha, dan Akses Publik Verifikasi QR.
 
-## TUGAS
+---
 
-Baca seluruh dokumen, lalu hasilkan laporan review yang menjawab 8 area berikut. Untuk setiap temuan, **rujuk pasal/tabel/field spesifik** dari dokumen (jangan generik) dan jelaskan skenario konkret yang memicu masalahnya.
+## AREA AUDIT & TUGAS REVIEW
 
-### 1. Konsistensi Aturan Bisnis vs Skema Data
-Untuk setiap aturan di §1.3, cek apakah ERD (§4) benar-benar punya field/tabel yang mendukungnya. Contoh yang wajib dicek: apakah `bobot_nilai_guru` divalidasi totalnya = 100% per mapel per guru? Apakah ada mekanisme block kalau guru belum set bobot tapi sudah input nilai?
+Sebutkan secara eksplisit nama tabel, kolom, atau pasal dari dokumen `perencanaan-sistem-akademik-yayasan.md` untuk setiap poin berikut:
 
-### 2. Trace End-to-End Alur Kritis
-Telusuri alur berikut dari awal sampai akhir, cari titik yang "putus" (state tidak jelas, tidak ada handler):
-- Input nilai → pengajuan koreksi → approval Koordinator → nilai revisi tercermin di rapor
-- Tagihan generate (tgl 1) → pembayaran (cicilan) → sinkronisasi status → lock/unlock rapor (tgl 10)
-- Kenaikan kelas: cek 3 syarat → eksekusi wizard → update `siswa.kelas_id` + `siswa_kelas` + status alumni
-- Gaji guru → auto-create `pengeluaran` → link `gaji_guru.pengeluaran_id`
+### 1. Konsistensi Penilaian Kurikulum Merdeka & Auto-Narasi
+- Apakah rumus Nilai Rapor ($\text{AVERAGE}(\text{Lingkup Materi}, \text{SAS})$) dan aturan *tie-breaker* auto-narasi (TP urutan paling awal menang saat skor seri) sudah sepenuhnya tercover di skema `nilai_sumatif_tp`, `nilai_sas`, `template_deskripsi`, dan `rapor_detail`?
+- Bagaimana penanganan jika seorang murid belum memiliki nilai Sumatif TP sama sekali di salah satu Lingkup Materi saat rapor di-generate?
 
-### 3. Konflik Antar-Aturan
-Contoh yang wajib dievaluasi:
-- Rapor terkunci karena tunggakan, tapi kenaikan kelas butuh cek nilai — apakah Koordinator/Super Admin bisa lihat nilai siswa yang rapornya terkunci demi proses kenaikan kelas?
-- Guru Umum tidak dapat piket & selalu masuk 09:30, Guru Tahfidz masuk 06:45/06:30 — apakah ada skenario 1 guru merangkap dua peran (mengajar umum & tahfidz) yang bikin aturan jam masuk ambigu?
+### 2. Isosiasi & Integrasi Model Tahfizh vs Rombel Umum
+- Apakah pemisahan antara `kelas` umum vs `kelas` tahfizh, serta `guru` umum vs `guru` tahfizh sudah aman dari potensi bentrok jadwal mengajar atau kebingungan hak akses guru dual-role?
+- Apakah lembar Rapor Tahfizh tersimpan konsisten di `rapor_tahfidz_detail` dan terisolasi dengan benar dari nilai akademik Kurikulum Merdeka?
 
-### 4. Edge Case yang Belum Dibahas
-Cek eksplisit ada/tidaknya penanganan untuk:
-- Overpayment (nominal dibayar > nominal tagihan) — apakah ada refund/saldo lebih, atau ditolak sistem?
-- Pembayaran dibatalkan/di-void setelah rapor sempat terbuka — apakah rapor otomatis terkunci lagi?
-- Guru resign/pindah kelas di tengah semester — status nilai yang sudah diinput, siapa pemilik data historisnya?
-- Siswa pindah kelas di tengah semester (bukan kenaikan kelas tahunan) — apakah `siswa_kelas` menangani ini atau hanya untuk pergantian tahun ajaran?
-- Siswa tidak lulus syarat kenaikan kelas — apakah ada alur tinggal kelas / override manual Super Admin, atau wizard hanya bisa "naik semua atau manual per anak"?
-- Notifikasi lock SPP: MVP hanya channel in-app, tapi kalau portal murid terkunci, bagaimana wali tahu ada tunggakan kalau belum sempat notifikasi WA/Email (baru Fase 2)?
+### 3. Keamanan & Integritas QR Code Keabsahan Dokumen
+- Audit alur pencetakan PDF hingga verifikasi publik (`/verifikasi/dokumen/{uuid}`): Apakah `qr_code_hash` di tabel `rapor` dan `pembayaran` cukup aman dari potensi pemalsuan atau duplikasi?
+- Apa yang terjadi jika pembayaran di-void atau status nilai direvisi pasca-penerbitan dokumen: apakah URL QR Code otomatis memperbarui status keabsahan dokumen secara *real-time*?
 
-### 5. Otorisasi & Scope Data per Role
-Bandingkan tabel role di §1.1 vs sitemap §2 vs field-level akses di ERD §4. Cari kemungkinan kebocoran: apakah query/service layer yang disebutkan cukup eksplisit membatasi guru hanya ke `guru_mapel_kelas` miliknya, atau ada celah (misal endpoint laporan yang lupa difilter)?
+### 4. Trace End-to-End Alur Kritis
+Telusuri alur berikut, cari titik yang "putus" atau membutuhkan handler tambahan:
+- **Alur Nilai**: Form Sumatif TP → Auto-Narasi → Override Guru → Submit → Koreksi Nilai (Approval Koordinator) → Auto-Recalculate Snapshot `rapor_detail`.
+- **Alur Keuangan**: Job SPP (tgl 1) → Lock Rapor (tgl 10) → Payment Input (Atomik DB Lock) → Generate Resi QR Code → Unlock Portal.
+- **Alur Kenaikan Kelas & Alumni**: Syarat KKM & SPP → Wizard Kenaikan Kelas → Update `siswa.kelas_id`, `siswa_kelas`, dan Status Alumni.
 
-### 6. Integritas Data Finansial
-- `tagihan.total_dibayar` sebagai cached column — apa mekanisme jaminan konsistensinya kalau ada concurrent write (2 pembayaran diinput bersamaan oleh 2 user Finance)?
-- Apakah ada audit trail kalau field cache ini sampai tidak sinkron dengan `SUM(pembayaran.nominal_dibayar)` yang sebenarnya?
-- Resi/kuitansi: setelah dicetak dan ditandatangani manual TU, kalau pembayaran itu di-void, apa status resi lama?
+### 5. Edge Cases & Penanganan Transisi State
+- **Overpayment SPP**: Apakah sisa kelebihan bayar tersimpan aman di saldo deposit/kelebihan bayar?
+- **Siswa Pindah/Keluar Mid-Year**: Apakah tagihan SPP masa depan otomatis di-set ke status `'batal'`?
+- **Mutasi Kelas Mid-Year**: Bagaimana riwayat nilai siswa jika dipindah kelas di pertengahan semester?
 
-### 7. State Machine Correctness
-Petakan semua status yang disebutkan (siswa: aktif/lulus; tagihan: lunas/sebagian/belum lunas; absensi: hadir/tidak hadir/izin) — cek transisi mana yang tidak dijelaskan (misal: siswa keluar/pindah sekolah bukan karena lulus — statusnya apa? Tidak disebut di dokumen).
+---
 
-### 8. Kelengkapan Automasi Terjadwal
-Generate tagihan (tgl 1) dan lock rapor (tgl 10) sama-sama automated jobs. Apa yang terjadi kalau job tgl 1 gagal jalan (server down)? Apakah ada mekanisme catch-up/retry, atau siswa bulan itu tidak dapat tagihan sama sekali?
+## CHECKLIST TITIK RAWAN KHUSUS (Wajib Diverifikasi Statusnya)
 
-## CHECKLIST TITIK RAWAN (sudah teridentifikasi, minta agent verifikasi status & dampaknya — bukan sekadar mengulang)
+- [ ] Multi-Role Guru (Satu ustadz mengajar mapel umum & tahfizh) — penugasan di `guru_mapel_kelas` terpisah.
+- [ ] Aturan Lock Rapor Tanggal 10 — apakah `jatuh_tempo <= CURRENT_DATE` memutasi portal dengan benar tanpa memblokir tanggal 1–9.
+- [ ] QR Code Expiration / Revocation — penanganan jika dokumen rapor ditarik kembali oleh sekolah.
+- [ ] Atomisitas transaksi pembayaran & pencegahan *race condition* concurrent payment.
 
-- [ ] §9.2 Multi-Wali per Siswa — masih open decision, dampaknya ke desain auth kalau berubah nanti
-- [ ] §9.1 Kontrol anti-kecurangan absensi guru — mitigasi saat ini cukup untuk skala yayasan kecil?
-- [ ] Bobot nilai guru dinamis (§1.3) — validasi total 100% ada di service layer atau belum disebutkan?
-- [ ] Sinkronisasi pembayaran → tagihan (§1.3 poin terakhir) — race condition saat concurrent write
+---
 
-## FORMAT OUTPUT YANG DIMINTA
+## FORMAT OUTPUT REVIEW YANG DIMINTA
 
-1. **Ringkasan eksekutif** (maks 5 kalimat): tingkat kematangan logika bisnis dokumen ini secara umum.
-2. **Tabel temuan**, kolom: `Area/Modul | Temuan | Skenario Pemicu | Dampak | Rekomendasi | Severity (Kritis/Tinggi/Sedang/Rendah)`
-3. **Top 5 prioritas** yang harus diputuskan/diperbaiki sebelum development mulai (bukan yang bisa nunggu Fase 2/3).
+1. **Ringkasan Eksekutif** (maks 5 kalimat): Tingkat kematangan logika bisnis SIAKAD ini.
+2. **Tabel Temuan Audit**, kolom: `Area/Modul | Temuan / Celah | Skenario Pemicu | Dampak Bisnis | Rekomendasi Perbaikan | Severity (Kritis/Tinggi/Sedang/Rendah)`
+3. **Top 5 Prioritas Perbaikan** sebelum tahap coding/development dimulai.
 
-## BATASAN
+---
 
-Jangan bahas: pilihan tech stack (Laravel/Livewire/MariaDB), styling/UI, penamaan variabel/tabel (kecuali penamaan itu menyembunyikan ambiguitas bisnis), atau optimasi performa yang tidak berdampak ke kebenaran logika bisnis.
+## BATASAN REVIEW
+*Jangan review pilihan tech stack (Laravel/Livewire/MariaDB) atau tampilan UI. Fokus murni pada **Kebenaran Logika Bisnis, Konsistensi Skema Data, dan Integritas Flow Sistem SIAKAD**.*
