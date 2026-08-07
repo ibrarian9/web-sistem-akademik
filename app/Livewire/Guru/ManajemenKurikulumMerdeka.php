@@ -107,6 +107,11 @@ class ManajemenKurikulumMerdeka extends Component
         $this->showLmModal = true;
     }
 
+    public function editLingkupMateri($id)
+    {
+        $this->openLmModal($id);
+    }
+
     public function closeLmModal()
     {
         $this->showLmModal = false;
@@ -133,6 +138,11 @@ class ManajemenKurikulumMerdeka extends Component
         session()->flash('message', 'Lingkup Materi berhasil disimpan.');
     }
 
+    public function saveLingkupMateri()
+    {
+        $this->saveLm();
+    }
+
     public function deleteLm($id)
     {
         LingkupMateri::findOrFail($id)->delete();
@@ -140,8 +150,18 @@ class ManajemenKurikulumMerdeka extends Component
         session()->flash('message', 'Lingkup Materi berhasil dihapus.');
     }
 
-    public function openTpModal($lmId, $tpId = null)
+    public function deleteLingkupMateri($id)
     {
+        $this->deleteLm($id);
+    }
+
+    public function openTpModal($lmId = null, $tpId = null)
+    {
+        if (!$lmId) {
+            $lm = LingkupMateri::where('mapel_id', $this->mapel_id)->first();
+            $lmId = $lm ? $lm->id : null;
+        }
+
         $this->lingkup_materi_id = $lmId;
         $this->editingTpId = $tpId;
 
@@ -151,10 +171,16 @@ class ManajemenKurikulumMerdeka extends Component
             $this->urutan_tp = $tp->urutan;
         } else {
             $this->deskripsi_tp = '';
-            $this->urutan_tp = (TujuanPembelajaran::where('lingkup_materi_id', $lmId)->max('urutan') ?? 0) + 1;
+            $this->urutan_tp = $lmId ? ((TujuanPembelajaran::where('lingkup_materi_id', $lmId)->max('urutan') ?? 0) + 1) : 1;
         }
 
         $this->showTpModal = true;
+    }
+
+    public function editTp($id)
+    {
+        $tp = TujuanPembelajaran::findOrFail($id);
+        $this->openTpModal($tp->lingkup_materi_id, $id);
     }
 
     public function closeTpModal()
