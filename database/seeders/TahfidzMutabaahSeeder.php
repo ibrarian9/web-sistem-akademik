@@ -133,8 +133,10 @@ class TahfidzMutabaahSeeder extends Seeder
                     'nis' => '80' . str_pad($idx + 1, 3, '0', STR_PAD_LEFT),
                     'nisn' => $sData['nisn'],
                     'jenis_kelamin' => $sData['gender'],
+                    'tanggal_masuk' => '2025-07-01',
                     'status' => 'aktif',
                 ]);
+
             } else {
                 if ($siswa->trashed()) {
                     $siswa->restore();
