@@ -2,21 +2,26 @@
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h2 class="text-xl font-bold text-stone-900 tracking-tight">Rapor & Nilai Hasil Belajar</h2>
-            <p class="text-xs text-stone-500">Lihat rangkuman pencapaian akademis resmi dan riwayat nilai mata pelajaran Anda.</p>
+            <p class="text-xs text-stone-500">Lihat rangkuman pencapaian akademis resmi, capaian Tahfizh, dan Projek P5 Anda.</p>
         </div>
 
         @if (!$hasOutstanding)
-            <!-- TAB BUTTONS -->
-            <div class="flex items-center gap-2 bg-stone-100 border border-stone-200 p-1.5 rounded-2xl">
-                <button wire:click="$set('activeTab', 'umum')" 
-                    class="px-4 py-2 rounded-xl text-xs font-bold transition duration-200 flex items-center gap-2 {{ $activeTab === 'umum' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'text-stone-600 hover:text-stone-900' }}">
+            <!-- TAB BUTTONS (KM, Tahfizh, P5) -->
+            <div class="flex items-center gap-1.5 bg-stone-100 border border-stone-200 p-1.5 rounded-2xl overflow-x-auto">
+                <button wire:click="setTab('km')" 
+                    class="px-3.5 py-2 rounded-xl text-xs font-bold transition duration-200 flex items-center gap-1.5 whitespace-nowrap {{ $activeTab === 'km' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20' : 'text-stone-600 hover:text-stone-900' }}">
                     <x-lucide-book-open class="w-4 h-4" />
-                    <span>Rapor Umum</span>
+                    <span>Kurikulum Merdeka</span>
                 </button>
-                <button wire:click="$set('activeTab', 'tahfidz')" 
-                    class="px-4 py-2 rounded-xl text-xs font-bold transition duration-200 flex items-center gap-2 {{ $activeTab === 'tahfidz' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20' : 'text-stone-600 hover:text-stone-900' }}">
+                <button wire:click="setTab('tahfidz')" 
+                    class="px-3.5 py-2 rounded-xl text-xs font-bold transition duration-200 flex items-center gap-1.5 whitespace-nowrap {{ $activeTab === 'tahfidz' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20' : 'text-stone-600 hover:text-stone-900' }}">
                     <x-lucide-award class="w-4 h-4" />
                     <span>Rapor Tahfizh</span>
+                </button>
+                <button wire:click="setTab('p5')" 
+                    class="px-3.5 py-2 rounded-xl text-xs font-bold transition duration-200 flex items-center gap-1.5 whitespace-nowrap {{ $activeTab === 'p5' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20' : 'text-stone-600 hover:text-stone-900' }}">
+                    <x-lucide-sparkles class="w-4 h-4" />
+                    <span>Kokurikuler P5</span>
                 </button>
             </div>
         @endif
@@ -24,13 +29,13 @@
 
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
-        title="Petunjuk Penilaian & Ketentuan Rapor Siswa"
+        title="Petunjuk Penilaian & Ketentuan Rapor Digital"
         :steps="[
-            ['title' => 'Tab Rapor', 'desc' => 'Gunakan tombol beralih di kanan atas untuk memantau Rapor Akademik Umum atau Rapor Tahfizh.'],
-            ['title' => 'Standar KKM 70', 'desc' => 'Kriteria Ketuntasan Minimal (KKM) sekolah adalah 70.00 untuk seluruh mata pelajaran.'],
-            ['title' => 'Cetak PDF', 'desc' => 'Apabila status SPP lunas dan rapor telah resmi diterbitkan, klik Unduh PDF untuk mengunduh salinan.']
+            ['title' => 'Tab Navigasi', 'desc' => 'Gunakan tombol beralih di kanan atas untuk memantau Rapor Kurikulum Merdeka, Rapor Tahfizh, atau Rapor P5.'],
+            ['title' => 'Auto-Narasi', 'desc' => 'Deskripsi capaian rapor Kurikulum Merdeka di-generate secara otomatis berdasarkan skor TP tertinggi & terendah.'],
+            ['title' => 'Verifikasi QR Code', 'desc' => 'Seluruh rapor digital yang diterbitkan dilengkapi QR Code keabsahan tanpa perlu tanda tangan basah.']
         ]"
-        notes="Akses rapor akan otomatis terkunci jika terdapat tunggakan SPP yang belum diselesaikan."
+        notes="Akses rapor akan otomatis terkunci jika terdapat tunggakan SPP yang belum diselesaikan per tanggal 10."
     />
 
     @if ($hasOutstanding)
@@ -61,153 +66,67 @@
             <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-6">
                 <div class="flex items-center justify-between border-b border-stone-200 pb-4">
                     <div class="space-y-1">
-                        <span class="px-2.5 py-1 {{ $activeTab === 'tahfidz' ? 'bg-emerald-100 border-emerald-300 text-emerald-800' : 'bg-indigo-100 border-indigo-300 text-indigo-800' }} border rounded-lg text-[10px] font-bold uppercase tracking-wider">
-                            {{ $activeTab === 'tahfidz' ? 'Rapor Tahfizh Al-Qur\'an' : 'Rapor Umum Pembelajaran' }}
+                        <span class="px-2.5 py-1 bg-emerald-100 border-emerald-300 text-emerald-800 border rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                            @if($activeTab === 'km') Rapor Kurikulum Merdeka
+                            @elseif($activeTab === 'tahfidz') Rapor Tahfizh Al-Qur'an
+                            @else Rapor Kokurikuler P5
+                            @endif
                         </span>
-                        <h3 class="text-base font-bold text-stone-900 mt-1">Laporan Hasil Belajar Semester</h3>
+                        <h3 class="text-base font-bold text-stone-900 mt-1">Laporan Hasil Belajar Digital</h3>
                     </div>
                     <div class="flex items-center gap-4">
-                        <button wire:click="downloadPdf" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-md">
+                        <button wire:click="downloadPdf" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-md">
                             <x-lucide-download class="w-4 h-4" />
                             <span>Unduh PDF</span>
                         </button>
                     </div>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="border-b border-stone-200 bg-stone-50">
-                                <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider">Mata Pelajaran</th>
-                                @if ($activeTab === 'umum')
-                                    <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider text-center">Pengetahuan</th>
-                                    <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider text-center">Keterampilan</th>
-                                    <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider text-center">Sikap</th>
-                                @else
-                                    <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider text-center">Keagamaan / Hafalan</th>
-                                @endif
-                                <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider text-center">Nilai Akhir</th>
-                                <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider text-center">Predikat</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-stone-200">
-                            @php
-                                $filteredDetails = array_filter($raporDetails, function($d) use ($activeTab) {
-                                    $jenis = $d['mapel']['jenis'] ?? 'umum';
-                                    return $activeTab === 'tahfidz' ? in_array($jenis, ['tahfidz', 'tahfizh', 'agama']) : $jenis === 'umum';
-                                });
-                            @endphp
-
-                            @forelse ($filteredDetails as $detail)
-                                <tr class="hover:bg-stone-50 transition">
-                                    <td class="py-3.5 px-4 text-xs font-bold text-stone-900">{{ $detail['mapel']['nama_mapel'] ?? '-' }}</td>
-                                    @if ($activeTab === 'umum')
-                                        <td class="py-3.5 px-4 text-xs text-stone-700 font-semibold text-center">{{ $detail['nilai_pengetahuan'] ? floatval($detail['nilai_pengetahuan']) : '-' }}</td>
-                                        <td class="py-3.5 px-4 text-xs text-stone-700 font-semibold text-center">{{ $detail['nilai_keterampilan'] ? floatval($detail['nilai_keterampilan']) : '-' }}</td>
-                                        <td class="py-3.5 px-4 text-xs text-stone-700 font-semibold text-center">{{ $detail['nilai_sikap'] ? floatval($detail['nilai_sikap']) : '-' }}</td>
-                                    @else
-                                        <td class="py-3.5 px-4 text-xs text-stone-700 font-semibold text-center">{{ $detail['nilai_keagamaan'] ? floatval($detail['nilai_keagamaan']) : '-' }}</td>
-                                    @endif
-                                    <td class="py-3.5 px-4 text-xs font-black text-indigo-700 text-center">{{ floatval($detail['nilai_akhir']) }}</td>
-                                    <td class="py-3.5 px-4 text-xs font-black text-emerald-700 text-center uppercase">{{ $detail['predikat'] ?: '-' }}</td>
+                @if($activeTab === 'km')
+                    <!-- TAB 1: KURIKULUM MERDEKA ACADEMIC REPORT -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-stone-200 bg-stone-50 text-stone-600 text-xs font-bold uppercase tracking-wider">
+                                    <th class="py-3 px-4">Mata Pelajaran</th>
+                                    <th class="py-3 px-4 text-center">Nilai Akhir</th>
+                                    <th class="py-3 px-4 text-center">Predikat</th>
+                                    <th class="py-3 px-4">Deskripsi Capaian Pembelajaran</th>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="py-6 text-center text-xs text-stone-500 italic">
-                                        Tidak ada data mata pelajaran untuk kategori ini.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                @if ($activeTab === 'umum' && count($ekskulList) > 0)
-                    <!-- EKSTRAKURIKULER SECTION -->
-                    <div class="border-t border-stone-200 pt-4 space-y-3">
-                        <h4 class="text-xs font-bold text-stone-900 uppercase tracking-wider">Kegiatan Ekstrakurikuler</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            @foreach ($ekskulList as $e)
-                                <div class="p-3.5 bg-stone-50 border border-stone-200 rounded-xl flex items-center justify-between">
-                                    <div>
-                                        <h5 class="text-xs font-bold text-stone-900">{{ $e['ekstrakurikuler']['nama'] ?? '-' }}</h5>
-                                        <p class="text-[10px] text-stone-500 font-medium">Pembina: {{ $e['ekstrakurikuler']['pembina']['user']['nama'] ?? '-' }}</p>
-                                    </div>
-                                    <div class="text-right">
-                                        <span class="px-2.5 py-1 bg-indigo-100 text-indigo-800 border border-indigo-200 text-xs font-extrabold rounded-lg uppercase">
-                                            Predikat: {{ $e['predikat'] }}
-                                        </span>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-
-                <!-- Wali Kelas Comment -->
-                @if ($rapor->catatan_wali_kelas)
-                    <div class="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-1">
-                        <span class="text-[10px] font-bold text-stone-500 uppercase tracking-wider">Catatan Wali Kelas / Pembina</span>
-                        <p class="text-xs text-stone-800 italic font-semibold">"{{ $rapor->catatan_wali_kelas }}"</p>
-                    </div>
-                @endif
-            </div>
-        @else
-            <!-- LIVE DYNAMIC GRADES (Pending official publish) -->
-            <div class="space-y-6">
-                <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-5 flex items-start gap-4 shadow-sm">
-                    <div class="p-2 bg-indigo-600 text-white rounded-xl">
-                        <x-lucide-info class="w-5 h-5" />
-                    </div>
-                    <div class="space-y-1">
-                        <h4 class="text-xs font-bold text-indigo-900 uppercase tracking-wider">
-                            {{ $activeTab === 'tahfidz' ? 'Daftar Nilai Tahfizh (Belum Terbit)' : 'Daftar Nilai Umum (Belum Terbit)' }}
-                        </h4>
-                        <p class="text-xs text-indigo-800 font-medium leading-relaxed">
-                            Rapor resmi belum diterbitkan oleh wali kelas Anda. Halaman ini menampilkan nilai sementara yang diinput oleh masing-masing guru pengampu mata pelajaran.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
-                    <h3 class="text-sm font-bold text-stone-900 uppercase tracking-wider">
-                        {{ $activeTab === 'tahfidz' ? 'Mata Pelajaran Tahfizh & Hafalan' : 'Mata Pelajaran Umum' }}
-                    </h3>
-                    
-                    <div class="space-y-4">
-                        @php
-                            $filteredLive = array_filter($liveGrades, function($g) use ($activeTab) {
-                                return $activeTab === 'tahfidz' ? in_array($g['jenis'] ?? '', ['tahfidz', 'tahfizh', 'agama']) : ($g['jenis'] ?? '') === 'umum';
-                            });
-                        @endphp
-
-                        @forelse ($filteredLive as $mid => $data)
-                            <div class="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-3">
-                                <div class="flex justify-between items-center border-b border-stone-200 pb-2">
-                                    <h4 class="text-xs font-bold text-stone-900">{{ $data['nama_mapel'] }}</h4>
-                                    <span class="text-xs font-bold text-indigo-700">Rata-rata: {{ $data['avg'] }}</span>
-                                </div>
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                    @foreach ($data['komponen'] as $k)
-                                        <div class="p-2 bg-white border border-stone-200 rounded-xl text-center">
-                                            <span class="text-[9px] text-stone-500 font-bold block uppercase tracking-wider">{{ $k['nama'] }}</span>
-                                            <span class="text-xs font-black text-stone-900 block mt-0.5">{{ $k['nilai'] }}</span>
-                                            @if ($k['catatan'])
-                                                <span class="text-[9px] text-stone-600 block mt-0.5 italic truncate font-medium" title="{{ $k['catatan'] }}">{{ $k['catatan'] }}</span>
+                            </thead>
+                            <tbody class="divide-y divide-stone-200">
+                                @forelse ($raporDetails as $detail)
+                                    <tr class="hover:bg-stone-50 transition">
+                                        <td class="py-3.5 px-4 text-xs font-bold text-stone-900">
+                                            {{ $detail['mapel']['nama_mapel'] ?? '-' }}
+                                        </td>
+                                        <td class="py-3.5 px-4 text-xs font-black text-emerald-700 text-center">
+                                            {{ floatval($detail['nilai_akhir']) }}
+                                        </td>
+                                        <td class="py-3.5 px-4 text-xs font-black text-emerald-800 text-center uppercase">
+                                            {{ $detail['predikat'] ?: '-' }}
+                                        </td>
+                                        <td class="py-3.5 px-4 text-xs text-stone-700 leading-relaxed">
+                                            @if(!empty($detail['narasi_capaian_full']))
+                                                {{ $detail['narasi_capaian_full'] }}
+                                            @else
+                                                <span class="text-stone-400 italic">Deskripsi capaian otomatis belum di-generate.</span>
                                             @endif
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @empty
-                            <div class="py-8 text-center text-stone-500 text-xs font-medium">
-                                Belum ada entri nilai pelajaran untuk kategori {{ $activeTab }} semester ini.
-                            </div>
-                        @endforelse
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="py-6 text-center text-xs text-stone-500 italic">
+                                            Belum ada data mata pelajaran Kurikulum Merdeka.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
 
-                    @if ($activeTab === 'umum' && count($ekskulList) > 0)
-                        <!-- EKSTRAKURIKULER SECTION FOR LIVE GRADES -->
+                    @if (count($ekskulList) > 0)
+                        <!-- EKSTRAKURIKULER -->
                         <div class="border-t border-stone-200 pt-4 space-y-3">
                             <h4 class="text-xs font-bold text-stone-900 uppercase tracking-wider">Kegiatan Ekstrakurikuler</h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -218,7 +137,7 @@
                                             <p class="text-[10px] text-stone-500 font-medium">Pembina: {{ $e['ekstrakurikuler']['pembina']['user']['nama'] ?? '-' }}</p>
                                         </div>
                                         <div class="text-right">
-                                            <span class="px-2.5 py-1 bg-indigo-100 text-indigo-800 border border-indigo-200 text-xs font-extrabold rounded-lg uppercase">
+                                            <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-extrabold rounded-lg uppercase">
                                                 Predikat: {{ $e['predikat'] }}
                                             </span>
                                         </div>
@@ -227,6 +146,145 @@
                             </div>
                         </div>
                     @endif
+
+                @elseif($activeTab === 'tahfidz')
+                    <!-- TAB 2: TAHFIZH REPORT -->
+                    <div class="space-y-6">
+                        @if(!empty($raporTahfidz['summary']))
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 block">Total Juz Dihafal</span>
+                                    <span class="text-2xl font-black text-emerald-900 mt-1 block">{{ $raporTahfidz['summary']->total_juz_dihafal }} Juz</span>
+                                </div>
+                                <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 block">Rata-rata Tajwid</span>
+                                    <span class="text-2xl font-black text-emerald-900 mt-1 block">{{ number_format($raporTahfidz['summary']->nilai_tajwid_rata, 1) }}</span>
+                                </div>
+                                <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 block">Predikat Tahfizh</span>
+                                    <span class="text-xl font-black text-emerald-900 mt-1 block uppercase">{{ $raporTahfidz['summary']->predikat_tahfidz }}</span>
+                                </div>
+                            </div>
+                        @endif
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-stone-200 bg-stone-50 text-stone-600 text-xs font-bold uppercase tracking-wider">
+                                        <th class="py-3 px-4">Surah & Juz</th>
+                                        <th class="py-3 px-4 text-center">Kelancaran</th>
+                                        <th class="py-3 px-4 text-center">Tajwid</th>
+                                        <th class="py-3 px-4">Predikat Keagamaan</th>
+                                        <th class="py-3 px-4">Catatan Ustadz</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-stone-200">
+                                    @forelse ($raporTahfidz['scores'] as $sc)
+                                        <tr class="hover:bg-stone-50 transition">
+                                            <td class="py-3.5 px-4 text-xs font-bold text-stone-900">
+                                                <span class="text-emerald-700 font-bold block">{{ $sc->surah }}</span>
+                                                <span class="text-[10px] text-stone-500 font-normal">Juz {{ $sc->juz }}</span>
+                                            </td>
+                                            <td class="py-3.5 px-4 text-xs font-bold text-center text-stone-800">{{ number_format($sc->nilai_kelancaran, 1) }}</td>
+                                            <td class="py-3.5 px-4 text-xs font-bold text-center text-stone-800">{{ number_format($sc->nilai_tajwid, 1) }}</td>
+                                            <td class="py-3.5 px-4 text-xs font-bold text-emerald-800">{{ $sc->predikat_keagamaan }}</td>
+                                            <td class="py-3.5 px-4 text-xs text-stone-600 italic">{{ $sc->catatan_ustadz ?? '-' }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="py-6 text-center text-xs text-stone-500 italic">
+                                                Belum ada entri catatan Tahfizh untuk semester ini.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                @else
+                    <!-- TAB 3: PROJEK P5 KOKURIKULER -->
+                    <div class="space-y-4">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-stone-200 bg-stone-50 text-stone-600 text-xs font-bold uppercase tracking-wider">
+                                        <th class="py-3 px-4">Proyek P5</th>
+                                        <th class="py-3 px-4">Dimensi & Sub-Dimensi</th>
+                                        <th class="py-3 px-4 text-center">Titik Sumatif</th>
+                                        <th class="py-3 px-4 text-center">Capaian Kualitatif</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-stone-200">
+                                    @forelse ($nilaiP5List as $p5)
+                                        <tr class="hover:bg-stone-50 transition">
+                                            <td class="py-3.5 px-4 text-xs font-bold text-stone-900">
+                                                {{ $p5['proyek']['nama_proyek'] ?? '-' }}
+                                            </td>
+                                            <td class="py-3.5 px-4 text-xs text-stone-800">
+                                                <span class="font-bold text-emerald-700 block">{{ $p5['subdimensi_p5']['dimensi']['nama_dimensi'] ?? '-' }}</span>
+                                                <span class="text-[11px] text-stone-600 block">{{ $p5['subdimensi_p5']['nama_subdimensi'] ?? '-' }}</span>
+                                            </td>
+                                            <td class="py-3.5 px-4 text-xs font-bold text-center text-stone-700">
+                                                Sumatif {{ $p5['titik_sumatif'] }}
+                                            </td>
+                                            <td class="py-3.5 px-4 text-xs font-bold text-center">
+                                                @php
+                                                    $labels = [1 => 'BB (Belum Berkembang)', 2 => 'MB (Mulai Berkembang)', 3 => 'BSH (Berkembang Sesuai Harapan)', 4 => 'SB (Sangat Berkembang)'];
+                                                @endphp
+                                                <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-lg text-xs font-bold border border-emerald-200">
+                                                    {{ $labels[$p5['nilai']] ?? '-' }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="py-6 text-center text-xs text-stone-500 italic">
+                                                Belum ada entri penilaian Kokurikuler P5 semester ini.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @endif
+
+                <!-- Catatan Wali Kelas -->
+                @if ($rapor->catatan_wali_kelas)
+                    <div class="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-1">
+                        <span class="text-[10px] font-bold text-stone-500 uppercase tracking-wider">Catatan Wali Kelas / Pembina</span>
+                        <p class="text-xs text-stone-800 italic font-semibold">"{{ $rapor->catatan_wali_kelas }}"</p>
+                    </div>
+                @endif
+
+                <!-- QR CODE VERIFICATION BLOCK (Tanpa Tanda Tangan Basah) -->
+                @if($rapor->qr_code_hash)
+                    <div class="border-t border-stone-200 pt-6">
+                        <x-ttd-elektronik 
+                            role="kepala_sekolah" 
+                            docType="RAP" 
+                            :docId="$rapor->id" 
+                            location="Sleman" 
+                        />
+                    </div>
+                @endif
+            </div>
+        @else
+            <!-- LIVE DYNAMIC GRADES (Pending official publish) -->
+            <div class="space-y-6">
+                <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 flex items-start gap-4 shadow-sm">
+                    <div class="p-2 bg-emerald-600 text-white rounded-xl">
+                        <x-lucide-info class="w-5 h-5" />
+                    </div>
+                    <div class="space-y-1">
+                        <h4 class="text-xs font-bold text-emerald-900 uppercase tracking-wider">
+                            Rapor Resmi Belum Terbit
+                        </h4>
+                        <p class="text-xs text-emerald-800 font-medium leading-relaxed">
+                            Wali kelas Anda sedang dalam proses finalisasi rapor. Di bawah ini adalah ringkasan nilai sementara yang sudah diinput oleh guru pengampu.
+                        </p>
+                    </div>
                 </div>
             </div>
         @endif

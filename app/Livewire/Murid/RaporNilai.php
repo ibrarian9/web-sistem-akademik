@@ -2,23 +2,30 @@
 
 namespace App\Livewire\Murid;
 
-use Livewire\Component;
-use App\Models\Siswa;
+use App\Models\Nilai;
+use App\Models\NilaiP5;
+use App\Models\NilaiTahfidz;
 use App\Models\Rapor;
 use App\Models\RaporDetail;
-use App\Models\Nilai;
+use App\Models\RaporTahfidzDetail;
+use App\Models\Siswa;
+use App\Models\SiswaEkstrakurikuler;
 use App\Models\Tagihan;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Livewire\Component;
 
 class RaporNilai extends Component
 {
     public bool $hasOutstanding = false;
     public ?Rapor $rapor = null;
     public array $raporDetails = [];
-    public array $liveGrades = []; // Fallback live grades grouped by subject
+    public array $raporTahfidz = [];
+    public array $nilaiP5List = [];
+    public array $liveGrades = [];
     public array $ekskulList = [];
-    public string $activeTab = 'umum';
+    public string $activeTab = 'km'; // 'km', 'tahfidz', 'p5'
 
     public function mount()
     {
@@ -43,7 +50,7 @@ class RaporNilai extends Component
             'siswa' => $siswa,
         ]);
 
-        return response()->streamDownload(function () use ($pdf) {
+        return response()->streamDownload(function () use ($pdf, $siswa) {
             echo $pdf->stream();
         }, 'rapor_' . str_replace(' ', '_', strtolower($siswa->user->nama ?? 'siswa')) . '.pdf');
     }
@@ -55,7 +62,7 @@ class RaporNilai extends Component
             return;
         }
 
-        // Check for unpaid/partially paid billing (only blocking bills like SPP that have passed due date)
+        // Check for unpaid/partially paid blocking bills past due date
         $this->hasOutstanding = Tagihan::where('siswa_id', $siswa->id)
             ->whereIn('status', ['belum_bayar', 'sebagian'])
             ->whereHas('jenisTagihan', function ($q) {
@@ -81,7 +88,7 @@ class RaporNilai extends Component
         }
 
         // Fetch extracurricular activities
-        $this->ekskulList = \App\Models\SiswaEkstrakurikuler::where('siswa_id', $siswa->id)
+        $this->ekskulList = SiswaEkstrakurikuler::where('siswa_id', $siswa->id)
             ->where('semester_id', $activeSemester->id)
             ->with('ekstrakurikuler.pembina.user')
             ->get()
@@ -93,12 +100,36 @@ class RaporNilai extends Component
             ->first();
 
         if ($this->rapor) {
+            // Ensure QR Code Hash exists
+            if (empty($this->rapor->qr_code_hash)) {
+                $this->rapor->qr_code_hash = 'RAP-' . $siswa->id . '-' . Str::random(12);
+                $this->rapor->save();
+            }
+
             $this->raporDetails = RaporDetail::where('rapor_id', $this->rapor->id)
                 ->with('mapel')
                 ->get()
                 ->toArray();
+
+            // Load Rapor Tahfidz Detail
+            $tahfidzDetail = RaporTahfidzDetail::where('rapor_id', $this->rapor->id)->first();
+            $tahfidzScores = NilaiTahfidz::where('siswa_id', $siswa->id)
+                ->where('semester_id', $activeSemester->id)
+                ->get();
+
+            $this->raporTahfidz = [
+                'summary' => $tahfidzDetail,
+                'scores' => $tahfidzScores,
+            ];
+
+            // Load Nilai P5 List
+            $this->nilaiP5List = NilaiP5::where('siswa_id', $siswa->id)
+                ->where('semester_id', $activeSemester->id)
+                ->with(['proyek', 'subdimensiP5.dimensi'])
+                ->get()
+                ->toArray();
         } else {
-            // Fallback: Compile dynamic current grades from 'nilai' table
+            // Fallback live grades
             $nilaiRecords = Nilai::where('siswa_id', $siswa->id)
                 ->where('semester_id', $activeSemester->id)
                 ->with(['mapel', 'komponenNilai'])
@@ -109,7 +140,7 @@ class RaporNilai extends Component
                 $mapelId = $n->mapel_id;
                 $mapelName = $n->mapel->nama_mapel ?? '-';
                 $jenis = $n->mapel->jenis ?? 'umum';
-                
+
                 if (!isset($grouped[$mapelId])) {
                     $grouped[$mapelId] = [
                         'nama_mapel' => $mapelName,
@@ -126,7 +157,6 @@ class RaporNilai extends Component
                 ];
             }
 
-            // Calculate averages
             foreach ($grouped as $mid => $data) {
                 $sum = array_sum(array_column($data['komponen'], 'nilai'));
                 $count = count($data['komponen']);
@@ -135,6 +165,11 @@ class RaporNilai extends Component
 
             $this->liveGrades = $grouped;
         }
+    }
+
+    public function setTab($tab)
+    {
+        $this->activeTab = $tab;
     }
 
     public function render()

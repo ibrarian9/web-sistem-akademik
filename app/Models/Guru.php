@@ -15,8 +15,12 @@ class Guru extends Model
     protected $fillable = [
         'user_id',
         'nip',
+        'nik',
         'jenis_guru',
         'status_kepegawaian',
+        'pendidikan',
+        'grade_guru',
+        'status_pernikahan',
         'tempat_lahir',
         'tanggal_lahir',
         'no_hp',
@@ -25,11 +29,23 @@ class Guru extends Model
         'status_aktif',
     ];
 
+
     protected $casts = [
         'tanggal_lahir' => 'date',
         'tanggal_masuk' => 'date',
         'status_aktif' => 'boolean',
     ];
+
+    public function getNiyAttribute()
+    {
+        return $this->attributes['nip'] ?? null;
+    }
+
+    public function setNiyAttribute($value)
+    {
+        $this->attributes['nip'] = $value;
+    }
+
 
     public function user()
     {

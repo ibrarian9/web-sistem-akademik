@@ -20,8 +20,10 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// Public Document Electronic Signature Verification Route
-Route::get('/verifikasi-dokumen/{code}', [\App\Http\Controllers\VerifikasiDokumenController::class, 'verify'])->name('verifikasi.dokumen');
+// Public Document Verification Routes (QR Code Scan)
+Route::get('/verifikasi/dokumen/{uuid}', [\App\Http\Controllers\DocumentVerificationController::class, 'verify'])->name('verifikasi.dokumen.public');
+Route::get('/verifikasi-dokumen/{uuid}', [\App\Http\Controllers\DocumentVerificationController::class, 'verify'])->name('verifikasi.dokumen');
+
 
 // Guest-only Login Route
 Route::middleware('guest')->group(function () {
@@ -44,6 +46,12 @@ Route::middleware(['auth'])->group(function () {
     // Shared Notifications & Documents Route (accessible by any authenticated user)
     Route::get('/notifikasi', \App\Livewire\Shared\NotificationsList::class)->name('shared.notifications');
     Route::get('/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik.shared');
+    
+    // PDF Rapor Inline Browser Preview
+    Route::get('/rapor/pdf-preview/{siswaId}', [\App\Http\Controllers\RaporPdfController::class, 'previewPdf'])->name('rapor.pdf.preview');
+    Route::get('/rapor/pdf-tahfidz-preview/{siswaId}', [\App\Http\Controllers\RaporPdfController::class, 'previewTahfidzPdf'])->name('rapor.pdf-tahfidz.preview');
+
+
     
     // Multi-role Protected Documents (Authorization Handled in Controller)
     Route::get('/pembayaran/resi/{id}', [\App\Http\Controllers\FinanceReportController::class, 'cetakResi'])->name('pembayaran.resi');
@@ -70,6 +78,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/guru', \App\Livewire\SuperAdmin\TataKelola\ManajemenGuru::class)->name('guru');
         Route::get('/karyawan', \App\Livewire\TataUsaha\ManajemenKaryawan::class)->name('karyawan');
         Route::get('/kelas', \App\Livewire\SuperAdmin\TataKelola\ManajemenKelas::class)->name('kelas');
+        Route::get('/plotting-kelas', \App\Livewire\TataUsaha\PlottingSiswaKelas::class)->name('plotting-kelas');
+        Route::get('/surat', \App\Livewire\TataUsaha\ManajemenSurat::class)->name('surat');
         Route::get('/jadwal', \App\Livewire\SuperAdmin\TataKelola\ManajemenJadwal::class)->name('jadwal');
         Route::get('/mapel', \App\Livewire\SuperAdmin\TataKelola\ManajemenMapel::class)->name('mapel');
         Route::get('/komponen-nilai', \App\Livewire\SuperAdmin\TataKelola\ManajemenKomponenNilai::class)->name('komponen-nilai');
@@ -90,7 +100,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/user', \App\Livewire\SuperAdmin\TataKelola\ManajemenUser::class)->name('user');
         Route::get('/absensi-karyawan', \App\Livewire\TataUsaha\InputAbsensiKaryawan::class)->name('absensi-karyawan');
         Route::get('/kelas', \App\Livewire\SuperAdmin\TataKelola\ManajemenKelas::class)->name('kelas');
+        Route::get('/plotting-kelas', \App\Livewire\TataUsaha\PlottingSiswaKelas::class)->name('plotting-kelas');
+        Route::get('/surat', \App\Livewire\TataUsaha\ManajemenSurat::class)->name('surat');
         Route::get('/jadwal', \App\Livewire\SuperAdmin\TataKelola\ManajemenJadwal::class)->name('jadwal');
+
+
         Route::get('/mapel', \App\Livewire\SuperAdmin\TataKelola\ManajemenMapel::class)->name('mapel');
         Route::get('/komponen-nilai', \App\Livewire\SuperAdmin\TataKelola\ManajemenKomponenNilai::class)->name('komponen-nilai');
         Route::get('/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik');
@@ -136,7 +150,13 @@ Route::middleware(['auth'])->group(function () {
     // Guru Group
     Route::middleware(['role:guru'])->prefix('guru')->name('guru.')->group(function () {
         Route::get('/dashboard', \App\Livewire\Guru\Dashboard::class)->name('dashboard');
+        Route::get('/kurikulum-merdeka', \App\Livewire\Guru\ManajemenKurikulumMerdeka::class)->name('kurikulum-merdeka');
+        Route::get('/input-sumatif', \App\Livewire\Guru\InputNilaiSumatif::class)->name('input-sumatif');
+        Route::get('/input-tahfidz', \App\Livewire\Guru\InputNilaiTahfidz::class)->name('input-tahfidz');
+        Route::get('/penilaian-p5', \App\Livewire\Guru\PenilaianP5::class)->name('penilaian-p5');
+
         Route::get('/input-nilai', \App\Livewire\Guru\InputNilaiSiswa::class)->name('input-nilai');
+
         Route::get('/bobot-nilai', \App\Livewire\Guru\PengaturanBobotNilai::class)->name('bobot-nilai');
         Route::get('/absensi-siswa', \App\Livewire\Guru\AbsensiSiswa::class)->name('absensi-siswa');
         Route::get('/absensi-diri', \App\Livewire\Guru\AbsensiDiri::class)->name('absensi-diri');
@@ -154,7 +174,9 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:murid'])->prefix('murid')->name('murid.')->group(function () {
         Route::get('/dashboard', \App\Livewire\Murid\Dashboard::class)->name('dashboard');
         Route::get('/rapor', \App\Livewire\Murid\RaporNilai::class)->name('rapor');
+        Route::get('/tahfidz', \App\Livewire\Murid\SetoranTahfidz::class)->name('tahfidz');
         Route::get('/kehadiran', \App\Livewire\Murid\KehadiranSaya::class)->name('kehadiran');
+
         Route::get('/ekskul', \App\Livewire\Murid\EkstrakurikulerSaya::class)->name('ekskul');
         Route::get('/jadwal', \App\Livewire\Murid\JadwalPelajaran::class)->name('jadwal');
         Route::get('/tagihan', \App\Livewire\Murid\TagihanSpp::class)->name('tagihan');

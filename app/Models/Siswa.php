@@ -23,6 +23,7 @@ class Siswa extends Model
         'nama_wali',
         'no_hp_wali',
         'kelas_id',
+        'kelas_tahfidz_id',
         'saldo_deposit',
         'tanggal_masuk',
         'status',
@@ -43,7 +44,17 @@ class Siswa extends Model
 
     public function kelas()
     {
-        return $this->belongsTo(Kelas::class);
+        return $this->belongsTo(Kelas::class, 'kelas_id');
+    }
+
+    public function kelasUmum()
+    {
+        return $this->belongsTo(Kelas::class, 'kelas_id');
+    }
+
+    public function kelasTahfidz()
+    {
+        return $this->belongsTo(Kelas::class, 'kelas_tahfidz_id');
     }
 
     public function riwayatKelas()

@@ -53,12 +53,18 @@ return new class extends Migration
             $table->foreignId('siswa_id')->constrained('siswa');
             $table->foreignId('semester_id')->constrained('semester');
             $table->foreignId('kelas_id')->constrained('kelas');
+            $table->string('tipe_rapor')->default('akademik');
             $table->text('catatan_wali_kelas')->nullable();
-            $table->date('tanggal_terbit');
+            $table->date('tanggal_terbit')->nullable();
+            $table->string('status')->default('draft');
             $table->timestamps();
 
-            $table->unique(['siswa_id', 'semester_id']);
+            $table->unique(['siswa_id', 'semester_id', 'tipe_rapor']);
         });
+
+
+
+
 
         Schema::create('rapor_detail', function (Blueprint $table) {
             $table->id();

@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-6 font-sans">
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
         title="Petunjuk Kenaikan Kelas & Diskresi Tata Usaha"
@@ -10,11 +10,14 @@
         notes="Sistem menganut kebijakan otomatis naik kelas. Namun, Staf Tata Usaha memiliki wewenang manual untuk menetapkan siswa tertentu Tinggal Kelas."
     />
 
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <!-- Hero Header Card -->
+    <div class="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h2 class="text-xl font-bold text-white tracking-tight">Kenaikan Kelas &amp; Kelulusan Massal</h2>
-            <p class="text-xs text-slate-400">Proses pemindahan kelas atau kelulusan siswa secara otomatis per rombongan belajar.</p>
+            <span class="px-3 py-1 bg-emerald-100 border border-emerald-300 text-emerald-900 rounded-full text-xs font-bold uppercase tracking-wider inline-block mb-1">
+                KENAIKAN KELAS &amp; KELULUSAN
+            </span>
+            <h1 class="text-2xl font-extrabold text-stone-900 tracking-tight">Kenaikan Kelas &amp; Kelulusan Massal</h1>
+            <p class="text-xs text-stone-600 font-semibold mt-1">Proses pemindahan kelas atau kelulusan siswa secara otomatis per rombongan belajar.</p>
         </div>
     </div>
 
@@ -22,21 +25,21 @@
         <x-alert-banner type="success" :message="session('message')" />
     @endif
     @if (session()->has('error'))
-        <x-alert-banner type="danger" :message="session('error')" />
+        <x-alert-banner type="error" :message="session('error')" />
     @endif
 
-    <!-- Control Panel / Settings -->
-    <div class="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
-        <h3 class="text-sm font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
-            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
-            Pengaturan Rombel & Aksi Tujuan
+    <!-- Control Panel / Settings Card -->
+    <div class="bg-white border border-stone-200 rounded-2xl p-6 space-y-4 shadow-sm">
+        <h3 class="text-xs font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-2 border-b border-stone-200 pb-3">
+            <x-lucide-arrow-right-left class="w-4 h-4 text-emerald-700" />
+            <span>Pengaturan Rombel &amp; Aksi Tujuan</span>
         </h3>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- 1. Kelas Asal -->
             <div class="space-y-1">
-                <label class="text-xs font-bold text-slate-400">1. Pilih Kelas Asal</label>
-                <select wire:model.live="kelasAsalId" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500">
+                <label class="text-xs font-bold text-stone-700 uppercase">1. Pilih Kelas Asal <span class="text-rose-600">*</span></label>
+                <select wire:model.live="kelasAsalId" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
                     <option value="">-- Pilih Kelas Asal --</option>
                     @foreach ($kelases as $k)
                         <option value="{{ $k->id }}">{{ $k->nama_kelas }} (Tingkat {{ $k->tingkat }})</option>
@@ -46,8 +49,8 @@
 
             <!-- 2. Jenis Aksi -->
             <div class="space-y-1">
-                <label class="text-xs font-bold text-slate-400">2. Jenis Aksi</label>
-                <select wire:model.live="aksiTujuan" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500">
+                <label class="text-xs font-bold text-stone-700 uppercase">2. Jenis Aksi <span class="text-rose-600">*</span></label>
+                <select wire:model.live="aksiTujuan" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
                     <option value="naik_kelas">Kenaikan Kelas (Pindah Rombel)</option>
                     <option value="lulus_alumni">Kelulusan (Pindah ke Data Alumni)</option>
                 </select>
@@ -55,9 +58,9 @@
 
             <!-- 3. Kelas Tujuan (jika naik_kelas) -->
             <div class="space-y-1">
-                <label class="text-xs font-bold text-slate-400">3. Target Tujuan</label>
+                <label class="text-xs font-bold text-stone-700 uppercase">3. Target Tujuan</label>
                 @if ($aksiTujuan === 'naik_kelas')
-                    <select wire:model="kelasTujuanId" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500">
+                    <select wire:model="kelasTujuanId" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
                         <option value="">-- Pilih Kelas Tujuan --</option>
                         @foreach ($kelases as $k)
                             @if ($k->id != $kelasAsalId)
@@ -66,114 +69,114 @@
                         @endforeach
                     </select>
                 @else
-                    <div class="px-3 py-2 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-400 text-xs font-bold flex items-center gap-2">
-                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                        Status Siswa ➔ ALUMNI (Tahun Lulus {{ date('Y') }})
+                    <div class="px-3.5 py-2 bg-amber-50 border border-amber-300 rounded-xl text-amber-900 text-xs font-bold flex items-center gap-2">
+                        <x-lucide-check-circle class="w-4 h-4 text-amber-700 shrink-0" />
+                        <span>Status Siswa ➔ ALUMNI (Tahun Lulus {{ date('Y') }})</span>
                     </div>
                 @endif
             </div>
         </div>
 
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-t border-slate-800/80 pt-4 gap-3">
-            <div class="text-xs text-slate-400 space-x-2">
-                <span>Terpilih: <strong class="text-white">{{ count($selectedSiswa) }}</strong> dari {{ count($students) }} siswa</span>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-t border-stone-200 pt-4 gap-3">
+            <div class="text-xs text-stone-600 font-medium space-x-2">
+                <span>Terpilih: <strong class="text-stone-900 font-extrabold">{{ count($selectedSiswa) }}</strong> dari {{ count($students) }} siswa</span>
                 @if ($aksiTujuan === 'naik_kelas')
-                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 text-xs font-bold">
                         Naik: {{ count($selectedSiswa) - count($siswaTinggalKelas) }}
                     </span>
                     @if (count($siswaTinggalKelas) > 0)
-                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-400 text-[11px] font-bold">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-900 border border-rose-300 text-xs font-bold">
                             Tinggal Kelas: {{ count($siswaTinggalKelas) }}
                         </span>
                     @endif
                 @endif
             </div>
-            <button wire:click="prosesKenaikan" wire:confirm="Apakah Anda yakin ingin memproses aksi ini untuk siswa terpilih?"
-                class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-indigo-600/20 inline-flex items-center gap-2"
+            <button type="button" wire:click="prosesKenaikan" data-confirm="Apakah Anda yakin ingin memproses aksi kenaikan/kelulusan untuk siswa terpilih ini?"
+                class="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition shadow-md inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 @if(count($selectedSiswa) === 0) disabled @endif>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                Proses {{ $aksiTujuan === 'naik_kelas' ? 'Kenaikan Kelas' : 'Kelulusan' }}
+                <x-lucide-check class="w-4 h-4" />
+                <span>Proses {{ $aksiTujuan === 'naik_kelas' ? 'Kenaikan Kelas' : 'Kelulusan' }}</span>
             </button>
         </div>
     </div>
 
-    <!-- Student Table -->
-    <div class="bg-slate-900/40 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+    <!-- Student Table Card -->
+    <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-300">
-                <thead class="bg-slate-950/60 text-slate-400 font-bold uppercase tracking-wider text-[10px] border-b border-slate-800">
+            <table class="w-full text-left border-collapse text-xs text-stone-800">
+                <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
                     <tr>
-                        <th class="py-3 px-4 w-10 text-center">
-                            <input type="checkbox" wire:model.live="selectAll" class="w-4 h-4 rounded bg-slate-950 border-slate-800 text-indigo-600 focus:ring-indigo-500" />
+                        <th class="p-3.5 text-center w-12 border-r border-emerald-700">
+                            <input type="checkbox" wire:model.live="selectAll" class="w-4 h-4 rounded text-emerald-700 border-stone-300 focus:ring-emerald-600 cursor-pointer" />
                         </th>
-                        <th class="py-3 px-4">Nama Siswa</th>
-                        <th class="py-3 px-4">NIS / NISN</th>
-                        <th class="py-3 px-4">Jenis Kelamin</th>
-                        <th class="py-3 px-4">Kelas Saat Ini</th>
-                        <th class="py-3 px-4 text-center">Keputusan Kenaikan</th>
-                        <th class="py-3 px-4 text-center">Aksi Diskresi TU</th>
+                        <th class="p-3.5 border-r border-emerald-700 min-w-[180px]">Nama Siswa</th>
+                        <th class="p-3.5 border-r border-emerald-700 w-32">NIS / NISN</th>
+                        <th class="p-3.5 border-r border-emerald-700 w-28">Jenis Kelamin</th>
+                        <th class="p-3.5 border-r border-emerald-700 w-28">Kelas Asal</th>
+                        <th class="p-3.5 border-r border-emerald-700 w-36 text-center">Keputusan</th>
+                        <th class="p-3.5 text-center min-w-[140px]">Diskresi TU</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-800/60">
+                <tbody class="divide-y divide-stone-200 bg-white">
                     @forelse ($students as $siswa)
                         @php
                             $isTinggal = in_array((string)$siswa->id, $siswaTinggalKelas);
                         @endphp
-                        <tr class="hover:bg-slate-800/30 transition {{ $isTinggal ? 'bg-rose-950/20' : '' }}">
-                            <td class="py-3 px-4 text-center">
+                        <tr class="hover:bg-emerald-50/50 transition {{ $isTinggal ? 'bg-rose-50/40' : '' }}">
+                            <td class="p-3.5 text-center border-r border-stone-200">
                                 <input type="checkbox" wire:model.live="selectedSiswa" value="{{ $siswa->id }}"
-                                    class="w-4 h-4 rounded bg-slate-950 border-slate-800 text-indigo-600 focus:ring-indigo-500" />
+                                    class="w-4 h-4 rounded text-emerald-700 border-stone-300 focus:ring-emerald-600 cursor-pointer" />
                             </td>
-                            <td class="py-3 px-4 font-bold text-white">
-                                {{ $siswa->user->nama ?? '-' }}
+                            <td class="p-3.5 border-r border-stone-200 font-extrabold text-stone-900">
+                                {{ strtoupper($siswa->user->nama ?? '-') }}
                             </td>
-                            <td class="py-3 px-4 font-mono text-slate-400">
+                            <td class="p-3.5 border-r border-stone-200 font-bold text-stone-700">
                                 {{ $siswa->nis ?? '-' }} / {{ $siswa->nisn ?? '-' }}
                             </td>
-                            <td class="py-3 px-4 text-slate-300">
+                            <td class="p-3.5 border-r border-stone-200 font-semibold text-stone-600">
                                 {{ $siswa->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}
                             </td>
-                            <td class="py-3 px-4 font-medium text-indigo-400">
+                            <td class="p-3.5 border-r border-stone-200 font-extrabold text-emerald-900">
                                 {{ $siswa->kelas->nama_kelas ?? '-' }}
                             </td>
-                            <td class="py-3 px-4 text-center">
+                            <td class="p-3.5 text-center border-r border-stone-200">
                                 @if ($aksiTujuan === 'lulus_alumni')
-                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase">
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-purple-100 text-purple-900 border border-purple-300 uppercase inline-block">
                                         LULUS ALUMNI
                                     </span>
                                 @elseif ($isTinggal)
-                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase">
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-900 border border-rose-300 uppercase inline-block">
                                         TINGGAL KELAS
                                     </span>
                                 @else
-                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase">
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-900 border border-emerald-300 uppercase inline-block">
                                         NAIK KELAS
                                     </span>
                                 @endif
                             </td>
-                            <td class="py-3 px-4 text-center">
+                            <td class="p-3.5 text-center">
                                 @if ($aksiTujuan === 'naik_kelas')
                                     @if ($isTinggal)
                                         <button wire:click="toggleTinggalKelas({{ $siswa->id }})" 
-                                            class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-semibold transition inline-flex items-center gap-1">
-                                            <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                            Batalkan (Naikkan)
+                                            class="px-2.5 py-1 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-lg text-xs font-bold border border-stone-300 transition shadow-xs inline-flex items-center gap-1">
+                                            <x-lucide-check class="w-3.5 h-3.5 text-emerald-700" />
+                                            <span>Batalkan (Naikkan)</span>
                                         </button>
                                     @else
                                         <button wire:click="toggleTinggalKelas({{ $siswa->id }})" 
-                                            class="px-2.5 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-lg text-[10px] font-semibold transition inline-flex items-center gap-1">
-                                            <svg class="w-3 h-3 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                                            Tandai Tinggal Kelas
+                                            class="px-2.5 py-1 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded-lg text-xs font-bold border border-rose-300 transition shadow-xs inline-flex items-center gap-1">
+                                            <x-lucide-x class="w-3.5 h-3.5 text-rose-600" />
+                                            <span>Tandai Tinggal Kelas</span>
                                         </button>
                                     @endif
                                 @else
-                                    <span class="text-slate-500 text-[10px]">-</span>
+                                    <span class="text-stone-400 font-bold text-xs">-</span>
                                 @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="py-8 text-center text-slate-500 text-xs">
+                            <td colspan="7" class="p-8 text-center text-stone-500 font-semibold italic">
                                 Tidak ada siswa aktif yang ditemukan pada kelas asal ini.
                             </td>
                         </tr>

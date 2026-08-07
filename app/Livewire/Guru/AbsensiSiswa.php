@@ -39,15 +39,16 @@ class AbsensiSiswa extends Component
             return;
         }
 
-        // Get classes assigned to this teacher
+        // Get classes assigned to this teacher (both from Mapel and Wali Kelas)
         $assignments = GuruMapelKelas::with('kelas')
             ->where('guru_id', $guru->id)
-            ->whereHas('semester.tahunAjaran', function ($q) {
-                $q->where('status_aktif', true);
-            })
             ->get();
 
-        $this->classes = $assignments->pluck('kelas')->unique('id')->toArray();
+        $gmkClasses = $assignments->pluck('kelas')->filter();
+        $waliClasses = \App\Models\Kelas::where('guru_umum_id', $guru->id)->get();
+
+        $this->classes = $gmkClasses->merge($waliClasses)->unique('id')->values()->toArray();
+
     }
 
     public function loadStudents()

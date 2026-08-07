@@ -14,11 +14,22 @@ class Kelas extends Model
 
     protected $fillable = [
         'nama_kelas',
+        'jenis_kelas',
         'tingkat',
         'semester_id',
         'guru_umum_id',
         'guru_tahfidz_id',
     ];
+
+    public function scopeUmum($query)
+    {
+        return $query->where('jenis_kelas', 'umum');
+    }
+
+    public function scopeTahfidz($query)
+    {
+        return $query->where('jenis_kelas', 'tahfidz');
+    }
 
     public function semester()
     {
@@ -37,7 +48,12 @@ class Kelas extends Model
 
     public function siswas()
     {
-        return $this->hasMany(Siswa::class);
+        return $this->hasMany(Siswa::class, 'kelas_id');
+    }
+
+    public function siswasTahfidz()
+    {
+        return $this->hasMany(Siswa::class, 'kelas_tahfidz_id');
     }
 
     public function siswaKelas()

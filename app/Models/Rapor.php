@@ -15,6 +15,8 @@ class Rapor extends Model
         'siswa_id',
         'semester_id',
         'kelas_id',
+        'tipe_rapor',
+        'status',
         'catatan_wali_kelas',
         'tanggal_terbit',
     ];

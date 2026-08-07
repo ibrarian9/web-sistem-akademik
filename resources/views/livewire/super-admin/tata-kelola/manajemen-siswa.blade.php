@@ -1,23 +1,45 @@
-<div class="space-y-6">
+<div class="space-y-6 font-sans">
+    <!-- Quick Switcher Bar -->
+    <div class="flex items-center gap-2 bg-white border border-stone-200 p-2 rounded-2xl overflow-x-auto shadow-xs">
+        <a href="{{ auth()->user()->role?->nama === 'tata_usaha' ? route('tata-usaha.kelas') : route('super-admin.kelas') }}" class="px-4 py-2.5 rounded-xl text-xs font-bold text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition flex items-center gap-2.5 whitespace-nowrap">
+            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 01-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            <span>1. Buat &amp; Kelola Kelas (Umum &amp; Tahfizh)</span>
+        </a>
+        <a href="{{ auth()->user()->role?->nama === 'tata_usaha' ? route('tata-usaha.siswa') : route('super-admin.siswa') }}" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-emerald-700 text-white shadow-sm flex items-center gap-2.5 whitespace-nowrap">
+            <svg class="w-4 h-4 text-emerald-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <span>2. Data Siswa</span>
+        </a>
+        <a href="{{ auth()->user()->role?->nama === 'tata_usaha' ? route('tata-usaha.plotting-kelas') : route('super-admin.plotting-kelas') }}" class="px-4 py-2.5 rounded-xl text-xs font-bold text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition flex items-center gap-2.5 whitespace-nowrap">
+            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            <span>3. Plotting Siswa Per-Kelas</span>
+        </a>
+    </div>
+
+
     <!-- Info & Tutorial Box -->
+
     <x-info-tutorial-box 
-        title="Petunjuk Pengelolaan Data Siswa Aktif"
+        title="Petunjuk Pengelolaan Data Siswa Aktif (Dua Kelas Per Siswa)"
         :steps="[
-            ['title' => 'Tambah Siswa', 'desc' => 'Klik Tambah Siswa untuk mendaftarkan data NIS, NISN, biodata, serta wali murid.'],
-            ['title' => 'Penempatan Kelas', 'desc' => 'Tentukan kelas siswa pada form pendaftaran atau ubah jika ada perubahan ruang kelas.'],
+            ['title' => 'Tambah Siswa Baru', 'desc' => 'Klik + Tambah Siswa Baru untuk mendaftarkan NIS, NISN, biodata, serta wali murid.'],
+            ['title' => 'Penetapan 2 Kelas Wajib', 'desc' => 'Setiap siswa wajib memilih 1 Kelas Umum (1-6 A/B/C) dan 1 Kelas Tahfizh (Halaqah Ustadz/ah).'],
             ['title' => 'Perubahan Status', 'desc' => 'Ubah status keaktifan menjadi Lulus, Pindah, atau Keluar saat terjadi pembaruan status pendidikan.']
         ]"
         notes="Username & password otomatis dibuatkan untuk akses portal siswa dan wali murid."
     />
 
-    <div class="flex items-center justify-between">
+    <!-- Hero Header Card -->
+    <div class="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-            <h2 class="text-xl font-bold text-white tracking-tight">Manajemen Siswa</h2>
-            <p class="text-xs text-slate-500">Kelola informasi pendaftaran dan penempatan kelas siswa.</p>
+            <span class="px-3 py-1 bg-emerald-100 border border-emerald-300 text-emerald-900 rounded-full text-xs font-bold uppercase tracking-wider inline-block mb-1">
+                MANAJEMEN DATA SISWA
+            </span>
+            <h1 class="text-2xl font-extrabold text-stone-900 tracking-tight">Kelola Data Siswa &amp; Penempatan 2 Kelas</h1>
+            <p class="text-xs text-stone-600 font-semibold mt-1">Pencatatan biodata siswa, penempatan Kelas Umum (1-6) &amp; Kelas Tahfizh, dan akses portal.</p>
         </div>
-        <button wire:click="openCreate" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold tracking-wide transition duration-200 flex items-center gap-1.5 shadow-lg shadow-indigo-600/10">
+        <button type="button" wire:click.prevent="openCreate" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-2">
             <x-lucide-plus class="w-4 h-4" />
-            <span>Tambah Siswa</span>
+            <span>+ Tambah Siswa Baru</span>
         </button>
     </div>
 
@@ -25,196 +47,236 @@
         <x-alert-banner type="success" :message="session('message')" />
     @endif
 
-    <!-- Table Section -->
-    <div class="space-y-4">
-        <!-- Filters -->
-        <div class="flex items-center justify-between gap-4">
+    <!-- Content Card -->
+    <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
+        <!-- Toolbar & Filter -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
             <div class="relative max-w-md w-full">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-stone-400">
                     <x-lucide-search class="w-4 h-4" />
                 </span>
-                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Cari NIS, nama, atau username..."
-                    class="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition duration-200 text-xs" />
+                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Cari NIS, NISN, nama, atau username..."
+                    class="w-full pl-9 pr-4 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 placeholder-stone-400 text-xs font-medium focus:ring-2 focus:ring-emerald-600 shadow-xs" />
             </div>
             
             <div class="flex items-center gap-2">
-                <span class="text-xs text-slate-500">Tampilkan</span>
-                <select wire:model.live="perPage" class="bg-slate-900 border border-slate-800 rounded-xl text-white text-xs px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
+                <span class="text-xs font-bold text-stone-600">Tampilkan:</span>
+                <select wire:model.live="perPage" class="bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold px-3 py-1.5 focus:ring-2 focus:ring-emerald-600 shadow-xs">
+                    <option value="10">10 Baris</option>
+                    <option value="25">25 Baris</option>
+                    <option value="50">50 Baris</option>
                 </select>
             </div>
         </div>
 
-        <!-- Table -->
-        <x-data-table>
-            <x-slot:thead>
-                <th class="px-6 py-3.5">NIS</th>
-                <th class="px-6 py-3.5">Nama Siswa</th>
-                <th class="px-6 py-3.5">Kelas</th>
-                <th class="px-6 py-3.5">Wali Murid</th>
-                <th class="px-6 py-3.5">Status</th>
-                <th class="px-6 py-3.5 text-right">Aksi</th>
-            </x-slot:thead>
-            <x-slot:tbody>
-                @forelse ($siswas as $siswa)
-                    <tr class="hover:bg-slate-905 transition-colors">
-                        <td class="px-6 py-4 font-semibold text-white">{{ $siswa->nis }}</td>
-                        <td class="px-6 py-4">
-                            <div class="font-medium text-white">{{ $siswa->user->nama ?? '-' }}</div>
-                            <div class="text-xs text-slate-500">NISN: {{ $siswa->nisn ?: '-' }}</div>
-                        </td>
-                        <td class="px-6 py-4 text-slate-300 font-medium">Kelas {{ $siswa->kelas->nama_kelas ?? '-' }}</td>
-                        <td class="px-6 py-4">
-                            <div class="text-slate-300 font-medium">{{ $siswa->nama_wali ?: '-' }}</div>
-                            <div class="text-xs text-slate-500">{{ $siswa->no_hp_wali ?: '-' }}</div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <x-status-badge :status="$siswa->status" />
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="inline-flex items-center justify-end gap-2">
-                                <button wire:click="openEdit({{ $siswa->id }})" class="px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500 border border-amber-500/30 hover:border-amber-500 text-amber-400 hover:text-slate-950 rounded-xl text-[11px] font-bold transition-all duration-150 inline-flex items-center gap-1.5 shadow-sm" title="Edit Siswa">
-                                    <x-lucide-edit class="w-3.5 h-3.5" />
-                                    <span>Edit</span>
-                                </button>
-                                <button onclick="confirm('Apakah Anda yakin ingin menghapus data siswa ini?') || event.stopImmediatePropagation()" wire:click="delete({{ $siswa->id }})" class="px-2.5 py-1.5 bg-rose-500/10 hover:bg-rose-600 border border-rose-500/30 hover:border-rose-600 text-rose-400 hover:text-white rounded-xl text-[11px] font-bold transition-all duration-150 inline-flex items-center gap-1.5 shadow-sm" title="Hapus Siswa">
-                                    <x-lucide-trash-2 class="w-3.5 h-3.5" />
-                                    <span>Hapus</span>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                @empty
+        <!-- Data Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs text-stone-800">
+                <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
                     <tr>
-                        <td colspan="6" class="px-6 py-8 text-center text-slate-500 font-medium">
-                            Tidak ada data siswa ditemukan
-                        </td>
+                        <th class="p-3.5 border-r border-emerald-700 w-28">NIS / NISN</th>
+                        <th class="p-3.5 border-r border-emerald-700 min-w-[180px]">Nama Siswa</th>
+                        <th class="p-3.5 border-r border-emerald-700 min-w-[140px]">Kelas Umum</th>
+                        <th class="p-3.5 border-r border-emerald-700 min-w-[160px]">Kelas Tahfizh</th>
+                        <th class="p-3.5 border-r border-emerald-700 min-w-[150px]">Wali Murid</th>
+                        <th class="p-3.5 border-r border-emerald-700 w-24 text-center">Status</th>
+                        <th class="p-3.5 text-center min-w-[140px]">Aksi</th>
                     </tr>
-                @endforelse
-            </x-slot:tbody>
-        </x-data-table>
+                </thead>
+                <tbody class="divide-y divide-stone-200 bg-white">
+                    @forelse ($siswas as $siswa)
+                        <tr class="hover:bg-emerald-50/50 transition">
+                            <td class="p-3.5 font-semibold text-stone-600 border-r border-stone-200">
+                                <div class="font-bold text-stone-900">{{ $siswa->nis }}</div>
+                                <div class="text-[10px] text-stone-500">NISN: {{ $siswa->nisn ?: '-' }}</div>
+                            </td>
+                            <td class="p-3.5 border-r border-stone-200">
+                                <div class="font-extrabold text-stone-900 text-xs">{{ strtoupper($siswa->user->nama ?? '-') }}</div>
+                                <div class="text-[10px] text-stone-500 font-medium">User: {{ $siswa->user->username ?? '-' }}</div>
+                            </td>
+                            <td class="p-3.5 border-r border-stone-200">
+                                <span class="px-2.5 py-1 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-lg text-xs font-bold inline-block">
+                                    📚 {{ $siswa->kelas->nama_kelas ?? 'Belum Set' }}
+                                </span>
+                            </td>
+                            <td class="p-3.5 border-r border-stone-200">
+                                @if($siswa->kelasTahfidz)
+                                    <span class="px-2.5 py-1 bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-xs font-bold inline-block">
+                                        ★ {{ $siswa->kelasTahfidz->nama_kelas }}
+                                    </span>
+                                @else
+                                    <span class="text-stone-400 italic text-[11px]">- Belum Set -</span>
+                                @endif
+                            </td>
+                            <td class="p-3.5 border-r border-stone-200">
+                                <div class="text-stone-900 font-bold">{{ $siswa->nama_wali ?: '-' }}</div>
+                                <div class="text-[10px] text-stone-500 font-medium">{{ $siswa->no_hp_wali ?: '-' }}</div>
+                            </td>
+                            <td class="p-3.5 text-center border-r border-stone-200">
+                                <x-status-badge :status="$siswa->status" />
+                            </td>
+                            <td class="p-3.5 text-center">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <button type="button" wire:click.prevent="openEdit({{ $siswa->id }})" class="px-2.5 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg font-bold text-xs border border-amber-300 transition shadow-xs flex items-center gap-1">
+                                        <x-lucide-edit class="w-3.5 h-3.5 text-amber-700" />
+                                        <span>Edit</span>
+                                    </button>
+                                    <button type="button" wire:click.prevent="delete({{ $siswa->id }})" data-confirm="Apakah Anda yakin ingin menghapus data siswa ini?" class="px-2.5 py-1 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded-lg font-bold text-xs border border-rose-300 transition shadow-xs flex items-center gap-1">
+                                        <x-lucide-trash-2 class="w-3.5 h-3.5 text-rose-600" />
+                                        <span>Hapus</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="p-8 text-center text-stone-500 font-semibold italic">
+                                Tidak ada data siswa ditemukan.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
         <!-- Pagination -->
-        <div class="mt-4">
+        <div class="pt-2">
             {{ $siswas->links() }}
         </div>
     </div>
 
     <!-- Form Modal -->
     @if ($isFormOpen)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
-            <div class="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] custom-scrollbar space-y-6">
-                <div class="flex items-center justify-between border-b border-slate-850 pb-4">
-                    <h3 class="text-base font-bold text-white tracking-wide">{{ $siswaId ? 'Edit Data Siswa' : 'Tambah Siswa Baru' }}</h3>
-                    <button wire:click="$set('isFormOpen', false)" class="p-1.5 bg-slate-850 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition duration-200">
-                        <x-lucide-x class="w-4 h-4" />
-                    </button>
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60 backdrop-blur-xs p-4 overflow-y-auto">
+            <div class="w-full max-w-2xl bg-white border border-stone-200 rounded-3xl shadow-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between border-b border-stone-200 pb-3">
+                    <h3 class="text-sm font-extrabold text-emerald-950 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-emerald-200 text-emerald-950 text-xs flex items-center justify-center font-black">★</span>
+                        <span>{{ $siswaId ? 'Edit Data Siswa & Dual Kelas' : 'Tambah Siswa Baru' }}</span>
+                    </h3>
+                    <button type="button" wire:click="$set('isFormOpen', false)" class="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 font-bold">✕</button>
                 </div>
 
-                <form wire:submit.prevent="save" class="space-y-6">
+                <form wire:submit.prevent="save" class="space-y-4">
+                    <!-- Dual Kelas Selection Box -->
+                    <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl space-y-3">
+                        <span class="text-xs font-black text-emerald-950 uppercase block">PENETAPAN 2 KELAS WAJIB SISWA</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <!-- 1. Kelas Umum -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-stone-700 uppercase">1. Kelas Umum (1 - 6) <span class="text-rose-600">*</span></label>
+                                <select wire:model="kelas_id" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
+                                    <option value="">-- Pilih Kelas Umum --</option>
+                                    @foreach ($kelasesUmum as $kls)
+                                        <option value="{{ $kls->id }}">Kelas {{ $kls->nama_kelas }} (Wali: {{ $kls->guruUmum->user->nama ?? 'Admin' }})</option>
+                                    @endforeach
+                                </select>
+                                @error('kelas_id') <span class="text-rose-600 text-[10px] font-bold block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <!-- 2. Kelas Tahfizh -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-stone-700 uppercase">2. Kelas Tahfizh (Halaqah)</label>
+                                <select wire:model="kelas_tahfidz_id" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
+                                    <option value="">-- Pilih Kelas Tahfizh --</option>
+                                    @foreach ($kelasesTahfidz as $kls)
+                                        <option value="{{ $kls->id }}">{{ $kls->nama_kelas }} (Pengampu: {{ $kls->guruTahfidz->user->nama ?? 'Admin' }})</option>
+                                    @endforeach
+                                </select>
+                                @error('kelas_tahfidz_id') <span class="text-rose-600 text-[10px] font-bold block">{{ $message }}</span> @enderror
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <!-- Nama -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Nama Lengkap</label>
-                            <input wire:model="nama" type="text" class="w-full px-3 py-2 bg-slate-950/50 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="Ahmad Fauzi" />
-                            @error('nama') <span class="text-rose-400 text-[10px]">{{ $message }}</span> @enderror
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-stone-700 uppercase">Nama Lengkap <span class="text-rose-600">*</span></label>
+                            <input wire:model="nama" type="text" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="Ahmad Fauzi" />
+                            @error('nama') <span class="text-rose-600 text-[10px] font-bold block">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Username -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Username Login</label>
-                            <input wire:model="username" type="text" class="w-full px-3 py-2 bg-slate-950/50 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="fauzi1001" />
-                            @error('username') <span class="text-rose-400 text-[10px]">{{ $message }}</span> @enderror
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-stone-700 uppercase">Username Login <span class="text-rose-600">*</span></label>
+                            <input wire:model="username" type="text" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="fauzi1001" />
+                            @error('username') <span class="text-rose-600 text-[10px] font-bold block">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Email -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Email (Opsional)</label>
-                            <input wire:model="email" type="email" class="w-full px-3 py-2 bg-slate-950/50 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="siswa@mail.com" />
-                            @error('email') <span class="text-rose-400 text-[10px]">{{ $message }}</span> @enderror
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-stone-700 uppercase">Email (Opsional)</label>
+                            <input wire:model="email" type="email" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="siswa@mail.com" />
+                            @error('email') <span class="text-rose-600 text-[10px] font-bold block">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Password -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">{{ $siswaId ? 'Ganti Password (Kosongkan jika tidak)' : 'Password Awal' }}</label>
-                            <input wire:model="password" type="password" class="w-full px-3 py-2 bg-slate-950/50 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="••••••" />
-                            @error('password') <span class="text-rose-400 text-[10px]">{{ $message }}</span> @enderror
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-stone-700 uppercase">{{ $siswaId ? 'Ganti Password (Kosongkan jika tidak)' : 'Password Awal' }}</label>
+                            <input wire:model="password" type="password" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="••••••" />
+                            @error('password') <span class="text-rose-600 text-[10px] font-bold block">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- NIS -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">NIS</label>
-                            <input wire:model="nis" type="text" class="w-full px-3 py-2 bg-slate-950/50 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="1001" />
-                            @error('nis') <span class="text-rose-400 text-[10px]">{{ $message }}</span> @enderror
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-stone-700 uppercase">NIS <span class="text-rose-600">*</span></label>
+                            <input wire:model="nis" type="text" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="1001" />
+                            @error('nis') <span class="text-rose-600 text-[10px] font-bold block">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- NISN -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">NISN (Opsional)</label>
-                            <input wire:model="nisn" type="text" class="w-full px-3 py-2 bg-slate-950/50 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="009812345" />
-                            @error('nisn') <span class="text-rose-400 text-[10px]">{{ $message }}</span> @enderror
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-stone-700 uppercase">NISN (Opsional)</label>
+                            <input wire:model="nisn" type="text" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="009812345" />
+                            @error('nisn') <span class="text-rose-600 text-[10px] font-bold block">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Jenis Kelamin -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Jenis Kelamin</label>
-                            <select wire:model="jenis_kelamin" class="w-full px-3 py-2 bg-slate-950/50 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500">
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-stone-700 uppercase">Jenis Kelamin</label>
+                            <select wire:model="jenis_kelamin" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
                                 <option value="L">Laki-laki</option>
                                 <option value="P">Perempuan</option>
                             </select>
-                            @error('jenis_kelamin') <span class="text-rose-400 text-[10px]">{{ $message }}</span> @enderror
-                        </div>
-
-                        <!-- Kelas -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Penempatan Kelas</label>
-                            <select wire:model="kelas_id" class="w-full px-3 py-2 bg-slate-950/50 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500">
-                                <option value="">Pilih Kelas</option>
-                                @foreach ($kelases as $kls)
-                                    <option value="{{ $kls->id }}">Kelas {{ $kls->nama_kelas }}</option>
-                                @endforeach
-                            </select>
-                            @error('kelas_id') <span class="text-rose-400 text-[10px]">{{ $message }}</span> @enderror
-                        </div>
-
-                        <!-- Tempat Lahir -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tempat Lahir</label>
-                            <input wire:model="tempat_lahir" type="text" class="w-full px-3 py-2 bg-slate-950/50 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="Yogyakarta" />
-                        </div>
-
-                        <!-- Tanggal Lahir -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tanggal Lahir</label>
-                            <input wire:model="tanggal_lahir" type="date" class="w-full px-3 py-2 bg-slate-950/50 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" />
-                        </div>
-
-                        <!-- Nama Wali -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Nama Wali Murid</label>
-                            <input wire:model="nama_wali" type="text" class="w-full px-3 py-2 bg-slate-950/50 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="Nama wali murid" />
-                        </div>
-
-                        <!-- No HP Wali -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">No HP Wali Murid</label>
-                            <input wire:model="no_hp_wali" type="text" class="w-full px-3 py-2 bg-slate-950/50 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="0857..." />
+                            @error('jenis_kelamin') <span class="text-rose-600 text-[10px] font-bold block">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Tanggal Masuk -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tanggal Masuk</label>
-                            <input wire:model="tanggal_masuk" type="date" class="w-full px-3 py-2 bg-slate-950/50 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" />
-                            @error('tanggal_masuk') <span class="text-rose-400 text-[10px]">{{ $message }}</span> @enderror
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-stone-700 uppercase">Tanggal Masuk</label>
+                            <input wire:model="tanggal_masuk" type="date" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" />
+                            @error('tanggal_masuk') <span class="text-rose-600 text-[10px] font-bold block">{{ $message }}</span> @enderror
+                        </div>
+
+                        <!-- Tempat Lahir -->
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-stone-700 uppercase">Tempat Lahir</label>
+                            <input wire:model="tempat_lahir" type="text" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="Yogyakarta" />
+                        </div>
+
+                        <!-- Tanggal Lahir -->
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-stone-700 uppercase">Tanggal Lahir</label>
+                            <input wire:model="tanggal_lahir" type="date" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" />
+                        </div>
+
+                        <!-- Nama Wali -->
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-stone-700 uppercase">Nama Wali Murid</label>
+                            <input wire:model="nama_wali" type="text" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="Nama wali murid" />
+                        </div>
+
+                        <!-- No HP Wali -->
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-stone-700 uppercase">No HP Wali Murid</label>
+                            <input wire:model="no_hp_wali" type="text" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="0857..." />
                         </div>
 
                         <!-- Status -->
                         @if ($siswaId)
-                            <div class="space-y-1.5">
-                                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Status Keaktifan</label>
-                                <select wire:model="status" class="w-full px-3 py-2 bg-slate-950/50 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500">
+                            <div class="space-y-1 sm:col-span-2">
+                                <label class="text-xs font-bold text-stone-700 uppercase">Status Keaktifan</label>
+                                <select wire:model="status" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
                                     <option value="aktif">Aktif</option>
                                     <option value="lulus">Lulus</option>
                                     <option value="pindah">Pindah</option>
@@ -225,17 +287,17 @@
                     </div>
 
                     <!-- Alamat -->
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Alamat Rumah</label>
-                        <textarea wire:model="alamat" rows="3" class="w-full px-3 py-2 bg-slate-950/50 border border-slate-800 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="Alamat rumah lengkap..."></textarea>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-stone-700 uppercase">Alamat Rumah</label>
+                        <textarea wire:model="alamat" rows="2" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 resize-none" placeholder="Alamat rumah lengkap..."></textarea>
                     </div>
 
                     <!-- Buttons -->
-                    <div class="flex items-center justify-end gap-3 border-t border-slate-850 pt-4">
-                        <button type="button" wire:click="$set('isFormOpen', false)" class="py-2.5 px-4 bg-slate-850 hover:bg-slate-800 text-slate-300 rounded-xl text-xs font-bold transition duration-200">
+                    <div class="flex items-center justify-end gap-2 border-t border-stone-200 pt-3">
+                        <button type="button" wire:click="$set('isFormOpen', false)" class="px-4 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold">
                             Batal
                         </button>
-                        <button type="submit" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition duration-200">
+                        <button type="submit" class="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-md">
                             Simpan Perubahan
                         </button>
                     </div>

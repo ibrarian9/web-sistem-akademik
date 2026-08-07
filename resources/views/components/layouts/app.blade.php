@@ -6,6 +6,14 @@
     <title>{{ $title ?? config('app.name', 'SIAKAD') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
+    <!-- MicroModal CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/micromodal/dist/micromodal.min.js"></script>
+    <style>
+        .modal { font-family: inherit; }
+        .modal[aria-hidden="true"] { display: none; }
+        .modal[aria-hidden="false"] { display: block; }
+        .modal__overlay { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); }
+    </style>
 </head>
 <body class="h-full font-sans antialiased selection:bg-green-600 selection:text-white">
     <div x-data="{ sidebarOpen: false }" class="flex h-full min-h-screen">
@@ -72,9 +80,146 @@
         </div>
     </div>
 
+    <!-- MicroModal Alert / Confirm Component -->
+    <div class="modal micromodal-slide" id="modal-alert" aria-hidden="true">
+        <div class="modal__overlay fixed inset-0 bg-stone-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4" tabindex="-1" data-micromodal-close>
+            <div class="modal__container bg-white border border-stone-200 rounded-3xl p-6 shadow-2xl max-w-md w-full space-y-4" role="dialog" aria-modal="true" aria-labelledby="modal-alert-title">
+                <header class="flex items-center justify-between border-b border-stone-200 pb-3">
+                    <h2 class="text-sm font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-2" id="modal-alert-title">
+                        <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 text-xs flex items-center justify-center font-black">i</span>
+                        Pemberitahuan Sistem
+                    </h2>
+                    <button type="button" class="modal__close p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 font-bold" aria-label="Close modal" data-micromodal-close>
+                        ✕
+                    </button>
+                </header>
+                <main class="text-xs text-stone-700 leading-relaxed font-medium" id="modal-alert-content">
+                    Pesan pemberitahuan sistem.
+                </main>
+                <footer class="flex items-center justify-end gap-2 pt-2 border-t border-stone-200">
+                    <button type="button" id="modal-alert-cancel-btn" class="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold transition" data-micromodal-close>
+                        Batal
+                    </button>
+                    <button type="button" id="modal-alert-confirm-btn" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition">
+                        Lanjutkan
+                    </button>
+                </footer>
+            </div>
+        </div>
+    </div>
+
     <!-- Accessibility Menu -->
     <x-accessibility-menu />
 
     @livewireScripts
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof MicroModal !== 'undefined') {
+                MicroModal.init({
+                    awaitCloseAnimation: false,
+                    awaitOpenAnimation: false,
+                    disableScroll: true,
+                });
+            }
+
+            // Check flash session messages from server and trigger MicroModal
+            @if(session()->has('success'))
+                window.showAlert('Berhasil', @json(session('success')));
+            @elseif(session()->has('error'))
+                window.showAlert('Peringatan Error', @json(session('error')));
+            @elseif(session()->has('warning'))
+                window.showAlert('Peringatan', @json(session('warning')));
+            @elseif(session()->has('info'))
+                window.showAlert('Informasi', @json(session('info')));
+            @endif
+        });
+
+        // Global Alert & Confirm Function via MicroModal
+        window.showAlert = function(title, message, onConfirm = null) {
+            const modalElem = document.getElementById('modal-alert');
+            if (modalElem) {
+                modalElem.setAttribute('aria-hidden', 'true');
+                modalElem.classList.remove('is-open');
+            }
+
+            const titleElem = document.getElementById('modal-alert-title');
+            const contentElem = document.getElementById('modal-alert-content');
+            const cancelBtn = document.getElementById('modal-alert-cancel-btn');
+            const confirmBtn = document.getElementById('modal-alert-confirm-btn');
+
+            if (titleElem) {
+                titleElem.innerHTML = `<span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 text-xs flex items-center justify-center font-black">i</span> ` + (title || 'Pemberitahuan Sistem');
+            }
+            if (contentElem) {
+                contentElem.innerText = message || '';
+            }
+            
+            if (typeof onConfirm === 'function') {
+                if (cancelBtn) cancelBtn.style.display = 'inline-block';
+                if (confirmBtn) {
+                    confirmBtn.innerText = 'Lanjutkan';
+                    confirmBtn.style.display = 'inline-block';
+                    confirmBtn.onclick = function() {
+                        if (typeof MicroModal !== 'undefined') {
+                            MicroModal.close('modal-alert');
+                        }
+                        onConfirm();
+                    };
+                }
+            } else {
+                if (cancelBtn) cancelBtn.style.display = 'none';
+                if (confirmBtn) {
+                    confirmBtn.innerText = 'OK';
+                    confirmBtn.style.display = 'inline-block';
+                    confirmBtn.onclick = function() {
+                        if (typeof MicroModal !== 'undefined') {
+                            MicroModal.close('modal-alert');
+                        }
+                    };
+                }
+            }
+
+            if (typeof MicroModal !== 'undefined') {
+                try {
+                    MicroModal.show('modal-alert');
+                } catch (e) {
+                    if (modalElem) {
+                        modalElem.setAttribute('aria-hidden', 'false');
+                        modalElem.classList.add('is-open');
+                    }
+                }
+            }
+        };
+
+        // Override Browser Native alert() with MicroModal
+        window.alert = function(message) {
+            window.showAlert('Pemberitahuan', message);
+        };
+
+        // Intercept all wire:confirm or data-confirm clicks to use MicroModal dialogs
+        document.addEventListener('click', function(e) {
+            const confirmEl = e.target.closest('[wire\\:confirm], [data-confirm]');
+            if (confirmEl && !confirmEl.dataset.micromodalConfirmed) {
+                e.stopImmediatePropagation();
+                e.preventDefault();
+                const msg = confirmEl.getAttribute('wire:confirm') || confirmEl.getAttribute('data-confirm');
+                window.showAlert('Konfirmasi Tindakan', msg, function() {
+                    confirmEl.dataset.micromodalConfirmed = 'true';
+                    confirmEl.click();
+                    delete confirmEl.dataset.micromodalConfirmed;
+                });
+            }
+        }, true);
+
+        // Listen for Livewire custom alert events
+        document.addEventListener('livewire:initialized', () => {
+            Livewire.on('show-alert', (data) => {
+                const title = data.title || 'Pemberitahuan';
+                const message = data.message || data.text || '';
+                window.showAlert(title, message);
+            });
+        });
+    </script>
 </body>
 </html>

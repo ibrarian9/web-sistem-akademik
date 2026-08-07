@@ -32,7 +32,8 @@ class ManajemenSiswa extends Component
     public string $alamat = '';
     public string $nama_wali = '';
     public string $no_hp_wali = '';
-    public ?int $kelas_id = null;
+    public ?int $kelas_id = null; // Kelas Umum
+    public ?int $kelas_tahfidz_id = null; // Kelas Tahfizh
     public ?string $tanggal_masuk = null;
     public string $status = 'aktif';
 
@@ -68,6 +69,7 @@ class ManajemenSiswa extends Component
         $this->nama_wali = $siswa->nama_wali ?? '';
         $this->no_hp_wali = $siswa->no_hp_wali ?? '';
         $this->kelas_id = $siswa->kelas_id;
+        $this->kelas_tahfidz_id = $siswa->kelas_tahfidz_id;
         $this->tanggal_masuk = $siswa->tanggal_masuk ? $siswa->tanggal_masuk->format('Y-m-d') : null;
         $this->status = $siswa->status;
 
@@ -82,6 +84,7 @@ class ManajemenSiswa extends Component
             'nis' => 'required|string|max:20|unique:siswa,nis,' . ($this->siswaId ?? 'NULL'),
             'jenis_kelamin' => 'required|in:L,P',
             'kelas_id' => 'required|exists:kelas,id',
+            'kelas_tahfidz_id' => 'nullable|exists:kelas,id',
             'tanggal_masuk' => 'required|date',
             'status' => 'required|in:aktif,lulus,pindah,keluar',
         ];
@@ -122,6 +125,7 @@ class ManajemenSiswa extends Component
                     'nama_wali' => $this->nama_wali ?: null,
                     'no_hp_wali' => $this->no_hp_wali ?: null,
                     'kelas_id' => $this->kelas_id,
+                    'kelas_tahfidz_id' => $this->kelas_tahfidz_id ?: null,
                     'tanggal_masuk' => $this->tanggal_masuk,
                     'status' => $this->status,
                 ]);
@@ -157,6 +161,7 @@ class ManajemenSiswa extends Component
                     'nama_wali' => $this->nama_wali ?: null,
                     'no_hp_wali' => $this->no_hp_wali ?: null,
                     'kelas_id' => $this->kelas_id,
+                    'kelas_tahfidz_id' => $this->kelas_tahfidz_id ?: null,
                     'tanggal_masuk' => $this->tanggal_masuk,
                     'status' => 'aktif',
                 ]);
@@ -199,13 +204,14 @@ class ManajemenSiswa extends Component
         $this->nama_wali = '';
         $this->no_hp_wali = '';
         $this->kelas_id = null;
+        $this->kelas_tahfidz_id = null;
         $this->tanggal_masuk = date('Y-m-d');
         $this->status = 'aktif';
     }
 
     public function render()
     {
-        $siswas = Siswa::with(['user', 'kelas'])
+        $siswas = Siswa::with(['user', 'kelas', 'kelasTahfidz'])
             ->where(function ($query) {
                 $query->where('nis', 'like', '%' . $this->search . '%')
                     ->orWhereHas('user', function ($q) {
@@ -216,11 +222,16 @@ class ManajemenSiswa extends Component
             ->latest()
             ->paginate($this->perPage);
 
-        $kelases = Kelas::all();
+        $kelasesUmum = Kelas::where(function($q) {
+            $q->where('jenis_kelas', 'umum')->orWhereNull('jenis_kelas');
+        })->get();
+
+        $kelasesTahfidz = Kelas::where('jenis_kelas', 'tahfidz')->get();
 
         return view('livewire.super-admin.tata-kelola.manajemen-siswa', [
             'siswas' => $siswas,
-            'kelases' => $kelases,
+            'kelasesUmum' => $kelasesUmum,
+            'kelasesTahfidz' => $kelasesTahfidz,
         ])->layout('components.layouts.app', ['title' => 'Manajemen Siswa']);
     }
 }

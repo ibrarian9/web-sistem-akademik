@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-6 font-sans">
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
         title="Petunjuk Direktori Alumni & Kelulusan"
@@ -10,99 +10,130 @@
         notes="Data alumni secara otomatis terbentuk ketika proses Kenaikan & Kelulusan Kelas dijalankan oleh Tata Usaha."
     />
 
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <!-- Hero Header Card -->
+    <div class="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h2 class="text-xl font-bold text-stone-800 tracking-tight">Data Alumni Lulusan</h2>
-            <p class="text-xs text-stone-500">Direktori rekap kelulusan siswa yayasan beserta tahun lulus dan catatan pelacakan studi lanjut.</p>
-        </div>
-
-        <div class="flex items-center gap-3">
-            <div class="relative">
-                <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari nama / NIS..." 
-                    class="bg-stone-50 border border-stone-300 text-stone-800 placeholder-stone-400 rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none focus:border-indigo-500 w-64" />
-                <x-lucide-search class="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
-            </div>
-
-            <select wire:model.live="filterTahun" class="bg-stone-50 border border-stone-300 text-stone-800 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-indigo-500">
-                <option value="semua">Semua Tahun Lulus</option>
-                @foreach ($availableYears as $year)
-                    <option value="{{ $year }}">Tahun {{ $year }}</option>
-                @endforeach
-            </select>
+            <span class="px-3 py-1 bg-emerald-100 border border-emerald-300 text-emerald-900 rounded-full text-xs font-bold uppercase tracking-wider inline-block mb-1">
+                DIREKTORI ALUMNI
+            </span>
+            <h1 class="text-2xl font-extrabold text-stone-900 tracking-tight">Data Alumni Lulusan</h1>
+            <p class="text-xs text-stone-600 font-semibold mt-1">Direktori rekap kelulusan siswa yayasan beserta tahun lulus dan catatan pelacakan studi lanjut.</p>
         </div>
     </div>
 
     @if (session()->has('message'))
-        <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-2xl text-xs font-bold flex items-center gap-2">
-            <x-lucide-check-circle class="w-4 h-4 text-emerald-600" />
-            <span>{{ session('message') }}</span>
-        </div>
+        <x-alert-banner type="success" :message="session('message')" />
     @endif
 
-    <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr class="border-b border-stone-200 text-stone-500 text-xs uppercase tracking-wider">
-                    <th class="pb-3 font-bold">NIS / NISN</th>
-                    <th class="pb-3 font-bold">Nama Alumni</th>
-                    <th class="pb-3 font-bold">Jenis Kelamin</th>
-                    <th class="pb-3 font-bold text-center">Tahun Lulus</th>
-                    <th class="pb-3 font-bold">Catatan Studi Lanjut / Prestasi</th>
-                    <th class="pb-3 font-bold text-center">Aksi</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-stone-100 text-xs">
-                @forelse ($alumnis as $a)
-                    <tr class="hover:bg-stone-50/50">
-                        <td class="py-3.5 font-mono text-indigo-600 font-semibold">{{ $a->nis }} / {{ $a->nisn ?? '-' }}</td>
-                        <td class="py-3.5 text-stone-800 font-bold">{{ $a->user->nama ?? '-' }}</td>
-                        <td class="py-3.5 text-stone-600">{{ $a->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
-                        <td class="py-3.5 text-center font-black text-emerald-700 bg-emerald-50 rounded-lg">{{ $a->tahun_lulus ?? '-' }}</td>
-                        <td class="py-3.5 text-stone-600 italic max-w-xs">{{ $a->catatan_alumni ?: '-' }}</td>
-                        <td class="py-3.5 text-center">
-                            <button wire:click="editAlumni({{ $a->id }})" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white border border-indigo-200 rounded-xl font-bold transition">
-                                Edit Catatan
-                            </button>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" class="py-12 text-center text-stone-400 text-xs">
-                            Belum ada data alumni kelulusan.
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+    <!-- Content Card -->
+    <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
+        <!-- Toolbar & Filter -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            <div class="relative max-w-md w-full">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-stone-400">
+                    <x-lucide-search class="w-4 h-4" />
+                </span>
+                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Cari nama atau NIS alumni..."
+                    class="w-full pl-9 pr-4 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 placeholder-stone-400 text-xs font-medium focus:ring-2 focus:ring-emerald-600 shadow-xs" />
+            </div>
 
-        <div class="mt-4">
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-stone-600">Filter Angkatan:</span>
+                <select wire:model.live="filterTahun" class="bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold px-3 py-1.5 focus:ring-2 focus:ring-emerald-600 shadow-xs">
+                    <option value="semua">Semua Tahun Lulus</option>
+                    @foreach ($availableYears as $year)
+                        <option value="{{ $year }}">Tahun Lulus {{ $year }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs text-stone-800">
+                <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+                    <tr>
+                        <th class="p-3.5 border-r border-emerald-700 w-32">NIS / NISN</th>
+                        <th class="p-3.5 border-r border-emerald-700 min-w-[180px]">Nama Alumni</th>
+                        <th class="p-3.5 border-r border-emerald-700 w-28">Jenis Kelamin</th>
+                        <th class="p-3.5 border-r border-emerald-700 w-28 text-center">Tahun Lulus</th>
+                        <th class="p-3.5 border-r border-emerald-700 min-w-[220px]">Catatan Studi Lanjut / Prestasi</th>
+                        <th class="p-3.5 text-center min-w-[120px]">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-200 bg-white">
+                    @forelse ($alumnis as $a)
+                        <tr class="hover:bg-emerald-50/50 transition">
+                            <td class="p-3.5 font-semibold text-stone-600 border-r border-stone-200">
+                                <div class="font-bold text-stone-900">{{ $a->nis }}</div>
+                                <div class="text-[10px] text-stone-500">NISN: {{ $a->nisn ?: '-' }}</div>
+                            </td>
+                            <td class="p-3.5 border-r border-stone-200 font-extrabold text-stone-900 text-xs">
+                                {{ strtoupper($a->user->nama ?? '-') }}
+                            </td>
+                            <td class="p-3.5 border-r border-stone-200 font-semibold text-stone-600">
+                                {{ $a->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}
+                            </td>
+                            <td class="p-3.5 text-center border-r border-stone-200">
+                                <span class="px-2.5 py-1 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-full font-black text-xs inline-block">
+                                    {{ $a->tahun_lulus ?? '-' }}
+                                </span>
+                            </td>
+                            <td class="p-3.5 border-r border-stone-200 text-stone-700 italic">
+                                {{ $a->catatan_alumni ?: '-' }}
+                            </td>
+                            <td class="p-3.5 text-center">
+                                <button wire:click="editAlumni({{ $a->id }})" class="px-2.5 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg font-bold text-xs border border-amber-300 transition shadow-xs inline-flex items-center gap-1">
+                                    <x-lucide-edit class="w-3.5 h-3.5 text-amber-700" />
+                                    <span>Edit Catatan</span>
+                                </button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="p-8 text-center text-stone-500 font-semibold italic">
+                                Belum ada data alumni kelulusan terdaftar.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pt-2">
             {{ $alumnis->links() }}
         </div>
     </div>
 
+    <!-- Edit Alumni Modal -->
     @if ($editingSiswaId)
-        <!-- EDIT ALUMNI MODAL -->
-        <div class="fixed inset-0 bg-stone-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div class="bg-white border border-stone-200 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-xl">
-                <h3 class="text-xs font-bold text-stone-800 uppercase tracking-wider">Sunting Data Alumni</h3>
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60 backdrop-blur-xs p-4">
+            <div class="bg-white border border-stone-200 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+                <div class="flex items-center justify-between border-b border-stone-200 pb-3">
+                    <h3 class="text-sm font-extrabold text-emerald-950 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-emerald-200 text-emerald-950 text-xs flex items-center justify-center font-black">★</span>
+                        <span>Sunting Data Alumni</span>
+                    </h3>
+                    <button wire:click="cancelEdit" class="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 font-bold">✕</button>
+                </div>
                 
-                <div class="space-y-3 text-xs">
-                    <div>
-                        <label class="block text-stone-600 font-semibold mb-1">Tahun Lulus</label>
-                        <input type="number" wire:model="tahun_lulus" class="w-full bg-stone-50 border border-stone-300 text-stone-800 rounded-xl p-2.5 focus:outline-none focus:border-indigo-500 font-bold" placeholder="Contoh: 2026" />
+                <div class="space-y-4 text-xs">
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-stone-700 uppercase">Tahun Lulus <span class="text-rose-600">*</span></label>
+                        <input type="number" wire:model="tahun_lulus" class="w-full px-3.5 py-2 bg-white border border-stone-300 text-stone-900 rounded-xl text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="Contoh: 2026" />
                     </div>
 
-                    <div>
-                        <label class="block text-stone-600 font-semibold mb-1">Catatan Alumni / Studi Lanjut</label>
-                        <textarea wire:model="catatan_alumni" rows="3" class="w-full bg-stone-50 border border-stone-300 text-stone-800 rounded-xl p-2.5 focus:outline-none focus:border-indigo-500" placeholder="Melanjutkan ke SMPN 1 / Pesantren X..."></textarea>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-stone-700 uppercase">Catatan Alumni / Studi Lanjut</label>
+                        <textarea wire:model="catatan_alumni" rows="3" class="w-full px-3.5 py-2 bg-white border border-stone-300 text-stone-900 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-600 resize-none" placeholder="Melanjutkan ke SMPN 1 / Pesantren X..."></textarea>
                     </div>
                 </div>
 
-                <div class="flex justify-end gap-3 pt-3 border-t border-stone-100">
-                    <button wire:click="cancelEdit" class="px-4 py-2 bg-stone-100 text-stone-700 hover:bg-stone-200 rounded-xl text-xs font-bold transition">
+                <div class="flex justify-end gap-2 pt-3 border-t border-stone-200">
+                    <button wire:click="cancelEdit" class="px-4 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold">
                         Batal
                     </button>
-                    <button wire:click="saveAlumni" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition">
+                    <button wire:click="saveAlumni" class="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-md">
                         Simpan Perubahan
                     </button>
                 </div>

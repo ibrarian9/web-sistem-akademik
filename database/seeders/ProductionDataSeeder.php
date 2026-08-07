@@ -1184,5 +1184,151 @@ class ProductionDataSeeder extends Seeder
                 'catatan_alumni' => $a['catatan'],
             ]);
         }
+
+        // 22. Seed Kurikulum Merdeka (Lingkup Materi, TP, Sumatif TP, SAS, Auto-Narasi)
+        $allMapels = MataPelajaran::all();
+        $autoNarasiService = new \App\Services\AutoNarasiService();
+
+        foreach ($allMapels as $m) {
+            \App\Models\TemplateDeskripsi::firstOrCreate(['mapel_id' => $m->id], [
+                'frasa_tertinggi' => 'menunjukkan penguasaan dalam',
+                'frasa_terendah' => 'membutuhkan penguatan dalam',
+            ]);
+
+            // Create Lingkup Materi (Bab) & TPs for each Mapel
+            for ($lmIdx = 1; $lmIdx <= 3; $lmIdx++) {
+                $lm = \App\Models\LingkupMateri::firstOrCreate([
+                    'mapel_id' => $m->id,
+                    'urutan' => $lmIdx,
+                ], [
+                    'nama_lingkup_materi' => "Bab {$lmIdx}: Pembahasan " . $m->nama_mapel . " Bagian {$lmIdx}",
+                ]);
+
+                for ($tpIdx = 1; $tpIdx <= 2; $tpIdx++) {
+                    \App\Models\TujuanPembelajaran::firstOrCreate([
+                        'lingkup_materi_id' => $lm->id,
+                        'urutan' => $tpIdx,
+                    ], [
+                        'deskripsi_tp' => "memahami dan menerapkan konsep " . strtolower($m->nama_mapel) . " bab {$lmIdx} sub-kompetensi {$tpIdx}",
+                    ]);
+                }
+            }
+        }
+
+        // Seed Nilai Sumatif TP & SAS for Active Students
+        $activeStudents = Siswa::where('status', 'aktif')->get();
+        $allTps = \App\Models\TujuanPembelajaran::all();
+
+        foreach ($activeStudents as $st) {
+            foreach ($allTps as $tp) {
+                \App\Models\NilaiSumatifTp::firstOrCreate([
+                    'siswa_id' => $st->id,
+                    'tp_id' => $tp->id,
+                    'semester_id' => $semesterGenap->id,
+                ], [
+                    'nilai' => rand(70, 98),
+                ]);
+            }
+
+            foreach ($allMapels as $m) {
+                \App\Models\NilaiSas::firstOrCreate([
+                    'siswa_id' => $st->id,
+                    'mapel_id' => $m->id,
+                    'semester_id' => $semesterGenap->id,
+                ], [
+                    'nilai' => rand(75, 95),
+                ]);
+
+                // Auto Generate Rapor Detail via AutoNarasiService
+                $result = $autoNarasiService->generateForMapel($st->id, $m->id, $semesterGenap->id);
+
+                $rapor = Rapor::firstOrCreate([
+                    'siswa_id' => $st->id,
+                    'semester_id' => $semesterGenap->id,
+                ], [
+                    'kelas_id' => $st->kelas_id,
+                    'tanggal_terbit' => '2026-06-19',
+                    'qr_code_hash' => 'RAP-' . $st->id . '-' . \Illuminate\Support\Str::random(12),
+                    'catatan_wali_kelas' => 'Ananda ' . ($st->user->nama ?? $st->nama_panggilan) . ' menunjukkan perkembangan yang sangat memuaskan.',
+                ]);
+
+                \App\Models\RaporDetail::updateOrCreate([
+                    'rapor_id' => $rapor->id,
+                    'mapel_id' => $m->id,
+                ], [
+                    'nilai_akhir' => $result['nilai_akhir'],
+                    'predikat' => $result['predikat'],
+                    'deskripsi_tertinggi' => $result['deskripsi_tertinggi'],
+                    'deskripsi_terendah' => $result['deskripsi_terendah'],
+                    'narasi_capaian_full' => $result['narasi_capaian_full'],
+                ]);
+            }
+        }
+
+        // 23. Seed Tahfizh Data (NilaiTahfidz & RaporTahfidzDetail)
+        $surahs = ['An-Naba', 'An-Nazi\'at', '\'Abasa', 'At-Takwir', 'Al-Infitar', 'Al-Mutaffifin'];
+        foreach ($activeStudents as $st) {
+            foreach (array_slice($surahs, 0, 3) as $sIdx => $surahName) {
+                \App\Models\NilaiTahfidz::firstOrCreate([
+                    'siswa_id' => $st->id,
+                    'semester_id' => $semesterGenap->id,
+                    'surah' => $surahName,
+                ], [
+                    'juz' => 30,
+                    'nilai_kelancaran' => rand(80, 98),
+                    'nilai_tajwid' => rand(82, 95),
+                    'predikat_keagamaan' => 'Sangat Baik',
+                    'catatan_ustadz' => 'Setoran lancar, makhraj dan tajwid sangat baik.',
+                ]);
+            }
+
+            $rapor = Rapor::where('siswa_id', $st->id)->where('semester_id', $semesterGenap->id)->first();
+            if ($rapor) {
+                \App\Models\RaporTahfidzDetail::firstOrCreate([
+                    'rapor_id' => $rapor->id,
+                ], [
+                    'total_juz_dihafal' => 1,
+                    'daftar_surah_lulus' => 'An-Naba, An-Nazi\'at, \'Abasa',
+                    'nilai_tajwid_rata' => 90.00,
+                    'predikat_tahfidz' => 'Sangat Baik',
+                    'catatan_khusus' => 'Alhamdulillah telah menyelesaikan hafalan Juz 30 dengan tartil.',
+                ]);
+            }
+        }
+
+        // 24. Seed P5 Kokurikuler Data (Dimensi, Subdimensi, Proyek, NilaiP5)
+        $proyek1 = \App\Models\ProyekP5::firstOrCreate(['nama_proyek' => 'Lintas Disiplin Ilmu']);
+        $proyek2 = \App\Models\ProyekP5::firstOrCreate(['nama_proyek' => '7 Kebiasaan Anak Indonesia Hebat']);
+
+        $d1 = \App\Models\DimensiP5::firstOrCreate(['nama_dimensi' => 'Keimanan & Ketakwaan', 'urutan' => 1]);
+        $sub1 = \App\Models\SubdimensiP5::firstOrCreate(['dimensi_id' => $d1->id, 'nama_subdimensi' => 'Akhlak Beragama', 'urutan' => 1]);
+        $sub2 = \App\Models\SubdimensiP5::firstOrCreate(['dimensi_id' => $d1->id, 'nama_subdimensi' => 'Akhlak Pribadi', 'urutan' => 2]);
+
+        $d2 = \App\Models\DimensiP5::firstOrCreate(['nama_dimensi' => 'Kewargaan & Kebinekaan', 'urutan' => 2]);
+        $sub3 = \App\Models\SubdimensiP5::firstOrCreate(['dimensi_id' => $d2->id, 'nama_subdimensi' => 'Mengenal & Menghargai Budaya', 'urutan' => 1]);
+
+        $subList = [$sub1, $sub2, $sub3];
+
+        foreach ($activeStudents as $st) {
+            foreach ($subList as $sub) {
+                \App\Models\NilaiP5::firstOrCreate([
+                    'siswa_id' => $st->id,
+                    'proyek_id' => $proyek1->id,
+                    'subdimensi_p5_id' => $sub->id,
+                    'titik_sumatif' => 1,
+                    'semester_id' => $semesterGenap->id,
+                ], [
+                    'nilai' => rand(3, 4), // 3: BSH, 4: SB
+                ]);
+            }
+        }
+
+        // 25. Ensure all Pembayaran records have QR Code Hashes
+        $pembayarans = Pembayaran::whereNull('qr_code_hash')->get();
+        foreach ($pembayarans as $p) {
+            $p->qr_code_hash = 'RES-' . $p->id . '-' . \Illuminate\Support\Str::random(12);
+            $p->save();
+        }
     }
 }
+

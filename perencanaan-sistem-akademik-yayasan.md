@@ -44,15 +44,27 @@ Untuk mengakomodasi perbedaan proses belajar mengajar, sistem membagi model akad
   - 3 Jalur Proyek: `lintas_disiplin_ilmu`, `tujuh_kebiasaan_anak_indonesia_hebat`, `cara_lain`.
   - Evaluasi kualitatif (skala 1–4) di 5 Titik Sumatif per sub-dimensi + Auto-narasi P5.
 
-#### B. Akademik Khusus Tahfizh
-- **Struktur Kurikulum Tahfizh**: Terpisah dari Kurikulum Merdeka Umum! Menggunakan kategori materi Hafalan Surah/Juz, Target Ayat, Makhraj & Tajwid, serta Adab/Keagamaan.
-- **Pengampu & Kelas Tahfizh**: Dikelola oleh Guru/Ustadz Tahfizh di Kelas Tahfizh tersendiri (bisa sama atau terpisah dari rombel umum).
-- **Penilaian & Mutabaah**: Pencatatan riwayat setoran harian/mingguan, ujian kelancaran hafalan, dan predikat keagamaan.
-- **Output Terpisah**: Menghasilkan **Rapor Tahfizh** khusus yang menyajikan detail hafalan surah/juz, nilai tajwid, serta catatan perkembangan spiritual anak.
+#### B. Akademik Khusus Tahfizh & Mutaba'ah SD TAHFIZH F3
+- **Pemisahan Menu Role Guru**: Menu untuk Guru Tahfizh dibedakan secara total dari Guru Umum! Guru Tahfizh hanya melihat menu khusus Tahfizh (*Mutaba'ah Tahfizh*, *Rapor Tahfizh*) tanpa dibebani menu kompleks Kurikulum Merdeka (Setup Bab, TP, Matriks Sumatif).
+- **Pengampu & Halaqah Tahfizh**: Dibuat dan diatur sepenuhnya oleh Admin Tata Usaha (TU). Admin TU menentukan pemetaan `guru_tahfidz_id` ke setiap Kelas/Halaqah Tahfizh.
+- **Struktur Mutaba'ah Guru Tahfizh (Praktis & Sederhana)**:
+  - Header: `Hari / Tanggal`, `Halaqah Al-Mulk / Nama Kelas`
+  - Kolom Tabel Mutaba'ah Matriks:
+    1. `NO`
+    2. `NISN`
+    3. `NAMA SISWA`
+    4. `L/P` (Jenis Kelamin)
+    5. **TAHSIN**: `Materi/Ayat` (contoh: *Al-Baqarah 4-5*) & `Nilai` (0-100)
+    6. **MURAJA'AH**: `Bersama (Juz)` & `Mandiri (Materi/Ayat)` & `Nilai`
+    7. **TAHFIZH - KITABAH**: `Materi (Ayat)` & `Nilai`
+    8. **TAHFIZH - ZIYADAH**: `Materi (Ayat)` & `Nilai`
+    9. `PARAF` (Status Pengesahan Ustadz Pembimbing)
+- **Output Terpisah**: Menghasilkan **Rapor Tahfizh Al-Qur'an** khusus yang menyajikan detail hafalan surah/juz, nilai tahsin, muraja'ah, kitabah, ziyadah, serta catatan perkembangan spiritual anak.
 
 ---
 
 ### 1.3 Aturan Bisnis Kunci
+
 
 1. **Perwalian & Dual Role Guru**:
    - Satu Kelas Umum didampingi Wali Kelas (Guru Umum). Kelas Tahfizh didampingi Ustadz Pembimbing Tahfizh.
