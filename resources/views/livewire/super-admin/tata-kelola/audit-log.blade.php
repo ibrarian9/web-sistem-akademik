@@ -54,7 +54,7 @@
                 <th class="px-6 py-3.5">Nama User (Pelaku)</th>
                 <th class="px-6 py-3.5">Event</th>
                 <th class="px-6 py-3.5">Deskripsi Aktivitas</th>
-                <th class="px-6 py-3.5">IP Address</th>
+                <th class="px-6 py-3.5">IP Address &amp; Perangkat</th>
             </x-slot:thead>
             <x-slot:tbody>
                 @forelse ($logs as $log)
@@ -81,8 +81,11 @@
                         <td class="px-6 py-4 text-slate-200 font-medium max-w-sm truncate" title="{{ $log->description }}">
                             {{ $log->description }}
                         </td>
-                        <td class="px-6 py-4 font-semibold text-slate-400 text-xs">
-                            {{ $log->ip_address ?: '-' }}
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-slate-300 text-xs">{{ $log->ip_address ?: '-' }}</div>
+                            <div class="text-[10px] text-slate-500 truncate max-w-xs" title="{{ $log->user_agent }}">
+                                {{ $log->user_agent ?: 'Standard Web Client' }}
+                            </div>
                         </td>
                     </tr>
                 @empty

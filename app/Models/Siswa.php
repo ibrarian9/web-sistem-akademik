@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\Auditable;
 
 class Siswa extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Auditable;
 
     protected $table = 'siswa';
 
@@ -90,5 +91,10 @@ class Siswa extends Model
     public function ekstrakurikuler()
     {
         return $this->hasMany(SiswaEkstrakurikuler::class);
+    }
+
+    public function tabungans()
+    {
+        return $this->hasMany(Tabungan::class, 'siswa_id');
     }
 }

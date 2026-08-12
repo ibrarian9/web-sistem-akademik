@@ -146,10 +146,6 @@ class TahfidzMutabaahSeeder extends Seeder
                 $siswa->save();
             }
 
-
-
-
-
             // Populate sample Mutaba'ah record matching physical sheet
             if ($idx === 0) {
                 NilaiTahfidz::updateOrCreate(

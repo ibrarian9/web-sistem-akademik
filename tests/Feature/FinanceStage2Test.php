@@ -166,11 +166,8 @@ test('finance can view and export reports', function () {
         ->assertFileDownloaded();
 });
 
-test('student can download official report card pdf', function () {
-    $this->actingAs($this->userMurid);
-
-    // Ensure student has no outstanding SPP bills
-    Tagihan::where('siswa_id', $this->siswa->id)->delete();
+test('wali kelas or authorized user can download official report card pdf', function () {
+    $this->actingAs($this->userGuru);
 
     // Setup an official report
     $activeTA = TahunAjaran::where('status_aktif', true)->first();
@@ -187,9 +184,9 @@ test('student can download official report card pdf', function () {
         'tanggal_terbit' => now()->toDateString(),
     ]);
 
-    Livewire::test(RaporNilai::class)
-        ->assertStatus(200)
-        ->assertSee('Laporan Hasil Belajar Semester')
-        ->call('downloadPdf')
-        ->assertFileDownloaded();
+    $response = $this->get(route('rapor.pdf.preview', [
+        'siswaId' => $this->siswa->id,
+    ]));
+
+    $response->assertStatus(200);
 });

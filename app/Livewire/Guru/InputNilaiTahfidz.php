@@ -14,6 +14,7 @@ class InputNilaiTahfidz extends Component
 {
     public $kelas_id;
     public $semester_id;
+    public $search = '';
 
     public bool $showScoreModal = false;
 
@@ -54,8 +55,7 @@ class InputNilaiTahfidz extends Component
         if ($user && $user->role?->nama === 'guru' && $user->guru) {
             $jenis = strtolower($user->guru->jenis_guru);
             if ($jenis === 'umum') {
-                session()->flash('error', 'Akses ditolak. Modul Mutaba\'ah Tahfizh khusus untuk Guru Tahfizh.');
-                return redirect()->route('guru.kurikulum-merdeka');
+                abort(403, 'Akses ditolak. Modul Mutaba\'ah Tahfizh khusus untuk Guru Tahfizh.');
             }
         }
 
@@ -64,10 +64,20 @@ class InputNilaiTahfidz extends Component
             $this->semester_id = $activeSemester->id;
         }
 
-        // Filter classes strictly for logged in Tahfizh Teacher
+        // Filter classes for logged in Tahfizh Teacher (Halaqah Tahfizh + Academic Classes taught)
         if ($user && $user->role?->nama === 'guru' && $user->guru) {
             $guruId = $user->guru->id;
-            $myClasses = Kelas::where('guru_tahfidz_id', $guruId)->get();
+            $tahfidzKelasIds = Siswa::whereNotNull('kelas_tahfidz_id')
+                ->whereHas('kelasTahfidz', function ($q) use ($guruId) {
+                    $q->where('guru_tahfidz_id', $guruId);
+                })
+                ->pluck('kelas_tahfidz_id')
+                ->toArray();
+
+            $myClasses = Kelas::where('guru_tahfidz_id', $guruId)
+                ->orWhereIn('id', $tahfidzKelasIds)
+                ->get();
+
             if ($myClasses->isNotEmpty()) {
                 $this->kelas_id = $myClasses->first()->id;
             } else {
@@ -89,7 +99,9 @@ class InputNilaiTahfidz extends Component
             $this->siswa_id = $siswaId;
         } else {
             if ($this->kelas_id) {
-                $siswas = Siswa::where('kelas_id', $this->kelas_id)->get();
+                $siswas = Siswa::where('kelas_tahfidz_id', $this->kelas_id)
+                    ->orWhere('kelas_id', $this->kelas_id)
+                    ->get();
                 if ($siswas && $siswas->count() > 0) {
                     $this->siswa_id = $siswas->first()->id;
                 }
@@ -112,9 +124,17 @@ class InputNilaiTahfidz extends Component
         $user = auth()->user();
         if ($user && $user->role?->nama === 'guru' && $user->guru) {
             $guruId = $user->guru->id;
-            $allowedClass = Kelas::where('id', $this->kelas_id)->where('guru_tahfidz_id', $guruId)->first();
-            if (!$allowedClass) {
-                session()->flash('error', 'Akses ditolak. Anda hanya diperbolehkan menginput nilai untuk kelas bimbingan Anda.');
+            $targetSiswa = Siswa::find($this->siswa_id);
+
+            $isMyStudent = $targetSiswa && (
+                ($targetSiswa->kelasTahfidz && $targetSiswa->kelasTahfidz->guru_tahfidz_id == $guruId) ||
+                ($targetSiswa->kelas && $targetSiswa->kelas->guru_tahfidz_id == $guruId) ||
+                ($targetSiswa->kelas_tahfidz_id == $this->kelas_id) ||
+                ($targetSiswa->kelas_id == $this->kelas_id)
+            );
+
+            if (!$isMyStudent) {
+                session()->flash('error', 'Akses ditolak. Anda hanya diperbolehkan menginput nilai untuk santri bimbingan Tahfizh Anda.');
                 return;
             }
         }
@@ -197,7 +217,6 @@ class InputNilaiTahfidz extends Component
         session()->flash('message', 'Catatan Mutaba\'ah Tahfizh berhasil dihapus.');
     }
 
-
     public function resetScoreForm()
     {
         $this->editingId = null;
@@ -279,7 +298,17 @@ class InputNilaiTahfidz extends Component
     {
         $user = auth()->user();
         if ($user && $user->role?->nama === 'guru' && $user->guru) {
-            $kelases = Kelas::where('guru_tahfidz_id', $user->guru->id)->get();
+            $guruId = $user->guru->id;
+            $tahfidzKelasIds = Siswa::whereNotNull('kelas_tahfidz_id')
+                ->whereHas('kelasTahfidz', function ($q) use ($guruId) {
+                    $q->where('guru_tahfidz_id', $guruId);
+                })
+                ->pluck('kelas_tahfidz_id')
+                ->toArray();
+
+            $kelases = Kelas::where('guru_tahfidz_id', $guruId)
+                ->orWhereIn('id', $tahfidzKelasIds)
+                ->get();
         } else {
             $kelases = Kelas::whereNotNull('guru_tahfidz_id')->get();
             if ($kelases->isEmpty()) {
@@ -293,10 +322,12 @@ class InputNilaiTahfidz extends Component
         $scores = collect();
 
         if ($this->kelas_id) {
-            $siswaQuery = Siswa::where(function($sq) {
-                $sq->where('kelas_tahfidz_id', $this->kelas_id)
-                  ->orWhere('kelas_id', $this->kelas_id);
-            });
+            $siswaQuery = Siswa::with(['user', 'kelas', 'kelasTahfidz'])
+                ->where(function($sq) {
+                    $sq->where('kelas_tahfidz_id', $this->kelas_id)
+                      ->orWhere('kelas_id', $this->kelas_id);
+                });
+
             if (!empty($this->search)) {
                 $q = $this->search;
                 $siswaQuery->where(function ($sq) use ($q) {

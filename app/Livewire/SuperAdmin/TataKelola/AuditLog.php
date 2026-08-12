@@ -45,7 +45,8 @@ class AuditLog extends Component
                       ->orWhere('activity_log.event', 'like', '%' . $this->search . '%')
                       ->orWhere('users.nama', 'like', '%' . $this->search . '%')
                       ->orWhere('users.username', 'like', '%' . $this->search . '%')
-                      ->orWhere('activity_log.ip_address', 'like', '%' . $this->search . '%');
+                      ->orWhere('activity_log.ip_address', 'like', '%' . $this->search . '%')
+                      ->orWhere('activity_log.user_agent', 'like', '%' . $this->search . '%');
                 });
             })
             ->when($this->filterEvent, function ($query) {

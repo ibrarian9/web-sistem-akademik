@@ -3,56 +3,25 @@
 namespace App\Livewire\Murid;
 
 use App\Models\Nilai;
-use App\Models\NilaiP5;
-use App\Models\NilaiTahfidz;
+use App\Models\NilaiSumatifTp;
 use App\Models\Rapor;
 use App\Models\RaporDetail;
-use App\Models\RaporTahfidzDetail;
 use App\Models\Siswa;
-use App\Models\SiswaEkstrakurikuler;
 use App\Models\Tagihan;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Livewire\Component;
 
 class RaporNilai extends Component
 {
     public bool $hasOutstanding = false;
-    public ?Rapor $rapor = null;
-    public array $raporDetails = [];
-    public array $raporTahfidz = [];
-    public array $nilaiP5List = [];
-    public array $liveGrades = [];
-    public array $ekskulList = [];
-    public string $activeTab = 'km'; // 'km', 'tahfidz', 'p5'
+    public array $nilaiHarianTp = [];
+    public array $nilaiMidSts = [];
+    public array $rekapMapelUmum = [];
+    public string $activeTab = 'tp'; // 'tp' (Nilai Harian Per-TP), 'mid' (Mid Semester STS)
 
     public function mount()
     {
         $this->checkOutstandingAndLoad();
-    }
-
-    public function downloadPdf()
-    {
-        if ($this->hasOutstanding || !$this->rapor) {
-            session()->flash('error', 'Tidak dapat mengunduh rapor.');
-            return;
-        }
-
-        $siswa = auth()->user()->siswa;
-        if (!$siswa) {
-            return;
-        }
-
-        $pdf = Pdf::loadView('livewire.shared.laporan.pdf-rapor-siswa', [
-            'rapor' => $this->rapor,
-            'raporDetails' => $this->raporDetails,
-            'siswa' => $siswa,
-        ]);
-
-        return response()->streamDownload(function () use ($pdf, $siswa) {
-            echo $pdf->stream();
-        }, 'rapor_' . str_replace(' ', '_', strtolower($siswa->user->nama ?? 'siswa')) . '.pdf');
     }
 
     public function checkOutstandingAndLoad()
@@ -87,84 +56,89 @@ class RaporNilai extends Component
             return;
         }
 
-        // Fetch extracurricular activities
-        $this->ekskulList = SiswaEkstrakurikuler::where('siswa_id', $siswa->id)
+        // 1. Load Nilai Harian per-TP (Formatif / Sumatif TP Kurikulum Merdeka)
+        $tpScores = NilaiSumatifTp::where('siswa_id', $siswa->id)
             ->where('semester_id', $activeSemester->id)
-            ->with('ekstrakurikuler.pembina.user')
-            ->get()
-            ->toArray();
+            ->with(['tujuanPembelajaran.lingkupMateri.mapel'])
+            ->get();
 
-        // Fetch official Rapor
-        $this->rapor = Rapor::where('siswa_id', $siswa->id)
-            ->where('semester_id', $activeSemester->id)
-            ->first();
-
-        if ($this->rapor) {
-            // Ensure QR Code Hash exists
-            if (empty($this->rapor->qr_code_hash)) {
-                $this->rapor->qr_code_hash = 'RAP-' . $siswa->id . '-' . Str::random(12);
-                $this->rapor->save();
+        $groupedTp = [];
+        foreach ($tpScores as $tp) {
+            $mapel = $tp->tujuanPembelajaran->lingkupMateri->mapel ?? null;
+            if ($mapel && ($mapel->jenis ?? 'umum') === 'umum') {
+                $mapelId = $mapel->id;
+                if (!isset($groupedTp[$mapelId])) {
+                    $groupedTp[$mapelId] = [
+                        'nama_mapel' => $mapel->nama_mapel,
+                        'items' => [],
+                    ];
+                }
+                $groupedTp[$mapelId]['items'][] = [
+                    'kode_tp' => $tp->tujuanPembelajaran->kode_tp ?? 'TP',
+                    'deskripsi' => $tp->tujuanPembelajaran->deskripsi_tp ?? '-',
+                    'lingkup' => $tp->tujuanPembelajaran->lingkupMateri->judul_lingkup_materi ?? '-',
+                    'nilai' => floatval($tp->nilai),
+                ];
             }
+        }
+        $this->nilaiHarianTp = $groupedTp;
 
-            $this->raporDetails = RaporDetail::where('rapor_id', $this->rapor->id)
-                ->with('mapel')
-                ->get()
-                ->toArray();
+        // 2. Load Nilai Mid Semester (STS / PTS) & Nilai Harian Komponen
+        $nilaiRecords = Nilai::where('siswa_id', $siswa->id)
+            ->where('semester_id', $activeSemester->id)
+            ->with(['mapel', 'komponenNilai'])
+            ->get();
 
-            // Load Rapor Tahfidz Detail
-            $tahfidzDetail = RaporTahfidzDetail::where('rapor_id', $this->rapor->id)->first();
-            $tahfidzScores = NilaiTahfidz::where('siswa_id', $siswa->id)
-                ->where('semester_id', $activeSemester->id)
-                ->get();
-
-            $this->raporTahfidz = [
-                'summary' => $tahfidzDetail,
-                'scores' => $tahfidzScores,
-            ];
-
-            // Load Nilai P5 List
-            $this->nilaiP5List = NilaiP5::where('siswa_id', $siswa->id)
-                ->where('semester_id', $activeSemester->id)
-                ->with(['proyek', 'subdimensiP5.dimensi'])
-                ->get()
-                ->toArray();
-        } else {
-            // Fallback live grades
-            $nilaiRecords = Nilai::where('siswa_id', $siswa->id)
-                ->where('semester_id', $activeSemester->id)
-                ->with(['mapel', 'komponenNilai'])
-                ->get();
-
-            $grouped = [];
-            foreach ($nilaiRecords as $n) {
+        $groupedMid = [];
+        $groupedAll = [];
+        foreach ($nilaiRecords as $n) {
+            if (($n->mapel->jenis ?? 'umum') === 'umum') {
                 $mapelId = $n->mapel_id;
                 $mapelName = $n->mapel->nama_mapel ?? '-';
-                $jenis = $n->mapel->jenis ?? 'umum';
+                $komponenName = $n->komponenNilai->nama ?? '-';
 
-                if (!isset($grouped[$mapelId])) {
-                    $grouped[$mapelId] = [
+                if (!isset($groupedAll[$mapelId])) {
+                    $groupedAll[$mapelId] = [
                         'nama_mapel' => $mapelName,
-                        'jenis' => $jenis,
-                        'komponen' => [],
+                        'harian' => [],
+                        'mid' => [],
                         'avg' => 0.0,
                     ];
                 }
 
-                $grouped[$mapelId]['komponen'][] = [
-                    'nama' => $n->komponenNilai->nama ?? '-',
-                    'nilai' => floatval($n->nilai),
-                    'catatan' => $n->catatan,
-                ];
+                if (str_contains(strtoupper($komponenName), 'PTS') || str_contains(strtoupper($komponenName), 'STS') || str_contains(strtoupper($komponenName), 'MID')) {
+                    $groupedAll[$mapelId]['mid'][] = [
+                        'komponen' => $komponenName,
+                        'nilai' => floatval($n->nilai),
+                        'catatan' => $n->catatan,
+                    ];
+                    $groupedMid[$mapelId]['nama_mapel'] = $mapelName;
+                    $groupedMid[$mapelId]['items'][] = [
+                        'komponen' => $komponenName,
+                        'nilai' => floatval($n->nilai),
+                        'catatan' => $n->catatan,
+                    ];
+                } else {
+                    $groupedAll[$mapelId]['harian'][] = [
+                        'komponen' => $komponenName,
+                        'nilai' => floatval($n->nilai),
+                        'catatan' => $n->catatan,
+                    ];
+                }
             }
-
-            foreach ($grouped as $mid => $data) {
-                $sum = array_sum(array_column($data['komponen'], 'nilai'));
-                $count = count($data['komponen']);
-                $grouped[$mid]['avg'] = $count > 0 ? round($sum / $count, 2) : 0.0;
-            }
-
-            $this->liveGrades = $grouped;
         }
+
+        foreach ($groupedAll as $mid => $data) {
+            $allScores = array_merge(
+                array_column($data['harian'], 'nilai'),
+                array_column($data['mid'], 'nilai')
+            );
+            $count = count($allScores);
+            $groupedAll[$mid]['avg'] = $count > 0 ? round(array_sum($allScores) / $count, 1) : 0.0;
+        }
+
+        $this->nilaiMidSts = $groupedMid;
+        $this->rekapMapelUmum = $groupedAll;
     }
 
     public function setTab($tab)
@@ -175,6 +149,6 @@ class RaporNilai extends Component
     public function render()
     {
         return view('livewire.murid.rapor-nilai')
-            ->layout('components.layouts.app', ['title' => 'Rapor & Nilai Murid']);
+            ->layout('components.layouts.app', ['title' => 'Nilai Akademik Murid']);
     }
 }

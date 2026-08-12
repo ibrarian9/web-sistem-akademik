@@ -70,12 +70,14 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
         Route::get('/dashboard', \App\Livewire\SuperAdmin\Dashboard::class)->name('dashboard');
         Route::get('/audit-log', \App\Livewire\SuperAdmin\TataKelola\AuditLog::class)->name('audit-log');
+        Route::get('/error-log', \App\Livewire\SuperAdmin\TataKelola\SystemErrorLog::class)->name('error-log');
         Route::get('/user', \App\Livewire\SuperAdmin\TataKelola\ManajemenUser::class)->name('user');
         Route::get('/pengaturan', \App\Livewire\SuperAdmin\TataKelola\ManajemenPengaturan::class)->name('pengaturan');
         
         // Master Data Oversight
         Route::get('/siswa', \App\Livewire\SuperAdmin\TataKelola\ManajemenSiswa::class)->name('siswa');
         Route::get('/guru', \App\Livewire\SuperAdmin\TataKelola\ManajemenGuru::class)->name('guru');
+        Route::get('/capaian-guru', \App\Livewire\SuperAdmin\TataKelola\CapaianPengembanganGuru::class)->name('capaian-guru');
         Route::get('/karyawan', \App\Livewire\TataUsaha\ManajemenKaryawan::class)->name('karyawan');
         Route::get('/kelas', \App\Livewire\SuperAdmin\TataKelola\ManajemenKelas::class)->name('kelas');
         Route::get('/plotting-kelas', \App\Livewire\TataUsaha\PlottingSiswaKelas::class)->name('plotting-kelas');
@@ -163,6 +165,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/jadwal-mengajar', \App\Livewire\Guru\JadwalMengajar::class)->name('jadwal-mengajar');
         Route::get('/piket', \App\Livewire\TataUsaha\ManajemenPiketGuru::class)->name('piket');
         Route::get('/kelola-rapor', \App\Livewire\Guru\KelolaRapor::class)->name('kelola-rapor');
+        Route::get('/remedial', \App\Livewire\Guru\ManajemenRemedial::class)->name('remedial');
+        Route::get('/pengembangan-diri', \App\Livewire\Guru\CapaianPengembanganDiri::class)->name('pengembangan-diri');
         Route::get('/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik');
         
         // Laporan
@@ -175,11 +179,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', \App\Livewire\Murid\Dashboard::class)->name('dashboard');
         Route::get('/rapor', \App\Livewire\Murid\RaporNilai::class)->name('rapor');
         Route::get('/tahfidz', \App\Livewire\Murid\SetoranTahfidz::class)->name('tahfidz');
+        Route::get('/remedial', \App\Livewire\Murid\JadwalRemedial::class)->name('remedial');
         Route::get('/kehadiran', \App\Livewire\Murid\KehadiranSaya::class)->name('kehadiran');
 
         Route::get('/ekskul', \App\Livewire\Murid\EkstrakurikulerSaya::class)->name('ekskul');
         Route::get('/jadwal', \App\Livewire\Murid\JadwalPelajaran::class)->name('jadwal');
         Route::get('/tagihan', \App\Livewire\Murid\TagihanSpp::class)->name('tagihan');
+        Route::get('/tabungan', \App\Livewire\Murid\TabunganSaya::class)->name('tabungan');
         Route::get('/riwayat-aktivitas', \App\Livewire\Murid\RiwayatAktivitas::class)->name('riwayat-aktivitas');
         Route::get('/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik');
     });
@@ -189,6 +195,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', \App\Livewire\Finance\Dashboard::class)->name('dashboard');
         Route::get('/overview-pembayaran', \App\Livewire\Finance\OverviewPembayaran::class)->name('overview-pembayaran');
         Route::get('/tagihan', \App\Livewire\Finance\ManajemenTagihan::class)->name('tagihan');
+        Route::get('/tabungan', \App\Livewire\Finance\TabunganSiswa::class)->name('tabungan');
         Route::get('/input-pembayaran', \App\Livewire\Finance\InputPembayaran::class)->name('input-pembayaran');
         Route::get('/arus-masuk', \App\Livewire\Finance\ArusMasuk::class)->name('arus-masuk');
         Route::get('/arus-kas-masuk', \App\Livewire\Finance\ArusKasMasuk::class)->name('arus-kas-masuk');

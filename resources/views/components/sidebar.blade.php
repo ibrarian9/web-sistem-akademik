@@ -12,6 +12,7 @@
             ['title' => 'Tahfizh Al-Qur\'an', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Setoran Tahfizh', 'route' => 'guru.input-tahfidz', 'icon' => 'award'],
             ['title' => 'Rapor Murid', 'route' => 'guru.kelola-rapor', 'icon' => 'book-open'],
+            ['title' => 'Pengembangan Diri', 'route' => 'guru.pengembangan-diri', 'icon' => 'award'],
             ['title' => 'Jadwal & Presensi', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Presensi Guru', 'route' => 'guru.absensi-diri', 'icon' => 'clock'],
             ['title' => 'Jadwal Mengajar', 'route' => 'guru.jadwal-mengajar', 'icon' => 'calendar'],
@@ -25,8 +26,10 @@
             ['title' => 'Akademik & Nilai', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Setup Bab & TP', 'route' => 'guru.kurikulum-merdeka', 'icon' => 'layers'],
             ['title' => 'Nilai Sumatif', 'route' => 'guru.input-sumatif', 'icon' => 'edit-3'],
+            ['title' => 'Jadwal Remedial', 'route' => 'guru.remedial', 'icon' => 'clock'],
             ['title' => 'Penilaian P5', 'route' => 'guru.penilaian-p5', 'icon' => 'star'],
             ['title' => 'Rapor Murid', 'route' => 'guru.kelola-rapor', 'icon' => 'book-open'],
+            ['title' => 'Pengembangan Diri', 'route' => 'guru.pengembangan-diri', 'icon' => 'award'],
             ['title' => 'Nilai KTSP', 'route' => 'guru.input-nilai', 'icon' => 'edit-3'],
             ['title' => 'Bobot Nilai', 'route' => 'guru.bobot-nilai', 'icon' => 'sliders'],
             ['title' => 'Absensi Siswa', 'route' => 'guru.absensi-siswa', 'icon' => 'clipboard'],
@@ -71,6 +74,7 @@
             ['title' => 'Keuangan', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Overview Pembayaran', 'route' => 'finance.overview-pembayaran', 'icon' => 'eye'],
             ['title' => 'Kelola Tagihan', 'route' => 'finance.tagihan', 'icon' => 'file-text'],
+            ['title' => 'Tabungan Siswa', 'route' => 'finance.tabungan', 'icon' => 'wallet'],
             ['title' => 'Input Pembayaran', 'route' => 'finance.input-pembayaran', 'icon' => 'plus-circle'],
             ['title' => 'Arus Kas Masuk', 'route' => 'finance.arus-kas-masuk', 'icon' => 'heart-handshake'],
             ['title' => 'Arus Kas Keluar', 'route' => 'finance.arus-kas-keluar', 'icon' => 'trending-down'],
@@ -85,6 +89,7 @@
             ['title' => 'Data Master & SDM', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Data Siswa', 'route' => 'super-admin.siswa', 'icon' => 'users'],
             ['title' => 'Data Guru', 'route' => 'super-admin.guru', 'icon' => 'user-check'],
+            ['title' => 'Capaian & Evaluasi Guru', 'route' => 'super-admin.capaian-guru', 'icon' => 'award'],
             ['title' => 'Direktori Karyawan', 'route' => 'super-admin.karyawan', 'icon' => 'users'],
             ['title' => 'Kelas & Mapel', 'route' => 'super-admin.kelas', 'icon' => 'layers'],
             ['title' => 'Plotting Siswa Kelas', 'route' => 'super-admin.plotting-kelas', 'icon' => 'users'],
@@ -99,6 +104,7 @@
             ['title' => 'Manajemen System', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Manajemen User', 'route' => 'super-admin.user', 'icon' => 'users'],
             ['title' => 'Audit Log', 'route' => 'super-admin.audit-log', 'icon' => 'activity'],
+            ['title' => 'Log Error Sistem', 'route' => 'super-admin.error-log', 'icon' => 'alert-triangle'],
             ['title' => 'Pengaturan Sistem', 'route' => 'super-admin.pengaturan', 'icon' => 'settings'],
             ['title' => 'Lainnya', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Notifikasi', 'route' => 'shared.notifications', 'icon' => 'bell'],
@@ -158,9 +164,10 @@
 
         'murid' => [
             ['title' => 'Dashboard', 'route' => 'murid.dashboard', 'icon' => 'home'],
-            ['title' => 'Akademik', 'route' => null, 'icon' => null, 'section' => true],
-            ['title' => 'Rapor & Nilai', 'route' => 'murid.rapor', 'icon' => 'award'],
-            ['title' => 'Setoran Tahfizh', 'route' => 'murid.tahfidz', 'icon' => 'book-open'],
+            ['title' => 'Akademik & Tahfizh', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Nilai Akademik (TP & STS)', 'route' => 'murid.rapor', 'icon' => 'award'],
+            ['title' => 'Evaluasi Tahfizh', 'route' => 'murid.tahfidz', 'icon' => 'book-open'],
+            ['title' => 'Jadwal Remedial', 'route' => 'murid.remedial', 'icon' => 'clock'],
             ['title' => 'Kehadiran Saya', 'route' => 'murid.kehadiran', 'icon' => 'clipboard'],
 
             ['title' => 'Ekstrakurikuler', 'route' => 'murid.ekskul', 'icon' => 'star'],
@@ -168,6 +175,7 @@
             ['title' => 'Kalender Akademik', 'route' => 'murid.kalender-akademik', 'icon' => 'calendar'],
             ['title' => 'Keuangan', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Tagihan SPP', 'route' => 'murid.tagihan', 'icon' => 'credit-card'],
+            ['title' => 'Tabungan Saya', 'route' => 'murid.tabungan', 'icon' => 'wallet'],
             ['title' => 'Lainnya', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Riwayat Aktivitas', 'route' => 'murid.riwayat-aktivitas', 'icon' => 'activity'],
             ['title' => 'Notifikasi', 'route' => 'shared.notifications', 'icon' => 'bell'],
@@ -179,6 +187,7 @@
             ['title' => 'Rincian Arus Masuk', 'route' => 'finance.arus-masuk', 'icon' => 'arrow-down-left'],
             ['title' => 'Arus Kas Masuk', 'route' => 'finance.arus-kas-masuk', 'icon' => 'heart-handshake'],
             ['title' => 'Manajemen Tagihan', 'route' => 'finance.tagihan', 'icon' => 'file-text'],
+            ['title' => 'Tabungan Siswa', 'route' => 'finance.tabungan', 'icon' => 'wallet'],
             ['title' => 'Input Pembayaran', 'route' => 'finance.input-pembayaran', 'icon' => 'plus-circle'],
             ['title' => 'Pengeluaran & Anggaran', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Arus Kas Keluar', 'route' => 'finance.arus-kas-keluar', 'icon' => 'trending-down'],
@@ -244,7 +253,7 @@
                         $isActive = false;
                     }
                 @endphp
-                <a href="{{ !empty($item['route']) ? route($item['route']) : '#' }}" 
+                <a href="{{ !empty($item['route']) ? route($item['route']) : '#' }}" wire:navigate
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group
                           {{ $isActive 
                               ? 'bg-green-50 text-green-700 border-l-[3px] border-green-600 shadow-sm font-bold' 

@@ -29,6 +29,7 @@ class TahfidzParentFeedbackTest extends TestCase
         $muridRole = Role::where('nama', 'murid')->first();
 
         // 1. Create Active Semester & Year
+        Semester::query()->update(['status_aktif' => false]);
         $ta = TahunAjaran::create([
             'nama' => '2026/2027',
             'status_aktif' => true,

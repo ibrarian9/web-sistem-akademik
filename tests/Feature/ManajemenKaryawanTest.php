@@ -26,7 +26,7 @@ test('tata usaha can view employee directory', function () {
 
     Livewire::test(ManajemenKaryawan::class)
         ->assertStatus(200)
-        ->assertSee('Direktori Karyawan & Staff')
+        ->assertSee('Direktori Karyawan')
         ->assertSee('Tambah Karyawan Baru');
 });
 

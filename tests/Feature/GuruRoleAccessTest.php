@@ -84,8 +84,8 @@ class GuruRoleAccessTest extends TestCase
 
         $this->actingAs($userUmum);
 
-        // Accessing Input Tahfizh redirects to kurikulum-merdeka
+        // Accessing Input Tahfizh is blocked with 403
         Livewire::test(InputNilaiTahfidz::class)
-            ->assertRedirect(route('guru.kurikulum-merdeka'));
+            ->assertStatus(403);
     }
 }

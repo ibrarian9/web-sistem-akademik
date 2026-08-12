@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\GuruMapelKelas;
 use App\Models\JadwalPelajaran;
 use App\Models\AbsensiGuru;
+use App\Models\Pengaturan;
 use Carbon\Carbon;
 
 class Dashboard extends Component
@@ -58,12 +59,16 @@ class Dashboard extends Component
                 $q->where('status_aktif', true);
             })->exists();
 
-        // Determine target jam masuk
+        // Determine target jam masuk from dynamic Settings
+        $jamPiket = Pengaturan::where('key', 'jam_masuk_piket')->value('value') ?? '06:30';
+        $jamNonPiket = Pengaturan::where('key', 'jam_masuk_non_piket')->value('value') ?? '06:45';
+        $jamUmum = Pengaturan::where('key', 'jam_masuk_guru_umum')->value('value') ?? '09:30';
+
         $jenis = strtolower($guru->jenis_guru);
         if ($jenis === 'umum') {
-            $this->targetJamMasuk = '09:30';
+            $this->targetJamMasuk = $jamUmum;
         } else { // tahfidz / keduanya
-            $this->targetJamMasuk = $this->hasPiketHariIni ? '06:30' : '06:45';
+            $this->targetJamMasuk = $this->hasPiketHariIni ? $jamPiket : $jamNonPiket;
         }
 
         $todaySchedules = JadwalPelajaran::whereHas('guruMapelKelas', function ($q) use ($guru) {

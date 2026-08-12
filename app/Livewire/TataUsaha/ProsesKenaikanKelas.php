@@ -4,6 +4,8 @@ namespace App\Livewire\TataUsaha;
 
 use Livewire\Component;
 use App\Models\Kelas;
+use App\Models\NilaiTahfidz;
+use App\Models\RaporTahfidzDetail;
 use App\Models\Siswa;
 use App\Models\SiswaKelas;
 use App\Models\Semester;
@@ -11,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class ProsesKenaikanKelas extends Component
 {
+    public $tipeKenaikan = 'akademik'; // 'akademik' or 'tahfidz'
     public $kelasAsalId;
     public $aksiTujuan = 'naik_kelas'; // 'naik_kelas' or 'lulus_alumni'
     public $kelasTujuanId;
@@ -21,11 +24,36 @@ class ProsesKenaikanKelas extends Component
 
     public function mount()
     {
-        $firstKelas = Kelas::orderBy('nama_kelas', 'asc')->first();
+        $this->initDefaultKelas();
+        $this->loadStudents();
+    }
+
+    public function updatedTipeKenaikan()
+    {
+        $this->initDefaultKelas();
+        $this->loadStudents();
+    }
+
+    protected function initDefaultKelas()
+    {
+        if ($this->tipeKenaikan === 'tahfidz') {
+            $firstKelas = Kelas::where('jenis_kelas', 'tahfidz')
+                ->orWhereNotNull('guru_tahfidz_id')
+                ->orderBy('nama_kelas', 'asc')
+                ->first();
+        } else {
+            $firstKelas = Kelas::where('jenis_kelas', 'umum')
+                ->orWhereNull('jenis_kelas')
+                ->orderBy('nama_kelas', 'asc')
+                ->first() ?? Kelas::first();
+        }
+
         if ($firstKelas) {
             $this->kelasAsalId = $firstKelas->id;
+        } else {
+            $this->kelasAsalId = null;
         }
-        $this->loadStudents();
+        $this->kelasTujuanId = null;
     }
 
     public function updatedKelasAsalId()
@@ -50,7 +78,6 @@ class ProsesKenaikanKelas extends Component
             $this->siswaTinggalKelas = array_values(array_diff($this->siswaTinggalKelas, [$idStr]));
         } else {
             $this->siswaTinggalKelas[] = $idStr;
-            // Ensure student is selected
             if (!in_array($idStr, $this->selectedSiswa)) {
                 $this->selectedSiswa[] = $idStr;
             }
@@ -71,8 +98,14 @@ class ProsesKenaikanKelas extends Component
 
     public function getStudentsQuery()
     {
-        return Siswa::where('siswa.kelas_id', $this->kelasAsalId)
-            ->where('siswa.status', 'aktif')
+        if ($this->tipeKenaikan === 'tahfidz') {
+            $query = Siswa::where('siswa.kelas_tahfidz_id', $this->kelasAsalId);
+        } else {
+            $query = Siswa::where('siswa.kelas_id', $this->kelasAsalId);
+        }
+
+        return $query->where('siswa.status', 'aktif')
+            ->with(['user', 'kelas', 'kelasTahfidz'])
             ->join('users', 'siswa.user_id', '=', 'users.id')
             ->orderBy('users.nama', 'asc')
             ->select('siswa.*');
@@ -81,10 +114,41 @@ class ProsesKenaikanKelas extends Component
     public function prosesKenaikan()
     {
         if (empty($this->selectedSiswa)) {
-            session()->flash('error', 'Pilih minimal satu siswa untuk diproses.');
+            session()->flash('error', 'Pilih minimal satu siswa/santri untuk diproses.');
             return;
         }
 
+        if ($this->tipeKenaikan === 'tahfidz') {
+            if (!$this->kelasTujuanId) {
+                session()->flash('error', 'Pilih Halaqah Tahfizh tujuan untuk pemindahan kelompok.');
+                return;
+            }
+            if ((int)$this->kelasTujuanId === (int)$this->kelasAsalId) {
+                session()->flash('error', 'Halaqah Tahfizh tujuan harus berbeda dengan Halaqah asal.');
+                return;
+            }
+
+            $targetHalaqah = Kelas::find($this->kelasTujuanId);
+            $countMoved = 0;
+
+            DB::transaction(function () use (&$countMoved) {
+                foreach ($this->selectedSiswa as $siswaId) {
+                    $siswa = Siswa::find($siswaId);
+                    if (!$siswa) continue;
+
+                    $siswa->update([
+                        'kelas_tahfidz_id' => $this->kelasTujuanId,
+                    ]);
+                    $countMoved++;
+                }
+            });
+
+            session()->flash('message', "Berhasil memindahkan {$countMoved} santri ke Halaqah Tahfizh " . ($targetHalaqah->nama_kelas ?? '') . ".");
+            $this->loadStudents();
+            return;
+        }
+
+        // Mode Akademik
         if ($this->aksiTujuan === 'naik_kelas') {
             if (!$this->kelasTujuanId) {
                 session()->flash('error', 'Pilih kelas tujuan untuk kenaikan kelas.');
@@ -173,12 +237,35 @@ class ProsesKenaikanKelas extends Component
 
     public function render()
     {
-        $kelases = Kelas::orderBy('nama_kelas', 'asc')->get();
+        if ($this->tipeKenaikan === 'tahfidz') {
+            $kelasesAsal = Kelas::where('jenis_kelas', 'tahfidz')
+                ->orWhereNotNull('guru_tahfidz_id')
+                ->orderBy('nama_kelas', 'asc')
+                ->get();
+            $kelasesTujuan = $kelasesAsal;
+        } else {
+            $kelasesAsal = Kelas::where('jenis_kelas', 'umum')
+                ->orWhereNull('jenis_kelas')
+                ->orderBy('nama_kelas', 'asc')
+                ->get();
+            if ($kelasesAsal->isEmpty()) {
+                $kelasesAsal = Kelas::all();
+            }
+            $kelasesTujuan = $kelasesAsal;
+        }
+
         $students = $this->kelasAsalId ? $this->getStudentsQuery()->get() : collect();
 
+        // Attach Tahfizh Progress Summaries for validation badges
+        $tahfidzSummaries = RaporTahfidzDetail::whereIn('rapor_id', function ($q) use ($students) {
+            $q->select('id')->from('rapor')->whereIn('siswa_id', $students->pluck('id'));
+        })->get()->keyBy('rapor_id');
+
         return view('livewire.tata-usaha.proses-kenaikan-kelas', [
-            'kelases' => $kelases,
+            'kelasesAsal' => $kelasesAsal,
+            'kelasesTujuan' => $kelasesTujuan,
             'students' => $students,
-        ])->layout('components.layouts.app', ['title' => 'Kenaikan Kelas & Kelulusan Massal']);
+            'tahfidzSummaries' => $tahfidzSummaries,
+        ])->layout('components.layouts.app', ['title' => 'Dual Kenaikan Kelas & Halaqah Tahfizh']);
     }
 }

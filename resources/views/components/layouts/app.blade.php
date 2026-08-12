@@ -13,9 +13,59 @@
         .modal[aria-hidden="true"] { display: none; }
         .modal[aria-hidden="false"] { display: block; }
         .modal__overlay { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); }
+
+        /* Smooth SPA Navigation Transitions (React/Vue Feel) */
+        main {
+            animation: fadeInPage 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeInPage {
+            0% {
+                opacity: 0.85;
+                transform: translateY(4px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Top Progress Bar Styling for Livewire wire:navigate & Requests */
+        [wire\:navigate-progress-bar], .livewire-progress-bar, #nprogress .bar {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            height: 3.5px !important;
+            background: linear-gradient(90deg, #059669, #10b981, #f59e0b) !important;
+            z-index: 99999 !important;
+            box-shadow: 0 0 14px rgba(16, 185, 129, 0.9) !important;
+        }
     </style>
 </head>
 <body class="h-full font-sans antialiased selection:bg-green-600 selection:text-white">
+    <!-- Glowing Top Loading Bar above Navbar (Active on Livewire Actions & SPA Navigation) -->
+    <div id="top-app-loader"
+         x-data="{ isNavigating: false, isRequesting: false }"
+         x-init="
+            document.addEventListener('livewire:navigating', () => { isNavigating = true; });
+            document.addEventListener('livewire:navigated', () => { isNavigating = false; });
+            Livewire.hook('commit', ({ respond, succeed, fail }) => {
+                isRequesting = true;
+                succeed(() => { isRequesting = false; });
+                fail(() => { isRequesting = false; });
+            });
+         "
+         x-show="isNavigating || isRequesting"
+         x-transition:enter="transition-all ease-out duration-200"
+         x-transition:enter-start="opacity-0 scale-x-0"
+         x-transition:enter-end="opacity-100 scale-x-100"
+         x-transition:leave="transition-all ease-in duration-200"
+         x-transition:leave-start="opacity-100 scale-x-100"
+         x-transition:leave-end="opacity-0 scale-x-100"
+         class="fixed top-0 left-0 right-0 z-[99999] h-[3.5px] bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 shadow-[0_0_12px_rgba(16,185,129,0.9)] origin-left animate-pulse pointer-events-none"
+         style="display: none;"></div>
+
     <div x-data="{ sidebarOpen: false }" class="flex h-full min-h-screen">
         
         <!-- Mobile Sidebar Backdrop -->
@@ -82,25 +132,25 @@
 
     <!-- MicroModal Alert / Confirm Component -->
     <div class="modal micromodal-slide" id="modal-alert" aria-hidden="true">
-        <div class="modal__overlay fixed inset-0 bg-stone-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4" tabindex="-1" data-micromodal-close>
+        <div class="modal__overlay fixed inset-0 bg-stone-900/60 backdrop-blur-xs z-[99999] flex items-center justify-center p-4" tabindex="-1" data-micromodal-close>
             <div class="modal__container bg-white border border-stone-200 rounded-3xl p-6 shadow-2xl max-w-md w-full space-y-4" role="dialog" aria-modal="true" aria-labelledby="modal-alert-title">
                 <header class="flex items-center justify-between border-b border-stone-200 pb-3">
-                    <h2 class="text-sm font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-2" id="modal-alert-title">
-                        <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 text-xs flex items-center justify-center font-black">i</span>
+                    <h2 class="text-sm font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-2.5" id="modal-alert-title">
+                        <span class="w-7 h-7 rounded-xl bg-emerald-100 text-emerald-800 text-xs flex items-center justify-center font-black">i</span>
                         Pemberitahuan Sistem
                     </h2>
-                    <button type="button" class="modal__close p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 font-bold" aria-label="Close modal" data-micromodal-close>
+                    <button type="button" class="modal__close p-1.5 rounded-xl text-stone-400 hover:text-stone-700 hover:bg-stone-100 font-bold transition" aria-label="Close modal" data-micromodal-close>
                         ✕
                     </button>
                 </header>
-                <main class="text-xs text-stone-700 leading-relaxed font-medium" id="modal-alert-content">
+                <main class="text-xs text-stone-700 leading-relaxed font-medium py-1" id="modal-alert-content">
                     Pesan pemberitahuan sistem.
                 </main>
-                <footer class="flex items-center justify-end gap-2 pt-2 border-t border-stone-200">
-                    <button type="button" id="modal-alert-cancel-btn" class="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold transition" data-micromodal-close>
+                <footer class="flex items-center justify-end gap-2 pt-3 border-t border-stone-200">
+                    <button type="button" id="modal-alert-cancel-btn" class="px-4 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold transition" data-micromodal-close>
                         Batal
                     </button>
-                    <button type="button" id="modal-alert-confirm-btn" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition">
+                    <button type="button" id="modal-alert-confirm-btn" class="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-md transition">
                         Lanjutkan
                     </button>
                 </footer>
@@ -122,21 +172,25 @@
                     disableScroll: true,
                 });
             }
-
-            // Check flash session messages from server and trigger MicroModal
-            @if(session()->has('success'))
-                window.showAlert('Berhasil', @json(session('success')));
-            @elseif(session()->has('error'))
-                window.showAlert('Peringatan Error', @json(session('error')));
-            @elseif(session()->has('warning'))
-                window.showAlert('Peringatan', @json(session('warning')));
-            @elseif(session()->has('info'))
-                window.showAlert('Informasi', @json(session('info')));
-            @endif
+            checkFlashMessages();
         });
 
-        // Global Alert & Confirm Function via MicroModal
-        window.showAlert = function(title, message, onConfirm = null) {
+        function checkFlashMessages() {
+            @if(session()->has('success'))
+                window.showAlert(null, @json(session('success')), null, 'create');
+            @elseif(session()->has('message'))
+                window.showAlert(null, @json(session('message')), null, 'auto');
+            @elseif(session()->has('error'))
+                window.showAlert('Peringatan Error', @json(session('error')), null, 'danger');
+            @elseif(session()->has('warning'))
+                window.showAlert('Peringatan', @json(session('warning')), null, 'danger');
+            @elseif(session()->has('info'))
+                window.showAlert('Informasi', @json(session('info')), null, 'info');
+            @endif
+        }
+
+        // Global Alert & Confirm Function via MicroModal (Automated for Create, Edit, Delete Data)
+        window.showAlert = function(title, message, onConfirm = null, type = 'auto') {
             const modalElem = document.getElementById('modal-alert');
             if (modalElem) {
                 modalElem.setAttribute('aria-hidden', 'true');
@@ -148,8 +202,27 @@
             const cancelBtn = document.getElementById('modal-alert-cancel-btn');
             const confirmBtn = document.getElementById('modal-alert-confirm-btn');
 
+            const msgLower = (message || '').toLowerCase();
+            const isDelete = type === 'delete' || type === 'danger' || msgLower.includes('hapus') || msgLower.includes('delete') || msgLower.includes('dibatalkan');
+            const isEdit = type === 'edit' || msgLower.includes('edit') || msgLower.includes('perbarui') || msgLower.includes('ubah') || msgLower.includes('update') || msgLower.includes('koreksi');
+            const isCreate = type === 'create' || msgLower.includes('tambah') || msgLower.includes('buat') || msgLower.includes('simpan') || msgLower.includes('create') || msgLower.includes('tersimpan');
+
+            let badgeHtml = '<span class="w-7 h-7 rounded-xl bg-emerald-100 text-emerald-800 text-xs flex items-center justify-center font-black shrink-0">✓</span>';
+            let defaultTitle = 'Pemberitahuan Sistem';
+
+            if (isDelete) {
+                badgeHtml = '<span class="w-7 h-7 rounded-xl bg-rose-100 text-rose-800 text-xs flex items-center justify-center font-black shrink-0">🗑</span>';
+                defaultTitle = 'Hapus Data Berhasil';
+            } else if (isEdit) {
+                badgeHtml = '<span class="w-7 h-7 rounded-xl bg-indigo-100 text-indigo-800 text-xs flex items-center justify-center font-black shrink-0">✏️</span>';
+                defaultTitle = 'Perubahan Data Disimpan';
+            } else if (isCreate) {
+                badgeHtml = '<span class="w-7 h-7 rounded-xl bg-emerald-100 text-emerald-800 text-xs flex items-center justify-center font-black shrink-0">✨</span>';
+                defaultTitle = 'Data Berhasil Dibuat';
+            }
+
             if (titleElem) {
-                titleElem.innerHTML = `<span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 text-xs flex items-center justify-center font-black">i</span> ` + (title || 'Pemberitahuan Sistem');
+                titleElem.innerHTML = badgeHtml + ` <span>` + (title || defaultTitle) + `</span>`;
             }
             if (contentElem) {
                 contentElem.innerText = message || '';
@@ -159,6 +232,7 @@
                 if (cancelBtn) cancelBtn.style.display = 'inline-block';
                 if (confirmBtn) {
                     confirmBtn.innerText = 'Lanjutkan';
+                    confirmBtn.className = 'px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-md transition';
                     confirmBtn.style.display = 'inline-block';
                     confirmBtn.onclick = function() {
                         if (typeof MicroModal !== 'undefined') {
@@ -170,7 +244,10 @@
             } else {
                 if (cancelBtn) cancelBtn.style.display = 'none';
                 if (confirmBtn) {
-                    confirmBtn.innerText = 'OK';
+                    confirmBtn.innerText = 'Tutup';
+                    confirmBtn.className = isDelete 
+                        ? 'px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-md transition' 
+                        : (isEdit ? 'px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md transition' : 'px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-md transition');
                     confirmBtn.style.display = 'inline-block';
                     confirmBtn.onclick = function() {
                         if (typeof MicroModal !== 'undefined') {
@@ -194,7 +271,7 @@
 
         // Override Browser Native alert() with MicroModal
         window.alert = function(message) {
-            window.showAlert('Pemberitahuan', message);
+            window.showAlert(null, message);
         };
 
         // Intercept all wire:confirm or data-confirm clicks to use MicroModal dialogs
@@ -212,13 +289,18 @@
             }
         }, true);
 
-        // Listen for Livewire custom alert events
+        // Listen for Livewire custom alert events & page navigations
         document.addEventListener('livewire:initialized', () => {
             Livewire.on('show-alert', (data) => {
-                const title = data.title || 'Pemberitahuan';
+                const title = data.title || null;
                 const message = data.message || data.text || '';
-                window.showAlert(title, message);
+                const type = data.type || 'auto';
+                window.showAlert(title, message, null, type);
             });
+        });
+
+        document.addEventListener('livewire:navigated', () => {
+            checkFlashMessages();
         });
     </script>
 </body>

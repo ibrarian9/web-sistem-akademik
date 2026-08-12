@@ -1,13 +1,9 @@
 <?php
 
 use App\Models\User;
-use App\Models\Role;
-use App\Models\Siswa;
-use App\Models\Kelas;
 use App\Models\Tagihan;
 use App\Models\JenisTagihan;
 use App\Models\TahunAjaran;
-use App\Models\Semester;
 use Livewire\Livewire;
 use App\Livewire\Murid\Dashboard;
 use App\Livewire\Murid\RaporNilai;

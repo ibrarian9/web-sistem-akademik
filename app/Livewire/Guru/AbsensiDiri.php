@@ -30,12 +30,15 @@ class AbsensiDiri extends Component
     public function loadSettings()
     {
         $this->toleransiMenit = intval(Pengaturan::where('key', 'toleransi_keterlambatan')->value('value') ?? 15);
-        
+        $jamPiket = Pengaturan::where('key', 'jam_masuk_piket')->value('value') ?? '06:30';
+        $jamNonPiket = Pengaturan::where('key', 'jam_masuk_non_piket')->value('value') ?? '06:45';
+        $jamUmum = Pengaturan::where('key', 'jam_masuk_guru_umum')->value('value') ?? '09:30';
+
         $guru = auth()->user()->guru;
         if ($guru) {
             $jenis = strtolower($guru->jenis_guru);
             if ($jenis === 'umum') {
-                $this->targetJamMasuk = '09:30';
+                $this->targetJamMasuk = $jamUmum;
                 $this->hasPiketToday = false;
             } else { // tahfidz / keduanya
                 $todayDayNameIndonesian = match (Carbon::today()->dayOfWeekIso) {
@@ -57,7 +60,7 @@ class AbsensiDiri extends Component
                         ->exists();
                 }
 
-                $this->targetJamMasuk = $this->hasPiketToday ? '06:30' : '06:45';
+                $this->targetJamMasuk = $this->hasPiketToday ? $jamPiket : $jamNonPiket;
             }
         } else {
             $this->targetJamMasuk = Pengaturan::where('key', 'jam_masuk')->value('value') ?? '07:00';

@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             FinanceSeeder::class,
             RaporOrangTuaSeeder::class,
             TahfidzMutabaahSeeder::class,
+            ProductionAccountsSeeder::class,
         ]);
 
     }
