@@ -128,7 +128,7 @@
                 </div>
 
                 <div class="space-y-2">
-                    @forelse ($piketSchedules[$day] as $p)
+                    @forelse ($piketSchedules[$day] ?? [] as $p)
                         <div class="p-2.5 bg-stone-50 border border-stone-200 rounded-xl flex items-center justify-between group">
                             <div>
                                 <h5 class="text-xs font-bold text-stone-800 leading-tight">{{ $p->guru->user->nama ?? '-' }}</h5>

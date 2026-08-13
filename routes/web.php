@@ -73,20 +73,19 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/error-log', \App\Livewire\SuperAdmin\TataKelola\SystemErrorLog::class)->name('error-log');
         Route::get('/user', \App\Livewire\SuperAdmin\TataKelola\ManajemenUser::class)->name('user');
         Route::get('/pengaturan', \App\Livewire\SuperAdmin\TataKelola\ManajemenPengaturan::class)->name('pengaturan');
-        
-        // Master Data Oversight
-        Route::get('/siswa', \App\Livewire\SuperAdmin\TataKelola\ManajemenSiswa::class)->name('siswa');
-        Route::get('/guru', \App\Livewire\SuperAdmin\TataKelola\ManajemenGuru::class)->name('guru');
-        Route::get('/capaian-guru', \App\Livewire\SuperAdmin\TataKelola\CapaianPengembanganGuru::class)->name('capaian-guru');
-        Route::get('/karyawan', \App\Livewire\TataUsaha\ManajemenKaryawan::class)->name('karyawan');
-        Route::get('/kelas', \App\Livewire\SuperAdmin\TataKelola\ManajemenKelas::class)->name('kelas');
-        Route::get('/plotting-kelas', \App\Livewire\TataUsaha\PlottingSiswaKelas::class)->name('plotting-kelas');
-        Route::get('/surat', \App\Livewire\TataUsaha\ManajemenSurat::class)->name('surat');
-        Route::get('/jadwal', \App\Livewire\SuperAdmin\TataKelola\ManajemenJadwal::class)->name('jadwal');
-        Route::get('/mapel', \App\Livewire\SuperAdmin\TataKelola\ManajemenMapel::class)->name('mapel');
-        Route::get('/komponen-nilai', \App\Livewire\SuperAdmin\TataKelola\ManajemenKomponenNilai::class)->name('komponen-nilai');
-        Route::get('/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik');
-        Route::get('/kenaikan-kelas', \App\Livewire\TataUsaha\ProsesKenaikanKelas::class)->name('kenaikan-kelas');
+             // Master Data Oversight
+        Route::match(['get', 'post'], '/siswa', \App\Livewire\SuperAdmin\TataKelola\ManajemenSiswa::class)->name('siswa');
+        Route::match(['get', 'post'], '/guru', \App\Livewire\SuperAdmin\TataKelola\ManajemenGuru::class)->name('guru');
+        Route::match(['get', 'post'], '/capaian-guru', \App\Livewire\SuperAdmin\TataKelola\CapaianPengembanganGuru::class)->name('capaian-guru');
+        Route::match(['get', 'post'], '/karyawan', \App\Livewire\TataUsaha\ManajemenKaryawan::class)->name('karyawan');
+        Route::match(['get', 'post'], '/kelas', \App\Livewire\SuperAdmin\TataKelola\ManajemenKelas::class)->name('kelas');
+        Route::match(['get', 'post'], '/plotting-kelas', \App\Livewire\TataUsaha\PlottingSiswaKelas::class)->name('plotting-kelas');
+        Route::match(['get', 'post'], '/surat', \App\Livewire\TataUsaha\ManajemenSurat::class)->name('surat');
+        Route::match(['get', 'post'], '/jadwal', \App\Livewire\SuperAdmin\TataKelola\ManajemenJadwal::class)->name('jadwal');
+        Route::match(['get', 'post'], '/mapel', \App\Livewire\SuperAdmin\TataKelola\ManajemenMapel::class)->name('mapel');
+        Route::match(['get', 'post'], '/komponen-nilai', \App\Livewire\SuperAdmin\TataKelola\ManajemenKomponenNilai::class)->name('komponen-nilai');
+        Route::match(['get', 'post'], '/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik');
+        Route::match(['get', 'post'], '/kenaikan-kelas', \App\Livewire\TataUsaha\ProsesKenaikanKelas::class)->name('kenaikan-kelas');
         
         // Laporan
         Route::get('/laporan/absensi-siswa', \App\Livewire\Shared\Laporan\RekapAbsensiSiswa::class)->name('laporan.absensi-siswa');
@@ -97,17 +96,17 @@ Route::middleware(['auth'])->group(function () {
     // Tata Usaha Group — Data Master, Jadwal, Akademik
     Route::middleware(['role:tata_usaha'])->prefix('tata-usaha')->name('tata-usaha.')->group(function () {
         Route::get('/dashboard', \App\Livewire\TataUsaha\Dashboard::class)->name('dashboard');
-        Route::get('/siswa', \App\Livewire\SuperAdmin\TataKelola\ManajemenSiswa::class)->name('siswa');
-        Route::get('/guru', \App\Livewire\SuperAdmin\TataKelola\ManajemenGuru::class)->name('guru');
-        Route::get('/user', \App\Livewire\SuperAdmin\TataKelola\ManajemenUser::class)->name('user');
-        Route::get('/absensi-karyawan', \App\Livewire\TataUsaha\InputAbsensiKaryawan::class)->name('absensi-karyawan');
-        Route::get('/kelas', \App\Livewire\SuperAdmin\TataKelola\ManajemenKelas::class)->name('kelas');
-        Route::get('/plotting-kelas', \App\Livewire\TataUsaha\PlottingSiswaKelas::class)->name('plotting-kelas');
-        Route::get('/surat', \App\Livewire\TataUsaha\ManajemenSurat::class)->name('surat');
-        Route::get('/jadwal', \App\Livewire\SuperAdmin\TataKelola\ManajemenJadwal::class)->name('jadwal');
-
-
-        Route::get('/mapel', \App\Livewire\SuperAdmin\TataKelola\ManajemenMapel::class)->name('mapel');
+        Route::match(['get', 'post'], '/siswa', \App\Livewire\SuperAdmin\TataKelola\ManajemenSiswa::class)->name('siswa');
+        Route::match(['get', 'post'], '/guru', \App\Livewire\SuperAdmin\TataKelola\ManajemenGuru::class)->name('guru');
+        Route::match(['get', 'post'], '/user', \App\Livewire\SuperAdmin\TataKelola\ManajemenUser::class)->name('user');
+        Route::match(['get', 'post'], '/absensi-karyawan', \App\Livewire\TataUsaha\InputAbsensiKaryawan::class)->name('absensi-karyawan');
+        Route::match(['get', 'post'], '/karyawan', \App\Livewire\TataUsaha\ManajemenKaryawan::class)->name('karyawan');
+        Route::match(['get', 'post'], '/alumni', \App\Livewire\TataUsaha\DataAlumni::class)->name('alumni');
+        Route::match(['get', 'post'], '/kelas', \App\Livewire\SuperAdmin\TataKelola\ManajemenKelas::class)->name('kelas');
+        Route::match(['get', 'post'], '/plotting-kelas', \App\Livewire\TataUsaha\PlottingSiswaKelas::class)->name('plotting-kelas');
+        Route::match(['get', 'post'], '/surat', \App\Livewire\TataUsaha\ManajemenSurat::class)->name('surat');
+        Route::match(['get', 'post'], '/jadwal', \App\Livewire\SuperAdmin\TataKelola\ManajemenJadwal::class)->name('jadwal');
+        Route::match(['get', 'post'], '/mapel', \App\Livewire\SuperAdmin\TataKelola\ManajemenMapel::class)->name('mapel');
         Route::get('/komponen-nilai', \App\Livewire\SuperAdmin\TataKelola\ManajemenKomponenNilai::class)->name('komponen-nilai');
         Route::get('/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik');
         Route::get('/kenaikan-kelas', \App\Livewire\TataUsaha\ProsesKenaikanKelas::class)->name('kenaikan-kelas');

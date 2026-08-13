@@ -144,9 +144,9 @@
 
     <!-- Form Modal -->
     @if ($isFormOpen)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60 backdrop-blur-xs p-4 overflow-y-auto">
-            <div class="w-full max-w-2xl bg-white border border-stone-200 rounded-3xl shadow-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-                <div class="flex items-center justify-between border-b border-stone-200 pb-3">
+        <div x-data x-init="window.scrollTo({ top: 0, behavior: 'smooth' })" class="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-stone-900/60 backdrop-blur-xs px-4 py-8 sm:py-12 overflow-y-auto">
+            <div class="w-full max-w-2xl bg-white border border-stone-200 rounded-3xl shadow-2xl p-6 space-y-4 max-h-[82vh] sm:max-h-[85vh] my-auto overflow-y-auto shadow-stone-950/20">
+                <div class="flex items-center justify-between border-b border-stone-200 pb-3 sticky -top-6 bg-white z-20 pt-1">
                     <h3 class="text-sm font-extrabold text-emerald-950 uppercase tracking-wider flex items-center gap-2">
                         <span class="w-6 h-6 rounded-full bg-emerald-200 text-emerald-950 text-xs flex items-center justify-center font-black">★</span>
                         <span>{{ $guruId ? 'Edit Data Profil Guru' : 'Tambah Guru Baru' }}</span>
@@ -154,7 +154,29 @@
                     <button type="button" wire:click="$set('isFormOpen', false)" class="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 font-bold">✕</button>
                 </div>
 
-                <form wire:submit.prevent="save" class="space-y-4">
+                <!-- Validation & Session Error Banner Inside Modal -->
+                @if (session()->has('error'))
+                    <div class="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl flex items-center gap-2 text-xs font-extrabold shadow-xs">
+                        <x-lucide-alert-triangle class="w-4 h-4 text-rose-600 shrink-0" />
+                        <span>{{ session('error') }}</span>
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl space-y-1.5 text-xs shadow-xs">
+                        <div class="flex items-center gap-2 font-extrabold text-rose-900">
+                            <x-lucide-alert-triangle class="w-4 h-4 text-rose-600 shrink-0" />
+                            <span>Mohon Perbaiki Isian Formulir:</span>
+                        </div>
+                        <ul class="list-disc list-inside text-[11px] font-bold text-rose-700 space-y-0.5 pl-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form wire:submit.prevent="save" action="javascript:void(0);" class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <!-- Nama -->
                         <div class="space-y-1">
@@ -237,11 +259,25 @@
                         <div class="space-y-1">
                             <label class="text-xs font-bold text-stone-700 uppercase">Status Kepegawaian</label>
                             <select wire:model="status_kepegawaian" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
-                                <option value="pns">PNS</option>
-                                <option value="gtt">GTT (Guru Tetap Yayasan)</option>
                                 <option value="honorer">Honorer</option>
+                                <option value="tetap_yayasan">Tetap Yayasan</option>
+                                <option value="gtt">GTT (Guru Tidak Tetap)</option>
+                                <option value="gty">GTY (Guru Tetap Yayasan)</option>
+                                <option value="pns">PNS / ASN</option>
                             </select>
                             @error('status_kepegawaian') <span class="text-rose-600 text-[10px] font-bold block">{{ $message }}</span> @enderror
+                        </div>
+
+                        <!-- Jenis Guru / Peran Pengampu -->
+                        <div class="space-y-1 sm:col-span-2 p-3 bg-emerald-50 border border-emerald-200 rounded-2xl">
+                            <label class="text-xs font-black text-emerald-950 uppercase block">Peran Guru / Jenis Pengampu <span class="text-rose-600">*</span></label>
+                            <select wire:model="jenis_guru" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
+                                <option value="umum">Guru Mata Pelajaran (Umum)</option>
+                                <option value="tahfidz">Guru Halaqah Tahfizh (Ustadz/ah Tahfizh)</option>
+                                <option value="keduanya">Keduanya (Guru Mapel &amp; Pengampu Halaqah Tahfizh)</option>
+                            </select>
+                            <p class="text-[10px] font-medium text-emerald-800 mt-1">Pilih <b>Guru Halaqah Tahfizh</b> atau <b>Keduanya</b> agar nama guru ini dapat dipilih sebagai Pengampu Halaqah pada Manajemen Kelas &amp; Tahfizh.</p>
+                            @error('jenis_guru') <span class="text-rose-600 text-[10px] font-bold block">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Tempat Lahir -->

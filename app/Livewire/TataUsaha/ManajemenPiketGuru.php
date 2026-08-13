@@ -68,9 +68,9 @@ class ManajemenPiketGuru extends Component
             'selectedHari' => 'required|in:senin,selasa,rabu,kamis,jumat',
         ]);
 
-        $activeSemester = Semester::where('status_aktif', true)->first();
+        $activeSemester = Semester::where('status_aktif', true)->first() ?? Semester::first();
         if (!$activeSemester) {
-            session()->flash('error', 'Semester aktif tidak ditemukan.');
+            session()->flash('error', 'Semester tidak ditemukan dalam database.');
             return;
         }
 
@@ -107,7 +107,7 @@ class ManajemenPiketGuru extends Component
 
     public function render()
     {
-        $activeSemester = Semester::where('status_aktif', true)->first();
+        $activeSemester = Semester::where('status_aktif', true)->first() ?? Semester::first();
 
         $piketSchedules = [];
         $days = ['senin', 'selasa', 'rabu', 'kamis', 'jumat'];

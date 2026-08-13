@@ -143,9 +143,9 @@
 
     <!-- Modal Form Create & Edit Karyawan -->
     @if ($isFormOpen)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60 backdrop-blur-xs p-4 overflow-y-auto">
-            <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-stone-200 space-y-4 max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-center border-b border-stone-200 pb-3">
+        <div x-data x-init="window.scrollTo({ top: 0, behavior: 'smooth' })" class="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-stone-900/60 backdrop-blur-xs px-4 py-8 sm:py-12 overflow-y-auto">
+            <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-stone-200 space-y-4 max-h-[82vh] sm:max-h-[85vh] my-auto overflow-y-auto shadow-stone-950/20">
+                <div class="flex justify-between items-center border-b border-stone-200 pb-3 sticky -top-6 bg-white z-20 pt-1">
                     <h3 class="text-sm font-extrabold text-emerald-950 uppercase tracking-wider flex items-center gap-2">
                         <span class="w-6 h-6 rounded-full bg-emerald-200 text-emerald-950 text-xs flex items-center justify-center font-black">★</span>
                         <span>{{ $karyawanId ? 'Edit Data Karyawan & Akun' : 'Tambah Karyawan & Akun Baru' }}</span>
@@ -153,7 +153,29 @@
                     <button type="button" wire:click="$set('isFormOpen', false)" class="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 font-bold">✕</button>
                 </div>
 
-                <form wire:submit.prevent="save" class="space-y-4">
+                <!-- Validation & Session Error Banner Inside Modal -->
+                @if (session()->has('error'))
+                    <div class="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl flex items-center gap-2 text-xs font-extrabold shadow-xs">
+                        <x-lucide-alert-triangle class="w-4 h-4 text-rose-600 shrink-0" />
+                        <span>{{ session('error') }}</span>
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl space-y-1.5 text-xs shadow-xs">
+                        <div class="flex items-center gap-2 font-extrabold text-rose-900">
+                            <x-lucide-alert-triangle class="w-4 h-4 text-rose-600 shrink-0" />
+                            <span>Mohon Perbaiki Isian Formulir:</span>
+                        </div>
+                        <ul class="list-disc list-inside text-[11px] font-bold text-rose-700 space-y-0.5 pl-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form wire:submit.prevent="save" action="javascript:void(0);" class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <!-- Nama Lengkap -->
                         <div class="sm:col-span-2 space-y-1">

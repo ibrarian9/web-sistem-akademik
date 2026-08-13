@@ -5,7 +5,10 @@
             <span class="px-3 py-1 bg-rose-100 border border-rose-300 text-rose-800 rounded-full text-xs font-bold uppercase tracking-wider inline-block">
                 SD Tahfizh F3 System Health
             </span>
-            <h2 class="text-xl font-extrabold text-stone-900 tracking-tight mt-1">System Error Log Viewer</h2>
+            <h2 class="text-xl font-extrabold text-stone-900 tracking-tight mt-1 flex items-center gap-2">
+                <x-lucide-alert-triangle class="w-5 h-5 text-rose-600 shrink-0" />
+                <span>System Error Log Viewer</span>
+            </h2>
             <p class="text-xs text-stone-500 font-medium">Monitoring dan analisa berkas log error sistem (storage/logs/laravel.log) secara real-time.</p>
         </div>
 

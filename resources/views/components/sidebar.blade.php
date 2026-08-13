@@ -272,6 +272,7 @@
                         @case('eye') <x-lucide-eye class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('settings') <x-lucide-settings class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('activity') <x-lucide-activity class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('alert-triangle') <x-lucide-alert-triangle class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('user-check') <x-lucide-user-check class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('bell') <x-lucide-bell class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('wallet') <x-lucide-wallet class="w-[18px] h-[18px] shrink-0" /> @break

@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\KalenderAkademik;
 use App\Models\TahunAjaran;
+use App\Models\Semester;
 
 class ManajemenKalenderAkademik extends Component
 {
@@ -25,8 +26,23 @@ class ManajemenKalenderAkademik extends Component
     public $liburkan_presensi = true;
     public $keterangan;
 
-    public $showModal = false;
-    public $isEditing = false;
+    public bool $showModal = false;
+    public bool $isEditing = false;
+
+    // Tahun Ajaran modal & properties
+    public bool $showTahunAjaranModal = false;
+    public string $newTahunAjaranNama = '';
+
+    // Custom Semester Dates
+    public string $tglMulaiGanjil = '';
+    public string $tglSelesaiGanjil = '';
+    public string $tglMulaiGenap = '';
+    public string $tglSelesaiGenap = '';
+
+    // Editing existing semester dates
+    public ?int $editingSemesterId = null;
+    public string $editSemesterMulai = '';
+    public string $editSemesterSelesai = '';
 
     protected function rules()
     {
@@ -39,6 +55,159 @@ class ManajemenKalenderAkademik extends Component
             'liburkan_presensi' => 'boolean',
             'keterangan' => 'nullable|string',
         ];
+    }
+
+    public function openTahunAjaranModal()
+    {
+        if (!$this->canManage()) return;
+        $this->newTahunAjaranNama = '';
+        $this->setDefaultSemesterDates();
+        $this->editingSemesterId = null;
+        $this->showTahunAjaranModal = true;
+    }
+
+    public function updatedNewTahunAjaranNama($value)
+    {
+        $this->setDefaultSemesterDates($value);
+    }
+
+    private function setDefaultSemesterDates(?string $taNama = null)
+    {
+        $yearStart = (int) (explode('/', $taNama ?? '')[0] ?? date('Y'));
+        if ($yearStart < 2000) $yearStart = (int) date('Y');
+        $yearEnd = $yearStart + 1;
+
+        $this->tglMulaiGanjil = "{$yearStart}-07-01";
+        $this->tglSelesaiGanjil = "{$yearStart}-12-31";
+        $this->tglMulaiGenap = "{$yearEnd}-01-01";
+        $this->tglSelesaiGenap = "{$yearEnd}-06-30";
+    }
+
+    public function createTahunAjaran()
+    {
+        if (!$this->canManage()) return;
+
+        if (!$this->tglMulaiGanjil || !$this->tglMulaiGenap) {
+            $this->setDefaultSemesterDates($this->newTahunAjaranNama);
+        }
+
+        $this->validate([
+            'newTahunAjaranNama' => 'required|string|max:50|unique:tahun_ajaran,nama',
+            'tglMulaiGanjil' => 'required|date',
+            'tglSelesaiGanjil' => 'required|date|after_or_equal:tglMulaiGanjil',
+            'tglMulaiGenap' => 'required|date',
+            'tglSelesaiGenap' => 'required|date|after_or_equal:tglMulaiGenap',
+        ]);
+
+        \Illuminate\Support\Facades\DB::transaction(function () {
+            $ta = TahunAjaran::create([
+                'nama' => $this->newTahunAjaranNama,
+                'status_aktif' => false,
+            ]);
+
+            Semester::create([
+                'tahun_ajaran_id' => $ta->id,
+                'semester' => 'Ganjil',
+                'tanggal_mulai' => $this->tglMulaiGanjil,
+                'tanggal_selesai' => $this->tglSelesaiGanjil,
+                'status_aktif' => false,
+            ]);
+
+            Semester::create([
+                'tahun_ajaran_id' => $ta->id,
+                'semester' => 'Genap',
+                'tanggal_mulai' => $this->tglMulaiGenap,
+                'tanggal_selesai' => $this->tglSelesaiGenap,
+                'status_aktif' => false,
+            ]);
+        });
+
+        session()->flash('message', "Tahun Ajaran {$this->newTahunAjaranNama} beserta Semester Ganjil & Genap berhasil dibuat.");
+        $this->newTahunAjaranNama = '';
+        $this->setDefaultSemesterDates();
+    }
+
+    public function openEditSemester(int $semesterId)
+    {
+        if (!$this->canManage()) return;
+        $sem = Semester::findOrFail($semesterId);
+        $this->editingSemesterId = $sem->id;
+        $this->editSemesterMulai = $sem->tanggal_mulai ? $sem->tanggal_mulai->format('Y-m-d') : date('Y-m-d');
+        $this->editSemesterSelesai = $sem->tanggal_selesai ? $sem->tanggal_selesai->format('Y-m-d') : date('Y-m-d');
+    }
+
+    public function saveSemesterDates()
+    {
+        if (!$this->canManage() || !$this->editingSemesterId) return;
+
+        $this->validate([
+            'editSemesterMulai' => 'required|date',
+            'editSemesterSelesai' => 'required|date|after_or_equal:editSemesterMulai',
+        ]);
+
+        $sem = Semester::findOrFail($this->editingSemesterId);
+        $sem->update([
+            'tanggal_mulai' => $this->editSemesterMulai,
+            'tanggal_selesai' => $this->editSemesterSelesai,
+        ]);
+
+        session()->flash('message', "Rentang tanggal Semester {$sem->semester} berhasil diperbarui.");
+        $this->editingSemesterId = null;
+    }
+
+    public function setTahunAjaranAktif(int $taId, ?int $semesterId = null)
+    {
+        if (!$this->canManage()) return;
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($taId, $semesterId) {
+            TahunAjaran::query()->update(['status_aktif' => false]);
+            \App\Models\Semester::query()->update(['status_aktif' => false]);
+
+            $ta = TahunAjaran::findOrFail($taId);
+            $ta->update(['status_aktif' => true]);
+
+            if ($semesterId) {
+                $sem = \App\Models\Semester::where('tahun_ajaran_id', $taId)->where('id', $semesterId)->first();
+                if ($sem) {
+                    $sem->update(['status_aktif' => true]);
+                }
+            } else {
+                $semGanjil = \App\Models\Semester::where('tahun_ajaran_id', $taId)->where('semester', 'Ganjil')->first() 
+                    ?? \App\Models\Semester::where('tahun_ajaran_id', $taId)->first();
+                if ($semGanjil) {
+                    $semGanjil->update(['status_aktif' => true]);
+                }
+            }
+        });
+
+        session()->flash('message', 'Status Tahun Ajaran & Semester aktif berhasil diperbarui.');
+    }
+
+    public function deleteTahunAjaran(int $taId)
+    {
+        if (!$this->canManage()) return;
+
+        $ta = TahunAjaran::withCount(['tagihans', 'danaBos', 'kalenderAkademiks', 'semesters'])->findOrFail($taId);
+
+        $hasGradesOrClasses = false;
+        foreach ($ta->semesters as $sem) {
+            if ($sem->nilais()->exists() || $sem->kelas()->exists() || $sem->rapors()->exists()) {
+                $hasGradesOrClasses = true;
+                break;
+            }
+        }
+
+        if ($ta->tagihans_count > 0 || $ta->dana_bos_count > 0 || $ta->kalender_akademiks_count > 0 || $hasGradesOrClasses) {
+            session()->flash('error', "Tahun Ajaran '{$ta->nama}' tidak dapat dihapus karena sudah memiliki data transaksi/akademik yang terhubung.");
+            return;
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($ta) {
+            $ta->semesters()->delete();
+            $ta->delete();
+        });
+
+        session()->flash('message', "Tahun Ajaran '{$ta->nama}' berhasil dihapus.");
     }
 
     public function mount()
@@ -168,7 +337,7 @@ class ManajemenKalenderAkademik extends Component
             ->orderBy('tanggal_mulai', 'desc');
 
         $events = $query->paginate(10);
-        $tahunAjarans = TahunAjaran::all();
+        $tahunAjarans = TahunAjaran::with('semesters')->get();
 
         return view('livewire.tata-usaha.manajemen-kalender-akademik', [
             'events' => $events,

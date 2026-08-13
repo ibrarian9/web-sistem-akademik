@@ -111,7 +111,12 @@ class ManajemenKaryawan extends Component
 
         $this->validate($rules);
 
-        $selectedRole = Role::findOrFail($this->role_id);
+        $selectedRole = Role::find($this->role_id);
+        if (!$selectedRole) {
+            session()->flash('error', 'Role hak akses tidak ditemukan.');
+            return;
+        }
+
         if ($selectedRole->nama === 'murid') {
             session()->flash('error', 'Role murid tidak dapat ditambahkan dari direktori karyawan.');
             return;
@@ -122,61 +127,89 @@ class ManajemenKaryawan extends Component
             return;
         }
 
-        DB::transaction(function () use ($selectedRole) {
-            $userData = [
-                'nama' => $this->nama,
-                'username' => $this->username,
-                'email' => $this->email ?: null,
-                'role_id' => $this->role_id,
-                'no_hp' => $this->no_hp ?: null,
-                'alamat' => $this->alamat ?: null,
-                'status' => $this->status,
-            ];
+        try {
+            $isUpdate = (bool) $this->karyawanId;
+            $namaKaryawan = $this->nama;
 
-            if ($this->password) {
-                $userData['password'] = Hash::make($this->password);
-            }
+            DB::transaction(function () use ($selectedRole, &$isUpdate, &$namaKaryawan) {
+                $userData = [
+                    'nama' => $this->nama,
+                    'username' => $this->username,
+                    'email' => $this->email ?: null,
+                    'role_id' => $this->role_id,
+                    'no_hp' => $this->no_hp ?: null,
+                    'alamat' => $this->alamat ?: null,
+                    'status' => $this->status,
+                ];
 
-            if ($this->karyawanId) {
-                $user = User::findOrFail($this->karyawanId);
-                $user->update($userData);
-            } else {
-                $user = User::create($userData);
-            }
+                if ($this->password) {
+                    $userData['password'] = Hash::make($this->password);
+                }
 
-            // Sync Guru profile for teacher or staff roles
-            if ($user->guru) {
-                $user->guru->update([
-                    'nip' => $this->nip ?: null,
-                    'jenis_guru' => $this->jenis_guru ?: 'umum',
-                    'status_kepegawaian' => $this->status_kepegawaian ?: 'honorer',
-                    'no_hp' => $this->no_hp ?: '-',
-                    'alamat' => $this->alamat ?: '-',
-                    'status_aktif' => $this->status === 'aktif',
+                if ($this->karyawanId) {
+                    $user = User::findOrFail($this->karyawanId);
+                    $user->update($userData);
+                } else {
+                    $user = User::create($userData);
+                }
+
+                // Sync Guru profile for teacher or staff roles
+                if ($user->guru) {
+                    $user->guru->update([
+                        'nip' => $this->nip ?: null,
+                        'jenis_guru' => $this->jenis_guru ?: 'umum',
+                        'status_kepegawaian' => $this->status_kepegawaian ?: 'honorer',
+                        'no_hp' => $this->no_hp ?: '-',
+                        'alamat' => $this->alamat ?: '-',
+                        'status_aktif' => $this->status === 'aktif',
+                    ]);
+                } else {
+                    Guru::create([
+                        'user_id' => $user->id,
+                        'nip' => $this->nip ?: ($selectedRole->nama === 'guru' ? null : 'STAFF-' . $user->id),
+                        'jenis_guru' => $this->jenis_guru ?: 'umum',
+                        'status_kepegawaian' => $this->status_kepegawaian ?: 'honorer',
+                        'no_hp' => $this->no_hp ?: '-',
+                        'alamat' => $this->alamat ?: '-',
+                        'tanggal_masuk' => date('Y-m-d'),
+                        'status_aktif' => $this->status === 'aktif',
+                    ]);
+                }
+
+                \App\Services\AuditLogger::log($isUpdate ? 'updated' : 'created', ($isUpdate ? 'Mengubah' : 'Menambahkan') . ' data karyawan: ' . $namaKaryawan, $user, [
+                    'log_name' => 'manajemen_karyawan',
                 ]);
-            } else {
-                Guru::create([
-                    'user_id' => $user->id,
-                    'nip' => $this->nip ?: ($selectedRole->nama === 'guru' ? null : 'STAFF-' . $user->id),
-                    'jenis_guru' => $this->jenis_guru ?: 'umum',
-                    'status_kepegawaian' => $this->status_kepegawaian ?: 'honorer',
-                    'no_hp' => $this->no_hp ?: '-',
-                    'alamat' => $this->alamat ?: '-',
-                    'tanggal_masuk' => date('Y-m-d'),
-                    'status_aktif' => $this->status === 'aktif',
-                ]);
-            }
-        });
+            });
 
-        session()->flash('message', 'Data karyawan dan akun berhasil disimpan.');
-        $this->isFormOpen = false;
-        $this->resetForm();
+            $msg = 'Data karyawan ' . $namaKaryawan . ' berhasil ' . ($isUpdate ? 'diperbarui.' : 'disimpan.');
+            session()->flash('message', $msg);
+            $this->dispatch('show-alert', [
+                'title' => $isUpdate ? 'Data Karyawan Diperbarui' : 'Karyawan Baru Ditambahkan',
+                'message' => $msg,
+                'type' => $isUpdate ? 'edit' : 'create',
+            ]);
+
+            $this->isFormOpen = false;
+            $this->resetForm();
+        } catch (\Throwable $e) {
+            \App\Services\AuditLogger::log('error', 'Gagal memproses data karyawan: ' . $e->getMessage(), null, [
+                'log_name' => 'manajemen_karyawan',
+            ]);
+
+            session()->flash('error', 'Gagal memproses data: ' . $e->getMessage());
+            $this->dispatch('show-alert', [
+                'title' => 'Gagal Memproses Data Karyawan',
+                'message' => $e->getMessage(),
+                'type' => 'danger',
+            ]);
+        }
     }
 
     public function delete(int $id)
     {
         if ($id === auth()->id()) {
             session()->flash('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+            $this->dispatch('show-alert', ['title' => 'Peringatan Akses', 'message' => 'Anda tidak dapat menghapus akun Anda sendiri.', 'type' => 'danger']);
             return;
         }
 
@@ -184,17 +217,41 @@ class ManajemenKaryawan extends Component
 
         if ($user->role?->nama === 'super_admin') {
             session()->flash('error', 'Akun Super Admin tidak dapat dihapus.');
+            $this->dispatch('show-alert', ['title' => 'Peringatan Akses', 'message' => 'Akun Super Admin tidak dapat dihapus.', 'type' => 'danger']);
             return;
         }
 
-        DB::transaction(function () use ($user) {
-            if ($user->guru) {
-                $user->guru->delete();
-            }
-            $user->delete();
-        });
+        try {
+            DB::transaction(function () use ($user) {
+                $namaKaryawan = $user->nama;
+                \App\Services\AuditLogger::log('deleted', 'Menghapus data karyawan: ' . $namaKaryawan, $user, [
+                    'log_name' => 'manajemen_karyawan',
+                ]);
 
-        session()->flash('message', 'Data karyawan dan akun berhasil dihapus.');
+                if ($user->guru) {
+                    $user->guru->delete();
+                }
+                $user->delete();
+            });
+
+            session()->flash('message', 'Data karyawan dan akun berhasil dihapus.');
+            $this->dispatch('show-alert', [
+                'title' => 'Hapus Data Berhasil',
+                'message' => 'Data karyawan berhasil dihapus.',
+                'type' => 'delete',
+            ]);
+        } catch (\Throwable $e) {
+            \App\Services\AuditLogger::log('error', 'Gagal menghapus data karyawan ID ' . $id . ': ' . $e->getMessage(), null, [
+                'log_name' => 'manajemen_karyawan',
+            ]);
+
+            session()->flash('error', 'Gagal menghapus data: ' . $e->getMessage());
+            $this->dispatch('show-alert', [
+                'title' => 'Gagal Menghapus Data',
+                'message' => $e->getMessage(),
+                'type' => 'danger',
+            ]);
+        }
     }
 
     private function resetForm()

@@ -20,14 +20,8 @@
         }
 
         @keyframes fadeInPage {
-            0% {
-                opacity: 0.85;
-                transform: translateY(4px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            0% { opacity: 0.85; }
+            100% { opacity: 1; }
         }
 
         /* Top Progress Bar Styling for Livewire wire:navigate & Requests */
@@ -130,30 +124,44 @@
         </div>
     </div>
 
-    <!-- MicroModal Alert / Confirm Component -->
+    <!-- MicroModal Alert / Confirm Component (Ultra-Premium Glassmorphism Floating Toast & Modal) -->
     <div class="modal micromodal-slide" id="modal-alert" aria-hidden="true">
-        <div class="modal__overlay fixed inset-0 bg-stone-900/60 backdrop-blur-xs z-[99999] flex items-center justify-center p-4" tabindex="-1" data-micromodal-close>
-            <div class="modal__container bg-white border border-stone-200 rounded-3xl p-6 shadow-2xl max-w-md w-full space-y-4" role="dialog" aria-modal="true" aria-labelledby="modal-alert-title">
-                <header class="flex items-center justify-between border-b border-stone-200 pb-3">
-                    <h2 class="text-sm font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-2.5" id="modal-alert-title">
-                        <span class="w-7 h-7 rounded-xl bg-emerald-100 text-emerald-800 text-xs flex items-center justify-center font-black">i</span>
-                        Pemberitahuan Sistem
-                    </h2>
-                    <button type="button" class="modal__close p-1.5 rounded-xl text-stone-400 hover:text-stone-700 hover:bg-stone-100 font-bold transition" aria-label="Close modal" data-micromodal-close>
+        <div id="modal-alert-overlay" class="modal__overlay fixed inset-0 bg-stone-950/50 backdrop-blur-sm z-[99999] flex items-center justify-center p-4 transition-all duration-300" tabindex="-1" data-micromodal-close>
+            <div id="modal-alert-container" class="modal__container bg-white/95 backdrop-blur-md border border-stone-200/90 rounded-3xl p-5 shadow-2xl max-w-md w-full relative overflow-hidden transition-all duration-300 shadow-stone-950/15" role="dialog" aria-modal="true" aria-labelledby="modal-alert-title">
+                
+                <!-- Top Accent Line -->
+                <div id="modal-alert-accent" class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 to-teal-400"></div>
+
+                <div class="flex items-start justify-between gap-3 pt-1">
+                    <div class="flex items-start gap-3">
+                        <div id="modal-alert-badge" class="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200/60 text-emerald-700 flex items-center justify-center text-lg font-black shrink-0 shadow-xs">
+                            <x-lucide-check-circle-2 class="w-5 h-5" />
+                        </div>
+                        <div>
+                            <h2 class="text-xs font-black text-stone-900 uppercase tracking-wide flex items-center gap-1.5" id="modal-alert-title">
+                                Pemberitahuan Sistem
+                            </h2>
+                            <p class="text-xs text-stone-600 leading-relaxed font-semibold mt-1" id="modal-alert-content">
+                                Pesan pemberitahuan sistem.
+                            </p>
+                        </div>
+                    </div>
+                    <button type="button" class="modal__close p-1.5 rounded-xl text-stone-400 hover:text-stone-700 hover:bg-stone-100 font-bold transition text-xs shrink-0" aria-label="Close modal" data-micromodal-close>
                         ✕
                     </button>
-                </header>
-                <main class="text-xs text-stone-700 leading-relaxed font-medium py-1" id="modal-alert-content">
-                    Pesan pemberitahuan sistem.
-                </main>
-                <footer class="flex items-center justify-end gap-2 pt-3 border-t border-stone-200">
-                    <button type="button" id="modal-alert-cancel-btn" class="px-4 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold transition" data-micromodal-close>
+                </div>
+
+                <footer id="modal-alert-footer" class="flex items-center justify-end gap-2.5 pt-3.5 mt-2 border-t border-stone-100">
+                    <button type="button" id="modal-alert-cancel-btn" class="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold transition" data-micromodal-close>
                         Batal
                     </button>
-                    <button type="button" id="modal-alert-confirm-btn" class="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-md transition">
+                    <button type="button" id="modal-alert-confirm-btn" class="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-md transition">
                         Lanjutkan
                     </button>
                 </footer>
+
+                <!-- Toast Progress Bar Animation -->
+                <div id="modal-alert-progress" class="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500 origin-left transition-all duration-300 hidden"></div>
             </div>
         </div>
     </div>
@@ -164,97 +172,185 @@
     @livewireScripts
 
     <script>
+        let modalAutoDismissTimer = null;
+        let modalProgressInterval = null;
+
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof MicroModal !== 'undefined') {
                 MicroModal.init({
                     awaitCloseAnimation: false,
                     awaitOpenAnimation: false,
-                    disableScroll: true,
+                    disableScroll: false,
                 });
             }
             checkFlashMessages();
         });
 
         function checkFlashMessages() {
-            @if(session()->has('success'))
-                window.showAlert(null, @json(session('success')), null, 'create');
-            @elseif(session()->has('message'))
-                window.showAlert(null, @json(session('message')), null, 'auto');
-            @elseif(session()->has('error'))
+            @if(session()->has('error'))
                 window.showAlert('Peringatan Error', @json(session('error')), null, 'danger');
+            @elseif(session()->has('danger'))
+                window.showAlert('Gagal Memproses', @json(session('danger')), null, 'danger');
+            @elseif(session()->has('success'))
+                window.showAlert('Berhasil Ditambahkan', @json(session('success')), null, 'create');
+            @elseif(session()->has('message'))
+                window.showAlert('Informasi Sistem', @json(session('message')), null, 'auto');
             @elseif(session()->has('warning'))
-                window.showAlert('Peringatan', @json(session('warning')), null, 'danger');
+                window.showAlert('Perhatian', @json(session('warning')), null, 'warning');
             @elseif(session()->has('info'))
                 window.showAlert('Informasi', @json(session('info')), null, 'info');
             @endif
         }
 
-        // Global Alert & Confirm Function via MicroModal (Automated for Create, Edit, Delete Data)
+        // Premium Floating Toast & Confirm Dialog System via MicroModal
         window.showAlert = function(title, message, onConfirm = null, type = 'auto') {
+            if (modalAutoDismissTimer) {
+                clearTimeout(modalAutoDismissTimer);
+                modalAutoDismissTimer = null;
+            }
+            if (modalProgressInterval) {
+                clearInterval(modalProgressInterval);
+                modalProgressInterval = null;
+            }
+
             const modalElem = document.getElementById('modal-alert');
+            const overlayElem = document.getElementById('modal-alert-overlay');
+            const containerElem = document.getElementById('modal-alert-container');
+            const accentElem = document.getElementById('modal-alert-accent');
+            const badgeElem = document.getElementById('modal-alert-badge');
+            const titleElem = document.getElementById('modal-alert-title');
+            const contentElem = document.getElementById('modal-alert-content');
+            const footerElem = document.getElementById('modal-alert-footer');
+            const cancelBtn = document.getElementById('modal-alert-cancel-btn');
+            const confirmBtn = document.getElementById('modal-alert-confirm-btn');
+            const progressElem = document.getElementById('modal-alert-progress');
+
             if (modalElem) {
                 modalElem.setAttribute('aria-hidden', 'true');
                 modalElem.classList.remove('is-open');
             }
 
-            const titleElem = document.getElementById('modal-alert-title');
-            const contentElem = document.getElementById('modal-alert-content');
-            const cancelBtn = document.getElementById('modal-alert-cancel-btn');
-            const confirmBtn = document.getElementById('modal-alert-confirm-btn');
-
             const msgLower = (message || '').toLowerCase();
-            const isDelete = type === 'delete' || type === 'danger' || msgLower.includes('hapus') || msgLower.includes('delete') || msgLower.includes('dibatalkan');
-            const isEdit = type === 'edit' || msgLower.includes('edit') || msgLower.includes('perbarui') || msgLower.includes('ubah') || msgLower.includes('update') || msgLower.includes('koreksi');
-            const isCreate = type === 'create' || msgLower.includes('tambah') || msgLower.includes('buat') || msgLower.includes('simpan') || msgLower.includes('create') || msgLower.includes('tersimpan');
+            const typeLower = (type || '').toLowerCase();
 
-            let badgeHtml = '<span class="w-7 h-7 rounded-xl bg-emerald-100 text-emerald-800 text-xs flex items-center justify-center font-black shrink-0">✓</span>';
+            const isError = typeLower === 'danger' || typeLower === 'error' || msgLower.includes('gagal') || msgLower.includes('error') || msgLower.includes('salah');
+            const isWarning = !isError && (typeLower === 'warning' || msgLower.includes('perhatian') || msgLower.includes('warning') || msgLower.includes('ingat'));
+            const isDelete = !isError && !isWarning && (typeLower === 'delete' || msgLower.includes('hapus') || msgLower.includes('delete') || msgLower.includes('dibatalkan'));
+            const isEdit = !isError && !isWarning && (typeLower === 'edit' || msgLower.includes('edit') || msgLower.includes('perbarui') || msgLower.includes('ubah') || msgLower.includes('update') || msgLower.includes('koreksi'));
+            const isCreate = !isError && !isWarning && (typeLower === 'create' || msgLower.includes('tambah') || msgLower.includes('buat') || msgLower.includes('simpan') || msgLower.includes('create') || msgLower.includes('tersimpan'));
+
+            let badgeHtml = '✓';
+            let badgeBgClass = 'bg-emerald-50 text-emerald-700 border-emerald-200/80';
+            let accentClass = 'bg-gradient-to-r from-emerald-500 to-teal-400';
+            let progressBgClass = 'bg-emerald-500';
             let defaultTitle = 'Pemberitahuan Sistem';
 
-            if (isDelete) {
-                badgeHtml = '<span class="w-7 h-7 rounded-xl bg-rose-100 text-rose-800 text-xs flex items-center justify-center font-black shrink-0">🗑</span>';
-                defaultTitle = 'Hapus Data Berhasil';
+            if (isError) {
+                badgeHtml = '⚠️';
+                badgeBgClass = 'bg-rose-50 text-rose-700 border-rose-200/80';
+                accentClass = 'bg-gradient-to-r from-rose-600 to-pink-500';
+                progressBgClass = 'bg-rose-600';
+                defaultTitle = 'Gagal Memproses Data';
+            } else if (isWarning) {
+                badgeHtml = '💡';
+                badgeBgClass = 'bg-amber-50 text-amber-800 border-amber-200/80';
+                accentClass = 'bg-gradient-to-r from-amber-500 to-yellow-400';
+                progressBgClass = 'bg-amber-500';
+                defaultTitle = 'Perhatian Sistem';
+            } else if (isDelete) {
+                badgeHtml = '🗑️';
+                badgeBgClass = 'bg-rose-50 text-rose-700 border-rose-200/80';
+                accentClass = 'bg-gradient-to-r from-rose-500 to-red-400';
+                progressBgClass = 'bg-rose-500';
+                defaultTitle = 'Data Berhasil Dihapus';
             } else if (isEdit) {
-                badgeHtml = '<span class="w-7 h-7 rounded-xl bg-indigo-100 text-indigo-800 text-xs flex items-center justify-center font-black shrink-0">✏️</span>';
-                defaultTitle = 'Perubahan Data Disimpan';
+                badgeHtml = '✏️';
+                badgeBgClass = 'bg-indigo-50 text-indigo-700 border-indigo-200/80';
+                accentClass = 'bg-gradient-to-r from-indigo-500 to-sky-400';
+                progressBgClass = 'bg-indigo-500';
+                defaultTitle = 'Perubahan Berhasil Disimpan';
             } else if (isCreate) {
-                badgeHtml = '<span class="w-7 h-7 rounded-xl bg-emerald-100 text-emerald-800 text-xs flex items-center justify-center font-black shrink-0">✨</span>';
-                defaultTitle = 'Data Berhasil Dibuat';
+                badgeHtml = '✨';
+                badgeBgClass = 'bg-emerald-50 text-emerald-700 border-emerald-200/80';
+                accentClass = 'bg-gradient-to-r from-emerald-500 to-teal-400';
+                progressBgClass = 'bg-emerald-500';
+                defaultTitle = 'Data Berhasil Ditambahkan';
             }
 
+            if (accentElem) accentElem.className = 'absolute top-0 left-0 right-0 h-1.5 ' + accentClass;
+            if (badgeElem) {
+                badgeElem.className = 'w-10 h-10 rounded-2xl border flex items-center justify-center text-lg font-black shrink-0 shadow-xs ' + badgeBgClass;
+                badgeElem.innerHTML = badgeHtml;
+            }
             if (titleElem) {
-                titleElem.innerHTML = badgeHtml + ` <span>` + (title || defaultTitle) + `</span>`;
+                titleElem.innerText = title || defaultTitle;
             }
             if (contentElem) {
                 contentElem.innerText = message || '';
             }
-            
-            if (typeof onConfirm === 'function') {
+
+            const isConfirmation = typeof onConfirm === 'function';
+
+            if (isConfirmation) {
+                // Confirmation Mode (Centered with Backdrop)
+                if (overlayElem) {
+                    overlayElem.className = "modal__overlay fixed inset-0 bg-stone-950/60 backdrop-blur-xs z-[99999] flex items-center justify-center p-4 pointer-events-auto";
+                }
+                if (containerElem) {
+                    containerElem.className = "modal__container bg-white/95 backdrop-blur-md border border-stone-200/90 rounded-3xl p-6 shadow-2xl max-w-md w-full relative overflow-hidden transition-all duration-300 shadow-stone-950/20";
+                }
+                if (footerElem) footerElem.style.display = 'flex';
                 if (cancelBtn) cancelBtn.style.display = 'inline-block';
+                if (progressElem) progressElem.style.display = 'none';
+
                 if (confirmBtn) {
                     confirmBtn.innerText = 'Lanjutkan';
-                    confirmBtn.className = 'px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-md transition';
+                    confirmBtn.className = isError || isDelete 
+                        ? 'px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-extrabold shadow-md transition'
+                        : 'px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-extrabold shadow-md transition';
                     confirmBtn.style.display = 'inline-block';
                     confirmBtn.onclick = function() {
-                        if (typeof MicroModal !== 'undefined') {
-                            MicroModal.close('modal-alert');
-                        }
+                        if (typeof MicroModal !== 'undefined') MicroModal.close('modal-alert');
                         onConfirm();
                     };
                 }
             } else {
-                if (cancelBtn) cancelBtn.style.display = 'none';
-                if (confirmBtn) {
-                    confirmBtn.innerText = 'Tutup';
-                    confirmBtn.className = isDelete 
-                        ? 'px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-md transition' 
-                        : (isEdit ? 'px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md transition' : 'px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-md transition');
-                    confirmBtn.style.display = 'inline-block';
-                    confirmBtn.onclick = function() {
-                        if (typeof MicroModal !== 'undefined') {
-                            MicroModal.close('modal-alert');
-                        }
-                    };
+                // Toast Notification Mode (Top Right Floating Toast with Progress Bar)
+                if (overlayElem) {
+                    overlayElem.className = "modal__overlay fixed top-5 right-5 z-[99999] p-0 bg-transparent backdrop-blur-none pointer-events-none";
                 }
+                if (containerElem) {
+                    containerElem.className = "modal__container bg-white/95 backdrop-blur-md border " + (isError ? "border-rose-300 ring-4 ring-rose-500/10" : (isWarning ? "border-amber-300 ring-4 ring-amber-500/10" : "border-stone-200/90 ring-4 ring-emerald-500/10")) + " rounded-2xl p-4.5 shadow-2xl max-w-sm w-full relative overflow-hidden pointer-events-auto transition-all duration-300 shadow-stone-950/15";
+                }
+                if (footerElem) footerElem.style.display = 'none';
+
+                if (progressElem) {
+                    progressElem.className = "absolute bottom-0 left-0 right-0 h-1 origin-left transition-all duration-100 " + progressBgClass;
+                    progressElem.style.display = 'block';
+                    progressElem.style.transform = 'scaleX(1)';
+                }
+
+                // Smooth timer progress countdown over 4 seconds
+                const duration = 4000;
+                const startTime = Date.now();
+
+                modalProgressInterval = setInterval(function() {
+                    const elapsed = Date.now() - startTime;
+                    const remaining = Math.max(0, 1 - (elapsed / duration));
+                    if (progressElem) {
+                        progressElem.style.transform = `scaleX(${remaining})`;
+                    }
+                    if (elapsed >= duration) {
+                        clearInterval(modalProgressInterval);
+                        modalProgressInterval = null;
+                    }
+                }, 40);
+
+                modalAutoDismissTimer = setTimeout(function() {
+                    if (typeof MicroModal !== 'undefined') {
+                        try { MicroModal.close('modal-alert'); } catch(e) {}
+                    }
+                }, duration);
             }
 
             if (typeof MicroModal !== 'undefined') {
@@ -289,19 +385,31 @@
             }
         }, true);
 
-        // Listen for Livewire custom alert events & page navigations
+        // Listen for Livewire custom alert events & hook into request failures
         document.addEventListener('livewire:initialized', () => {
             Livewire.on('show-alert', (data) => {
-                const title = data.title || null;
-                const message = data.message || data.text || '';
-                const type = data.type || 'auto';
+                const payload = Array.isArray(data) ? data[0] : data;
+                const title = payload?.title || null;
+                const message = payload?.message || payload?.text || '';
+                const type = payload?.type || 'auto';
                 window.showAlert(title, message, null, type);
+            });
+
+            Livewire.hook('commit', ({ respond, succeed, fail }) => {
+                fail(({ status, content }) => {
+                    let errorMsg = 'Terjadi kesalahan sistem (HTTP ' + (status || '500') + ').';
+                    try {
+                        let parsed = JSON.parse(content);
+                        if (parsed.message) errorMsg = parsed.message;
+                    } catch(e) {}
+                    window.showAlert('Peringatan Error Sistem', errorMsg, null, 'danger');
+                });
             });
         });
 
         document.addEventListener('livewire:navigated', () => {
             checkFlashMessages();
-        });
+        });;
     </script>
 </body>
 </html>

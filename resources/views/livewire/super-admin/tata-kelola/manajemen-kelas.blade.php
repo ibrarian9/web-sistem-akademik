@@ -43,6 +43,22 @@
         </button>
     </div>
 
+    <!-- Info Banner Semester Requirement -->
+    <div class="p-4 bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs font-bold shadow-xs">
+        <div class="flex items-center gap-2.5">
+            <x-lucide-calendar class="w-5 h-5 text-amber-600 shrink-0" />
+            <div>
+                <p class="font-extrabold text-amber-950">Petunjuk Semester Active:</p>
+                <p class="text-[11px] text-amber-800 font-medium">Setiap kelas otomatis ditautkan ke Semester & Tahun Ajaran Aktif. Anda dapat mengatur atau menambah Tahun Ajaran baru terlebih dahulu melalui menu Kalender Akademik.</p>
+            </div>
+        </div>
+        <a href="{{ auth()->user()->role?->nama === 'tata_usaha' ? route('tata-usaha.kalender-akademik') : route('super-admin.kalender-akademik') }}"
+           class="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-extrabold shrink-0 flex items-center gap-1.5 transition shadow-xs">
+            <x-lucide-settings class="w-3.5 h-3.5" />
+            <span>Kelola Tahun Ajaran</span>
+        </a>
+    </div>
+
     @if (session()->has('message'))
         <x-alert-banner type="success" :message="session('message')" />
     @endif
@@ -178,7 +194,29 @@
                     <button type="button" wire:click="$set('isFormOpen', false)" class="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 font-bold">✕</button>
                 </div>
 
-                <form wire:submit.prevent="save" class="space-y-4">
+                <!-- Validation & Session Error Banner Inside Modal -->
+                @if (session()->has('error'))
+                    <div class="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl flex items-center gap-2 text-xs font-extrabold shadow-xs">
+                        <x-lucide-alert-triangle class="w-4 h-4 text-rose-600 shrink-0" />
+                        <span>{{ session('error') }}</span>
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl space-y-1.5 text-xs shadow-xs">
+                        <div class="flex items-center gap-2 font-extrabold text-rose-900">
+                            <x-lucide-alert-triangle class="w-4 h-4 text-rose-600 shrink-0" />
+                            <span>Mohon Perbaiki Isian Formulir:</span>
+                        </div>
+                        <ul class="list-disc list-inside text-[11px] font-bold text-rose-700 space-y-0.5 pl-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form wire:submit.prevent="save" action="javascript:void(0);" class="space-y-4">
                     <!-- Switch Jenis Kelas -->
                     <div class="space-y-1.5">
                         <label class="text-xs font-bold text-stone-700 uppercase">Jenis Kelas <span class="text-rose-600">*</span></label>

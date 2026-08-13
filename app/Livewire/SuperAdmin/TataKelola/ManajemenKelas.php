@@ -87,68 +87,149 @@ class ManajemenKelas extends Component
 
     public function save()
     {
-        if ($this->jenis_kelas === 'tahfidz') {
-            $rules = [
-                'jenis_kelas' => 'required|in:umum,tahfidz',
-                'guru_tahfidz_id' => 'required|exists:guru,id',
-                'nama_kelas' => 'required|string|max:50|unique:kelas,nama_kelas,' . ($this->kelasId ?? 'NULL'),
-            ];
-        } else {
-            $rules = [
-                'jenis_kelas' => 'required|in:umum,tahfidz',
-                'nama_kelas' => 'required|string|max:50|unique:kelas,nama_kelas,' . ($this->kelasId ?? 'NULL'),
-                'tingkat' => 'required|in:1,2,3,4,5,6,7,8,9',
-                'guru_umum_id' => 'nullable|exists:guru,id',
-            ];
+        try {
+            if ($this->jenis_kelas === 'tahfidz') {
+                $rules = [
+                    'jenis_kelas' => 'required|in:umum,tahfidz',
+                    'guru_tahfidz_id' => 'required|exists:guru,id',
+                    'nama_kelas' => 'required|string|max:50|unique:kelas,nama_kelas,' . ($this->kelasId ?? 'NULL'),
+                ];
+            } else {
+                $rules = [
+                    'jenis_kelas' => 'required|in:umum,tahfidz',
+                    'nama_kelas' => 'required|string|max:50|unique:kelas,nama_kelas,' . ($this->kelasId ?? 'NULL'),
+                    'tingkat' => 'required|in:1,2,3,4,5,6,7,8,9',
+                    'guru_umum_id' => 'nullable|exists:guru,id',
+                ];
+            }
+
+            $this->validate($rules);
+
+            $activeSemester = Semester::where('status_aktif', true)->first() 
+                ?? Semester::first();
+
+            if (!$activeSemester) {
+                $tahunAjaran = \App\Models\TahunAjaran::where('status_aktif', true)->first()
+                    ?? \App\Models\TahunAjaran::first()
+                    ?? \App\Models\TahunAjaran::create([
+                        'nama' => '2026/2027',
+                        'status_aktif' => true,
+                    ]);
+
+                $activeSemester = Semester::create([
+                    'tahun_ajaran_id' => $tahunAjaran->id,
+                    'semester' => 'Ganjil',
+                    'status_aktif' => true,
+                    'tanggal_mulai' => now()->format('Y-m-d'),
+                    'tanggal_selesai' => now()->addMonths(6)->format('Y-m-d'),
+                ]);
+            }
+
+            // Auto format nama_kelas for Tahfizh if empty
+            if ($this->jenis_kelas === 'tahfidz' && empty(trim($this->nama_kelas))) {
+                $guru = Guru::with('user')->find($this->guru_tahfidz_id);
+                $this->nama_kelas = 'Halaqah ' . ($guru->user->nama ?? 'Guru');
+            }
+
+            $isUpdate = (bool) $this->kelasId;
+            $namaKelas = $this->nama_kelas;
+
+            $kelas = Kelas::updateOrCreate(
+                ['id' => $this->kelasId],
+                [
+                    'nama_kelas' => $this->nama_kelas,
+                    'jenis_kelas' => $this->jenis_kelas,
+                    'tingkat' => $this->jenis_kelas === 'umum' ? $this->tingkat : '1',
+                    'semester_id' => $activeSemester->id,
+                    'guru_umum_id' => $this->jenis_kelas === 'umum' ? ($this->guru_umum_id ?: null) : null,
+                    'guru_tahfidz_id' => $this->jenis_kelas === 'tahfidz' ? ($this->guru_tahfidz_id ?: null) : null,
+                ]
+            );
+
+            \App\Services\AuditLogger::log($isUpdate ? 'updated' : 'created', ($isUpdate ? 'Mengubah' : 'Menambahkan') . ' data kelas: ' . $namaKelas, $kelas, [
+                'log_name' => 'manajemen_kelas',
+            ]);
+
+            $msg = 'Data kelas ' . $namaKelas . ' (' . ucfirst($this->jenis_kelas) . ') berhasil disimpan.';
+            session()->flash('message', $msg);
+            $this->dispatch('show-alert', [
+                'title' => $isUpdate ? 'Kelas Diperbarui' : 'Kelas Baru Ditambahkan',
+                'message' => $msg,
+                'type' => $isUpdate ? 'edit' : 'create',
+            ]);
+
+            $this->isFormOpen = false;
+            $this->resetForm();
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $firstError = collect($e->errors())->first()[0] ?? 'Mohon perbaiki isian formulir kelas.';
+            session()->flash('error', $firstError);
+            $this->dispatch('show-alert', [
+                'title' => 'Gagal Simpan Kelas',
+                'message' => $firstError,
+                'type' => 'danger',
+            ]);
+            throw $e;
+        } catch (\Throwable $e) {
+            \App\Services\AuditLogger::log('error', 'Gagal memproses data kelas: ' . $e->getMessage(), null, [
+                'log_name' => 'manajemen_kelas',
+            ]);
+
+            session()->flash('error', 'Gagal memproses kelas: ' . $e->getMessage());
+            $this->dispatch('show-alert', [
+                'title' => 'Gagal Memproses Data Kelas',
+                'message' => $e->getMessage(),
+                'type' => 'danger',
+            ]);
         }
-
-        $this->validate($rules);
-
-        $activeSemester = Semester::where('status_aktif', true)->first() ?? Semester::first();
-        if (!$activeSemester) {
-            session()->flash('error', 'Tidak ada semester aktif untuk ditautkan pada kelas.');
-            return;
-        }
-
-        // Auto format nama_kelas for Tahfizh if empty
-        if ($this->jenis_kelas === 'tahfidz' && empty(trim($this->nama_kelas))) {
-            $guru = Guru::with('user')->find($this->guru_tahfidz_id);
-            $this->nama_kelas = 'Halaqah ' . ($guru->user->nama ?? 'Guru');
-        }
-
-        Kelas::updateOrCreate(
-            ['id' => $this->kelasId],
-            [
-                'nama_kelas' => $this->nama_kelas,
-                'jenis_kelas' => $this->jenis_kelas,
-                'tingkat' => $this->jenis_kelas === 'umum' ? $this->tingkat : '1',
-                'semester_id' => $activeSemester->id,
-                'guru_umum_id' => $this->jenis_kelas === 'umum' ? ($this->guru_umum_id ?: null) : null,
-                'guru_tahfidz_id' => $this->jenis_kelas === 'tahfidz' ? ($this->guru_tahfidz_id ?: null) : null,
-            ]
-        );
-
-        session()->flash('message', 'Data kelas (' . ucfirst($this->jenis_kelas) . ') berhasil disimpan.');
-        $this->isFormOpen = false;
-        $this->resetForm();
     }
 
     public function delete(int $id)
     {
-        $kelas = Kelas::findOrFail($id);
-        
-        // Safety check: check if class has students
-        $totalSiswa = $kelas->jenis_kelas === 'tahfidz' 
-            ? $kelas->siswasTahfidz()->count() 
-            : $kelas->siswas()->count();
+        try {
+            $kelas = Kelas::findOrFail($id);
+            $namaKelas = $kelas->nama_kelas;
+            
+            // Safety check: check if class has students
+            $totalSiswa = $kelas->jenis_kelas === 'tahfidz' 
+                ? $kelas->siswasTahfidz()->count() 
+                : $kelas->siswas()->count();
 
-        if ($totalSiswa > 0) {
-            session()->flash('error', 'Kelas tidak bisa dihapus karena masih memiliki ' . $totalSiswa . ' siswa terdaftar.');
-            return;
+            if ($totalSiswa > 0) {
+                $err = 'Kelas ' . $namaKelas . ' tidak bisa dihapus karena masih memiliki ' . $totalSiswa . ' siswa terdaftar.';
+                session()->flash('error', $err);
+                $this->dispatch('show-alert', [
+                    'title' => 'Gagal Hapus Kelas',
+                    'message' => $err,
+                    'type' => 'danger',
+                ]);
+                return;
+            }
+
+            \App\Services\AuditLogger::log('deleted', 'Menghapus data kelas: ' . $namaKelas, $kelas, [
+                'log_name' => 'manajemen_kelas',
+            ]);
+
+            $kelas->delete();
+
+            $msg = 'Data kelas ' . $namaKelas . ' berhasil dihapus.';
+            session()->flash('message', $msg);
+            $this->dispatch('show-alert', [
+                'title' => 'Hapus Kelas Berhasil',
+                'message' => $msg,
+                'type' => 'delete',
+            ]);
+        } catch (\Throwable $e) {
+            \App\Services\AuditLogger::log('error', 'Gagal menghapus data kelas ID ' . $id . ': ' . $e->getMessage(), null, [
+                'log_name' => 'manajemen_kelas',
+            ]);
+
+            session()->flash('error', 'Gagal menghapus kelas: ' . $e->getMessage());
+            $this->dispatch('show-alert', [
+                'title' => 'Gagal Menghapus Kelas',
+                'message' => $e->getMessage(),
+                'type' => 'danger',
+            ]);
         }
-
-        $kelas->delete();
-        session()->flash('message', 'Data kelas berhasil dihapus.');
     }
 
     private function resetForm()

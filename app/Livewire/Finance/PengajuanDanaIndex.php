@@ -219,7 +219,7 @@ class PengajuanDanaIndex extends Component
         if ($this->search) {
             $query->where(function ($q) {
                 $q->where('judul', 'like', '%' . $this->search . '%')
-                  ->orWhere('no_pengajuan', 'like', '%' . $this->search . '%')
+                  ->orWhere('keterangan', 'like', '%' . $this->search . '%')
                   ->orWhere('kategori', 'like', '%' . $this->search . '%');
             });
         }
