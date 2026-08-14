@@ -39,7 +39,7 @@
         </div>
         <button type="button" wire:click.prevent="openCreate" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-2">
             <x-lucide-plus class="w-4 h-4" />
-            <span>+ Tambah Kelas Baru</span>
+            <span>Tambah Kelas Baru</span>
         </button>
     </div>
 

@@ -3,7 +3,7 @@
     <x-info-tutorial-box 
         title="Petunjuk Pengelolaan Data Guru & Tenaga Pendidik"
         :steps="[
-            ['title' => 'Input Profil & Kredensial', 'desc' => 'Klik + Tambah Guru Baru untuk mendaftarkan NIK, NIY, pendidikan terakhir, grade guru, serta status pernikahan.'],
+            ['title' => 'Input Profil & Kredensial', 'desc' => 'Klik Tambah Guru Baru untuk mendaftarkan NIK, NIY, pendidikan terakhir, grade guru, serta status pernikahan.'],
             ['title' => 'Status Kepegawaian & Grade', 'desc' => 'Tentukan status kepegawaian (PNS/GTT/Honorer) & Grade Guru untuk penyesuaian penggajian & jenjang karir.'],
             ['title' => 'Manajemen Status Kerja', 'desc' => 'Ubah status mengajar menjadi Nonaktif jika guru yang bersangkutan sedang mutasi, berhenti, atau cuti.']
         ]"
@@ -21,7 +21,7 @@
         </div>
         <button type="button" wire:click.prevent="openCreate" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-2">
             <x-lucide-plus class="w-4 h-4" />
-            <span>+ Tambah Guru Baru</span>
+            <span>Tambah Guru Baru</span>
         </button>
     </div>
 

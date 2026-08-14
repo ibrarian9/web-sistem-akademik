@@ -46,7 +46,7 @@
         title="Petunjuk Setup Bab & Tujuan Pembelajaran (Kurikulum Merdeka)"
         :steps="[
             ['title' => 'Pilih Mata Pelajaran', 'desc' => 'Pilih mapel yang Anda ampu dari dropdown filter di atas untuk mengelola data Bab dan TP.'],
-            ['title' => 'Kelola Bab (Lingkup Materi)', 'desc' => 'Klik + Tambah Bab Baru untuk membuat lingkup materi per semester beserta frasa deskripsinya.'],
+            ['title' => 'Kelola Bab (Lingkup Materi)', 'desc' => 'Klik Tambah Bab Baru untuk membuat lingkup materi per semester beserta frasa deskripsinya.'],
             ['title' => 'Kelola Tujuan Pembelajaran (TP)', 'desc' => 'Tambahkan TP pada setiap Bab. Urutan TP akan menentukan prioritas narasi rapor otomatis.']
         ]"
         notes="Deskripsi TP yang singkat dan jelas akan mempermudah kalkulasi Auto-Narasi Capaian Pembelajaran pada lembar Rapor Siswa."
@@ -77,11 +77,11 @@
             <div class="flex items-center gap-2 w-full sm:w-auto">
                 <button wire:click="openLmModal" class="flex-1 sm:flex-none px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center justify-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    + Tambah Bab
+                    Tambah Bab
                 </button>
                 <button wire:click="openTpModal" class="flex-1 sm:flex-none px-4 py-3 bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
                     <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    + Tambah TP
+                    Tambah TP
                 </button>
             </div>
         </div>
@@ -151,7 +151,7 @@
                     <div class="flex items-center gap-2">
                         <button wire:click="openTpModal({{ $lm->id }})" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold transition flex items-center gap-1">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                            + Tambah TP
+                            Tambah TP
                         </button>
                         <button wire:click="editLingkupMateri({{ $lm->id }})" class="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-xl text-xs font-bold transition">
                             Edit Bab
@@ -180,7 +180,7 @@
                     @empty
                         <div class="p-4 bg-stone-50 border border-dashed border-stone-200 rounded-xl text-center flex items-center justify-between">
                             <span class="text-xs text-stone-500 italic font-medium">Belum ada Tujuan Pembelajaran (TP) pada bab ini.</span>
-                            <button wire:click="openTpModal({{ $lm->id }})" class="text-xs text-emerald-700 font-bold hover:underline">+ Tambah TP Pertama</button>
+                            <button wire:click="openTpModal({{ $lm->id }})" class="text-xs text-emerald-700 font-bold hover:underline">Tambah TP Pertama</button>
                         </div>
                     @endforelse
                 </div>
@@ -192,10 +192,10 @@
                 </div>
                 <div class="space-y-1">
                     <h3 class="text-sm font-bold text-stone-900 uppercase tracking-wider">Belum Ada Bab Terdaftar</h3>
-                    <p class="text-xs text-stone-500 max-w-sm mx-auto">Silakan daftarkan Lingkup Materi (Bab) pertama Anda dengan mengklik tombol "+ Tambah Bab".</p>
+                    <p class="text-xs text-stone-500 max-w-sm mx-auto">Silakan daftarkan Lingkup Materi (Bab) pertama Anda dengan mengklik tombol "Tambah Bab".</p>
                 </div>
                 <button wire:click="openLmModal" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm inline-block">
-                    + Tambah Bab Pertama
+                    Tambah Bab Pertama
                 </button>
             </div>
         @endforelse

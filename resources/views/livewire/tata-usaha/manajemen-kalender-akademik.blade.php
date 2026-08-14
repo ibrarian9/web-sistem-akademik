@@ -27,7 +27,7 @@
                 </button>
                 <button wire:click="openCreateModal" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition shadow-sm">
                     <x-lucide-plus class="w-4 h-4" />
-                    <span>+ Tambah Agenda / Hari Libur</span>
+                    <span>Tambah Agenda / Hari Libur</span>
                 </button>
             </div>
         @endif
@@ -259,7 +259,7 @@
 
                 <!-- Form Buat Tahun Ajaran Baru -->
                 <div class="p-4 bg-stone-50 border border-stone-200 rounded-2xl space-y-3">
-                    <h4 class="text-xs font-bold text-stone-800 uppercase tracking-wider">+ Buat Tahun Ajaran &amp; Tentukan Tanggal Semester</h4>
+                    <h4 class="text-xs font-bold text-stone-800 uppercase tracking-wider">Buat Tahun Ajaran &amp; Tentukan Tanggal Semester</h4>
                     <form wire:submit.prevent="createTahunAjaran" class="space-y-3">
                         <div class="space-y-1">
                             <label class="text-xs font-bold text-stone-700 uppercase">Nama Tahun Ajaran <span class="text-rose-600">*</span></label>

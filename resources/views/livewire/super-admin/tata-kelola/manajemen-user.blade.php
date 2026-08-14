@@ -3,7 +3,7 @@
     <x-info-tutorial-box 
         title="Petunjuk Manajemen Pengguna & Hak Akses"
         :steps="[
-            ['title' => 'Tambah User Baru', 'desc' => 'Klik + Tambah Pengguna Baru untuk membuat akun login baru serta menentukan role hak akses.'],
+            ['title' => 'Tambah User Baru', 'desc' => 'Klik Tambah Pengguna Baru untuk membuat akun login baru serta menentukan role hak akses.'],
             ['title' => 'Reset Password & Status', 'desc' => 'Klik tombol Edit untuk memperbarui password akun atau mengubah status keaktifan user.'],
             ['title' => 'Filter & Pencarian', 'desc' => 'Gunakan kotak pencarian untuk menemukan akun berdasarkan nama, username, atau email.']
         ]"
@@ -20,7 +20,7 @@
         </div>
         <button type="button" wire:click.prevent="openCreate" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-2">
             <x-lucide-plus class="w-4 h-4" />
-            <span>+ Tambah Pengguna Baru</span>
+            <span>Tambah Pengguna Baru</span>
         </button>
     </div>
 

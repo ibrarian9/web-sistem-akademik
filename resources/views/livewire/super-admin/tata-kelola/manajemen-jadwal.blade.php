@@ -4,7 +4,7 @@
         title="Petunjuk Pengelolaan Jadwal Pelajaran"
         :steps="[
             ['title' => 'Pilih Kelas', 'desc' => 'Klik tombol nama kelas untuk langsung melihat matriks jadwal mingguan (Senin–Sabtu) kelas tersebut.'],
-            ['title' => 'Lihat Jam Terisi & Tambah Jam', 'desc' => 'Sistem menampilkan jam pelajaran yang sudah terisi di setiap hari. Klik tombol + Tambah Jam di bawah hari yang diinginkan.'],
+            ['title' => 'Lihat Jam Terisi & Tambah Jam', 'desc' => 'Sistem menampilkan jam pelajaran yang sudah terisi di setiap hari. Klik tombol Tambah Jam di bawah hari yang diinginkan.'],
             ['title' => 'Deteksi Bentrok Otomatis', 'desc' => 'Sistem otomatis memvalidasi jadwal agar tidak ada bentrok mengajar guru atau bentrok ruang kelas.']
         ]"
         notes="Pastikan guru pengampu telah dipetakan pada kelas di menu Manajemen Mapel sebelum membuat jadwal."
@@ -35,7 +35,7 @@
 
             <button wire:click="openCreate" class="py-2.5 px-4 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold tracking-wide transition flex items-center gap-1.5 shadow-sm">
                 <x-lucide-plus class="w-4 h-4" />
-                <span>+ Tambah Jadwal</span>
+                <span>Tambah Jadwal</span>
             </button>
         </div>
     </div>
@@ -131,7 +131,7 @@
                         <!-- Quick Add Button for this Day -->
                         <button wire:click="openCreateForDay('{{ $day }}', {{ $selectedKelasId }})" class="w-full py-2 bg-emerald-100 hover:bg-emerald-700 text-emerald-900 hover:text-white border border-emerald-300 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs">
                             <x-lucide-plus class="w-3.5 h-3.5" />
-                            <span>+ Tambah {{ ucfirst($day) }}</span>
+                            <span>Tambah {{ ucfirst($day) }}</span>
                         </button>
                     </div>
                 @endforeach

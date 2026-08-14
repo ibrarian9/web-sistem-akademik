@@ -21,7 +21,7 @@
     <x-info-tutorial-box 
         title="Petunjuk Pengelolaan Data Siswa Aktif (Dua Kelas Per Siswa)"
         :steps="[
-            ['title' => 'Tambah Siswa Baru', 'desc' => 'Klik + Tambah Siswa Baru untuk mendaftarkan NIS, NISN, biodata, serta wali murid.'],
+            ['title' => 'Tambah Siswa Baru', 'desc' => 'Klik Tambah Siswa Baru untuk mendaftarkan NIS, NISN, biodata, serta wali murid.'],
             ['title' => 'Penetapan 2 Kelas Wajib', 'desc' => 'Setiap siswa wajib memilih 1 Kelas Umum (1-6 A/B/C) dan 1 Kelas Tahfizh (Halaqah Ustadz/ah).'],
             ['title' => 'Perubahan Status', 'desc' => 'Ubah status keaktifan menjadi Lulus, Pindah, atau Keluar saat terjadi pembaruan status pendidikan.']
         ]"

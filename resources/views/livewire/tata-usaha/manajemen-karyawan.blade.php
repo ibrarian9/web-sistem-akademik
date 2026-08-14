@@ -3,7 +3,7 @@
     <x-info-tutorial-box 
         title="Petunjuk Direktori & Kelola Karyawan / Staff"
         :steps="[
-            ['title' => 'Tambah Data & Akun', 'desc' => 'Klik + Tambah Karyawan Baru untuk meregistrasikan pegawai/guru baru beserta akun login.'],
+            ['title' => 'Tambah Data & Akun', 'desc' => 'Klik Tambah Karyawan Baru untuk meregistrasikan pegawai/guru baru beserta akun login.'],
             ['title' => 'Pencarian & Filter Role', 'desc' => 'Gunakan kotak pencarian atau dropdown role untuk memfilter staf Guru, TU, Finance, Koordinator, atau Kepala Sekolah.'],
             ['title' => 'Edit & Status Akun', 'desc' => 'Gunakan tombol Edit pada kartu pegawai untuk memperbarui detail NIP, peranan (role), email, password, atau menonaktifkan akun.']
         ]"
@@ -21,7 +21,7 @@
         </div>
         <button type="button" wire:click.prevent="openCreate" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-2">
             <x-lucide-plus-circle class="w-4 h-4" />
-            <span>+ Tambah Karyawan Baru</span>
+            <span>Tambah Karyawan Baru</span>
         </button>
     </div>
 
