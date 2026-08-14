@@ -61,9 +61,17 @@ class InputNilaiSiswa extends Component
             })
             ->get();
 
-        // Extract classes & mapels
-        $this->classes = $assignments->pluck('kelas')->unique('id')->toArray();
-        $this->subjects = $assignments->pluck('mapel')->unique('id')->toArray();
+        $gmkClasses = $assignments->pluck('kelas')->filter();
+        $waliClasses = \App\Models\Kelas::where('guru_umum_id', $guru->id)->get();
+        $tahfidzClasses = \App\Models\Kelas::where('guru_tahfidz_id', $guru->id)->get();
+
+        $this->classes = $gmkClasses->merge($waliClasses)->merge($tahfidzClasses)->unique('id')->values()->toArray();
+        $this->subjects = $assignments->pluck('mapel')->filter()->unique('id')->values()->toArray();
+
+        if (empty($this->subjects)) {
+            $this->subjects = \App\Models\MataPelajaran::all()->toArray();
+        }
+
         $this->components = KomponenNilai::orderBy('urutan')->get()->toArray();
     }
 
@@ -87,7 +95,10 @@ class InputNilaiSiswa extends Component
             return;
         }
 
-        $students = Siswa::where('kelas_id', $this->kelas_id)
+        $students = Siswa::where(function ($q) {
+                $q->where('kelas_id', $this->kelas_id)
+                  ->orWhere('kelas_tahfidz_id', $this->kelas_id);
+            })
             ->where('status', 'aktif')
             ->with('user')
             ->get();

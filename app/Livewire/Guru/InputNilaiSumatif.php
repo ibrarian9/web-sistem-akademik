@@ -86,7 +86,10 @@ class InputNilaiSumatif extends Component
             return;
         }
 
-        $siswas = Siswa::where('kelas_id', $this->kelas_id)->pluck('id');
+        $siswas = Siswa::where(function ($q) {
+            $q->where('kelas_id', $this->kelas_id)
+              ->orWhere('kelas_tahfidz_id', $this->kelas_id);
+        })->pluck('id');
 
         // Load Nilai TP Matrix
         $sumatifTps = NilaiSumatifTp::whereIn('siswa_id', $siswas)
@@ -256,7 +259,10 @@ class InputNilaiSumatif extends Component
             $lingkupMateris = LingkupMateri::where('mapel_id', $this->mapel_id)->get();
         }
 
-        $siswas = $this->kelas_id ? Siswa::where('kelas_id', $this->kelas_id)->get() : collect();
+        $siswas = $this->kelas_id ? Siswa::where(function ($q) {
+            $q->where('kelas_id', $this->kelas_id)
+              ->orWhere('kelas_tahfidz_id', $this->kelas_id);
+        })->get() : collect();
 
         $tpQuery = TujuanPembelajaran::query();
         if ($this->lingkup_materi_id) {

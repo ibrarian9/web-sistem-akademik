@@ -9,7 +9,7 @@
     };
 @endphp
 
-<div class="p-4 rounded-xl border flex items-start gap-3 shadow-sm {{ $classes }}">
+<div class="p-4 border flex items-start gap-3 {{ $classes }}">
     <div class="shrink-0 mt-0.5">
         @switch($type)
             @case('error') <x-lucide-x-circle class="w-5 h-5" /> @break

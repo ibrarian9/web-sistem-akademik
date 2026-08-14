@@ -14,6 +14,9 @@ class AuditLog extends Component
     public string $filterEvent = '';
     public int $perPage = 20;
 
+    public $selectedLog = null;
+    public bool $showDetailModal = false;
+
     protected $queryString = [
         'search' => ['except' => ''],
         'filterEvent' => ['except' => ''],
@@ -27,6 +30,39 @@ class AuditLog extends Component
     public function updatingFilterEvent()
     {
         $this->resetPage();
+    }
+
+    public function openDetail($id)
+    {
+        $log = DB::table('activity_log')
+            ->leftJoin('users', 'activity_log.causer_id', '=', 'users.id')
+            ->select(
+                'activity_log.*',
+                'users.nama as causer_name',
+                'users.username as causer_username',
+                'users.email as causer_email'
+            )
+            ->where('activity_log.id', $id)
+            ->first();
+
+        if ($log) {
+            $logArray = (array) $log;
+            // Parse JSON properties if string
+            if (isset($logArray['properties']) && is_string($logArray['properties'])) {
+                $decoded = json_decode($logArray['properties'], true);
+                $logArray['properties_parsed'] = json_last_error() === JSON_ERROR_NONE ? $decoded : $logArray['properties'];
+            } else {
+                $logArray['properties_parsed'] = $logArray['properties'] ?? [];
+            }
+            $this->selectedLog = $logArray;
+            $this->showDetailModal = true;
+        }
+    }
+
+    public function closeDetail()
+    {
+        $this->selectedLog = null;
+        $this->showDetailModal = false;
     }
 
     public function render()

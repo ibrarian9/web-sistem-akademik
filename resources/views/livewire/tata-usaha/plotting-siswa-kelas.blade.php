@@ -28,7 +28,7 @@
         :steps="[
             ['title' => 'Pilih Kelas Target', 'desc' => 'Pilih Kelas Umum (1A, 1B, 2A, dst) atau Kelas Tahfizh (Halaqah Ustadz/ah) yang ingin dikelola.'],
             ['title' => 'Lihat Daftar Murid', 'desc' => 'Sistem langsung menampilkan daftar seluruh siswa terdaftar pada kelas tersebut.'],
-            ['title' => 'Tambah / Masukkan Murid Kolektif', 'desc' => 'Klik tombol + Masukkan Murid Ke Kelas Ini untuk memilih & mencentang beberapa siswa sekaligus (1x simpan).']
+            ['title' => 'Masukkan Murid Kolektif', 'desc' => 'Klik tombol Masukkan Murid Ke Kelas Ini untuk memilih & mencentang beberapa siswa sekaligus (1x simpan).']
         ]"
         notes="Setiap siswa wajib memiliki 1 Kelas Umum dan 1 Kelas Tahfizh."
     />
@@ -55,7 +55,7 @@
             @if($selectedKelas)
                 <button type="button" wire:click.prevent="openAddModal" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-2">
                     <x-lucide-user-plus class="w-4 h-4" />
-                    <span>+ Masukkan Murid Ke {{ $selectedKelas->nama_kelas }}</span>
+                    <span>Masukkan Murid Ke {{ $selectedKelas->nama_kelas }}</span>
                 </button>
             @endif
         </div>
@@ -65,8 +65,8 @@
                 <label class="block text-xs font-bold text-stone-700 uppercase mb-1">Filter Jenis Kelas</label>
                 <select wire:model.live="filter_jenis" class="w-full bg-white border border-stone-300 rounded-xl text-stone-900 px-3.5 py-2.5 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
                     <option value="semua">Semua Jenis Kelas</option>
-                    <option value="umum">📚 Kelas Umum (1 - 6)</option>
-                    <option value="tahfidz">★ Kelas Tahfizh (Halaqah)</option>
+                    <option value="umum">Kelas Umum (1 - 6)</option>
+                    <option value="tahfidz">Kelas Tahfizh (Halaqah)</option>
                 </select>
             </div>
 
@@ -94,16 +94,20 @@
             <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
                 <div class="flex items-center gap-3">
                     <span class="w-10 h-10 rounded-xl bg-emerald-700 text-white font-black text-sm flex items-center justify-center shadow-xs">
-                        {{ $selectedKelas->jenis_kelas === 'tahfidz' ? '★' : '📚' }}
+                        @if($selectedKelas->jenis_kelas === 'tahfidz')
+                            <x-lucide-bookmark class="w-5 h-5 text-white" />
+                        @else
+                            <x-lucide-book-open class="w-5 h-5 !text-white" />
+                        @endif
                     </span>
                     <div>
-                        <div class="font-extrabold text-emerald-950 text-sm">
-                            {{ $selectedKelas->nama_kelas }}
-                            <span class="ml-2 text-xs font-bold px-2 py-0.5 rounded-full {{ $selectedKelas->jenis_kelas === 'tahfidz' ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-emerald-100 text-emerald-900 border border-emerald-300' }}">
+                        <div class="font-extrabold text-emerald-950 text-sm flex items-center gap-1.5">
+                            <span>{{ $selectedKelas->nama_kelas }}</span>
+                            <span class="text-xs font-bold px-2 py-0.5 rounded-full {{ $selectedKelas->jenis_kelas === 'tahfidz' ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-emerald-100 text-emerald-900 border border-emerald-300' }}">
                                 {{ $selectedKelas->jenis_kelas === 'tahfidz' ? 'Kelas Tahfizh' : 'Kelas Umum' }}
                             </span>
                         </div>
-                        <div class="text-[11px] text-emerald-800 font-medium">
+                        <div class="text-[11px] text-emerald-800 font-medium py-0.5">
                             Pengampu: <strong>{{ $selectedKelas->jenis_kelas === 'tahfidz' ? ($selectedKelas->guruTahfidz->user->nama ?? 'Admin') : ($selectedKelas->guruUmum->user->nama ?? 'Admin') }}</strong>
                         </div>
                     </div>
@@ -167,13 +171,15 @@
                             </td>
                             <td class="p-3 border-r border-stone-200">
                                 @if($selectedKelas && $selectedKelas->jenis_kelas === 'tahfidz')
-                                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded text-xs font-bold">
-                                        📚 {{ $s->kelas->nama_kelas ?? 'Belum Set' }}
+                                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded text-xs font-bold inline-flex items-center gap-1">
+                                        <x-lucide-book-open class="w-3.5 h-3.5 text-emerald-700 !text-white" />
+                                        <span>{{ $s->kelas->nama_kelas ?? 'Belum Set' }}</span>
                                     </span>
                                 @else
                                     @if($s->kelasTahfidz)
-                                        <span class="px-2 py-0.5 bg-amber-100 text-amber-900 border border-amber-300 rounded text-xs font-bold">
-                                            ★ {{ $s->kelasTahfidz->nama_kelas }}
+                                        <span class="px-2 py-0.5 bg-amber-100 text-amber-900 border border-amber-300 rounded text-xs font-bold inline-flex items-center gap-1">
+                                            <x-lucide-bookmark class="w-3.5 h-3.5 text-amber-700" />
+                                            <span>{{ $s->kelasTahfidz->nama_kelas }}</span>
                                         </span>
                                     @else
                                         <span class="text-stone-400 italic text-[11px]">- Belum Set -</span>
@@ -205,12 +211,14 @@
 
     <!-- MODAL KOLEKTIF TAMBAH MURID -->
     @if($showAddModal && $selectedKelas)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs">
-            <div class="bg-white border border-stone-200 rounded-3xl p-6 shadow-2xl max-w-2xl w-full space-y-4 max-h-[90vh] overflow-y-auto">
+        <div class="fixed inset-0 z-[99990] flex items-center justify-center bg-stone-950/65 backdrop-blur-xs p-4 sm:p-6 pt-20 sm:pt-8 pb-8 overflow-y-auto">
+            <div class="bg-white border border-stone-200 rounded-3xl p-6 shadow-2xl max-w-2xl w-full space-y-4 max-h-[85vh] my-auto overflow-y-auto">
                 <div class="flex items-center justify-between border-b border-stone-200 pb-3">
                     <div>
                         <h3 class="text-sm font-extrabold text-emerald-950 uppercase tracking-wider flex items-center gap-2">
-                            <span class="w-6 h-6 rounded-full bg-emerald-200 text-emerald-950 text-xs flex items-center justify-center font-black">+</span>
+                            <span class="w-6 h-6 rounded-full bg-emerald-200 text-emerald-950 text-xs flex items-center justify-center font-black">
+                                <x-lucide-user-plus class="w-3.5 h-3.5 text-emerald-900" />
+                            </span>
                             <span>Masukkan Murid Ke {{ $selectedKelas->nama_kelas }}</span>
                         </h3>
                         <p class="text-[11px] text-stone-500 font-semibold mt-0.5">Centang beberapa siswa di bawah ini untuk dimasukkan sekaligus.</p>

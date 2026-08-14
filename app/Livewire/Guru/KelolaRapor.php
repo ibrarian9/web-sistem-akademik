@@ -102,7 +102,10 @@ class KelolaRapor extends Component
         $this->catatanWaliKelas = '';
 
         if ($this->kelasId) {
-            $this->students = Siswa::where('kelas_id', $this->kelasId)
+            $this->students = Siswa::where(function ($q) {
+                    $q->where('kelas_id', $this->kelasId)
+                      ->orWhere('kelas_tahfidz_id', $this->kelasId);
+                })
                 ->where('siswa.status', 'aktif')
                 ->join('users', 'siswa.user_id', '=', 'users.id')
                 ->orderBy('users.nama', 'asc')

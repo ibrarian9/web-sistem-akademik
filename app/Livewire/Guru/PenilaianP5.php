@@ -82,7 +82,10 @@ class PenilaianP5 extends Component
             return;
         }
 
-        $siswas = Siswa::where('kelas_id', $this->kelas_id)->pluck('id');
+        $siswas = Siswa::where(function ($q) {
+            $q->where('kelas_id', $this->kelas_id)
+              ->orWhere('kelas_tahfidz_id', $this->kelas_id);
+        })->pluck('id');
 
         $scores = NilaiP5::whereIn('siswa_id', $siswas)
             ->where('proyek_id', $this->proyek_id)
@@ -162,7 +165,10 @@ class PenilaianP5 extends Component
         $dimensis = DimensiP5::with('subdimensi')->get();
 
 
-        $siswas = $this->kelas_id ? Siswa::where('kelas_id', $this->kelas_id)->get() : collect();
+        $siswas = $this->kelas_id ? Siswa::where(function ($q) {
+            $q->where('kelas_id', $this->kelas_id)
+              ->orWhere('kelas_tahfidz_id', $this->kelas_id);
+        })->get() : collect();
 
         return view('livewire.guru.penilaian-p5', [
             'kelases' => $kelases,

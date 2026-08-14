@@ -4,7 +4,7 @@
     'notes' => null
 ])
 
-<div x-data="{ open: true }" class="bg-emerald-50/90 border border-emerald-200/90 rounded-2xl p-4 shadow-sm mb-6 transition-all duration-200">
+<div x-data="{ open: false }" class="bg-emerald-50/90 border border-emerald-200/90 rounded-2xl p-4 shadow-sm mb-6 transition-all duration-200">
     <div class="flex items-center justify-between cursor-pointer select-none" @click="open = !open">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm shrink-0">

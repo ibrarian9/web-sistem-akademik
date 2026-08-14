@@ -47,14 +47,13 @@ test('parents and students can view published rapor without blocked access', fun
         ->assertSee('Ananda Siswa Berprestasi');
 });
 
-test('parents can switch tab to view tahfizh published report', function () {
+test('parents can switch tab to view mid semester published report', function () {
     $userSiswa = User::where('username', 'siswa')->first();
 
     Livewire::actingAs($userSiswa)
         ->test(RaporNilai::class)
-        ->set('activeTab', 'tahfidz')
+        ->set('activeTab', 'mid')
         ->assertStatus(200)
         ->assertDontSee('Akses Rapor Terkunci')
-        ->assertSee("Rapor Tahfizh")
-        ->assertSee('Tahfidz Al-Quran');
+        ->assertSee('Hasil Nilai Sumatif Tengah Semester');
 });

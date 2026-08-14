@@ -111,11 +111,12 @@
                         <th class="py-3.5 px-4 w-44">Waktu</th>
                         <th class="py-3.5 px-4 w-28 text-center">Level</th>
                         <th class="py-3.5 px-4">Pesan Error &amp; Trace Details</th>
+                        <th class="py-3.5 px-4 w-28 text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-stone-100 font-medium" x-data="{ openTrace: null }">
                     @forelse ($logs as $log)
-                        <tr class="hover:bg-stone-50/80 transition duration-150">
+                        <tr class="hover:bg-stone-50/80 transition duration-150 cursor-pointer" wire:click="openErrorDetail({{ $log['id'] }})">
                             <td class="py-3.5 px-4 font-mono text-[11px] text-stone-500 whitespace-nowrap">
                                 {{ $log['timestamp'] }}
                             </td>
@@ -139,7 +140,7 @@
                                 </div>
 
                                 @if (!empty($log['trace']))
-                                    <div>
+                                    <div @click.stop>
                                         <button type="button" @click="openTrace = (openTrace === {{ $log['id'] }} ? null : {{ $log['id'] }})"
                                                 class="text-[11px] font-bold text-stone-500 hover:text-stone-800 inline-flex items-center gap-1">
                                             <x-lucide-code class="w-3.5 h-3.5" />
@@ -152,10 +153,17 @@
                                     </div>
                                 @endif
                             </td>
+                            <td class="py-3.5 px-4 text-center" @click.stop>
+                                <button type="button" wire:click="openErrorDetail({{ $log['id'] }})"
+                                        class="px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 mx-auto">
+                                    <x-lucide-eye class="w-3.5 h-3.5" />
+                                    <span>Detail</span>
+                                </button>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="py-10 text-center text-stone-400 font-medium">
+                            <td colspan="4" class="py-10 text-center text-stone-400 font-medium">
                                 <x-lucide-check-circle-2 class="w-10 h-10 mx-auto mb-2 text-emerald-500 opacity-60" />
                                 <div class="font-bold text-stone-700 text-sm">Tidak Ada Log Error Ditemukan</div>
                                 <p class="text-xs text-stone-400 mt-1">Sistem berjalan dengan bersih atau berkas laravel.log masih kosong.</p>
@@ -172,4 +180,106 @@
             </div>
         @endif
     </div>
+
+    <!-- System Error Detail Modal -->
+    @if ($showErrorModal && $selectedErrorLog)
+        <div class="fixed inset-0 z-[99990] flex items-center justify-center bg-stone-950/65 backdrop-blur-xs p-4 sm:p-6 pt-20 sm:pt-8 pb-8 overflow-y-auto">
+            <div class="bg-white border border-stone-200 rounded-none max-w-3xl w-full shadow-2xl overflow-hidden relative animate-[fadeIn_0.2s_ease-out]">
+                <!-- Top Accent Line -->
+                <div class="h-1.5 bg-rose-600"></div>
+
+                <div class="p-6 space-y-5 max-h-[85vh] overflow-y-auto">
+                    <!-- Header -->
+                    <div class="flex items-start justify-between gap-4 border-b border-stone-200 pb-4">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                @php
+                                    $lvl = $selectedErrorLog['level'];
+                                    $badgeClass = match ($lvl) {
+                                        'CRITICAL', 'ALERT', 'EMERGENCY' => 'bg-purple-100 text-purple-900 border-purple-300',
+                                        'ERROR' => 'bg-rose-100 text-rose-900 border-rose-300',
+                                        'WARNING' => 'bg-amber-100 text-amber-900 border-amber-300',
+                                        default => 'bg-stone-100 text-stone-800 border-stone-300',
+                                    };
+                                @endphp
+                                <span class="px-2.5 py-0.5 rounded-none font-black text-[10px] uppercase border {{ $badgeClass }}">
+                                    {{ $lvl }}
+                                </span>
+                                <span class="text-xs text-stone-500 font-bold">Log Entri #{{ $selectedErrorLog['id'] }}</span>
+                            </div>
+                            <h3 class="text-lg font-black text-stone-900 tracking-tight flex items-center gap-2">
+                                <x-lucide-alert-octagon class="w-5 h-5 text-rose-600 shrink-0" />
+                                <span>Detail Exception / System Error Log</span>
+                            </h3>
+                        </div>
+
+                        <button type="button" wire:click="closeErrorDetail" class="p-1.5 rounded-none text-stone-400 hover:text-stone-800 hover:bg-stone-100 transition text-sm font-bold">
+                            ✕
+                        </button>
+                    </div>
+
+                    <!-- Metadata -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div class="p-3 bg-stone-50 border border-stone-200 rounded-none space-y-1">
+                            <div class="text-[10px] uppercase font-bold text-stone-400">Timestamp Log</div>
+                            <div class="font-mono font-bold text-stone-900">{{ $selectedErrorLog['timestamp'] }}</div>
+                        </div>
+
+                        <div class="p-3 bg-stone-50 border border-stone-200 rounded-none space-y-1">
+                            <div class="text-[10px] uppercase font-bold text-stone-400">Severity Level</div>
+                            <div class="font-bold text-rose-700 uppercase">{{ $selectedErrorLog['level'] }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Main Exception Message -->
+                    <div class="space-y-1.5">
+                        <div class="text-xs font-bold text-stone-800 flex items-center gap-1.5">
+                            <x-lucide-alert-triangle class="w-4 h-4 text-rose-600" />
+                            <span>Pesan Error Utama (Exception Message)</span>
+                        </div>
+                        <div class="p-4 bg-rose-50 border border-rose-200 rounded-none font-mono text-xs text-rose-900 font-extrabold leading-relaxed break-all">
+                            {{ $selectedErrorLog['message'] }}
+                        </div>
+                    </div>
+
+                    <!-- Stack Trace Details -->
+                    @if (!empty($selectedErrorLog['trace']))
+                        <div class="space-y-1.5" x-data="{ copied: false }">
+                            <div class="flex items-center justify-between">
+                                <div class="text-xs font-bold text-stone-800 flex items-center gap-1.5">
+                                    <x-lucide-code class="w-4 h-4 text-stone-600" />
+                                    <span>Full Exception Stack Trace</span>
+                                </div>
+                                <button type="button" 
+                                        @click="navigator.clipboard.writeText($refs.traceContent.innerText); copied = true; setTimeout(() => copied = false, 2000)"
+                                        class="px-2.5 py-1 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-none text-[11px] font-bold border border-stone-300 transition flex items-center gap-1">
+                                    <x-lucide-copy class="w-3.5 h-3.5" />
+                                    <span x-text="copied ? 'Tercopy!' : 'Copy Stack Trace'"></span>
+                                </button>
+                            </div>
+                            <div x-ref="traceContent" class="p-4 bg-stone-900 text-stone-200 rounded-none font-mono text-xs overflow-x-auto whitespace-pre leading-relaxed border border-stone-800 shadow-inner max-h-72">
+                                {{ $selectedErrorLog['trace'] }}
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Raw Content if available -->
+                    @if (!empty($selectedErrorLog['raw']) && empty($selectedErrorLog['trace']))
+                        <div class="space-y-1.5">
+                            <div class="text-xs font-bold text-stone-800">Raw Log Content</div>
+                            <div class="p-4 bg-stone-900 text-amber-300 rounded-none font-mono text-xs overflow-x-auto whitespace-pre leading-relaxed border border-stone-800 shadow-inner max-h-72">
+                                {{ $selectedErrorLog['raw'] }}
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="px-6 py-4 bg-stone-50 border-t border-stone-200 flex justify-end">
+                    <button type="button" wire:click="closeErrorDetail" class="px-5 py-2 bg-stone-800 hover:bg-stone-900 text-white rounded-none text-xs font-bold transition">
+                        Tutup Detail
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

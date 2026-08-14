@@ -8,60 +8,91 @@
 
     $guruMenuItems = match ($jenisGuru) {
         'tahfizh' => [
-            ['title' => 'Dashboard', 'route' => 'guru.dashboard', 'icon' => 'home'],
-            ['title' => 'Tahfizh Al-Qur\'an', 'route' => null, 'icon' => null, 'section' => true],
-            ['title' => 'Setoran Tahfizh', 'route' => 'guru.input-tahfidz', 'icon' => 'award'],
-            ['title' => 'Rapor Murid', 'route' => 'guru.kelola-rapor', 'icon' => 'book-open'],
-            ['title' => 'Pengembangan Diri', 'route' => 'guru.pengembangan-diri', 'icon' => 'award'],
-            ['title' => 'Jadwal & Presensi', 'route' => null, 'icon' => null, 'section' => true],
-            ['title' => 'Presensi Guru', 'route' => 'guru.absensi-diri', 'icon' => 'clock'],
+            ['title' => 'Dashboard Guru', 'route' => 'guru.dashboard', 'icon' => 'home'],
+            
+            ['title' => 'KBM & Presensi', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Absensi Siswa', 'route' => 'guru.absensi-siswa', 'icon' => 'check-square'],
             ['title' => 'Jadwal Mengajar', 'route' => 'guru.jadwal-mengajar', 'icon' => 'calendar'],
-            ['title' => 'Jadwal Piket', 'route' => 'guru.piket', 'icon' => 'clock'],
-            ['title' => 'Kalender', 'route' => 'guru.kalender-akademik', 'icon' => 'calendar'],
+            ['title' => 'Jadwal Piket', 'route' => 'guru.piket', 'icon' => 'shield-check'],
+
+            ['title' => 'Setoran & Tahfizh', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Setoran Tahfizh', 'route' => 'guru.input-tahfidz', 'icon' => 'award'],
+
+            ['title' => 'Rapor & Bimbingan', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Cetak & Kelola Rapor', 'route' => 'guru.kelola-rapor', 'icon' => 'book-open'],
+            ['title' => 'Pengembangan Diri', 'route' => 'guru.pengembangan-diri', 'icon' => 'user-check'],
+
+            ['title' => 'Presensi Saya & Info', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Presensi Guru Mandiri', 'route' => 'guru.absensi-diri', 'icon' => 'clock'],
+            ['title' => 'Kalender Akademik', 'route' => 'guru.kalender-akademik', 'icon' => 'calendar'],
+
+            ['title' => 'Laporan', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Rekap Absensi Siswa', 'route' => 'guru.laporan.absensi-siswa', 'icon' => 'file-text'],
+            ['title' => 'Rekap Nilai Kelas', 'route' => 'guru.laporan.rekap-nilai', 'icon' => 'bar-chart-2'],
+
             ['title' => 'Lainnya', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Notifikasi', 'route' => 'shared.notifications', 'icon' => 'bell'],
         ],
         'umum' => [
-            ['title' => 'Dashboard', 'route' => 'guru.dashboard', 'icon' => 'home'],
-            ['title' => 'Akademik & Nilai', 'route' => null, 'icon' => null, 'section' => true],
-            ['title' => 'Setup Bab & TP', 'route' => 'guru.kurikulum-merdeka', 'icon' => 'layers'],
-            ['title' => 'Nilai Sumatif', 'route' => 'guru.input-sumatif', 'icon' => 'edit-3'],
-            ['title' => 'Jadwal Remedial', 'route' => 'guru.remedial', 'icon' => 'clock'],
-            ['title' => 'Penilaian P5', 'route' => 'guru.penilaian-p5', 'icon' => 'star'],
-            ['title' => 'Rapor Murid', 'route' => 'guru.kelola-rapor', 'icon' => 'book-open'],
-            ['title' => 'Pengembangan Diri', 'route' => 'guru.pengembangan-diri', 'icon' => 'award'],
-            ['title' => 'Nilai KTSP', 'route' => 'guru.input-nilai', 'icon' => 'edit-3'],
-            ['title' => 'Bobot Nilai', 'route' => 'guru.bobot-nilai', 'icon' => 'sliders'],
-            ['title' => 'Absensi Siswa', 'route' => 'guru.absensi-siswa', 'icon' => 'clipboard'],
-            ['title' => 'Jadwal & Presensi', 'route' => null, 'icon' => null, 'section' => true],
-            ['title' => 'Presensi Guru', 'route' => 'guru.absensi-diri', 'icon' => 'clock'],
+            ['title' => 'Dashboard Guru', 'route' => 'guru.dashboard', 'icon' => 'home'],
+
+            ['title' => 'KBM & Presensi', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Absensi Siswa', 'route' => 'guru.absensi-siswa', 'icon' => 'check-square'],
             ['title' => 'Jadwal Mengajar', 'route' => 'guru.jadwal-mengajar', 'icon' => 'calendar'],
-            ['title' => 'Kalender', 'route' => 'guru.kalender-akademik', 'icon' => 'calendar'],
-            ['title' => 'Laporan', 'route' => null, 'icon' => null, 'section' => true],
-            ['title' => 'Rekap Absensi', 'route' => 'guru.laporan.absensi-siswa', 'icon' => 'file-text'],
-            ['title' => 'Rekap Nilai', 'route' => 'guru.laporan.rekap-nilai', 'icon' => 'award'],
+            ['title' => 'Jadwal Piket', 'route' => 'guru.piket', 'icon' => 'shield-check'],
+
+            ['title' => 'Penilaian & Kurikulum', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Setup Bab & TP', 'route' => 'guru.kurikulum-merdeka', 'icon' => 'layers'],
+            ['title' => 'Nilai Sumatif TP & SAS', 'route' => 'guru.input-sumatif', 'icon' => 'edit-3'],
+            ['title' => 'Nilai KTSP / Per-KD', 'route' => 'guru.input-nilai', 'icon' => 'clipboard'],
+            ['title' => 'Penilaian Kokurikuler P5', 'route' => 'guru.penilaian-p5', 'icon' => 'star'],
+            ['title' => 'Bobot & Formula Nilai', 'route' => 'guru.bobot-nilai', 'icon' => 'sliders'],
+            ['title' => 'Jadwal Remedial', 'route' => 'guru.remedial', 'icon' => 'refresh-cw'],
+
+            ['title' => 'Rapor & Wali Kelas', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Cetak & Kelola Rapor', 'route' => 'guru.kelola-rapor', 'icon' => 'book-open'],
+            ['title' => 'Pengembangan Diri', 'route' => 'guru.pengembangan-diri', 'icon' => 'user-check'],
+
+            ['title' => 'Presensi Saya & Info', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Presensi Guru Mandiri', 'route' => 'guru.absensi-diri', 'icon' => 'clock'],
+            ['title' => 'Kalender Akademik', 'route' => 'guru.kalender-akademik', 'icon' => 'calendar'],
+
+            ['title' => 'Laporan & Rekap', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Rekap Absensi Siswa', 'route' => 'guru.laporan.absensi-siswa', 'icon' => 'file-text'],
+            ['title' => 'Rekap Nilai Kelas', 'route' => 'guru.laporan.rekap-nilai', 'icon' => 'bar-chart-2'],
+
             ['title' => 'Lainnya', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Notifikasi', 'route' => 'shared.notifications', 'icon' => 'bell'],
         ],
         default => [
-            ['title' => 'Dashboard', 'route' => 'guru.dashboard', 'icon' => 'home'],
-            ['title' => 'Akademik & Nilai', 'route' => null, 'icon' => null, 'section' => true],
-            ['title' => 'Setup Bab & TP', 'route' => 'guru.kurikulum-merdeka', 'icon' => 'layers'],
-            ['title' => 'Nilai Sumatif', 'route' => 'guru.input-sumatif', 'icon' => 'edit-3'],
-            ['title' => 'Setoran Tahfizh', 'route' => 'guru.input-tahfidz', 'icon' => 'award'],
-            ['title' => 'Penilaian P5', 'route' => 'guru.penilaian-p5', 'icon' => 'star'],
-            ['title' => 'Rapor Murid', 'route' => 'guru.kelola-rapor', 'icon' => 'book-open'],
-            ['title' => 'Nilai KTSP', 'route' => 'guru.input-nilai', 'icon' => 'edit-3'],
-            ['title' => 'Bobot Nilai', 'route' => 'guru.bobot-nilai', 'icon' => 'sliders'],
-            ['title' => 'Absensi Siswa', 'route' => 'guru.absensi-siswa', 'icon' => 'clipboard'],
-            ['title' => 'Jadwal & Presensi', 'route' => null, 'icon' => null, 'section' => true],
-            ['title' => 'Presensi Guru', 'route' => 'guru.absensi-diri', 'icon' => 'clock'],
+            ['title' => 'Dashboard Guru', 'route' => 'guru.dashboard', 'icon' => 'home'],
+
+            ['title' => 'KBM & Presensi', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Absensi Siswa', 'route' => 'guru.absensi-siswa', 'icon' => 'check-square'],
             ['title' => 'Jadwal Mengajar', 'route' => 'guru.jadwal-mengajar', 'icon' => 'calendar'],
-            ['title' => 'Jadwal Piket', 'route' => 'guru.piket', 'icon' => 'clock'],
-            ['title' => 'Kalender', 'route' => 'guru.kalender-akademik', 'icon' => 'calendar'],
-            ['title' => 'Laporan', 'route' => null, 'icon' => null, 'section' => true],
-            ['title' => 'Rekap Absensi', 'route' => 'guru.laporan.absensi-siswa', 'icon' => 'file-text'],
-            ['title' => 'Rekap Nilai', 'route' => 'guru.laporan.rekap-nilai', 'icon' => 'award'],
+            ['title' => 'Jadwal Piket', 'route' => 'guru.piket', 'icon' => 'shield-check'],
+
+            ['title' => 'Penilaian & Tahfizh', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Setup Bab & TP', 'route' => 'guru.kurikulum-merdeka', 'icon' => 'layers'],
+            ['title' => 'Nilai Sumatif TP & SAS', 'route' => 'guru.input-sumatif', 'icon' => 'edit-3'],
+            ['title' => 'Setoran Tahfizh', 'route' => 'guru.input-tahfidz', 'icon' => 'award'],
+            ['title' => 'Penilaian Kokurikuler P5', 'route' => 'guru.penilaian-p5', 'icon' => 'star'],
+            ['title' => 'Nilai KTSP', 'route' => 'guru.input-nilai', 'icon' => 'clipboard'],
+            ['title' => 'Bobot & Formula Nilai', 'route' => 'guru.bobot-nilai', 'icon' => 'sliders'],
+            ['title' => 'Jadwal Remedial', 'route' => 'guru.remedial', 'icon' => 'refresh-cw'],
+
+            ['title' => 'Rapor & Wali Kelas', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Cetak & Kelola Rapor', 'route' => 'guru.kelola-rapor', 'icon' => 'book-open'],
+            ['title' => 'Pengembangan Diri', 'route' => 'guru.pengembangan-diri', 'icon' => 'user-check'],
+
+            ['title' => 'Presensi Saya & Info', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Presensi Guru Mandiri', 'route' => 'guru.absensi-diri', 'icon' => 'clock'],
+            ['title' => 'Kalender Akademik', 'route' => 'guru.kalender-akademik', 'icon' => 'calendar'],
+
+            ['title' => 'Laporan & Rekap', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Rekap Absensi Siswa', 'route' => 'guru.laporan.absensi-siswa', 'icon' => 'file-text'],
+            ['title' => 'Rekap Nilai Kelas', 'route' => 'guru.laporan.rekap-nilai', 'icon' => 'bar-chart-2'],
+
             ['title' => 'Lainnya', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Notifikasi', 'route' => 'shared.notifications', 'icon' => 'bell'],
         ],
@@ -217,7 +248,8 @@
     };
 @endphp
 
-<aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'" 
+<aside wire:persist="sidebar"
+       :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'" 
        class="fixed inset-y-0 left-0 z-30 flex flex-col w-64 bg-white border-r border-stone-200 shadow-xl lg:shadow-sm transition-transform duration-300 ease-in-out lg:translate-x-0 -translate-x-full">
     <!-- Header/Brand -->
     <div class="flex items-center justify-between px-6 h-16 border-b border-stone-200">
@@ -240,7 +272,35 @@
     </div>
 
     <!-- Navigation Links -->
-    <nav class="flex-1 px-4 py-5 space-y-1 overflow-y-auto custom-scrollbar">
+    <nav id="sidebar-nav"
+         x-data="{
+             init() {
+                 this.restoreScroll();
+                 document.addEventListener('livewire:navigated', () => {
+                     this.restoreScroll();
+                 });
+                 this.$el.addEventListener('scroll', () => {
+                     sessionStorage.setItem('sidebar_scroll_pos', this.$el.scrollTop);
+                 });
+             },
+             restoreScroll() {
+                 const saved = sessionStorage.getItem('sidebar_scroll_pos');
+                 if (saved !== null) {
+                     this.$el.scrollTop = parseInt(saved, 10);
+                 }
+                 this.$nextTick(() => {
+                     const activeEl = this.$el.querySelector('.sidebar-active-link');
+                     if (activeEl) {
+                         const navRect = this.$el.getBoundingClientRect();
+                         const elRect = activeEl.getBoundingClientRect();
+                         if (elRect.top < navRect.top || elRect.bottom > navRect.bottom) {
+                             activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                         }
+                     }
+                 });
+             }
+         }"
+         class="flex-1 px-4 py-5 space-y-1 overflow-y-auto custom-scrollbar">
         @foreach ($menuItems as $item)
             @if (!empty($item['section']))
                 <div class="pt-4 pb-1.5 px-3">
@@ -249,14 +309,11 @@
             @else
                 @php
                     $isActive = !empty($item['route']) && request()->routeIs($item['route']);
-                    if ($isActive && str_contains($item['route'], 'dashboard') && $item['title'] !== 'Dashboard') {
-                        $isActive = false;
-                    }
                 @endphp
                 <a href="{{ !empty($item['route']) ? route($item['route']) : '#' }}" wire:navigate
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group
                           {{ $isActive 
-                              ? 'bg-green-50 text-green-700 border-l-[3px] border-green-600 shadow-sm font-bold' 
+                              ? 'bg-green-50 text-green-700 border-l-[3px] border-green-600 shadow-sm font-bold sidebar-active-link' 
                               : 'text-stone-600 hover:bg-stone-100 hover:text-stone-800' }}">
                     
                     @switch($item['icon'])
@@ -289,6 +346,9 @@
                         @case('sliders') <x-lucide-sliders class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('edit-3') <x-lucide-edit-3 class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('clipboard') <x-lucide-clipboard class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('shield-check') <x-lucide-shield-check class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('check-square') <x-lucide-check-square class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('refresh-cw') <x-lucide-refresh-cw class="w-[18px] h-[18px] shrink-0" /> @break
                     @endswitch
 
                     <span>{{ $item['title'] }}</span>

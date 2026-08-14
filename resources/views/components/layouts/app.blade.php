@@ -124,47 +124,8 @@
         </div>
     </div>
 
-    <!-- MicroModal Alert / Confirm Component (Ultra-Premium Glassmorphism Floating Toast & Modal) -->
-    <div class="modal micromodal-slide" id="modal-alert" aria-hidden="true">
-        <div id="modal-alert-overlay" class="modal__overlay fixed inset-0 bg-stone-950/50 backdrop-blur-sm z-[99999] flex items-center justify-center p-4 transition-all duration-300" tabindex="-1" data-micromodal-close>
-            <div id="modal-alert-container" class="modal__container bg-white/95 backdrop-blur-md border border-stone-200/90 rounded-3xl p-5 shadow-2xl max-w-md w-full relative overflow-hidden transition-all duration-300 shadow-stone-950/15" role="dialog" aria-modal="true" aria-labelledby="modal-alert-title">
-                
-                <!-- Top Accent Line -->
-                <div id="modal-alert-accent" class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 to-teal-400"></div>
-
-                <div class="flex items-start justify-between gap-3 pt-1">
-                    <div class="flex items-start gap-3">
-                        <div id="modal-alert-badge" class="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200/60 text-emerald-700 flex items-center justify-center text-lg font-black shrink-0 shadow-xs">
-                            <x-lucide-check-circle-2 class="w-5 h-5" />
-                        </div>
-                        <div>
-                            <h2 class="text-xs font-black text-stone-900 uppercase tracking-wide flex items-center gap-1.5" id="modal-alert-title">
-                                Pemberitahuan Sistem
-                            </h2>
-                            <p class="text-xs text-stone-600 leading-relaxed font-semibold mt-1" id="modal-alert-content">
-                                Pesan pemberitahuan sistem.
-                            </p>
-                        </div>
-                    </div>
-                    <button type="button" class="modal__close p-1.5 rounded-xl text-stone-400 hover:text-stone-700 hover:bg-stone-100 font-bold transition text-xs shrink-0" aria-label="Close modal" data-micromodal-close>
-                        ✕
-                    </button>
-                </div>
-
-                <footer id="modal-alert-footer" class="flex items-center justify-end gap-2.5 pt-3.5 mt-2 border-t border-stone-100">
-                    <button type="button" id="modal-alert-cancel-btn" class="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold transition" data-micromodal-close>
-                        Batal
-                    </button>
-                    <button type="button" id="modal-alert-confirm-btn" class="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-md transition">
-                        Lanjutkan
-                    </button>
-                </footer>
-
-                <!-- Toast Progress Bar Animation -->
-                <div id="modal-alert-progress" class="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500 origin-left transition-all duration-300 hidden"></div>
-            </div>
-        </div>
-    </div>
+    <!-- MicroModal Alert / Confirm Component -->
+    <x-micromodal-notification />
 
     <!-- Accessibility Menu -->
     <x-accessibility-menu />
@@ -196,13 +157,13 @@
             @elseif(session()->has('message'))
                 window.showAlert('Informasi Sistem', @json(session('message')), null, 'auto');
             @elseif(session()->has('warning'))
-                window.showAlert('Perhatian', @json(session('warning')), null, 'warning');
+                window.showAlert('Perhatian Sistem', @json(session('warning')), null, 'warning');
             @elseif(session()->has('info'))
                 window.showAlert('Informasi', @json(session('info')), null, 'info');
             @endif
         }
 
-        // Premium Floating Toast & Confirm Dialog System via MicroModal
+        // Primary Emerald Theme Floating Toast & Confirm Dialog System via MicroModal
         window.showAlert = function(title, message, onConfirm = null, type = 'auto') {
             if (modalAutoDismissTimer) {
                 clearTimeout(modalAutoDismissTimer);
@@ -218,6 +179,7 @@
             const containerElem = document.getElementById('modal-alert-container');
             const accentElem = document.getElementById('modal-alert-accent');
             const badgeElem = document.getElementById('modal-alert-badge');
+            const categoryElem = document.getElementById('modal-alert-category');
             const titleElem = document.getElementById('modal-alert-title');
             const contentElem = document.getElementById('modal-alert-content');
             const footerElem = document.getElementById('modal-alert-footer');
@@ -239,48 +201,64 @@
             const isEdit = !isError && !isWarning && (typeLower === 'edit' || msgLower.includes('edit') || msgLower.includes('perbarui') || msgLower.includes('ubah') || msgLower.includes('update') || msgLower.includes('koreksi'));
             const isCreate = !isError && !isWarning && (typeLower === 'create' || msgLower.includes('tambah') || msgLower.includes('buat') || msgLower.includes('simpan') || msgLower.includes('create') || msgLower.includes('tersimpan'));
 
-            let badgeHtml = '✓';
-            let badgeBgClass = 'bg-emerald-50 text-emerald-700 border-emerald-200/80';
-            let accentClass = 'bg-gradient-to-r from-emerald-500 to-teal-400';
-            let progressBgClass = 'bg-emerald-500';
+            let badgeSvg = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>';
+            let badgeBgClass = 'bg-emerald-700 text-white shadow-md shadow-emerald-700/30';
+            let categoryClass = 'bg-emerald-100 text-emerald-950 border-emerald-300';
+            let categoryText = 'BERHASIL';
+            let accentClass = 'bg-emerald-600';
+            let progressBgClass = 'bg-emerald-600';
             let defaultTitle = 'Pemberitahuan Sistem';
 
             if (isError) {
-                badgeHtml = '⚠️';
-                badgeBgClass = 'bg-rose-50 text-rose-700 border-rose-200/80';
-                accentClass = 'bg-gradient-to-r from-rose-600 to-pink-500';
-                progressBgClass = 'bg-rose-600';
+                badgeSvg = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
+                badgeBgClass = 'bg-red-700 text-white shadow-md shadow-red-700/30';
+                categoryClass = 'bg-red-100 text-red-950 border-red-300';
+                categoryText = 'ERROR SISTEM';
+                accentClass = 'bg-red-700';
+                progressBgClass = 'bg-red-700';
                 defaultTitle = 'Gagal Memproses Data';
             } else if (isWarning) {
-                badgeHtml = '💡';
-                badgeBgClass = 'bg-amber-50 text-amber-800 border-amber-200/80';
-                accentClass = 'bg-gradient-to-r from-amber-500 to-yellow-400';
+                badgeSvg = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+                badgeBgClass = 'bg-amber-500 text-white shadow-md shadow-amber-500/30';
+                categoryClass = 'bg-amber-100 text-amber-950 border-amber-300';
+                categoryText = 'PERHATIAN';
+                accentClass = 'bg-amber-500';
                 progressBgClass = 'bg-amber-500';
                 defaultTitle = 'Perhatian Sistem';
             } else if (isDelete) {
-                badgeHtml = '🗑️';
-                badgeBgClass = 'bg-rose-50 text-rose-700 border-rose-200/80';
-                accentClass = 'bg-gradient-to-r from-rose-500 to-red-400';
-                progressBgClass = 'bg-rose-500';
+                badgeSvg = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>';
+                badgeBgClass = 'bg-rose-600 text-white shadow-md shadow-rose-600/30';
+                categoryClass = 'bg-rose-100 text-rose-950 border-rose-300';
+                categoryText = 'HAPUS DATA';
+                accentClass = 'bg-rose-600';
+                progressBgClass = 'bg-rose-600';
                 defaultTitle = 'Data Berhasil Dihapus';
             } else if (isEdit) {
-                badgeHtml = '✏️';
-                badgeBgClass = 'bg-indigo-50 text-indigo-700 border-indigo-200/80';
-                accentClass = 'bg-gradient-to-r from-indigo-500 to-sky-400';
-                progressBgClass = 'bg-indigo-500';
+                badgeSvg = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>';
+                badgeBgClass = 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30';
+                categoryClass = 'bg-indigo-100 text-indigo-950 border-indigo-300';
+                categoryText = 'PERBARUI';
+                accentClass = 'bg-indigo-600';
+                progressBgClass = 'bg-indigo-600';
                 defaultTitle = 'Perubahan Berhasil Disimpan';
             } else if (isCreate) {
-                badgeHtml = '✨';
-                badgeBgClass = 'bg-emerald-50 text-emerald-700 border-emerald-200/80';
-                accentClass = 'bg-gradient-to-r from-emerald-500 to-teal-400';
-                progressBgClass = 'bg-emerald-500';
+                badgeSvg = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>';
+                badgeBgClass = 'bg-emerald-700 text-white shadow-md shadow-emerald-700/30';
+                categoryClass = 'bg-emerald-100 text-emerald-950 border-emerald-300';
+                categoryText = 'TAMBAH DATA';
+                accentClass = 'bg-emerald-600';
+                progressBgClass = 'bg-emerald-600';
                 defaultTitle = 'Data Berhasil Ditambahkan';
             }
 
             if (accentElem) accentElem.className = 'absolute top-0 left-0 right-0 h-1.5 ' + accentClass;
             if (badgeElem) {
-                badgeElem.className = 'w-10 h-10 rounded-2xl border flex items-center justify-center text-lg font-black shrink-0 shadow-xs ' + badgeBgClass;
-                badgeElem.innerHTML = badgeHtml;
+                badgeElem.className = 'w-11 h-11 rounded-2xl flex items-center justify-center text-xl font-black shrink-0 ' + badgeBgClass;
+                badgeElem.innerHTML = badgeSvg;
+            }
+            if (categoryElem) {
+                categoryElem.className = 'px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold tracking-wider uppercase border ' + categoryClass;
+                categoryElem.innerText = categoryText;
             }
             if (titleElem) {
                 titleElem.innerText = title || defaultTitle;
@@ -292,12 +270,12 @@
             const isConfirmation = typeof onConfirm === 'function';
 
             if (isConfirmation) {
-                // Confirmation Mode (Centered with Backdrop)
+                // Confirmation Dialog Mode (Centered with backdrop)
                 if (overlayElem) {
                     overlayElem.className = "modal__overlay fixed inset-0 bg-stone-950/60 backdrop-blur-xs z-[99999] flex items-center justify-center p-4 pointer-events-auto";
                 }
                 if (containerElem) {
-                    containerElem.className = "modal__container bg-white/95 backdrop-blur-md border border-stone-200/90 rounded-3xl p-6 shadow-2xl max-w-md w-full relative overflow-hidden transition-all duration-300 shadow-stone-950/20";
+                    containerElem.className = "modal__container bg-white text-stone-900 border border-stone-200 rounded-3xl p-6 shadow-2xl max-w-md w-full relative overflow-hidden transition-all duration-300 shadow-stone-950/20";
                 }
                 if (footerElem) footerElem.style.display = 'flex';
                 if (cancelBtn) cancelBtn.style.display = 'inline-block';
@@ -306,8 +284,8 @@
                 if (confirmBtn) {
                     confirmBtn.innerText = 'Lanjutkan';
                     confirmBtn.className = isError || isDelete 
-                        ? 'px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-extrabold shadow-md transition'
-                        : 'px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-extrabold shadow-md transition';
+                        ? 'px-6 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-extrabold shadow-md transition'
+                        : 'px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-extrabold shadow-md transition';
                     confirmBtn.style.display = 'inline-block';
                     confirmBtn.onclick = function() {
                         if (typeof MicroModal !== 'undefined') MicroModal.close('modal-alert');
@@ -315,12 +293,12 @@
                     };
                 }
             } else {
-                // Toast Notification Mode (Top Right Floating Toast with Progress Bar)
+                // Toast Notification Mode (Top Right Floating Corner with Progress Bar)
                 if (overlayElem) {
-                    overlayElem.className = "modal__overlay fixed top-5 right-5 z-[99999] p-0 bg-transparent backdrop-blur-none pointer-events-none";
+                    overlayElem.className = "modal__overlay fixed top-6 right-6 z-[99999] p-0 bg-transparent backdrop-blur-none pointer-events-none";
                 }
                 if (containerElem) {
-                    containerElem.className = "modal__container bg-white/95 backdrop-blur-md border " + (isError ? "border-rose-300 ring-4 ring-rose-500/10" : (isWarning ? "border-amber-300 ring-4 ring-amber-500/10" : "border-stone-200/90 ring-4 ring-emerald-500/10")) + " rounded-2xl p-4.5 shadow-2xl max-w-sm w-full relative overflow-hidden pointer-events-auto transition-all duration-300 shadow-stone-950/15";
+                    containerElem.className = "modal__container bg-white border " + (isError ? "border-red-300 ring-4 ring-red-500/10" : (isWarning ? "border-amber-300 ring-4 ring-amber-500/10" : (isDelete ? "border-rose-300 ring-4 ring-rose-500/10" : (isEdit ? "border-indigo-300 ring-4 ring-indigo-500/10" : "border-emerald-300 ring-4 ring-emerald-500/10")))) + " rounded-2xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.15)] max-w-md w-full sm:w-[400px] relative overflow-hidden pointer-events-auto transition-all duration-300 animate-[slideIn_0.35s_cubic-bezier(0.16,1,0.3,1)]";
                 }
                 if (footerElem) footerElem.style.display = 'none';
 
@@ -330,7 +308,7 @@
                     progressElem.style.transform = 'scaleX(1)';
                 }
 
-                // Smooth timer progress countdown over 4 seconds
+                // Countdown timer progress countdown over 4 seconds
                 const duration = 4000;
                 const startTime = Date.now();
 

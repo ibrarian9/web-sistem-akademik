@@ -39,7 +39,24 @@ class ManajemenSiswa extends Component
 
     public bool $isFormOpen = false;
 
+    // Student Detail Modal state
+    public $selectedSiswaDetail = null;
+    public bool $showDetailModal = false;
+
     protected $queryString = ['search' => ['except' => '']];
+
+    public function openDetail(int $id)
+    {
+        $siswa = Siswa::with(['user', 'kelas.guruUmum.user', 'kelasTahfidz.guruTahfidz.user'])->findOrFail($id);
+        $this->selectedSiswaDetail = $siswa;
+        $this->showDetailModal = true;
+    }
+
+    public function closeDetail()
+    {
+        $this->selectedSiswaDetail = null;
+        $this->showDetailModal = false;
+    }
 
     public function updatingSearch()
     {
@@ -78,10 +95,14 @@ class ManajemenSiswa extends Component
 
     public function save()
     {
+        $userId = $this->siswaId ? Siswa::find($this->siswaId)?->user_id : null;
+
         $rules = [
             'nama' => 'required|string|max:255',
-            'username' => 'required|string|max:50|unique:users,username,' . ($this->siswaId ? Siswa::find($this->siswaId)->user_id : 'NULL'),
-            'nis' => 'required|string|max:20|unique:siswa,nis,' . ($this->siswaId ?? 'NULL'),
+            'username' => 'required|string|max:50|unique:users,username,' . ($userId ?: 'NULL'),
+            'email' => 'nullable|email|max:255|unique:users,email,' . ($userId ?: 'NULL'),
+            'nis' => 'required|string|max:20|unique:siswa,nis,' . ($this->siswaId ?: 'NULL'),
+            'nisn' => 'nullable|string|max:20|unique:siswa,nisn,' . ($this->siswaId ?: 'NULL'),
             'jenis_kelamin' => 'required|in:L,P',
             'kelas_id' => 'nullable|exists:kelas,id',
             'kelas_tahfidz_id' => 'nullable|exists:kelas,id',
@@ -93,7 +114,15 @@ class ManajemenSiswa extends Component
             $rules['password'] = 'required|string|min:6';
         }
 
-        $this->validate($rules);
+        $messages = [
+            'email.unique' => 'Alamat email ini sudah terdaftar untuk pengguna lain. Silakan gunakan email lain atau kosongkan.',
+            'email.email' => 'Format alamat email tidak valid.',
+            'username.unique' => 'Username ini sudah terdaftar di sistem. Silakan pilih username lain.',
+            'nis.unique' => 'NIS (Nomor Induk Siswa) ini sudah terdaftar untuk siswa lain.',
+            'nisn.unique' => 'NISN ini sudah terdaftar untuk siswa lain.',
+        ];
+
+        $this->validate($rules, $messages);
 
         try {
             $isUpdate = (bool) $this->siswaId;
@@ -196,14 +225,26 @@ class ManajemenSiswa extends Component
             $this->isFormOpen = false;
             $this->resetForm();
         } catch (\Throwable $e) {
-            \App\Services\AuditLogger::log('error', 'Gagal memproses data siswa: ' . $e->getMessage(), null, [
+            $rawError = $e->getMessage();
+            \App\Services\AuditLogger::log('error', 'Gagal memproses data siswa: ' . $rawError, null, [
                 'log_name' => 'manajemen_siswa',
             ]);
 
-            session()->flash('error', 'Gagal memproses data: ' . $e->getMessage());
+            // User-friendly error message sanitization
+            if (str_contains($rawError, 'users_email_unique') || (str_contains($rawError, '1062') && str_contains($rawError, 'email'))) {
+                $userFriendlyMessage = 'Alamat email yang dimasukkan sudah terdaftar untuk pengguna/siswa lain. Silakan gunakan email lain atau kosongkan.';
+            } elseif (str_contains($rawError, 'users_username_unique') || (str_contains($rawError, '1062') && str_contains($rawError, 'username'))) {
+                $userFriendlyMessage = 'Username yang dimasukkan sudah terdaftar di sistem. Silakan pilih username lain.';
+            } elseif (str_contains($rawError, 'siswa_nis_unique') || (str_contains($rawError, '1062') && str_contains($rawError, 'nis'))) {
+                $userFriendlyMessage = 'NIS (Nomor Induk Siswa) yang dimasukkan sudah terdaftar untuk siswa lain.';
+            } else {
+                $userFriendlyMessage = 'Gagal memproses data siswa. Mohon periksa kembali isian formulir Anda.';
+            }
+
+            session()->flash('error', $userFriendlyMessage);
             $this->dispatch('show-alert', [
                 'title' => 'Gagal Memproses Data Siswa',
-                'message' => $e->getMessage(),
+                'message' => $userFriendlyMessage,
                 'type' => 'danger',
             ]);
         }

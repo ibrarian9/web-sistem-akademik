@@ -22,11 +22,13 @@
 
         <!-- Navigation Tabs -->
         <div class="flex items-center gap-2 bg-stone-100 p-1.5 rounded-2xl border border-stone-200">
-            <button type="button" wire:click="$set('activeTab', 'buat')" class="px-4 py-2 rounded-xl text-xs font-bold transition {{ $activeTab === 'buat' ? 'bg-emerald-700 text-white shadow-xs' : 'text-stone-600 hover:text-stone-900' }}">
-                📄 Buat Surat Baru
+            <button type="button" wire:click="$set('activeTab', 'buat')" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 {{ $activeTab === 'buat' ? 'bg-emerald-700 text-white shadow-xs' : 'text-stone-600 hover:text-stone-900' }}">
+                <x-lucide-file-plus class="w-4 h-4" />
+                <span>Buat Surat Baru</span>
             </button>
-            <button type="button" wire:click="$set('activeTab', 'riwayat')" class="px-4 py-2 rounded-xl text-xs font-bold transition {{ $activeTab === 'riwayat' ? 'bg-emerald-700 text-white shadow-xs' : 'text-stone-600 hover:text-stone-900' }}">
-                📋 Riwayat Surat Diterbitkan
+            <button type="button" wire:click="$set('activeTab', 'riwayat')" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 {{ $activeTab === 'riwayat' ? 'bg-emerald-700 text-white shadow-xs' : 'text-stone-600 hover:text-stone-900' }}">
+                <x-lucide-history class="w-4 h-4" />
+                <span>Riwayat Surat Diterbitkan</span>
             </button>
         </div>
     </div>
@@ -44,7 +46,9 @@
                 <!-- Template 1: Aktif Sekolah -->
                 <button type="button" wire:click="$set('jenis_surat', 'aktif_sekolah')" class="p-4 rounded-2xl border text-left transition flex flex-col justify-between space-y-3 {{ $jenis_surat === 'aktif_sekolah' ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-md' : 'bg-white border-stone-200 hover:border-stone-300 shadow-xs' }}">
                     <div class="flex items-center justify-between">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-900 flex items-center justify-center font-black">🎓</div>
+                        <div class="w-10 h-10 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-900 flex items-center justify-center font-black">
+                            <x-lucide-graduation-cap class="w-5 h-5 text-emerald-800" />
+                        </div>
                         @if($jenis_surat === 'aktif_sekolah') <span class="px-2 py-0.5 bg-emerald-700 text-white text-[10px] font-bold rounded-full">Terpilih</span> @endif
                     </div>
                     <div>
@@ -56,7 +60,9 @@
                 <!-- Template 2: Pengalaman Kerja -->
                 <button type="button" wire:click="$set('jenis_surat', 'pengalaman_kerja')" class="p-4 rounded-2xl border text-left transition flex flex-col justify-between space-y-3 {{ $jenis_surat === 'pengalaman_kerja' ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-md' : 'bg-white border-stone-200 hover:border-stone-300 shadow-xs' }}">
                     <div class="flex items-center justify-between">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-900 flex items-center justify-center font-black">💼</div>
+                        <div class="w-10 h-10 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-900 flex items-center justify-center font-black">
+                            <x-lucide-briefcase class="w-5 h-5 text-emerald-800" />
+                        </div>
                         @if($jenis_surat === 'pengalaman_kerja') <span class="px-2 py-0.5 bg-emerald-700 text-white text-[10px] font-bold rounded-full">Terpilih</span> @endif
                     </div>
                     <div>
@@ -68,7 +74,9 @@
                 <!-- Template 3: Menerima Pindah -->
                 <button type="button" wire:click="$set('jenis_surat', 'menerima_pindah')" class="p-4 rounded-2xl border text-left transition flex flex-col justify-between space-y-3 {{ $jenis_surat === 'menerima_pindah' ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-md' : 'bg-white border-stone-200 hover:border-stone-300 shadow-xs' }}">
                     <div class="flex items-center justify-between">
-                        <div class="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 flex items-center justify-center font-black">📥</div>
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 flex items-center justify-center font-black">
+                            <x-lucide-arrow-down-left class="w-5 h-5 text-amber-800" />
+                        </div>
                         @if($jenis_surat === 'menerima_pindah') <span class="px-2 py-0.5 bg-emerald-700 text-white text-[10px] font-bold rounded-full">Terpilih</span> @endif
                     </div>
                     <div>
@@ -80,7 +88,9 @@
                 <!-- Template 4: Pindah Sekolah -->
                 <button type="button" wire:click="$set('jenis_surat', 'pindah_sekolah')" class="p-4 rounded-2xl border text-left transition flex flex-col justify-between space-y-3 {{ $jenis_surat === 'pindah_sekolah' ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-md' : 'bg-white border-stone-200 hover:border-stone-300 shadow-xs' }}">
                     <div class="flex items-center justify-between">
-                        <div class="w-10 h-10 rounded-xl bg-rose-100 border border-rose-300 text-rose-900 flex items-center justify-center font-black">📤</div>
+                        <div class="w-10 h-10 rounded-xl bg-rose-100 border border-rose-300 text-rose-900 flex items-center justify-center font-black">
+                            <x-lucide-arrow-up-right class="w-5 h-5 text-rose-800" />
+                        </div>
                         @if($jenis_surat === 'pindah_sekolah') <span class="px-2 py-0.5 bg-emerald-700 text-white text-[10px] font-bold rounded-full">Terpilih</span> @endif
                     </div>
                     <div>
@@ -96,7 +106,9 @@
             <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-stone-200 pb-4">
                 <div>
                     <h3 class="text-sm font-extrabold text-emerald-950 uppercase tracking-wider flex items-center gap-2">
-                        <span class="w-6 h-6 rounded-full bg-emerald-200 text-emerald-950 text-xs flex items-center justify-center font-black">📄</span>
+                        <span class="w-6 h-6 rounded-full bg-emerald-200 text-emerald-950 text-xs flex items-center justify-center font-black">
+                            <x-lucide-file-text class="w-3.5 h-3.5 text-emerald-900" />
+                        </span>
                         <span>Form Isian {{ str_replace('_', ' ', strtoupper($jenis_surat)) }}</span>
                     </h3>
                     <p class="text-xs text-stone-500 font-semibold mt-0.5">Pilih nama penerima untuk pengisian data otomatis atau ketik manual.</p>
@@ -105,7 +117,7 @@
                 <!-- Auto-populate Selector Dropdown -->
                 <div class="w-full md:w-80">
                     @if($jenis_surat === 'pengalaman_kerja')
-                        <label class="block text-[11px] font-bold text-stone-600 uppercase mb-1">⚡ Pilih Guru / Karyawan (Auto-Fill)</label>
+                        <label class="block text-[11px] font-bold text-stone-600 uppercase mb-1">Pilih Guru / Karyawan (Auto-Fill)</label>
                         <select wire:model.live="selected_guru_id" class="w-full bg-emerald-50 border border-emerald-300 text-emerald-950 rounded-xl px-3 py-2 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
                             <option value="">-- Pilih Guru / Karyawan --</option>
                             @foreach($gurus as $g)
@@ -113,7 +125,7 @@
                             @endforeach
                         </select>
                     @else
-                        <label class="block text-[11px] font-bold text-stone-600 uppercase mb-1">⚡ Pilih Siswa (Auto-Fill)</label>
+                        <label class="block text-[11px] font-bold text-stone-600 uppercase mb-1">Pilih Siswa (Auto-Fill)</label>
                         <select wire:model.live="selected_siswa_id" class="w-full bg-emerald-50 border border-emerald-300 text-emerald-950 rounded-xl px-3 py-2 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
                             <option value="">-- Pilih Siswa Aktif --</option>
                             @foreach($siswas as $s)
@@ -277,8 +289,8 @@
                 <!-- Submit Action Button -->
                 <div class="flex items-center justify-end border-t border-stone-200 pt-4 gap-2">
                     <button type="submit" class="px-8 py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-extrabold shadow-md flex items-center gap-2 transition">
-                        <x-lucide-file-text class="w-4 h-4" />
-                        <span>💾 Simpan &amp; Pratinjau PDF Surat (Live Editor)</span>
+                        <x-lucide-save class="w-4 h-4" />
+                        <span>Simpan &amp; Pratinjau PDF Surat (Live Editor)</span>
                     </button>
                 </div>
             </form>
@@ -312,10 +324,10 @@
                         @forelse ($riwayats as $r)
                             @php
                                 $jenisLabel = match($r->jenis_surat) {
-                                    'aktif_sekolah' => '🎓 Surat Keterangan Aktif Sekolah',
-                                    'pengalaman_kerja' => '💼 Surat Pengalaman Kerja',
-                                    'menerima_pindah' => '📥 Mutasi: Menerima Pindah',
-                                    'pindah_sekolah' => '📤 Mutasi: Pindah Sekolah',
+                                    'aktif_sekolah' => 'Surat Keterangan Aktif Sekolah',
+                                    'pengalaman_kerja' => 'Surat Pengalaman Kerja',
+                                    'menerima_pindah' => 'Mutasi: Menerima Pindah',
+                                    'pindah_sekolah' => 'Mutasi: Pindah Sekolah',
                                     default => $r->jenis_surat,
                                 };
                             @endphp
@@ -367,7 +379,9 @@
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-stone-200 pb-3 print:hidden">
                     <div>
                         <h3 class="text-sm font-extrabold text-emerald-950 uppercase tracking-wider flex items-center gap-2">
-                            <span class="w-6 h-6 rounded-full bg-emerald-200 text-emerald-950 text-xs flex items-center justify-center font-black">✨</span>
+                            <span class="w-6 h-6 rounded-full bg-emerald-200 text-emerald-950 text-xs flex items-center justify-center font-black">
+                                <x-lucide-sparkles class="w-3.5 h-3.5 text-emerald-950" />
+                            </span>
                             <span>Pratinjau Surat Real-Time &amp; Live Editor</span>
                         </h3>
                         <p class="text-xs text-stone-500 font-medium mt-0.5">Setiap perubahan teks pada form akan langsung mengupdate tampilan pratinjau di bawah secara real-time.</p>

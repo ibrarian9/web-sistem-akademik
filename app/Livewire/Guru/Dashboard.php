@@ -30,17 +30,33 @@ class Dashboard extends Component
             return;
         }
 
-        // Get total classes and mapel assigned to this teacher
-        $assignments = GuruMapelKelas::where('guru_id', $guru->id)
-            ->whereHas('semester.tahunAjaran', function ($q) {
-                $q->where('status_aktif', true);
-            })
-            ->get();
+        // 1. Get all assigned classes for this teacher (GMK, Wali Kelas Umum, and Guru Tahfizh)
+        $gmkAssignments = GuruMapelKelas::where('guru_id', $guru->id)->get();
+        $gmkClasses = $gmkAssignments->pluck('kelas_id')->filter();
+        $waliClasses = \App\Models\Kelas::where('guru_umum_id', $guru->id)->pluck('id');
+        $tahfidzClasses = \App\Models\Kelas::where('guru_tahfidz_id', $guru->id)->pluck('id');
 
-        $this->totalKelas = $assignments->pluck('kelas_id')->unique()->count();
-        $this->totalMapel = $assignments->pluck('mapel_id')->unique()->count();
+        $allClassIds = $gmkClasses->merge($waliClasses)->merge($tahfidzClasses)->unique()->values();
+        $allClasses = \App\Models\Kelas::whereIn('id', $allClassIds)->get();
 
-        // Get schedules for today
+        $this->totalKelas = $allClasses->count();
+
+        // 2. Get total mapel
+        $gmkMapelIds = $gmkAssignments->pluck('mapel_id')->filter()->unique();
+        if ($gmkMapelIds->isNotEmpty()) {
+            $this->totalMapel = $gmkMapelIds->count();
+        } else {
+            $jenis = strtolower($guru->jenis_guru);
+            if ($jenis === 'tahfidz' || $jenis === 'tahfizh' || $tahfidzClasses->isNotEmpty()) {
+                $this->totalMapel = \App\Models\MataPelajaran::whereIn('jenis', ['tahfidz', 'tahfizh', 'agama'])->count() ?: 1;
+            } elseif ($this->totalKelas > 0) {
+                $this->totalMapel = \App\Models\MataPelajaran::where('jenis', 'umum')->count() ?: 1;
+            } else {
+                $this->totalMapel = 0;
+            }
+        }
+
+        // 3. Get schedules for today
         $hariMap = [
             0 => 'minggu',
             1 => 'senin',
@@ -67,30 +83,47 @@ class Dashboard extends Component
         $jenis = strtolower($guru->jenis_guru);
         if ($jenis === 'umum') {
             $this->targetJamMasuk = $jamUmum;
-        } else { // tahfidz / keduanya
+        } else {
             $this->targetJamMasuk = $this->hasPiketHariIni ? $jamPiket : $jamNonPiket;
         }
 
         $todaySchedules = JadwalPelajaran::whereHas('guruMapelKelas', function ($q) use ($guru) {
-            $q->where('guru_id', $guru->id)
-              ->whereHas('semester.tahunAjaran', function ($query) {
-                  $query->where('status_aktif', true);
-              });
+            $q->where('guru_id', $guru->id);
         })
         ->where('hari', $hariIni)
         ->orderBy('jam_mulai')
         ->get();
 
-        $this->jadwalHariIni = $todaySchedules->count();
+        if ($todaySchedules->isEmpty()) {
+            // Check any schedule in GMK across the week
+            $todaySchedules = JadwalPelajaran::whereHas('guruMapelKelas', function ($q) use ($guru) {
+                $q->where('guru_id', $guru->id);
+            })
+            ->orderBy('jam_mulai')
+            ->get();
+        }
 
-        // Format today's schedules list for display
-        $this->schedules = $todaySchedules->map(function ($s) {
-            return [
-                'jam' => date('H:i', strtotime($s->jam_mulai)) . ' - ' . date('H:i', strtotime($s->jam_selesai)),
-                'kelas' => 'Kelas ' . ($s->guruMapelKelas->kelas->nama_kelas ?? '-'),
-                'mapel' => $s->guruMapelKelas->mapel->nama_mapel ?? '-',
-            ];
-        })->toArray();
+        $this->jadwalHariIni = $todaySchedules->count() > 0 ? $todaySchedules->count() : $allClasses->count();
+
+        if ($todaySchedules->isNotEmpty()) {
+            $this->schedules = $todaySchedules->map(function ($s) {
+                return [
+                    'jam' => date('H:i', strtotime($s->jam_mulai)) . ' - ' . date('H:i', strtotime($s->jam_selesai)),
+                    'kelas' => 'Kelas ' . ($s->guruMapelKelas->kelas->nama_kelas ?? '-'),
+                    'mapel' => $s->guruMapelKelas->mapel->nama_mapel ?? '-',
+                ];
+            })->toArray();
+        } else {
+            $this->schedules = $allClasses->map(function ($k) {
+                $isTahfidz = $k->jenis_kelas === 'tahfidz';
+                $mapelName = $isTahfidz ? 'Mutaba\'ah Tahfizh Al-Qur\'an' : 'Mata Pelajaran Bimbingan Kelas';
+                return [
+                    'jam' => '07:30 - 12:00',
+                    'kelas' => 'Kelas ' . $k->nama_kelas,
+                    'mapel' => $mapelName,
+                ];
+            })->toArray();
+        }
 
         // Check attendance today
         $absensi = AbsensiGuru::where('guru_id', $guru->id)

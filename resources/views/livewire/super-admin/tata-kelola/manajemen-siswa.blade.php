@@ -39,13 +39,9 @@
         </div>
         <button type="button" wire:click.prevent="openCreate" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-2">
             <x-lucide-plus class="w-4 h-4" />
-            <span>+ Tambah Siswa Baru</span>
+            <span>Tambah Siswa Baru</span>
         </button>
     </div>
-
-    @if (session()->has('message'))
-        <x-alert-banner type="success" :message="session('message')" />
-    @endif
 
     <!-- Content Card -->
     <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
@@ -95,14 +91,20 @@
                                 <div class="text-[10px] text-stone-500 font-medium">User: {{ $siswa->user->username ?? '-' }}</div>
                             </td>
                             <td class="p-3.5 border-r border-stone-200">
-                                <span class="px-2.5 py-1 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-lg text-xs font-bold inline-block">
-                                    📚 {{ $siswa->kelas->nama_kelas ?? 'Belum Set' }}
-                                </span>
+                                @if($siswa->kelas)
+                                    <span class="px-2.5 py-1 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-lg text-xs font-bold inline-flex items-center gap-1">
+                                        <x-lucide-book-open class="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                                        <span>{{ $siswa->kelas->nama_kelas }}</span>
+                                    </span>
+                                @else
+                                    <span class="text-stone-400 italic text-[11px]">- Belum Set -</span>
+                                @endif
                             </td>
                             <td class="p-3.5 border-r border-stone-200">
                                 @if($siswa->kelasTahfidz)
-                                    <span class="px-2.5 py-1 bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-xs font-bold inline-block">
-                                        ★ {{ $siswa->kelasTahfidz->nama_kelas }}
+                                    <span class="px-2.5 py-1 bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-xs font-bold inline-flex items-center gap-1">
+                                        <x-lucide-bookmark class="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                                        <span>{{ $siswa->kelasTahfidz->nama_kelas }}</span>
                                     </span>
                                 @else
                                     <span class="text-stone-400 italic text-[11px]">- Belum Set -</span>
@@ -117,6 +119,10 @@
                             </td>
                             <td class="p-3.5 text-center">
                                 <div class="flex items-center justify-center gap-1.5">
+                                    <button type="button" wire:click.prevent="openDetail({{ $siswa->id }})" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 rounded-lg font-bold text-xs border border-emerald-300 transition shadow-xs flex items-center gap-1">
+                                        <x-lucide-eye class="w-3.5 h-3.5 text-emerald-700" />
+                                        <span>Detail</span>
+                                    </button>
                                     <button type="button" wire:click.prevent="openEdit({{ $siswa->id }})" class="px-2.5 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg font-bold text-xs border border-amber-300 transition shadow-xs flex items-center gap-1">
                                         <x-lucide-edit class="w-3.5 h-3.5 text-amber-700" />
                                         <span>Edit</span>
@@ -147,11 +153,13 @@
 
     <!-- Form Modal -->
     @if ($isFormOpen)
-        <div x-data x-init="window.scrollTo({ top: 0, behavior: 'smooth' })" class="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-stone-900/60 backdrop-blur-xs px-4 py-8 sm:py-12 overflow-y-auto">
-            <div class="w-full max-w-2xl bg-white border border-stone-200 rounded-3xl shadow-2xl p-6 space-y-4 max-h-[82vh] sm:max-h-[85vh] my-auto overflow-y-auto shadow-stone-950/20">
+        <div class="fixed inset-0 z-[99990] flex items-center justify-center bg-stone-950/65 backdrop-blur-xs p-4 sm:p-6 pt-20 sm:pt-8 pb-8 overflow-y-auto">
+            <div class="w-full max-w-2xl bg-white border border-stone-200 rounded-3xl shadow-2xl p-6 space-y-4 max-h-[85vh] my-auto overflow-y-auto shadow-stone-950/30">
                 <div class="flex items-center justify-between border-b border-stone-200 pb-3 sticky -top-6 bg-white z-20 pt-1">
                     <h3 class="text-sm font-extrabold text-emerald-950 uppercase tracking-wider flex items-center gap-2">
-                        <span class="w-6 h-6 rounded-full bg-emerald-200 text-emerald-950 text-xs flex items-center justify-center font-black">★</span>
+                        <span class="w-6 h-6 rounded-full bg-emerald-200 text-emerald-950 text-xs flex items-center justify-center font-black">
+                            <x-lucide-user-check class="w-3.5 h-3.5 text-emerald-900" />
+                        </span>
                         <span>{{ $siswaId ? 'Edit Data Siswa & Dual Kelas' : 'Tambah Siswa Baru' }}</span>
                     </h3>
                     <button type="button" wire:click="$set('isFormOpen', false)" class="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 font-bold">✕</button>
@@ -327,4 +335,156 @@
             </div>
         </div>
     @endif
+
+    <!-- Student Detail Modal -->
+    @if ($showDetailModal && $selectedSiswaDetail)
+        <div class="fixed inset-0 z-[99990] flex items-center justify-center bg-stone-950/65 backdrop-blur-xs p-4 sm:p-6 pt-20 sm:pt-8 pb-8 overflow-y-auto">
+            <div class="bg-white border border-stone-200 rounded-none max-w-2xl w-full shadow-2xl overflow-hidden relative animate-[fadeIn_0.2s_ease-out]">
+                <!-- Top Accent Bar -->
+                <div class="h-1.5 bg-emerald-600"></div>
+
+                <div class="p-6 space-y-5 max-h-[85vh] overflow-y-auto">
+                    <!-- Modal Header -->
+                    <div class="flex items-start justify-between gap-4 border-b border-stone-200 pb-4">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-12 h-12 rounded-none bg-emerald-700 text-white font-black text-lg flex items-center justify-center shrink-0 shadow-md shadow-emerald-700/30">
+                                {{ strtoupper(substr($selectedSiswaDetail->user->nama ?? 'S', 0, 1)) }}
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2.5 py-0.5 rounded-none text-[10px] font-black uppercase tracking-wider border bg-emerald-100 text-emerald-950 border-emerald-300">
+                                        PROFIL SISWA
+                                    </span>
+                                    <x-status-badge :status="$selectedSiswaDetail->status" />
+                                </div>
+                                <h3 class="text-lg font-black text-stone-900 tracking-tight mt-0.5">
+                                    {{ strtoupper($selectedSiswaDetail->user->nama ?? '-') }}
+                                </h3>
+                            </div>
+                        </div>
+
+                        <button type="button" wire:click="closeDetail" class="p-1.5 rounded-none text-stone-400 hover:text-stone-800 hover:bg-stone-100 transition text-sm font-bold">
+                            ✕
+                        </button>
+                    </div>
+
+                    <!-- Dual Class Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <!-- Kelas Umum -->
+                        <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-none space-y-1">
+                            <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-950">
+                                <x-lucide-book-open class="w-4 h-4 text-emerald-700 shrink-0" />
+                                <span>1. Kelas Umum</span>
+                            </div>
+                            @if($selectedSiswaDetail->kelas)
+                                <div class="text-sm font-black text-emerald-900 pt-0.5">
+                                    {{ $selectedSiswaDetail->kelas->nama_kelas }}
+                                </div>
+                                <div class="text-[11px] text-emerald-700 font-medium">
+                                    Wali Kelas: <strong>{{ $selectedSiswaDetail->kelas->guruUmum->user->nama ?? 'Belum Ditentukan' }}</strong>
+                                </div>
+                            @else
+                                <div class="text-xs text-stone-400 italic pt-1">- Belum Ditempatkan di Kelas Umum -</div>
+                            @endif
+                        </div>
+
+                        <!-- Kelas Tahfizh -->
+                        <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-none space-y-1">
+                            <div class="flex items-center gap-1.5 text-xs font-bold text-amber-950">
+                                <x-lucide-bookmark class="w-4 h-4 text-amber-700 shrink-0" />
+                                <span>2. Kelas Tahfizh / Halaqah</span>
+                            </div>
+                            @if($selectedSiswaDetail->kelasTahfidz)
+                                <div class="text-sm font-black text-amber-900 pt-0.5">
+                                    {{ $selectedSiswaDetail->kelasTahfidz->nama_kelas }}
+                                </div>
+                                <div class="text-[11px] text-amber-800 font-medium">
+                                    Pengampu: <strong>{{ $selectedSiswaDetail->kelasTahfidz->guruTahfidz->user->nama ?? 'Belum Ditentukan' }}</strong>
+                                </div>
+                            @else
+                                <div class="text-xs text-stone-400 italic pt-1">- Belum Ditempatkan di Kelas Tahfizh -</div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Detail Information Grid -->
+                    <div class="space-y-2">
+                        <div class="text-xs font-bold text-stone-800 uppercase tracking-wider">Informasi Identitas &amp; Akun Login</div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                            <div class="p-3 bg-stone-50 border border-stone-200 rounded-none space-y-0.5">
+                                <div class="text-[10px] uppercase font-bold text-stone-400">NIS (Nomor Induk Siswa)</div>
+                                <div class="font-mono font-bold text-stone-900 text-sm">{{ $selectedSiswaDetail->nis }}</div>
+                            </div>
+
+                            <div class="p-3 bg-stone-50 border border-stone-200 rounded-none space-y-0.5">
+                                <div class="text-[10px] uppercase font-bold text-stone-400">NISN (Nomor Induk Siswa Nasional)</div>
+                                <div class="font-mono font-bold text-stone-900 text-sm">{{ $selectedSiswaDetail->nisn ?: '-' }}</div>
+                            </div>
+
+                            <div class="p-3 bg-stone-50 border border-stone-200 rounded-none space-y-0.5">
+                                <div class="text-[10px] uppercase font-bold text-stone-400">Username Portal</div>
+                                <div class="font-mono font-bold text-stone-900">{{ $selectedSiswaDetail->user->username ?? '-' }}</div>
+                            </div>
+
+                            <div class="p-3 bg-stone-50 border border-stone-200 rounded-none space-y-0.5">
+                                <div class="text-[10px] uppercase font-bold text-stone-400">Alamat Email</div>
+                                <div class="font-medium text-stone-900">{{ $selectedSiswaDetail->user->email ?: '-' }}</div>
+                            </div>
+
+                            <div class="p-3 bg-stone-50 border border-stone-200 rounded-none space-y-0.5">
+                                <div class="text-[10px] uppercase font-bold text-stone-400">Jenis Kelamin</div>
+                                <div class="font-bold text-stone-900">
+                                    {{ $selectedSiswaDetail->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}
+                                </div>
+                            </div>
+
+                            <div class="p-3 bg-stone-50 border border-stone-200 rounded-none space-y-0.5">
+                                <div class="text-[10px] uppercase font-bold text-stone-400">Tanggal Masuk Sekolah</div>
+                                <div class="font-mono font-bold text-stone-900">
+                                    {{ $selectedSiswaDetail->tanggal_masuk ? $selectedSiswaDetail->tanggal_masuk->format('d F Y') : '-' }}
+                                </div>
+                            </div>
+
+                            <div class="p-3 bg-stone-50 border border-stone-200 rounded-none space-y-0.5 sm:col-span-2">
+                                <div class="text-[10px] uppercase font-bold text-stone-400">Tempat &amp; Tanggal Lahir</div>
+                                <div class="font-bold text-stone-900">
+                                    {{ $selectedSiswaDetail->tempat_lahir ?: '-' }}, {{ $selectedSiswaDetail->tanggal_lahir ? $selectedSiswaDetail->tanggal_lahir->format('d F Y') : '-' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Wali Murid & Alamat -->
+                    <div class="space-y-2">
+                        <div class="text-xs font-bold text-stone-800 uppercase tracking-wider">Data Orang Tua / Wali &amp; Alamat</div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                            <div class="p-3 bg-stone-50 border border-stone-200 rounded-none space-y-0.5">
+                                <div class="text-[10px] uppercase font-bold text-stone-400">Nama Wali Murid</div>
+                                <div class="font-bold text-stone-900">{{ $selectedSiswaDetail->nama_wali ?: '-' }}</div>
+                            </div>
+
+                            <div class="p-3 bg-stone-50 border border-stone-200 rounded-none space-y-0.5">
+                                <div class="text-[10px] uppercase font-bold text-stone-400">No HP / WhatsApp Wali</div>
+                                <div class="font-mono font-bold text-emerald-800">{{ $selectedSiswaDetail->no_hp_wali ?: '-' }}</div>
+                            </div>
+
+                            <div class="p-3 bg-stone-50 border border-stone-200 rounded-none space-y-0.5 sm:col-span-2">
+                                <div class="text-[10px] uppercase font-bold text-stone-400">Alamat Tempat Tinggal</div>
+                                <div class="font-medium text-stone-800 leading-relaxed">{{ $selectedSiswaDetail->alamat ?: '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="px-6 py-4 bg-stone-50 border-t border-stone-200 flex justify-end">
+                    <button type="button" wire:click="closeDetail" class="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-none text-xs font-bold transition">
+                        Tutup Detail
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+</div>
 </div>

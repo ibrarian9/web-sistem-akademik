@@ -39,16 +39,16 @@ class AbsensiSiswa extends Component
             return;
         }
 
-        // Get classes assigned to this teacher (both from Mapel and Wali Kelas)
+        // Get classes assigned to this teacher (both from Mapel, Wali Kelas, and Guru Tahfizh)
         $assignments = GuruMapelKelas::with('kelas')
             ->where('guru_id', $guru->id)
             ->get();
 
         $gmkClasses = $assignments->pluck('kelas')->filter();
         $waliClasses = \App\Models\Kelas::where('guru_umum_id', $guru->id)->get();
+        $tahfidzClasses = \App\Models\Kelas::where('guru_tahfidz_id', $guru->id)->get();
 
-        $this->classes = $gmkClasses->merge($waliClasses)->unique('id')->values()->toArray();
-
+        $this->classes = $gmkClasses->merge($waliClasses)->merge($tahfidzClasses)->unique('id')->values()->toArray();
     }
 
     public function loadStudents()
@@ -59,7 +59,10 @@ class AbsensiSiswa extends Component
         }
 
         $guru = auth()->user()->guru;
-        $students = Siswa::where('kelas_id', $this->kelas_id)
+        $students = Siswa::where(function ($q) {
+                $q->where('kelas_id', $this->kelas_id)
+                  ->orWhere('kelas_tahfidz_id', $this->kelas_id);
+            })
             ->where('status', 'aktif')
             ->with('user')
             ->get();

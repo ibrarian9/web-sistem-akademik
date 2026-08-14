@@ -20,12 +20,31 @@ class SystemErrorLog extends Component
         'filterLevel' => ['except' => ''],
     ];
 
+    public $selectedErrorLog = null;
+    public bool $showErrorModal = false;
+
     public function mount()
     {
         $user = auth()->user();
         if (!$user || !in_array($user->role->nama ?? '', ['super_admin', 'kepala_sekolah'])) {
             abort(403, 'Akses Ditolak: Halaman System Error Log khusus untuk Super Admin & Kepala Sekolah.');
         }
+    }
+
+    public function openErrorDetail($id)
+    {
+        $allLogs = $this->getParsedLogs();
+        $found = $allLogs->firstWhere('id', $id);
+        if ($found) {
+            $this->selectedErrorLog = $found;
+            $this->showErrorModal = true;
+        }
+    }
+
+    public function closeErrorDetail()
+    {
+        $this->selectedErrorLog = null;
+        $this->showErrorModal = false;
     }
 
     public function updatingSearch()
