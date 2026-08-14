@@ -135,8 +135,8 @@
     "semantic_hash": ""
   },
   "app/Livewire/Guru/Dashboard.php": {
-    "mtime": 1786275786.3485548,
-    "ast_hash": "0a59cdc11ed77baa62ccaa4262cd0945",
+    "mtime": 1786703196.6073232,
+    "ast_hash": "cb3df8437e84d8f2bcb790624aed4868",
     "semantic_hash": ""
   },
   "app/Livewire/Guru/InputNilaiSiswa.php": {
@@ -965,8 +965,8 @@
     "semantic_hash": "3e7f8f8c0aa5b35568f45c05356368d7"
   },
   "resources/views/components/sidebar.blade.php": {
-    "mtime": 1786602265.75516,
-    "ast_hash": "4c0736cf4c89533ab5cadcb5c983e976",
+    "mtime": 1786706501.932592,
+    "ast_hash": "e921911188470ca9d321845d3944061d",
     "semantic_hash": ""
   },
   "resources/views/components/stat-card.blade.php": {
@@ -1115,8 +1115,8 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/guru/manajemen-kurikulum-merdeka.blade.php": {
-    "mtime": 1786274506.427824,
-    "ast_hash": "fb96e5fd5a80b4e426eab12640cc0191",
+    "mtime": 1786708003.4017432,
+    "ast_hash": "bf43434e054a993e3aa28b757a1ac0d2",
     "semantic_hash": ""
   },
   "resources/views/livewire/guru/pengaturan-bobot-nilai.blade.php": {
@@ -1170,9 +1170,9 @@
     "semantic_hash": "e57a66c6dba9b8294fea0489b1b37595"
   },
   "resources/views/livewire/murid/setoran-tahfidz.blade.php": {
-    "mtime": 1785819810.5702949,
-    "ast_hash": "39373532d51e20e6320298de3f8f7bd6",
-    "semantic_hash": "39373532d51e20e6320298de3f8f7bd6"
+    "mtime": 1786708024.0720277,
+    "ast_hash": "a37f04d81eecc23d22673cb51d750e28",
+    "semantic_hash": ""
   },
   "resources/views/livewire/murid/tagihan-spp.blade.php": {
     "mtime": 1784638062.4190025,
@@ -1280,18 +1280,18 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/super-admin/tata-kelola/manajemen-guru.blade.php": {
-    "mtime": 1786604793.9068882,
-    "ast_hash": "08d17a4ff50e775b0ae49d2594d60c98",
+    "mtime": 1786707987.2367148,
+    "ast_hash": "93dacd65f5bbf2a9e73f777f971bab44",
     "semantic_hash": ""
   },
   "resources/views/livewire/super-admin/tata-kelola/manajemen-jadwal.blade.php": {
-    "mtime": 1785827742.0216508,
-    "ast_hash": "3828185b4b5c4ab6fe4fbe7002a33c04",
-    "semantic_hash": "3828185b4b5c4ab6fe4fbe7002a33c04"
+    "mtime": 1786707974.6438982,
+    "ast_hash": "58026c56302692052e54525578b05f52",
+    "semantic_hash": ""
   },
   "resources/views/livewire/super-admin/tata-kelola/manajemen-kelas.blade.php": {
-    "mtime": 1786604252.7298071,
-    "ast_hash": "a5681ebef7e97c6777bc552e5aa4c0a0",
+    "mtime": 1786707809.1105297,
+    "ast_hash": "8b919f7f27cadc401a450f6bd2d0245a",
     "semantic_hash": ""
   },
   "resources/views/livewire/super-admin/tata-kelola/manajemen-komponen-nilai.blade.php": {
@@ -1310,14 +1310,14 @@
     "semantic_hash": "c61f51afa3f54ed858587509289d78d2"
   },
   "resources/views/livewire/super-admin/tata-kelola/manajemen-siswa.blade.php": {
-    "mtime": 1786614405.1999528,
-    "ast_hash": "4f2d68ad2a630d7d7cd0c33b751b3032",
+    "mtime": 1786707953.0934677,
+    "ast_hash": "80435208edbc517fb594133e063a238a",
     "semantic_hash": ""
   },
   "resources/views/livewire/super-admin/tata-kelola/manajemen-user.blade.php": {
-    "mtime": 1785824423.8018663,
-    "ast_hash": "9cddc89fe0f5aaa38685107ebdb96b16",
-    "semantic_hash": "9cddc89fe0f5aaa38685107ebdb96b16"
+    "mtime": 1786707781.934119,
+    "ast_hash": "23537d79481f20863bd7546210cafb7f",
+    "semantic_hash": ""
   },
   "resources/views/livewire/tata-usaha/dashboard.blade.php": {
     "mtime": 1784637748.3311505,
@@ -1335,13 +1335,13 @@
     "semantic_hash": "ae767157e7345d160991d39d47d0a0ca"
   },
   "resources/views/livewire/tata-usaha/manajemen-kalender-akademik.blade.php": {
-    "mtime": 1786602099.8954806,
-    "ast_hash": "5b5ad99c10419808933239c1ad81ef45",
+    "mtime": 1786707765.796863,
+    "ast_hash": "704c936427e3580d5d7aa96c77575810",
     "semantic_hash": ""
   },
   "resources/views/livewire/tata-usaha/manajemen-karyawan.blade.php": {
-    "mtime": 1786603848.8086343,
-    "ast_hash": "3077d3e9bfcc044f1106c6c3af98cf7c",
+    "mtime": 1786707736.8288207,
+    "ast_hash": "865046c312136702cb90e05559864c97",
     "semantic_hash": ""
   },
   "resources/views/livewire/tata-usaha/manajemen-piket-guru.blade.php": {
@@ -1800,8 +1800,8 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/guru/manajemen-remedial.blade.php": {
-    "mtime": 1786423897.306303,
-    "ast_hash": "5b2ba1be4e2503fa4792eeb37778df4b",
+    "mtime": 1786708013.4893742,
+    "ast_hash": "e79173cf0d31485641c0728f99a4c74b",
     "semantic_hash": ""
   },
   "resources/views/livewire/murid/jadwal-remedial.blade.php": {
@@ -1920,8 +1920,8 @@
     "semantic_hash": ""
   },
   "database/seeders/ProductionAccountsSeeder.php": {
-    "mtime": 1786558830.858097,
-    "ast_hash": "c701c01a9a39c16e739b8505ce72a3a9",
+    "mtime": 1786701382.1696913,
+    "ast_hash": "b9f98586055d6c96b5f7831c65f411dd",
     "semantic_hash": ""
   },
   "tests/Feature/ProductionAccountsSeederTest.php": {
@@ -1952,6 +1952,11 @@
   "tests/Feature/GuruStudentClassDisplayTest.php": {
     "mtime": 1786699909.3921776,
     "ast_hash": "20a2f0e19c2a8ede3e9be55bf05f1ef3",
+    "semantic_hash": ""
+  },
+  "tests/Feature/GuruDashboardTest.php": {
+    "mtime": 1786703201.8816504,
+    "ast_hash": "4e3a465212d739de7b67635abd38632a",
     "semantic_hash": ""
   }
 }

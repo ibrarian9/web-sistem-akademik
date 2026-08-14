@@ -9,6 +9,7 @@
     $guruMenuItems = match ($jenisGuru) {
         'tahfizh' => [
             ['title' => 'Dashboard Guru', 'route' => 'guru.dashboard', 'icon' => 'home'],
+            ['title' => 'Panduan & FAQ', 'route' => 'shared.tutorial-faq', 'icon' => 'help-circle'],
             
             ['title' => 'KBM & Presensi', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Absensi Siswa', 'route' => 'guru.absensi-siswa', 'icon' => 'check-square'],
@@ -35,6 +36,7 @@
         ],
         'umum' => [
             ['title' => 'Dashboard Guru', 'route' => 'guru.dashboard', 'icon' => 'home'],
+            ['title' => 'Panduan & FAQ', 'route' => 'shared.tutorial-faq', 'icon' => 'help-circle'],
 
             ['title' => 'KBM & Presensi', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Absensi Siswa', 'route' => 'guru.absensi-siswa', 'icon' => 'check-square'],
@@ -66,6 +68,7 @@
         ],
         default => [
             ['title' => 'Dashboard Guru', 'route' => 'guru.dashboard', 'icon' => 'home'],
+            ['title' => 'Panduan & FAQ', 'route' => 'shared.tutorial-faq', 'icon' => 'help-circle'],
 
             ['title' => 'KBM & Presensi', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Absensi Siswa', 'route' => 'guru.absensi-siswa', 'icon' => 'check-square'],
@@ -102,6 +105,7 @@
     $menuItems = match ($role) {
         'super_admin' => [
             ['title' => 'Dashboard', 'route' => 'super-admin.dashboard', 'icon' => 'home'],
+            ['title' => 'Panduan & FAQ', 'route' => 'shared.tutorial-faq', 'icon' => 'help-circle'],
             ['title' => 'Keuangan', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Overview Pembayaran', 'route' => 'finance.overview-pembayaran', 'icon' => 'eye'],
             ['title' => 'Kelola Tagihan', 'route' => 'finance.tagihan', 'icon' => 'file-text'],
@@ -142,6 +146,7 @@
         ],
         'tata_usaha' => [
             ['title' => 'Dashboard', 'route' => 'tata-usaha.dashboard', 'icon' => 'home'],
+            ['title' => 'Panduan & FAQ', 'route' => 'shared.tutorial-faq', 'icon' => 'help-circle'],
             ['title' => 'Manajemen SDM & Presensi', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Input Absensi Karyawan', 'route' => 'tata-usaha.absensi-karyawan', 'icon' => 'clipboard'],
             ['title' => 'Direktori Karyawan', 'route' => 'tata-usaha.karyawan', 'icon' => 'users'],
@@ -170,6 +175,7 @@
         ],
         'pengawas' => [
             ['title' => 'Dashboard', 'route' => 'pengawas.dashboard', 'icon' => 'home'],
+            ['title' => 'Panduan & FAQ', 'route' => 'shared.tutorial-faq', 'icon' => 'help-circle'],
             ['title' => 'Akademik', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Persetujuan Nilai', 'route' => 'pengawas.koreksi-nilai', 'icon' => 'user-check'],
             ['title' => 'Kalender Akademik', 'route' => 'pengawas.kalender-akademik', 'icon' => 'calendar'],
@@ -177,6 +183,7 @@
         ],
         'kepala_sekolah' => [
             ['title' => 'Dashboard', 'route' => 'kepala-sekolah.dashboard', 'icon' => 'home'],
+            ['title' => 'Panduan & FAQ', 'route' => 'shared.tutorial-faq', 'icon' => 'help-circle'],
             ['title' => 'Monitoring & Executive', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Overview Keuangan', 'route' => 'finance.overview-pembayaran', 'icon' => 'eye'],
             ['title' => 'Laporan Tunggakan', 'route' => 'finance.laporan.tunggakan', 'icon' => 'file-text'],
@@ -195,6 +202,7 @@
 
         'murid' => [
             ['title' => 'Dashboard', 'route' => 'murid.dashboard', 'icon' => 'home'],
+            ['title' => 'Panduan & FAQ', 'route' => 'shared.tutorial-faq', 'icon' => 'help-circle'],
             ['title' => 'Akademik & Tahfizh', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Nilai Akademik (TP & STS)', 'route' => 'murid.rapor', 'icon' => 'award'],
             ['title' => 'Evaluasi Tahfizh', 'route' => 'murid.tahfidz', 'icon' => 'book-open'],
@@ -213,6 +221,7 @@
         ],
         'finance' => [
             ['title' => 'Dashboard', 'route' => 'finance.dashboard', 'icon' => 'home'],
+            ['title' => 'Panduan & FAQ', 'route' => 'shared.tutorial-faq', 'icon' => 'help-circle'],
             ['title' => 'Pemasukan', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Overview Pembayaran', 'route' => 'finance.overview-pembayaran', 'icon' => 'eye'],
             ['title' => 'Rincian Arus Masuk', 'route' => 'finance.arus-masuk', 'icon' => 'arrow-down-left'],
@@ -230,7 +239,7 @@
             ['title' => 'Laporan Pemasukan', 'route' => 'finance.laporan.pemasukan', 'icon' => 'activity'],
             ['title' => 'Laporan Pengeluaran', 'route' => 'finance.laporan.pengeluaran', 'icon' => 'trending-down'],
             ['title' => 'Lainnya', 'route' => null, 'icon' => null, 'section' => true],
-            ['title' => 'Dana BOS', 'route' => 'finance.dana-bos', 'icon' => 'box'],
+            ['title' => 'Panduan & FAQ', 'route' => 'shared.tutorial-faq', 'icon' => 'help-circle'],
             ['title' => 'Kalender Akademik', 'route' => 'kalender-akademik.shared', 'icon' => 'calendar'],
             ['title' => 'Notifikasi', 'route' => 'shared.notifications', 'icon' => 'bell'],
         ],
@@ -349,6 +358,7 @@
                         @case('shield-check') <x-lucide-shield-check class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('check-square') <x-lucide-check-square class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('refresh-cw') <x-lucide-refresh-cw class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('help-circle') <x-lucide-help-circle class="w-[18px] h-[18px] shrink-0" /> @break
                     @endswitch
 
                     <span>{{ $item['title'] }}</span>

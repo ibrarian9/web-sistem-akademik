@@ -965,8 +965,8 @@
     "semantic_hash": "3e7f8f8c0aa5b35568f45c05356368d7"
   },
   "resources/views/components/sidebar.blade.php": {
-    "mtime": 1786706501.932592,
-    "ast_hash": "e921911188470ca9d321845d3944061d",
+    "mtime": 1786709634.091757,
+    "ast_hash": "3a626b6344dbcafb7cd15a74189081ff",
     "semantic_hash": ""
   },
   "resources/views/components/stat-card.blade.php": {
@@ -1390,8 +1390,8 @@
     "semantic_hash": "0f0dcce9bcaf5b632002f559796f5beb"
   },
   "routes/web.php": {
-    "mtime": 1786602601.8127995,
-    "ast_hash": "9f96db5accd748ebbf1dc48a993f4fde",
+    "mtime": 1786709146.0132492,
+    "ast_hash": "19d7a982f2e80623e5fb0952679b924d",
     "semantic_hash": ""
   },
   "tests/Feature/AuthTest.php": {
@@ -1957,6 +1957,16 @@
   "tests/Feature/GuruDashboardTest.php": {
     "mtime": 1786703201.8816504,
     "ast_hash": "4e3a465212d739de7b67635abd38632a",
+    "semantic_hash": ""
+  },
+  "app/Livewire/Shared/TutorialDanFaq.php": {
+    "mtime": 1786709131.4954855,
+    "ast_hash": "5bf036b9e86d44d3ef7981162186a8d2",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/shared/tutorial-dan-faq.blade.php": {
+    "mtime": 1786709537.52666,
+    "ast_hash": "878d87fc14ac1afdf1c7db53bb43842e",
     "semantic_hash": ""
   }
 }

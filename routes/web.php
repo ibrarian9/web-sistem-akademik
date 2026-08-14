@@ -46,6 +46,7 @@ Route::middleware(['auth'])->group(function () {
     // Shared Notifications & Documents Route (accessible by any authenticated user)
     Route::get('/notifikasi', \App\Livewire\Shared\NotificationsList::class)->name('shared.notifications');
     Route::get('/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik.shared');
+    Route::get('/tutorial-faq', \App\Livewire\Shared\TutorialDanFaq::class)->name('shared.tutorial-faq');
     
     // PDF Rapor Inline Browser Preview
     Route::get('/rapor/pdf-preview/{siswaId}', [\App\Http\Controllers\RaporPdfController::class, 'previewPdf'])->name('rapor.pdf.preview');
