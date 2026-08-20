@@ -172,7 +172,13 @@ class AbsensiSiswa extends Component
             }
         });
 
-        session()->flash('message', 'Kehadiran siswa berhasil disimpan.');
+        $msg = 'Kehadiran siswa berhasil disimpan.';
+        session()->flash('message', $msg);
+        $this->dispatch('show-alert', [
+            'title' => 'Presensi Disimpan',
+            'message' => $msg,
+            'type' => 'create',
+        ]);
         $this->loadStudents();
     }
 

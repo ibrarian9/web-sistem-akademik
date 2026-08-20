@@ -141,7 +141,7 @@
                                             <x-lucide-check-circle class="w-3.5 h-3.5 text-emerald-700" />
                                         </button>
                                     @endif
-                                    <button type="button" wire:click="delete({{ $item->id }})" wire:confirm="Apakah Anda yakin ingin menghapus jadwal remedial ini?" class="p-1.5 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded-lg font-bold border border-rose-300 transition" title="Hapus Schedule">
+                                    <button type="button" wire:click="delete({{ $item->id }})" data-confirm="Apakah Anda yakin ingin menghapus jadwal remedial ini?" class="p-1.5 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded-lg font-bold border border-rose-300 transition cursor-pointer" title="Hapus Schedule">
                                         <x-lucide-trash-2 class="w-3.5 h-3.5 text-rose-600" />
                                     </button>
                                 </div>

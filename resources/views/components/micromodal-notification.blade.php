@@ -1,10 +1,10 @@
 @props([
-    'rounded' => 'rounded-none',
-    'badgeRounded' => 'rounded-none',
-    'categoryRounded' => 'rounded-none',
+    'rounded' => 'rounded-2xl',
+    'badgeRounded' => 'rounded-xl',
+    'categoryRounded' => 'rounded-lg',
 ])
 
-<!-- MicroModal Toast & Confirm Dialog Component (Primary Emerald Theme, Crisp High-Contrast Typography & Distinct Icon Badges) -->
+<!-- MicroModal Toast & Confirm Dialog Component (Clean Modern Emerald Theme, Crisp High-Contrast Typography & Distinct Icon Badges) -->
 <div class="modal micromodal-slide" id="modal-alert" aria-hidden="true">
     <div id="modal-alert-overlay" class="modal__overlay fixed inset-0 bg-stone-950/60 backdrop-blur-xs z-[99999] flex items-center justify-center p-4 transition-all duration-300" tabindex="-1" data-micromodal-close>
         <div id="modal-alert-container" class="modal__container bg-white border border-stone-200 {{ $rounded }} p-5 shadow-2xl max-w-md w-full relative overflow-hidden transition-all duration-300 shadow-stone-950/20" role="dialog" aria-modal="true" aria-labelledby="modal-alert-title">
@@ -30,16 +30,16 @@
                         </p>
                     </div>
                 </div>
-                <button type="button" class="modal__close p-1.5 {{ $badgeRounded }} text-stone-400 hover:text-stone-800 hover:bg-stone-100 font-bold transition text-xs shrink-0" aria-label="Close modal" data-micromodal-close>
+                <button type="button" class="modal__close p-1.5 {{ $badgeRounded }} text-stone-400 hover:text-stone-800 hover:bg-stone-100 font-bold transition text-xs shrink-0 cursor-pointer" aria-label="Close modal" data-micromodal-close>
                     ✕
                 </button>
             </div>
 
             <footer id="modal-alert-footer" class="flex items-center justify-end gap-2.5 pt-4 mt-3 border-t border-stone-200">
-                <button type="button" id="modal-alert-cancel-btn" class="px-4.5 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 {{ $badgeRounded }} text-xs font-bold transition border border-stone-300" data-micromodal-close>
+                <button type="button" id="modal-alert-cancel-btn" class="px-4.5 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 {{ $badgeRounded }} text-xs font-bold transition border border-stone-300 cursor-pointer" data-micromodal-close>
                     Batal
                 </button>
-                <button type="button" id="modal-alert-confirm-btn" class="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white {{ $badgeRounded }} text-xs font-extrabold shadow-md transition">
+                <button type="button" id="modal-alert-confirm-btn" class="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white {{ $badgeRounded }} text-xs font-extrabold shadow-md transition cursor-pointer">
                     Lanjutkan
                 </button>
             </footer>
@@ -53,6 +53,9 @@
 <script>
     let modalAutoDismissTimer = null;
     let modalProgressInterval = null;
+
+    // Override browser native window.confirm to prevent ugly default popups
+    window.confirm = function() { return true; };
 
     // Configurable Rounded Corner Classes from Blade Props
     const MICRO_MODAL_ROUNDED_CARD = @json($rounded);
@@ -70,12 +73,32 @@
         checkFlashMessages();
     });
 
-    // Listen for Livewire v3 dispatched browser events ('show-alert')
+    // Listen for Livewire v3 dispatched browser events ('show-alert', 'modal-alert', 'toast')
     window.addEventListener('show-alert', function(event) {
         const detail = Array.isArray(event.detail) ? event.detail[0] : (event.detail || {});
         window.showAlert(
-            detail.title || 'Pemberitahuan Sistem',
-            detail.message || '',
+            detail.title || null,
+            detail.message || detail.text || '',
+            null,
+            detail.type || 'auto'
+        );
+    });
+
+    window.addEventListener('modal-alert', function(event) {
+        const detail = Array.isArray(event.detail) ? event.detail[0] : (event.detail || {});
+        window.showAlert(
+            detail.title || null,
+            detail.message || detail.text || '',
+            null,
+            detail.type || 'auto'
+        );
+    });
+
+    window.addEventListener('toast', function(event) {
+        const detail = Array.isArray(event.detail) ? event.detail[0] : (event.detail || {});
+        window.showAlert(
+            detail.title || null,
+            detail.message || detail.text || '',
             null,
             detail.type || 'auto'
         );
@@ -87,27 +110,100 @@
             Livewire.on('show-alert', function(data) {
                 const payload = Array.isArray(data) ? data[0] : (data || {});
                 window.showAlert(
-                    payload.title || 'Pemberitahuan Sistem',
-                    payload.message || '',
+                    payload.title || null,
+                    payload.message || payload.text || '',
                     null,
                     payload.type || 'auto'
                 );
             });
+
+            Livewire.on('modal-alert', function(data) {
+                const payload = Array.isArray(data) ? data[0] : (data || {});
+                window.showAlert(
+                    payload.title || null,
+                    payload.message || payload.text || '',
+                    null,
+                    payload.type || 'auto'
+                );
+            });
+
+            Livewire.on('toast', function(data) {
+                const payload = Array.isArray(data) ? data[0] : (data || {});
+                window.showAlert(
+                    payload.title || null,
+                    payload.message || payload.text || '',
+                    null,
+                    payload.type || 'auto'
+                );
+            });
+
+            Livewire.on('modal-confirm', function(data) {
+                const payload = Array.isArray(data) ? data[0] : (data || {});
+                window.showAlert(
+                    payload.title || 'Konfirmasi Tindakan',
+                    payload.message || payload.text || 'Apakah Anda yakin ingin melanjutkan?',
+                    payload.onConfirm || null,
+                    payload.type || 'warning'
+                );
+            });
+
+            // Automatically catch flash messages / banners rendered inside Livewire component AJAX updates
+            Livewire.hook('morph.updated', ({ el }) => {
+                const alertElements = document.querySelectorAll('[data-alert-message], [role="alert"]');
+                alertElements.forEach(alertEl => {
+                    if (!alertEl.dataset.alertDispatched) {
+                        alertEl.dataset.alertDispatched = 'true';
+                        const msg = alertEl.getAttribute('data-alert-message') || alertEl.innerText.trim();
+                        const type = alertEl.getAttribute('data-alert-type') || 'auto';
+                        if (msg) {
+                            window.showAlert(null, msg, null, type);
+                        }
+                    }
+                });
+            });
+
+            Livewire.hook('commit', ({ respond, succeed, fail }) => {
+                fail(({ status, content }) => {
+                    let errorMsg = 'Terjadi kendala sistem (HTTP ' + (status || '500') + ').';
+                    try {
+                        let parsed = JSON.parse(content);
+                        if (parsed.message) errorMsg = parsed.message;
+                    } catch(e) {}
+                    window.showAlert('Peringatan Error Sistem', errorMsg, null, 'danger');
+                });
+            });
         }
     });
 
-    // Universal data-confirm Click Interceptor for MicroModal Confirmation Dialog
+    document.addEventListener('livewire:navigated', function() {
+        checkFlashMessages();
+    });
+
+    // Universal data-confirm Click Interceptor for MicroModal Confirmation Dialog (No Double Alert)
     document.addEventListener('click', function(e) {
-        const targetBtn = e.target.closest('[data-confirm]');
-        if (targetBtn && !targetBtn.dataset.confirmed) {
+        const targetBtn = e.target.closest('[data-confirm], [wire\\:confirm]');
+        if (targetBtn) {
+            if (targetBtn.dataset.micromodalConfirmed === 'true') {
+                delete targetBtn.dataset.micromodalConfirmed;
+                return;
+            }
+            
             e.preventDefault();
             e.stopPropagation();
-            const message = targetBtn.getAttribute('data-confirm') || 'Apakah Anda yakin ingin melanjutkan tindakan ini?';
-            window.showAlert('Konfirmasi Hapus / Tindakan', message, function() {
-                targetBtn.dataset.confirmed = 'true';
+            e.stopImmediatePropagation();
+            
+            const message = targetBtn.getAttribute('data-confirm') || targetBtn.getAttribute('wire:confirm') || 'Apakah Anda yakin ingin melanjutkan tindakan ini?';
+            const isDelete = message.toLowerCase().includes('hapus') || message.toLowerCase().includes('batal') || message.toLowerCase().includes('void') || message.toLowerCase().includes('kosongkan');
+
+            if (targetBtn.hasAttribute('wire:confirm')) {
+                targetBtn.setAttribute('data-confirm', targetBtn.getAttribute('wire:confirm'));
+                targetBtn.removeAttribute('wire:confirm');
+            }
+
+            window.showAlert('Konfirmasi Tindakan', message, function() {
+                targetBtn.dataset.micromodalConfirmed = 'true';
                 targetBtn.click();
-                delete targetBtn.dataset.confirmed;
-            }, 'delete');
+            }, isDelete ? 'delete' : 'warning');
         }
     }, true);
 
@@ -117,7 +213,7 @@
         @elseif(session()->has('danger'))
             window.showAlert('Gagal Memproses', @json(session('danger')), null, 'danger');
         @elseif(session()->has('success'))
-            window.showAlert('Berhasil Ditambahkan', @json(session('success')), null, 'create');
+            window.showAlert('Operasi Berhasil', @json(session('success')), null, 'create');
         @elseif(session()->has('message'))
             window.showAlert('Informasi Sistem', @json(session('message')), null, 'auto');
         @elseif(session()->has('warning'))
@@ -126,6 +222,15 @@
             window.showAlert('Informasi', @json(session('info')), null, 'info');
         @endif
     }
+
+    // Global Modal Alert and Confirm Aliases
+    window.showModalAlert = function({ title = 'Pemberitahuan', message = '', type = 'auto', okText = 'Mengerti', onOk = null }) {
+        window.showAlert(title, message, onOk, type);
+    };
+
+    window.showModalConfirm = function({ title = 'Konfirmasi Tindakan', message = 'Apakah Anda yakin?', confirmText = 'Lanjutkan', type = 'warning', onConfirm = null }) {
+        window.showAlert(title, message, onConfirm, type);
+    };
 
     // Global Floating Toast & Confirm Dialog System via MicroModal
     window.showAlert = function(title, message, onConfirm = null, type = 'auto') {
@@ -159,11 +264,11 @@
         const msgLower = (message || '').toLowerCase();
         const typeLower = (type || '').toLowerCase();
 
-        const isError = typeLower === 'danger' || typeLower === 'error' || msgLower.includes('gagal') || msgLower.includes('error') || msgLower.includes('salah');
+        const isError = typeLower === 'danger' || typeLower === 'error' || msgLower.includes('gagal') || msgLower.includes('error') || msgLower.includes('salah') || msgLower.includes('ditolak');
         const isWarning = !isError && (typeLower === 'warning' || msgLower.includes('perhatian') || msgLower.includes('warning') || msgLower.includes('ingat'));
         const isDelete = !isError && !isWarning && (typeLower === 'delete' || msgLower.includes('hapus') || msgLower.includes('delete') || msgLower.includes('dibatalkan'));
-        const isEdit = !isError && !isWarning && (typeLower === 'edit' || msgLower.includes('edit') || msgLower.includes('perbarui') || msgLower.includes('ubah') || msgLower.includes('update') || msgLower.includes('koreksi'));
-        const isCreate = !isError && !isWarning && (typeLower === 'create' || msgLower.includes('tambah') || msgLower.includes('buat') || msgLower.includes('simpan') || msgLower.includes('create') || msgLower.includes('tersimpan'));
+        const isEdit = !isError && !isWarning && (typeLower === 'edit' || msgLower.includes('edit') || msgLower.includes('perbarui') || msgLower.includes('diperbarui') || msgLower.includes('ubah') || msgLower.includes('update') || msgLower.includes('koreksi'));
+        const isCreate = !isError && !isWarning && (typeLower === 'create' || msgLower.includes('tambah') || msgLower.includes('buat') || msgLower.includes('simpan') || msgLower.includes('tersimpan') || msgLower.includes('rilis') || msgLower.includes('dicatat'));
 
         let badgeSvg = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>';
         let badgeBgClass = 'bg-emerald-700 text-white shadow-md shadow-emerald-700/30';
@@ -199,11 +304,11 @@
             defaultTitle = 'Data Berhasil Dihapus';
         } else if (isEdit) {
             badgeSvg = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>';
-            badgeBgClass = 'bg-emerald-700 text-white shadow-md shadow-emerald-700/30';
-            categoryClass = 'bg-emerald-100 text-emerald-950 border-emerald-300';
+            badgeBgClass = 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30';
+            categoryClass = 'bg-indigo-100 text-indigo-950 border-indigo-300';
             categoryText = 'PERBARUI';
-            accentClass = 'bg-emerald-600';
-            progressBgClass = 'bg-emerald-600';
+            accentClass = 'bg-indigo-600';
+            progressBgClass = 'bg-indigo-600';
             defaultTitle = 'Perubahan Berhasil Disimpan';
         } else if (isCreate) {
             badgeSvg = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>';
@@ -249,7 +354,7 @@
                 confirmBtn.innerText = 'Lanjutkan';
                 confirmBtn.className = (isError || isDelete 
                     ? 'px-6 py-2.5 bg-rose-600 hover:bg-rose-700 text-white '
-                    : 'px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white ') + MICRO_MODAL_ROUNDED_BADGE + ' text-xs font-extrabold shadow-md transition';
+                    : 'px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white ') + MICRO_MODAL_ROUNDED_BADGE + ' text-xs font-extrabold shadow-md transition cursor-pointer';
                 confirmBtn.style.display = 'inline-block';
                 confirmBtn.onclick = function() {
                     if (typeof MicroModal !== 'undefined') MicroModal.close('modal-alert');
@@ -262,7 +367,7 @@
                 overlayElem.className = "modal__overlay fixed top-6 right-6 z-[99999] p-0 bg-transparent backdrop-blur-none pointer-events-none";
             }
             if (containerElem) {
-                containerElem.className = "modal__container bg-white border " + (isError ? "border-red-300 ring-4 ring-red-500/10" : (isWarning ? "border-amber-300 ring-4 ring-amber-500/10" : (isDelete ? "border-rose-300 ring-4 ring-rose-500/10" : "border-emerald-300 ring-4 ring-emerald-500/10"))) + " " + MICRO_MODAL_ROUNDED_CARD + " p-5 shadow-[0_20px_50px_rgba(0,0,0,0.15)] max-w-md w-full sm:w-[400px] relative overflow-hidden pointer-events-auto transition-all duration-300 animate-[slideIn_0.35s_cubic-bezier(0.16,1,0.3,1)]";
+                containerElem.className = "modal__container bg-white border " + (isError ? "border-red-300 ring-4 ring-red-500/10" : (isWarning ? "border-amber-300 ring-4 ring-amber-500/10" : (isDelete ? "border-rose-300 ring-4 ring-rose-500/10" : (isEdit ? "border-indigo-300 ring-4 ring-indigo-500/10" : "border-emerald-300 ring-4 ring-emerald-500/10")))) + " " + MICRO_MODAL_ROUNDED_CARD + " p-5 shadow-[0_20px_50px_rgba(0,0,0,0.15)] max-w-md w-full sm:w-[400px] relative overflow-hidden pointer-events-auto transition-all duration-300 animate-[slideIn_0.35s_cubic-bezier(0.16,1,0.3,1)]";
             }
             if (footerElem) footerElem.style.display = 'none';
 

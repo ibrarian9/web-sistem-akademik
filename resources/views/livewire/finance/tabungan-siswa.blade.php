@@ -8,6 +8,16 @@
         icon="wallet"
     />
 
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Manajemen Tabungan Siswa"
+        :steps="[
+            ['title' => 'Setor & Tarik', 'desc' => 'Klik tombol Setor atau Tarik pada baris siswa untuk mencatat mutasi kas tabungan baru.'],
+            ['title' => 'Histori & Edit Transaksi', 'desc' => 'Klik tombol Histori untuk melihat buku mutasi, dan gunakan tombol Edit untuk mengoreksi nominal atau tanggal transaksi.'],
+            ['title' => 'Wewenang Akses', 'desc' => 'Finance dapat mencatat dan mengedit mutasi tabungan. Penghapusan riwayat transaksi hanya dapat dilakukan oleh Founder / Super Admin.']
+        ]"
+    />
+
     <!-- Alert Success Notification -->
     @if (session()->has('success'))
         <x-alert-banner type="success" :message="session('success')" />
@@ -197,6 +207,70 @@
         </form>
     </x-floating-card>
 
+    <!-- Floating Card Form Edit Transaksi Tabungan (Founder & Finance) -->
+    <x-floating-card 
+        :show="$showEditTransactionModal" 
+        title="Edit Transaksi Tabungan" 
+        :subtitle="'Koreksi data mutasi untuk: ' . $edit_siswa_nama"
+        badge="EDIT MUTASI TABUNGAN"
+        badgeVariant="indigo"
+        icon="edit-3"
+        maxWidth="max-w-lg"
+        closeAction="closeEditTransactionModal"
+    >
+        <form wire:submit.prevent="saveEditTransaction" class="space-y-4">
+            <!-- Jenis Transaksi -->
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Jenis Transaksi</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="flex items-center justify-center gap-2 p-3 border rounded-xl cursor-pointer text-xs font-bold select-none transition {{ $edit_jenis === 'setor' ? 'bg-emerald-50 border-emerald-500 text-emerald-900 ring-2 ring-emerald-500/20' : 'bg-stone-50 border-stone-300 text-stone-600' }}">
+                        <input type="radio" wire:model.live="edit_jenis" value="setor" class="hidden" />
+                        <x-lucide-arrow-down-left class="w-4 h-4 text-emerald-600" />
+                        <span>Setor Tabungan (+)</span>
+                    </label>
+                    <label class="flex items-center justify-center gap-2 p-3 border rounded-xl cursor-pointer text-xs font-bold select-none transition {{ $edit_jenis === 'tarik' ? 'bg-amber-50 border-amber-500 text-amber-900 ring-2 ring-amber-500/20' : 'bg-stone-50 border-stone-300 text-stone-600' }}">
+                        <input type="radio" wire:model.live="edit_jenis" value="tarik" class="hidden" />
+                        <x-lucide-arrow-up-right class="w-4 h-4 text-amber-600" />
+                        <span>Tarik Tabungan (-)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Nominal -->
+            <x-input-currency 
+                label="Nominal Transaksi Baru (Rp)" 
+                name="edit_nominal" 
+                wire:model="edit_nominal" 
+                placeholder="Contoh: 50.000" 
+                required 
+            />
+
+            <!-- Tanggal Transaksi -->
+            <x-input 
+                type="date" 
+                label="Tanggal Transaksi" 
+                name="edit_tanggal" 
+                wire:model="edit_tanggal" 
+                required 
+            />
+
+            <!-- Keterangan -->
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Catatan / Keterangan</label>
+                <textarea wire:model="edit_keterangan" rows="2" placeholder="Catatan transaksi tabungan (opsional)..." class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 shadow-2xs resize-none"></textarea>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-stone-200">
+                <x-button variant="secondary" size="md" wire:click="closeEditTransactionModal">
+                    Batal
+                </x-button>
+                <x-button variant="primary" size="md" type="submit" loadingTarget="saveEditTransaction">
+                    Simpan Perubahan
+                </x-button>
+            </div>
+        </form>
+    </x-floating-card>
+
     <!-- Floating Card History Mutasi -->
     @if ($showHistoryModal && $selectedSiswaHistory)
         <x-floating-card 
@@ -206,7 +280,7 @@
             badge="HISTORI MUTASI TABUNGAN"
             badgeVariant="emerald"
             icon="list"
-            maxWidth="max-w-2xl"
+            maxWidth="max-w-3xl"
             closeAction="closeModals"
         >
             <div class="max-h-96 overflow-y-auto border border-stone-200 rounded-2xl">
@@ -218,6 +292,7 @@
                             <th class="p-3 text-right">Nominal</th>
                             <th class="p-3 text-right">Saldo Akhir</th>
                             <th class="p-3 text-left">Petugas</th>
+                            <th class="p-3 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-stone-200 bg-white">
@@ -240,16 +315,40 @@
                                 <td class="p-3 text-right font-black text-xs text-stone-900 border-r border-stone-200">
                                     Rp {{ number_format($tx->saldo_akhir, 0, ',', '.') }}
                                 </td>
-                                <td class="p-3">
+                                <td class="p-3 border-r border-stone-200">
                                     <div class="text-xs font-semibold text-stone-800">{{ $tx->petugas->nama ?? 'Sistem' }}</div>
                                     @if ($tx->keterangan)
                                         <div class="text-[10px] text-stone-400 italic">{{ $tx->keterangan }}</div>
                                     @endif
                                 </td>
+                                <td class="p-3 text-center">
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <!-- Edit Button (Founder & Finance) -->
+                                        <button 
+                                            type="button" 
+                                            wire:click="openEditTransaction({{ $tx->id }})" 
+                                            class="p-1.5 text-stone-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
+                                            title="Edit Transaksi">
+                                            <x-lucide-edit-3 class="w-4 h-4" />
+                                        </button>
+
+                                        <!-- Delete Button (Founder Only) -->
+                                        @if ($isFounder)
+                                            <button 
+                                                type="button" 
+                                                wire:click="deleteTransaction({{ $tx->id }})" 
+                                                data-confirm="Apakah Anda yakin ingin menghapus catatan transaksi tabungan ini? Saldo tabungan siswa akan dihitung ulang secara otomatis."
+                                                class="p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer"
+                                                title="Hapus Transaksi">
+                                                <x-lucide-trash-2 class="w-4 h-4" />
+                                            </button>
+                                        @endif
+                                    </div>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="py-6 text-center text-stone-400 font-medium text-xs">
+                                <td colspan="6" class="py-6 text-center text-stone-400 font-medium text-xs">
                                     Belum ada riwayat mutasi tabungan untuk siswa ini.
                                 </td>
                             </tr>

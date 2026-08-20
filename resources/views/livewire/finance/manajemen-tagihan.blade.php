@@ -2,7 +2,7 @@
     <!-- Header Title Bar -->
     <x-page-header 
         title="Manajemen Tagihan Siswa" 
-        subtitle="Buat, filter, dan pantau status tagihan operasional/SPP siswa sesuai nominal masing-masing anak."
+        subtitle="Buat, filter, edit, dan pantau status tagihan operasional/SPP siswa sesuai nominal masing-masing anak."
         badge="MANAJEMEN TAGIHAN &amp; SPP"
         badgeVariant="emerald"
         icon="file-text"
@@ -19,8 +19,8 @@
         title="Petunjuk Manajemen Tagihan Siswa"
         :steps="[
             ['title' => 'Tabel Per-Siswa', 'desc' => 'Daftar diringkas 1 baris per siswa dengan total tagihan, total dibayar, dan sisa tunggakan.'],
-            ['title' => 'Tombol Detail', 'desc' => 'Klik tombol Detail pada baris siswa untuk membuka card mengambang rincian tagihan per bulan.'],
-            ['title' => 'Filter Bulan & Periode', 'desc' => 'Gunakan filter bulan (Juli, Agustus, dst.) atau tanggal untuk memantau kelunasan periode tertentu.']
+            ['title' => 'Tombol Detail & Edit', 'desc' => 'Klik tombol Detail untuk melihat rincian tagihan per bulan, serta tombol Edit untuk mengubah nominal/jatuh tempo.'],
+            ['title' => 'Wewenang Akses', 'desc' => 'Finance dapat menerbitkan dan mengedit tagihan. Penghapusan tagihan hanya dapat dilakukan oleh Founder / Super Admin.']
         ]"
     />
 
@@ -90,90 +90,104 @@
         <x-table loadingTarget="search, filterBulan, filterKelas, filterJenis, filterStatus, filterPeriode, startDate, endDate, page">
             <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900 text-xs">
                 <tr>
-                    <th class="w-12 p-3.5 text-center border-r border-emerald-700/60">
-                        <input type="checkbox" wire:model.live="selectAll" class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer" />
-                    </th>
+                    @if ($isFounder)
+                        <th class="w-12 p-3.5 text-center border-r border-emerald-700/60">
+                            <input type="checkbox" wire:model.live="selectAll" class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer" />
+                        </th>
+                    @endif
                     <x-table.th class="min-w-[200px]">Identitas Siswa</x-table.th>
                     <x-table.th class="w-32">Kelas</x-table.th>
                     <x-table.th align="center" class="w-32">Jml Tagihan</x-table.th>
                     <x-table.th align="right" class="w-36">Total Tagihan</x-table.th>
                     <x-table.th align="right" class="w-36">Total Dibayar</x-table.th>
-                    <x-table.th align="right" class="w-36">Sisa Tagihan</x-table.th>
-                    <x-table.th align="center" class="w-32">Status Kelunasan</x-table.th>
-                    <x-table.th align="center" class="w-32">Aksi</x-table.th>
+                    <x-table.th align="right" class="w-36">Sisa Piutang</x-table.th>
+                    <x-table.th align="center" class="w-32">Status Global</x-table.th>
+                    <x-table.th align="center" class="w-28">Aksi</x-table.th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-stone-200 bg-white">
-                @forelse ($students as $student)
+                @forelse ($students as $siswa)
                     @php
-                        $totNominal = $student->tagihans->sum('nominal');
-                        $totDibayar = $student->tagihans->sum('total_dibayar');
-                        $totSisa = max(0, $totNominal - $totDibayar);
-                        $countTagihan = $student->tagihans->count();
-
-                        $statusBadge = 'belum_bayar';
-                        if ($totSisa == 0 && $countTagihan > 0) {
-                            $statusBadge = 'lunas';
-                        } elseif ($totDibayar > 0) {
-                            $statusBadge = 'sebagian';
+                        $totalTagihan = $siswa->tagihans->sum('nominal');
+                        $totalDibayar = $siswa->tagihans->sum('total_dibayar');
+                        $sisaPiutang = max(0, $totalTagihan - $totalDibayar);
+                        $countTagihan = $siswa->tagihans->count();
+                        
+                        $globalStatus = 'lunas';
+                        if ($sisaPiutang > 0 && $totalDibayar > 0) {
+                            $globalStatus = 'sebagian';
+                        } elseif ($sisaPiutang > 0 && $totalDibayar == 0) {
+                            $globalStatus = 'belum_bayar';
                         }
                     @endphp
-                    <tr class="hover:bg-emerald-50/40 transition {{ in_array($student->id, $selectedIds) ? 'bg-emerald-50/60 font-semibold' : '' }}">
-                        <td class="p-3.5 text-center border-r border-stone-200">
-                            <input type="checkbox" wire:model.live="selectedIds" value="{{ $student->id }}" class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer" />
-                        </td>
+                    <tr class="hover:bg-stone-50 transition duration-150 text-xs">
+                        @if ($isFounder)
+                            <td class="p-3.5 text-center border-r border-stone-200">
+                                <input type="checkbox" wire:model.live="selectedIds" value="{{ $siswa->id }}" class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer" />
+                            </td>
+                        @endif
+
+                        <!-- Student Identity -->
                         <td class="p-3.5 border-r border-stone-200">
-                            <div class="font-extrabold text-stone-900 text-xs">{{ $student->user->nama ?? '-' }}</div>
-                            <div class="text-[11px] text-stone-500 font-mono">NIS: {{ $student->nis }}</div>
+                            <div class="font-extrabold text-stone-900 text-xs">
+                                {{ $siswa->user->nama ?? '-' }}
+                            </div>
+                            <div class="text-[11px] text-stone-500 font-mono font-bold mt-0.5">
+                                NIS: {{ $siswa->nis }}
+                            </div>
                         </td>
-                        <td class="p-3.5 text-xs font-bold text-stone-700 border-r border-stone-200">
-                            Kelas {{ $student->kelas->nama_kelas ?? '-' }}
+
+                        <!-- Class -->
+                        <td class="p-3.5 border-r border-stone-200 font-bold text-stone-700">
+                            {{ $siswa->kelas->nama_kelas ?? '-' }}
                         </td>
+
+                        <!-- Number of Bills -->
                         <td class="p-3.5 text-center border-r border-stone-200">
-                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-extrabold bg-stone-100 text-stone-800 border border-stone-200">
+                            <span class="px-2.5 py-1 bg-stone-100 border border-stone-200 rounded-lg font-black text-stone-800 text-[11px]">
                                 {{ $countTagihan }} Tagihan
                             </span>
                         </td>
-                        <td class="p-3.5 text-right font-bold text-xs text-stone-900 border-r border-stone-200">
-                            Rp {{ number_format($totNominal, 0, ',', '.') }}
+
+                        <!-- Total Tagihan -->
+                        <td class="p-3.5 text-right font-black text-stone-900 border-r border-stone-200">
+                            Rp {{ number_format($totalTagihan, 0, ',', '.') }}
                         </td>
-                        <td class="p-3.5 text-right font-bold text-xs text-emerald-700 border-r border-stone-200">
-                            Rp {{ number_format($totDibayar, 0, ',', '.') }}
+
+                        <!-- Total Dibayar -->
+                        <td class="p-3.5 text-right font-black text-emerald-700 border-r border-stone-200">
+                            Rp {{ number_format($totalDibayar, 0, ',', '.') }}
                         </td>
-                        <td class="p-3.5 text-right font-black text-xs border-r border-stone-200 {{ $totSisa > 0 ? 'text-rose-700' : 'text-emerald-700' }}">
-                            Rp {{ number_format($totSisa, 0, ',', '.') }}
+
+                        <!-- Sisa Piutang -->
+                        <td class="p-3.5 text-right font-black text-rose-700 border-r border-stone-200">
+                            Rp {{ number_format($sisaPiutang, 0, ',', '.') }}
                         </td>
+
+                        <!-- Status Global -->
                         <td class="p-3.5 text-center border-r border-stone-200">
-                            @if ($statusBadge === 'lunas')
-                                <x-badge variant="emerald" size="xs" :dot="true">Lunas</x-badge>
-                            @elseif ($statusBadge === 'sebagian')
-                                <x-badge variant="amber" size="xs" :dot="true">Sebagian</x-badge>
+                            @if ($globalStatus === 'lunas')
+                                <x-badge variant="emerald" size="xs">Semua Lunas</x-badge>
+                            @elseif ($globalStatus === 'sebagian')
+                                <x-badge variant="amber" size="xs">Ada Sebagian</x-badge>
                             @else
-                                <x-badge variant="rose" size="xs" :dot="true">Belum Bayar</x-badge>
+                                <x-badge variant="rose" size="xs">Belum Lunas</x-badge>
                             @endif
                         </td>
+
+                        <!-- Actions -->
                         <td class="p-3.5 text-center">
-                            <div class="flex items-center justify-center gap-1.5">
-                                <button 
-                                    type="button"
-                                    wire:click="openDetail({{ $student->id }})" 
-                                    class="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-2xs cursor-pointer"
-                                    title="Lihat Rincian Tagihan Siswa">
-                                    <x-lucide-eye class="w-3.5 h-3.5" />
-                                    <span>Detail</span>
-                                </button>
-                                <button 
-                                    type="button"
-                                    wire:click="openCreateModal({{ $student->id }})" 
-                                    class="p-1.5 bg-stone-50 hover:bg-stone-200 text-stone-600 rounded-xl transition cursor-pointer"
-                                    title="Rilis Tagihan Baru untuk Siswa Ini">
-                                    <x-lucide-plus class="w-3.5 h-3.5" />
-                                </button>
-                            </div>
+                            <x-button variant="secondary" size="xs" icon="eye" wire:click="openDetail({{ $siswa->id }})">
+                                Detail
+                            </x-button>
                         </td>
                     </tr>
                 @empty
-                    <x-table.empty :colspan="9" title="Belum ada data tagihan siswa" message="Gunakan tombol Rilis Tagihan Siswa di atas untuk menerbitkan tagihan baru." />
+                    <tr>
+                        <td colspan="{{ $isFounder ? 9 : 8 }}" class="py-12 text-center text-stone-400">
+                            <x-table.empty title="Tidak ada data tagihan ditemukan" subtitle="Gunakan filter pencarian atau buat rilis tagihan baru." />
+                        </td>
+                    </tr>
                 @endforelse
             </tbody>
         </x-table>
@@ -184,8 +198,10 @@
         </div>
     </div>
 
-    <!-- Floating Bulk Actions Bar -->
-    <x-bulk-actions :selectedCount="count($selectedIds)" deleteAction="bulkDelete" cancelAction="resetSelection" confirmText="Apakah Anda yakin ingin menghapus seluruh tagihan yang belum dibayar dari siswa terpilih?" />
+    <!-- Floating Bulk Actions Bar (Founder Only) -->
+    @if ($isFounder)
+        <x-bulk-actions :selectedCount="count($selectedIds)" deleteAction="bulkDelete" cancelAction="resetSelection" confirmText="Apakah Anda yakin ingin menghapus seluruh tagihan yang belum dibayar dari siswa terpilih?" />
+    @endif
 
     <!-- FLOATING CARD: DETAIL RINCIAN TAGIHAN SISWA -->
     <x-floating-card 
@@ -271,24 +287,36 @@
                                     </td>
                                     <td class="p-3 text-center">
                                         <div class="flex items-center justify-center gap-1.5">
-                                            @if ($item->total_dibayar == 0)
+                                            <!-- Edit Tagihan Button (Founder & Finance) -->
+                                            <button 
+                                                type="button"
+                                                wire:click="openEditModal({{ $item->id }})" 
+                                                class="p-1.5 text-stone-500 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition cursor-pointer"
+                                                title="Edit Tagihan">
+                                                <x-lucide-edit-3 class="w-4 h-4" />
+                                            </button>
+
+                                            <!-- Delete Tagihan Button (Founder Only) -->
+                                            @if ($isFounder && $item->total_dibayar == 0)
                                                 <button 
                                                     type="button"
                                                     wire:click="deleteTagihan({{ $item->id }})" 
+                                                    data-confirm="Apakah Anda yakin ingin menghapus tagihan ini?"
                                                     class="p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer"
                                                     title="Hapus Tagihan">
                                                     <x-lucide-trash-2 class="w-4 h-4" />
                                                 </button>
-                                            @else
-                                                @if ($item->pembayarans && $item->pembayarans->count() > 0)
-                                                    <a 
-                                                        href="{{ route('finance.pembayaran.resi', $item->pembayarans->first()->id) }}" 
-                                                        target="_blank" 
-                                                        class="p-1.5 text-stone-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition"
-                                                        title="Lihat Kuitansi Resi">
-                                                        <x-lucide-printer class="w-4 h-4" />
-                                                    </a>
-                                                @endif
+                                            @endif
+
+                                            <!-- Print Receipt Button -->
+                                            @if ($item->pembayarans && $item->pembayarans->count() > 0)
+                                                <a 
+                                                    href="{{ route('finance.pembayaran.resi', $item->pembayarans->first()->id) }}" 
+                                                    target="_blank" 
+                                                    class="p-1.5 text-stone-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition"
+                                                    title="Lihat Kuitansi Resi">
+                                                    <x-lucide-printer class="w-4 h-4" />
+                                                </a>
                                             @endif
                                         </div>
                                     </td>
@@ -311,6 +339,79 @@
                 </div>
             </div>
         @endif
+    </x-floating-card>
+
+    <!-- FLOATING CARD: FORM EDIT TAGIHAN SISWA (FOUNDER & FINANCE) -->
+    <x-floating-card 
+        :show="$showEditModal" 
+        title="Edit Tagihan Siswa" 
+        :subtitle="'Ubah rincian tagihan untuk: ' . $edit_siswa_nama"
+        badge="EDIT TAGIHAN"
+        badgeVariant="indigo"
+        icon="edit-3"
+        maxWidth="max-w-lg"
+        closeAction="closeEditModal"
+    >
+        <form wire:submit.prevent="saveEditTagihan" class="space-y-4">
+            @if ($edit_total_dibayar > 0)
+                <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs font-medium flex items-center gap-2">
+                    <x-lucide-alert-triangle class="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>Tagihan ini sudah dibayar sebesar <strong>Rp {{ number_format($edit_total_dibayar, 0, ',', '.') }}</strong>. Nominal baru tidak boleh lebih kecil dari jumlah yang sudah dibayar.</span>
+                </div>
+            @endif
+
+            <!-- Jenis Tagihan -->
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Kategori Biaya / Tagihan <span class="text-rose-500">*</span></label>
+                <select wire:model="edit_jenis_tagihan_id" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
+                    <option value="">-- Pilih Kategori Tagihan --</option>
+                    @foreach ($jenisTagihans as $jt)
+                        <option value="{{ $jt['id'] }}">{{ $jt['nama'] }}</option>
+                    @endforeach
+                </select>
+                @error('edit_jenis_tagihan_id') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Bulan / Periode -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Bulan / Periode <span class="text-rose-500">*</span></label>
+                    <select wire:model="edit_bulan" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
+                        @foreach ($bulanOptions as $b)
+                            <option value="{{ $b }}">{{ $b }}</option>
+                        @endforeach
+                    </select>
+                    @error('edit_bulan') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror
+                </div>
+
+                <!-- Jatuh Tempo -->
+                <x-input 
+                    type="date" 
+                    label="Jatuh Tempo" 
+                    name="edit_jatuh_tempo" 
+                    wire:model="edit_jatuh_tempo" 
+                    required 
+                />
+            </div>
+
+            <!-- Nominal -->
+            <x-input-currency 
+                label="Nominal Tagihan Baru (Rp)" 
+                name="edit_nominal" 
+                wire:model="edit_nominal" 
+                placeholder="Contoh: 350.000" 
+                required 
+            />
+
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-stone-200">
+                <x-button variant="secondary" size="md" wire:click="closeEditModal">
+                    Batal
+                </x-button>
+                <x-button variant="primary" size="md" type="submit" loadingTarget="saveEditTagihan">
+                    Simpan Perubahan
+                </x-button>
+            </div>
+        </form>
     </x-floating-card>
 
     <!-- FLOATING CARD: FORM RILIS TAGIHAN SISWA -->

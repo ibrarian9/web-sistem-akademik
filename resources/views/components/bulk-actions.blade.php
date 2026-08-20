@@ -27,7 +27,7 @@
                         size="xs" 
                         icon="trash-2" 
                         wire:click="{{ $deleteAction }}" 
-                        wire:confirm="{{ $confirmText }}"
+                        data-confirm="{{ $confirmText }}"
                         loadingTarget="{{ $deleteAction }}">
                         Hapus Terpilih
                     </x-button>

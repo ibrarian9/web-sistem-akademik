@@ -256,9 +256,7 @@ test('pengajuan dana tier approval workflow works', function () {
     expect($proposal2->status)->toBe('disetujui');
 });
 
-test('finance user can delete single unpaid tagihan', function () {
-    $this->actingAs($this->userFinance);
-
+test('founder can delete single unpaid tagihan while finance cannot', function () {
     $siswa = Siswa::first();
     $activeTA = TahunAjaran::where('status_aktif', true)->first() ?? TahunAjaran::first();
     $jt = JenisTagihan::first();
@@ -274,9 +272,22 @@ test('finance user can delete single unpaid tagihan', function () {
         'jatuh_tempo' => now()->addDays(10),
     ]);
 
+    // Finance user cannot delete
+    $this->actingAs($this->userFinance);
     Livewire::test(ManajemenTagihan::class)
         ->call('deleteTagihan', $tagihan->id)
-        ->assertHasNoErrors();
+        ->assertSee('Akses Ditolak');
+
+    $this->assertDatabaseHas('tagihan', [
+        'id' => $tagihan->id,
+    ]);
+
+    // Founder (Super Admin) can delete
+    $this->actingAs($this->userSuperAdmin);
+    Livewire::test(ManajemenTagihan::class)
+        ->call('deleteTagihan', $tagihan->id)
+        ->assertHasNoErrors()
+        ->assertSee('Tagihan berhasil dihapus');
 
     $this->assertSoftDeleted('tagihan', [
         'id' => $tagihan->id,

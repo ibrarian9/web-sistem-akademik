@@ -19,11 +19,12 @@ class ManajemenTagihan extends Component
     public ?int $filterKelas = null;
     public ?int $filterJenis = null;
     public string $filterStatus = '';
-    public string $filterBulan = ''; // NEW Month filter
+    public string $filterBulan = '';
     public string $search = '';
 
     // Modals
     public bool $showCreateModal = false;
+    public bool $showEditModal = false;
     public bool $showDetailModal = false;
 
     // Selected Student for Detail Modal
@@ -36,6 +37,15 @@ class ManajemenTagihan extends Component
     public string $bulan = 'Juli';
     public float $nominal = 0.00;
     public string $jatuh_tempo = '';
+
+    // Edit Tagihan Form properties
+    public ?int $editingTagihanId = null;
+    public ?int $edit_jenis_tagihan_id = null;
+    public string $edit_bulan = 'Juli';
+    public float $edit_nominal = 0.00;
+    public string $edit_jatuh_tempo = '';
+    public float $edit_total_dibayar = 0.00;
+    public string $edit_siswa_nama = '';
 
     // Bulk selection (Siswa IDs)
     public array $selectedIds = [];
@@ -59,6 +69,12 @@ class ManajemenTagihan extends Component
             ->get()
             ->toArray();
         $this->jatuh_tempo = date('Y-m-d', strtotime('+30 days'));
+    }
+
+    public function isFounder(): bool
+    {
+        $role = auth()->user()->role->nama ?? '';
+        return in_array($role, ['super_admin', 'founder']);
     }
 
     public function updatingSearch()
@@ -194,6 +210,7 @@ class ManajemenTagihan extends Component
         $activeTA = TahunAjaran::where('status_aktif', true)->first();
         if (!$activeTA) {
             session()->flash('error', 'Tidak ada tahun ajaran aktif.');
+            $this->dispatch('show-alert', ['title' => 'Peringatan', 'message' => 'Tidak ada tahun ajaran aktif.', 'type' => 'warning']);
             return;
         }
 
@@ -210,7 +227,14 @@ class ManajemenTagihan extends Component
             'jatuh_tempo' => $this->jatuh_tempo,
         ]);
 
-        session()->flash('message', "Berhasil merilis tagihan untuk siswa " . ($siswa->user->nama ?? 'Siswa') . ".");
+        $msg = "Berhasil merilis tagihan untuk siswa " . ($siswa->user->nama ?? 'Siswa') . ".";
+        session()->flash('message', $msg);
+        $this->dispatch('show-alert', [
+            'title' => 'Tagihan Diterbitkan',
+            'message' => $msg,
+            'type' => 'create',
+        ]);
+
         $this->reset(['single_siswa_id', 'jenis_tagihan_id', 'bulan', 'nominal']);
         $this->showCreateModal = false;
         
@@ -221,17 +245,109 @@ class ManajemenTagihan extends Component
         $this->resetPage();
     }
 
+    public function openEditModal(int $tagihanId)
+    {
+        $tagihan = Tagihan::with(['siswa.user', 'jenisTagihan'])->findOrFail($tagihanId);
+        
+        $this->resetValidation();
+        $this->editingTagihanId = $tagihan->id;
+        $this->edit_jenis_tagihan_id = $tagihan->jenis_tagihan_id;
+        $this->edit_bulan = $tagihan->bulan ?? 'Juli';
+        $this->edit_nominal = floatval($tagihan->nominal);
+        $this->edit_total_dibayar = floatval($tagihan->total_dibayar);
+        $this->edit_jatuh_tempo = $tagihan->jatuh_tempo ? $tagihan->jatuh_tempo->format('Y-m-d') : date('Y-m-d', strtotime('+30 days'));
+        $this->edit_siswa_nama = $tagihan->siswa->user->nama ?? ('Siswa #' . $tagihan->siswa->nis);
+
+        $this->showEditModal = true;
+    }
+
+    public function closeEditModal()
+    {
+        $this->showEditModal = false;
+        $this->resetValidation();
+        $this->editingTagihanId = null;
+    }
+
+    public function saveEditTagihan()
+    {
+        $this->validate([
+            'editingTagihanId' => 'required|exists:tagihan,id',
+            'edit_jenis_tagihan_id' => 'required|exists:jenis_tagihan,id',
+            'edit_bulan' => 'required|string|max:50',
+            'edit_nominal' => 'required|numeric|min:1',
+            'edit_jatuh_tempo' => 'required|date',
+        ]);
+
+        $tagihan = Tagihan::findOrFail($this->editingTagihanId);
+
+        if ($this->edit_nominal < $tagihan->total_dibayar) {
+            $this->addError('edit_nominal', 'Nominal tagihan baru tidak boleh lebih kecil dari jumlah yang sudah dibayarkan (Rp ' . number_format($tagihan->total_dibayar, 0, ',', '.') . ').');
+            return;
+        }
+
+        // Recalculate status based on new nominal
+        $status = 'belum_bayar';
+        if ($tagihan->total_dibayar >= $this->edit_nominal) {
+            $status = 'lunas';
+        } elseif ($tagihan->total_dibayar > 0) {
+            $status = 'sebagian';
+        }
+
+        $tagihan->update([
+            'jenis_tagihan_id' => $this->edit_jenis_tagihan_id,
+            'bulan' => $this->edit_bulan,
+            'nominal' => $this->edit_nominal,
+            'status' => $status,
+            'jatuh_tempo' => $this->edit_jatuh_tempo,
+        ]);
+
+        $msg = 'Tagihan berhasil diperbarui.';
+        session()->flash('message', $msg);
+        $this->dispatch('show-alert', [
+            'title' => 'Tagihan Diperbarui',
+            'message' => $msg,
+            'type' => 'edit',
+        ]);
+
+        $this->closeEditModal();
+
+        if ($this->showDetailModal && $this->selectedSiswaId) {
+            $this->loadSelectedSiswa();
+        }
+    }
+
     public function deleteTagihan(int $id)
     {
+        if (!$this->isFounder()) {
+            session()->flash('error', 'Akses Ditolak: Hanya Founder / Super Admin yang berhak menghapus data tagihan.');
+            $this->dispatch('show-alert', [
+                'title' => 'Akses Ditolak',
+                'message' => 'Hanya Founder / Super Admin yang berhak menghapus data tagihan.',
+                'type' => 'danger',
+            ]);
+            return;
+        }
+
         $tagihan = Tagihan::findOrFail($id);
 
         if ($tagihan->total_dibayar > 0) {
             session()->flash('error', 'Tagihan ini sudah pernah dibayar sebagian/lunas, tidak dapat dihapus.');
+            $this->dispatch('show-alert', [
+                'title' => 'Peringatan',
+                'message' => 'Tagihan ini sudah pernah dibayar sebagian/lunas, tidak dapat dihapus.',
+                'type' => 'warning',
+            ]);
             return;
         }
 
         $tagihan->delete();
-        session()->flash('message', 'Tagihan berhasil dihapus/dibatalkan.');
+        $msg = 'Tagihan berhasil dihapus/dibatalkan.';
+        session()->flash('message', $msg);
+        $this->dispatch('show-alert', [
+            'title' => 'Tagihan Dihapus',
+            'message' => $msg,
+            'type' => 'delete',
+        ]);
 
         if ($this->showDetailModal && $this->selectedSiswaId) {
             $this->loadSelectedSiswa();
@@ -240,11 +356,20 @@ class ManajemenTagihan extends Component
 
     public function bulkDelete()
     {
+        if (!$this->isFounder()) {
+            session()->flash('error', 'Akses Ditolak: Hanya Founder / Super Admin yang berhak menghapus data tagihan.');
+            $this->dispatch('show-alert', [
+                'title' => 'Akses Ditolak',
+                'message' => 'Hanya Founder / Super Admin yang berhak menghapus data tagihan.',
+                'type' => 'danger',
+            ]);
+            return;
+        }
+
         if (empty($this->selectedIds)) {
             return;
         }
 
-        // Support both Tagihan IDs and Siswa IDs in selectedIds
         $tagihans = Tagihan::where(function ($q) {
             $q->whereIn('id', $this->selectedIds)
               ->orWhereIn('siswa_id', $this->selectedIds);
@@ -268,6 +393,12 @@ class ManajemenTagihan extends Component
         }
 
         session()->flash('message', $msg);
+        $this->dispatch('show-alert', [
+            'title' => 'Hapus Massal Tagihan',
+            'message' => $msg,
+            'type' => 'delete',
+        ]);
+
         $this->resetSelection();
         $this->resetPage();
 
@@ -322,6 +453,7 @@ class ManajemenTagihan extends Component
         return view('livewire.finance.manajemen-tagihan', [
             'students' => $students,
             'allStudents' => $allStudents,
+            'isFounder' => $this->isFounder(),
         ])->layout('components.layouts.app', ['title' => 'Manajemen Tagihan']);
     }
 }

@@ -110,7 +110,7 @@
                             {{ $item->petugas->nama ?? 'Sistem' }}
                         </td>
                         <td class="p-3.5 text-center">
-                            <x-button variant="danger" size="xs" icon="trash-2" wire:click="deleteExpense({{ $item->id }})" wire:confirm="Yakin ingin menghapus catatan pengeluaran ini?" />
+                            <x-button variant="danger" size="xs" icon="trash-2" wire:click="deleteExpense({{ $item->id }})" data-confirm="Yakin ingin menghapus catatan pengeluaran ini?" />
                         </td>
                     </tr>
                 @empty

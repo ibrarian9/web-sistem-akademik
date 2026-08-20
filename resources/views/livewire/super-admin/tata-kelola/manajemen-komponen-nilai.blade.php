@@ -73,7 +73,7 @@
                             <x-lucide-edit class="w-3.5 h-3.5" />
                             <span>Edit Komponen</span>
                         </button>
-                        <button wire:click="delete({{ $komponen['id'] }})" wire:confirm="Yakin ingin menghapus komponen nilai ini?" type="button" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-600 border border-rose-200 hover:border-rose-600 text-rose-700 hover:text-white rounded-xl text-xs font-bold transition-all duration-150 inline-flex items-center gap-1.5 shadow-xs" title="Hapus">
+                        <button wire:click="delete({{ $komponen['id'] }})" data-confirm="Yakin ingin menghapus komponen nilai ini?" type="button" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-600 border border-rose-200 hover:border-rose-600 text-rose-700 hover:text-white rounded-xl text-xs font-bold transition-all duration-150 inline-flex items-center gap-1.5 shadow-xs cursor-pointer" title="Hapus">
                             <x-lucide-trash-2 class="w-3.5 h-3.5" />
                             <span>Hapus</span>
                         </button>

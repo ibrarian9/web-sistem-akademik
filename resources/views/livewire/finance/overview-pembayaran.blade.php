@@ -265,7 +265,7 @@
                                                                 <a href="{{ route('finance.pembayaran.resi', $p->id) }}" target="_blank" class="p-1 text-stone-500 hover:text-emerald-700 hover:bg-emerald-50 rounded" title="Cetak Resi">
                                                                     <x-lucide-printer class="w-3.5 h-3.5" />
                                                                 </a>
-                                                                <button wire:click="voidPayment({{ $p->id }})" wire:confirm="Apakah Anda yakin ingin membatalkan (VOID) transaksi pembayaran ini?" class="p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded" title="Batalkan (VOID) Pembayaran">
+                                                                <button wire:click="voidPayment({{ $p->id }})" data-confirm="Apakah Anda yakin ingin membatalkan (VOID) transaksi pembayaran ini?" class="p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded" title="Batalkan (VOID) Pembayaran">
                                                                     <x-lucide-trash-2 class="w-3.5 h-3.5" />
                                                                 </button>
                                                             @endif

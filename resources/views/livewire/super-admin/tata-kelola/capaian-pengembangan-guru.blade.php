@@ -169,8 +169,8 @@
                                     </button>
 
                                     <button type="button" wire:click="delete({{ $item->id }})" 
-                                            wire:confirm="Apakah Anda yakin ingin menghapus data pengajuan ini?"
-                                            class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl font-bold transition">
+                                            data-confirm="Apakah Anda yakin ingin menghapus data pengajuan ini?"
+                                            class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl font-bold transition cursor-pointer">
                                         <x-lucide-trash-2 class="w-4 h-4" />
                                     </button>
                                 </div>

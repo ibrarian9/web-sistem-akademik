@@ -8,6 +8,7 @@ use App\Models\Tabungan;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\DB;
 
 class TabunganSiswa extends Component
 {
@@ -26,6 +27,15 @@ class TabunganSiswa extends Component
     public $tanggal = '';
     public $keterangan = '';
 
+    // Modal Edit Transaction State
+    public bool $showEditTransactionModal = false;
+    public ?int $editingTabunganId = null;
+    public string $edit_jenis = 'setor';
+    public float $edit_nominal = 0.00;
+    public string $edit_tanggal = '';
+    public string $edit_keterangan = '';
+    public string $edit_siswa_nama = '';
+
     // Modal History State
     public $showHistoryModal = false;
     public $selectedSiswaHistory = null;
@@ -39,11 +49,17 @@ class TabunganSiswa extends Component
     public function mount()
     {
         $user = auth()->user();
-        if (!$user || !in_array($user->role->nama ?? '', ['finance', 'super_admin', 'kepala_sekolah'])) {
-            abort(403, 'Akses Ditolak: Fitur Manajemen Tabungan khusus untuk Bendahara / Finance.');
+        if (!$user || !in_array($user->role->nama ?? '', ['finance', 'super_admin', 'founder', 'kepala_sekolah'])) {
+            abort(403, 'Akses Ditolak: Fitur Manajemen Tabungan khusus untuk Bendahara / Finance & Founder.');
         }
 
         $this->tanggal = date('Y-m-d');
+    }
+
+    public function isFounder(): bool
+    {
+        $role = auth()->user()->role->nama ?? '';
+        return in_array($role, ['super_admin', 'founder']);
     }
 
     public function updatingSearch()
@@ -82,18 +98,23 @@ class TabunganSiswa extends Component
         }
 
         $this->selectedSiswaHistory = $siswa;
+        $this->loadHistory($siswaId);
+        $this->showHistoryModal = true;
+    }
+
+    protected function loadHistory($siswaId)
+    {
         $this->historyTransactions = Tabungan::with('petugas')
             ->where('siswa_id', $siswaId)
             ->orderBy('tanggal', 'desc')
             ->orderBy('id', 'desc')
             ->get();
-
-        $this->showHistoryModal = true;
     }
 
     public function closeModals()
     {
         $this->showTransactionModal = false;
+        $this->showEditTransactionModal = false;
         $this->showHistoryModal = false;
         $this->resetValidation();
     }
@@ -132,9 +153,127 @@ class TabunganSiswa extends Component
             'keterangan' => $this->keterangan ?: ($this->jenis === 'setor' ? 'Setoran Tabungan Siswa' : 'Penarikan Tabungan Siswa'),
         ]);
 
-        session()->flash('success', 'Transaksi tabungan ' . ($this->jenis === 'setor' ? 'setoran' : 'penarikan') . ' berhasil dicatat!');
+        $msg = 'Transaksi tabungan ' . ($this->jenis === 'setor' ? 'setoran' : 'penarikan') . ' berhasil dicatat!';
+        session()->flash('success', $msg);
+        $this->dispatch('show-alert', [
+            'title' => 'Transaksi Dicatat',
+            'message' => $msg,
+            'type' => 'create',
+        ]);
 
         $this->closeModals();
+    }
+
+    public function openEditTransaction(int $tabunganId)
+    {
+        $tx = Tabungan::with('siswa.user')->findOrFail($tabunganId);
+        
+        $this->resetValidation();
+        $this->editingTabunganId = $tx->id;
+        $this->edit_jenis = $tx->jenis;
+        $this->edit_nominal = floatval($tx->nominal);
+        $this->edit_tanggal = $tx->tanggal ? $tx->tanggal->format('Y-m-d') : date('Y-m-d');
+        $this->edit_keterangan = $tx->keterangan ?? '';
+        $this->edit_siswa_nama = $tx->siswa->user->nama ?? ('Siswa #' . $tx->siswa->nis);
+
+        $this->showEditTransactionModal = true;
+    }
+
+    public function closeEditTransactionModal()
+    {
+        $this->showEditTransactionModal = false;
+        $this->editingTabunganId = null;
+        $this->resetValidation();
+    }
+
+    public function saveEditTransaction()
+    {
+        $this->validate([
+            'editingTabunganId' => 'required|exists:tabungans,id',
+            'edit_jenis' => 'required|in:setor,tarik',
+            'edit_nominal' => 'required|numeric|min:1000',
+            'edit_tanggal' => 'required|date',
+            'edit_keterangan' => 'nullable|string|max:255',
+        ]);
+
+        $tx = Tabungan::findOrFail($this->editingTabunganId);
+        $siswaId = $tx->siswa_id;
+
+        DB::transaction(function () use ($tx, $siswaId) {
+            $tx->update([
+                'jenis' => $this->edit_jenis,
+                'nominal' => $this->edit_nominal,
+                'tanggal' => $this->edit_tanggal,
+                'keterangan' => $this->edit_keterangan,
+            ]);
+
+            $this->recalculateStudentTabunganBalances($siswaId);
+        });
+
+        $msg = 'Transaksi tabungan berhasil diperbarui.';
+        session()->flash('success', $msg);
+        $this->dispatch('show-alert', [
+            'title' => 'Transaksi Diperbarui',
+            'message' => $msg,
+            'type' => 'edit',
+        ]);
+
+        $this->closeEditTransactionModal();
+
+        if ($this->showHistoryModal && $this->selectedSiswaHistory) {
+            $this->loadHistory($this->selectedSiswaHistory->id);
+        }
+    }
+
+    public function deleteTransaction(int $id)
+    {
+        if (!$this->isFounder()) {
+            session()->flash('error', 'Akses Ditolak: Hanya Founder / Super Admin yang berhak menghapus catatan transaksi tabungan.');
+            $this->dispatch('show-alert', [
+                'title' => 'Akses Ditolak',
+                'message' => 'Hanya Founder / Super Admin yang berhak menghapus catatan transaksi tabungan.',
+                'type' => 'danger',
+            ]);
+            return;
+        }
+
+        $tx = Tabungan::findOrFail($id);
+        $siswaId = $tx->siswa_id;
+
+        DB::transaction(function () use ($tx, $siswaId) {
+            $tx->delete();
+            $this->recalculateStudentTabunganBalances($siswaId);
+        });
+
+        $msg = 'Catatan transaksi tabungan berhasil dihapus.';
+        session()->flash('success', $msg);
+        $this->dispatch('show-alert', [
+            'title' => 'Transaksi Dihapus',
+            'message' => $msg,
+            'type' => 'delete',
+        ]);
+
+        if ($this->showHistoryModal && $this->selectedSiswaHistory) {
+            $this->loadHistory($this->selectedSiswaHistory->id);
+        }
+    }
+
+    public function recalculateStudentTabunganBalances(int $siswaId): void
+    {
+        $transactions = Tabungan::where('siswa_id', $siswaId)
+            ->orderBy('tanggal', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $runningBalance = 0.00;
+        foreach ($transactions as $t) {
+            if ($t->jenis === 'setor') {
+                $runningBalance += (float) $t->nominal;
+            } elseif ($t->jenis === 'tarik') {
+                $runningBalance -= (float) $t->nominal;
+            }
+            $t->updateQuietly(['saldo_akhir' => $runningBalance]);
+        }
     }
 
     private function getCurrentSaldo($siswaId)
@@ -182,6 +321,7 @@ class TabunganSiswa extends Component
             'totalTarikAll' => $totalTarikAll,
             'totalSaldoGlobal' => $totalSaldoGlobal,
             'jumlahSiswaMenabung' => $jumlahSiswaMenabung,
+            'isFounder' => $this->isFounder(),
         ])->layout('components.layouts.app', ['title' => 'Manajemen Tabungan Siswa']);
     }
 }

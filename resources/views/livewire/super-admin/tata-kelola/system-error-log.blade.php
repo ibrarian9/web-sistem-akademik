@@ -14,7 +14,7 @@
 
         <div class="flex items-center gap-2">
             <button type="button" wire:click="clearLog" 
-                    wire:confirm="Apakah Anda yakin ingin mengosongkan berkas log error sistem?"
+                    data-confirm="Apakah Anda yakin ingin mengosongkan berkas log error sistem?"
                     class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-extrabold text-xs inline-flex items-center gap-2 shadow-sm transition">
                 <x-lucide-trash-2 class="w-4 h-4" />
                 Bersihkan Log Error
