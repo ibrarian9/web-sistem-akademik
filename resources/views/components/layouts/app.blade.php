@@ -387,7 +387,10 @@
 
         document.addEventListener('livewire:navigated', () => {
             checkFlashMessages();
-        });;
+        });
     </script>
+
+    <!-- Global MicroModal Alert & Confirm Dialog Component -->
+    <x-modal-alert />
 </body>
 </html>

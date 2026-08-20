@@ -7,6 +7,7 @@ use App\Models\GuruMapelKelas;
 use App\Models\Siswa;
 use App\Models\AbsensiSiswa as AbsensiSiswaModel;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class AbsensiSiswa extends Component
 {
@@ -49,6 +50,21 @@ class AbsensiSiswa extends Component
         $tahfidzClasses = \App\Models\Kelas::where('guru_tahfidz_id', $guru->id)->get();
 
         $this->classes = $gmkClasses->merge($waliClasses)->merge($tahfidzClasses)->unique('id')->values()->toArray();
+
+        if (empty($this->kelas_id) && count($this->classes) > 0) {
+            $this->kelas_id = $this->classes[0]['id'];
+            $this->loadStudents();
+        }
+    }
+
+    public function setPresetDate(string $preset)
+    {
+        if ($preset === 'today') {
+            $this->tanggal = Carbon::today()->toDateString();
+        } elseif ($preset === 'yesterday') {
+            $this->tanggal = Carbon::yesterday()->toDateString();
+        }
+        $this->loadStudents();
     }
 
     public function loadStudents()
@@ -58,7 +74,6 @@ class AbsensiSiswa extends Component
             return;
         }
 
-        $guru = auth()->user()->guru;
         $students = Siswa::where(function ($q) {
                 $q->where('kelas_id', $this->kelas_id)
                   ->orWhere('kelas_tahfidz_id', $this->kelas_id);
@@ -70,11 +85,10 @@ class AbsensiSiswa extends Component
         $this->attendance = [];
 
         foreach ($students as $student) {
-            // Find existing attendance
+            // Find existing attendance (match by unique key: siswa_id, kelas_id, tanggal)
             $existing = AbsensiSiswaModel::where([
                 'siswa_id' => $student->id,
                 'kelas_id' => $this->kelas_id,
-                'guru_id' => $guru->id,
                 'tanggal' => $this->tanggal,
             ])->first();
 
@@ -90,6 +104,8 @@ class AbsensiSiswa extends Component
                     } else {
                         $status = 'izin';
                     }
+                } elseif ($existing->status === 'hadir') {
+                    $status = 'hadir';
                 }
             }
 
@@ -106,6 +122,13 @@ class AbsensiSiswa extends Component
     public function updatedKelasId() { $this->loadStudents(); }
     public function updatedTanggal() { $this->loadStudents(); }
 
+    public function setStatus(int $index, string $status)
+    {
+        if (isset($this->attendance[$index])) {
+            $this->attendance[$index]['status'] = $status;
+        }
+    }
+
     public function setStatusAll(string $status)
     {
         foreach ($this->attendance as $index => $att) {
@@ -118,6 +141,10 @@ class AbsensiSiswa extends Component
         $this->validate();
 
         $guru = auth()->user()->guru;
+        if (!$guru) {
+            session()->flash('error', 'Data profil guru tidak ditemukan.');
+            return;
+        }
 
         DB::transaction(function () use ($guru) {
             foreach ($this->attendance as $att) {
@@ -136,9 +163,9 @@ class AbsensiSiswa extends Component
                 AbsensiSiswaModel::updateOrCreate([
                     'siswa_id' => $att['siswa_id'],
                     'kelas_id' => $this->kelas_id,
-                    'guru_id' => $guru->id,
                     'tanggal' => $this->tanggal,
                 ], [
+                    'guru_id' => $guru->id,
                     'status' => $dbStatus,
                     'catatan' => $catatan ?: null,
                 ]);
@@ -151,7 +178,16 @@ class AbsensiSiswa extends Component
 
     public function render()
     {
-        return view('livewire.guru.absensi-siswa')
-            ->layout('components.layouts.app', ['title' => 'Absensi Siswa']);
+        $summary = [
+            'total' => count($this->attendance),
+            'hadir' => count(array_filter($this->attendance, fn($a) => ($a['status'] ?? '') === 'hadir')),
+            'sakit' => count(array_filter($this->attendance, fn($a) => ($a['status'] ?? '') === 'sakit')),
+            'izin' => count(array_filter($this->attendance, fn($a) => ($a['status'] ?? '') === 'izin')),
+            'alpa' => count(array_filter($this->attendance, fn($a) => ($a['status'] ?? '') === 'alpa')),
+        ];
+
+        return view('livewire.guru.absensi-siswa', [
+            'summary' => $summary,
+        ])->layout('components.layouts.app', ['title' => 'Absensi Siswa']);
     }
 }

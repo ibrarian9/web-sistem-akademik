@@ -97,4 +97,9 @@ class Siswa extends Model
     {
         return $this->hasMany(Tabungan::class, 'siswa_id');
     }
+
+    public function latestTabungan()
+    {
+        return $this->hasOne(Tabungan::class, 'siswa_id')->latestOfMany('id');
+    }
 }

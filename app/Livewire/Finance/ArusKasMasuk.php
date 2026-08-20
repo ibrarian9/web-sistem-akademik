@@ -4,15 +4,23 @@ namespace App\Livewire\Finance;
 
 use Livewire\Component;
 use App\Models\PemasukanKas;
+use App\Traits\WithDateFilter;
 use Livewire\WithPagination;
 
 class ArusKasMasuk extends Component
 {
-    use WithPagination;
+    use WithPagination, WithDateFilter;
+
+    // Modal state
+    public bool $showCreateModal = false;
 
     // Filters
     public string $filterKategori = '';
     public string $search = '';
+
+    // Bulk selection
+    public array $selectedIds = [];
+    public bool $selectAll = false;
 
     // Create Income Form properties
     public string $kategori = 'Infaq';
@@ -26,6 +34,7 @@ class ArusKasMasuk extends Component
         'Maghrib Mengaji',
         'Donasi',
         'Sponsor / Acara',
+        'Hibah Yayasan',
         'Lainnya'
     ];
 
@@ -41,6 +50,67 @@ class ArusKasMasuk extends Component
         $this->tanggal = date('Y-m-d');
     }
 
+    public function updatingSearch()
+    {
+        $this->resetPage();
+        $this->resetSelection();
+    }
+
+    public function updatingFilterKategori()
+    {
+        $this->resetPage();
+        $this->resetSelection();
+    }
+
+    public function updatedSelectAll($value)
+    {
+        if ($value) {
+            $this->selectedIds = $this->getCurrentIds();
+        } else {
+            $this->selectedIds = [];
+        }
+    }
+
+    public function resetSelection()
+    {
+        $this->selectedIds = [];
+        $this->selectAll = false;
+    }
+
+    protected function getCurrentIds(): array
+    {
+        $query = PemasukanKas::query();
+
+        if ($this->filterKategori !== '') {
+            $query->where('kategori', $this->filterKategori);
+        }
+
+        if ($this->search !== '') {
+            $query->where(function ($q) {
+                $q->where('kategori', 'like', '%' . $this->search . '%')
+                  ->orWhere('keterangan', 'like', '%' . $this->search . '%');
+            });
+        }
+
+        $this->applyDateFilter($query, 'tanggal');
+
+        return $query->pluck('id')->map(fn($id) => (string) $id)->toArray();
+    }
+
+    public function openCreateModal()
+    {
+        $this->resetValidation();
+        $this->reset(['jumlah', 'keterangan']);
+        $this->tanggal = date('Y-m-d');
+        $this->kategori = 'Infaq';
+        $this->showCreateModal = true;
+    }
+
+    public function closeCreateModal()
+    {
+        $this->showCreateModal = false;
+    }
+
     public function saveIncome()
     {
         $this->validate();
@@ -53,8 +123,9 @@ class ArusKasMasuk extends Component
             'petugas_id' => auth()->id(),
         ]);
 
-        session()->flash('message', 'Pemasukan kas non-SPP (' . $this->kategori . ') berhasil dicatat.');
+        session()->flash('message', 'Pemasukan kas yayasan (' . $this->kategori . ') berhasil dicatat.');
 
+        $this->showCreateModal = false;
         $this->reset(['jumlah', 'keterangan']);
         $this->tanggal = date('Y-m-d');
         $this->kategori = 'Infaq';
@@ -67,6 +138,19 @@ class ArusKasMasuk extends Component
         $item->delete();
 
         session()->flash('message', 'Catatan pemasukan kas berhasil dihapus.');
+    }
+
+    public function bulkDelete()
+    {
+        if (empty($this->selectedIds)) {
+            return;
+        }
+
+        $count = PemasukanKas::whereIn('id', $this->selectedIds)->delete();
+        session()->flash('message', "Berhasil menghapus {$count} catatan pemasukan kas yayasan.");
+
+        $this->resetSelection();
+        $this->resetPage();
     }
 
     public function exportPdf()
@@ -84,6 +168,8 @@ class ArusKasMasuk extends Component
             });
         }
 
+        $this->applyDateFilter($query, 'tanggal');
+
         $data = $query->get();
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('livewire.shared.laporan.pdf-laporan-kas-masuk', [
@@ -99,7 +185,7 @@ class ArusKasMasuk extends Component
 
     public function render()
     {
-        $query = PemasukanKas::with('petugas')->latest('tanggal');
+        $query = PemasukanKas::with('petugas')->orderBy('tanggal', 'desc');
 
         if ($this->filterKategori !== '') {
             $query->where('kategori', $this->filterKategori);
@@ -112,12 +198,14 @@ class ArusKasMasuk extends Component
             });
         }
 
+        $this->applyDateFilter($query, 'tanggal');
+
         $pemasukans = $query->paginate(15);
         $totalPemasukanKas = PemasukanKas::sum('jumlah');
 
         return view('livewire.finance.arus-kas-masuk', [
             'pemasukans' => $pemasukans,
             'totalPemasukanKas' => $totalPemasukanKas,
-        ])->layout('components.layouts.app', ['title' => 'Arus Kas Masuk']);
+        ])->layout('components.layouts.app', ['title' => 'Arus Kas Masuk Yayasan']);
     }
 }

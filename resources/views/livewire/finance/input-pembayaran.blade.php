@@ -1,39 +1,39 @@
-<div class="space-y-6">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-            <h2 class="text-2xl font-bold text-stone-800 tracking-tight">Input Pembayaran Siswa</h2>
-            <p class="text-sm text-stone-500">Pilih dari daftar siswa yang menunggak di bawah untuk langsung mengisi setoran pembayaran.</p>
-        </div>
-    </div>
+<div class="space-y-6 font-sans">
+    <!-- Header Title Bar -->
+    <x-page-header 
+        title="Input Pembayaran Siswa" 
+        subtitle="Pilih dari daftar siswa yang memiliki tagihan aktif di bawah untuk memproses transaksi setoran kasir."
+        badge="KASIR PEMBAYARAN SISWA"
+        badgeVariant="emerald"
+        icon="plus-circle"
+    />
 
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
         title="Petunjuk Kasir & Input Setoran Pembayaran Siswa"
         :steps="[
-            ['title' => 'Pilih Siswa', 'desc' => 'Pilih nama siswa dari daftar penunggak untuk mengisi otomatis data tagihan.'],
-            ['title' => 'Metode & Nominal', 'desc' => 'Tentukan metode pembayaran (Tunai, Transfer Bank, E-Wallet) dan masukkan nominal setoran.'],
+            ['title' => 'Pilih Siswa', 'desc' => 'Klik tombol Bayar Sekarang pada baris siswa untuk membuka card mengambang form kasir.'],
+            ['title' => 'Metode & Nominal', 'desc' => 'Tentukan metode pembayaran (Tunai, Transfer Bank, E-Wallet, Deposit) dan masukkan nominal setoran.'],
             ['title' => 'Cetak Kuitansi Resi', 'desc' => 'Setelah disimpan, klik Cetak Resi untuk mencetak kuitansi pembayaran sah ber-QR Code & TTD.']
         ]"
     />
 
     @if (session()->has('message'))
-        <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+        <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs">
             <div class="flex items-center gap-3">
                 <div class="p-2 bg-emerald-600 text-white rounded-xl">
                     <x-lucide-check-circle class="w-5 h-5" />
                 </div>
                 <div>
-                    <span class="text-sm font-bold text-emerald-900 block">{{ session('message') }}</span>
-                    <span class="text-xs text-emerald-700">Setoran pembayaran telah berhasil dicatat ke dalam database keuangan.</span>
+                    <span class="text-xs font-bold text-emerald-900 block">{{ session('message') }}</span>
+                    <span class="text-[11px] text-emerald-700">Setoran pembayaran telah berhasil dicatat ke dalam database keuangan.</span>
                 </div>
             </div>
 
             @if ($lastPembayaranId)
-                <a href="{{ route('finance.cetak-resi', $lastPembayaranId) }}" target="_blank" class="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2 shrink-0">
-                    <x-lucide-printer class="w-4 h-4" />
-                    <span>Cetak Resi Bukti Bayar</span>
-                </a>
+                <x-button variant="primary" size="sm" icon="printer" href="{{ route('finance.cetak-resi', $lastPembayaranId) }}" target="_blank">
+                    Cetak Resi Bukti Bayar
+                </x-button>
             @endif
         </div>
     @endif
@@ -42,213 +42,179 @@
         <x-alert-banner type="error" :message="session('error')" />
     @endif
 
-    <!-- ACTIVE FORM CARD (Top Section) -->
-    @if ($selectedInvoiceInfo)
-        <div class="bg-white border-2 border-emerald-500/40 rounded-2xl p-6 shadow-md space-y-6 animate-fade-in">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-200 pb-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center font-bold text-emerald-700">
-                        <x-lucide-user class="w-5 h-5" />
-                    </div>
-                    <div>
-                        <h3 class="text-base font-bold text-stone-900">{{ $selectedInvoiceInfo['siswa_nama'] }}</h3>
-                        <span class="text-xs text-stone-500 font-medium">NIS: {{ $selectedInvoiceInfo['siswa_nis'] }} | Kelas: {{ $selectedInvoiceInfo['siswa_kelas'] }}</span>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-4">
-                    @if ($siswaDeposit > 0)
-                        <div class="px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2 text-xs">
-                            <x-lucide-wallet class="w-4 h-4 text-emerald-600" />
-                            <span class="text-stone-600 font-semibold">Deposit:</span>
-                            <span class="font-black text-emerald-800">Rp {{ number_format($siswaDeposit, 0, ',', '.') }}</span>
-                        </div>
-                    @endif
-
-                    <button type="button" wire:click="resetSelection" class="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-xl text-xs font-semibold transition flex items-center gap-1">
-                        <x-lucide-x class="w-3.5 h-3.5" />
-                        <span>Batal / Ganti Siswa</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Invoice Summary Metrics -->
-            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl text-center">
-                    <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider block">Jenis Tagihan</span>
-                    <span class="text-xs font-bold text-stone-800 block mt-0.5">{{ $selectedInvoiceInfo['jenis'] }} ({{ $selectedInvoiceInfo['periode'] }})</span>
-                </div>
-                <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl text-center">
-                    <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider block">Total Tagihan</span>
-                    <span class="text-xs font-bold text-stone-800 block mt-0.5">Rp {{ number_format($selectedInvoiceInfo['nominal'], 0, ',', '.') }}</span>
-                </div>
-                <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl text-center">
-                    <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider block">Telah Dibayar</span>
-                    <span class="text-xs font-bold text-green-700 block mt-0.5">Rp {{ number_format($selectedInvoiceInfo['total_dibayar'], 0, ',', '.') }}</span>
-                </div>
-                <div class="p-3 bg-red-50 border border-red-200 rounded-xl text-center">
-                    <span class="text-[11px] font-bold text-red-600 uppercase tracking-wider block">Sisa Tunggakan</span>
-                    <span class="text-sm font-black text-red-700 block mt-0.5">Rp {{ number_format($selectedInvoiceInfo['sisa'], 0, ',', '.') }}</span>
-                </div>
-            </div>
-
-            <!-- Form Inputs -->
-            <form wire:submit.prevent="savePayment" class="space-y-4 pt-2">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Nominal Bayar -->
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Nominal Bayar (Rp)</label>
-                        <input wire:model="nominal_dibayar" type="number" class="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 font-bold text-right text-emerald-700" />
-                        <span class="text-[11px] text-stone-400 block">Jika pembayaran melebihi sisa tunggakan, kelebihan akan masuk otomatis ke Saldo Deposit Siswa.</span>
-                        @error('nominal_dibayar') <span class="text-red-600 text-xs block mt-1">{{ $message }}</span> @enderror
-                    </div>
-
-                    <!-- Tanggal Bayar -->
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Tanggal Bayar</label>
-                        <input wire:model="tanggal_bayar" type="date" class="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500" />
-                        @error('tanggal_bayar') <span class="text-red-600 text-xs block mt-1">{{ $message }}</span> @enderror
-                    </div>
-                </div>
-
-                <!-- Metode Bayar -->
-                <div class="space-y-1.5">
-                    <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Metode Pembayaran</label>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        @foreach (['Tunai', 'Transfer Bank', 'E-Wallet', 'Deposit'] as $method)
-                            <button type="button" 
-                                wire:click="setMetodeBayar('{{ $method }}')"
-                                class="flex items-center justify-center gap-2 p-3 border rounded-xl text-xs font-semibold select-none transition duration-150
-                                {{ $metode_bayar === $method ? 'border-emerald-500 text-emerald-700 bg-emerald-50 font-bold shadow-sm ring-2 ring-emerald-500/20' : 'border-stone-300 text-stone-600 bg-stone-50 hover:bg-stone-100 hover:border-stone-400' }}
-                            ">
-                                @if($method === 'Tunai') <x-lucide-banknote class="w-4 h-4 text-emerald-600" />
-                                @elseif($method === 'Transfer Bank') <x-lucide-building-2 class="w-4 h-4 text-blue-600" />
-                                @elseif($method === 'E-Wallet') <x-lucide-smartphone class="w-4 h-4 text-purple-600" />
-                                @elseif($method === 'Deposit') <x-lucide-wallet class="w-4 h-4 text-amber-600" />
-                                @endif
-                                <span>{{ $method }}</span>
-                            </button>
-                        @endforeach
-                    </div>
-                    @error('metode_bayar') <span class="text-red-600 text-xs block mt-1">{{ $message }}</span> @enderror
-                </div>
-
-                <div class="flex justify-end gap-3 pt-3 border-t border-stone-200">
-                    <button type="button" wire:click="resetSelection" class="py-2.5 px-5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-sm font-bold transition">
-                        Batal
-                    </button>
-                    <button type="submit" class="py-2.5 px-8 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold transition duration-200 shadow-md shadow-emerald-600/10 flex items-center gap-2">
-                        <x-lucide-check-circle class="w-4 h-4" />
-                        <span>Simpan Setoran Pembayaran</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-    @else
-        <!-- GUIDANCE BANNER -->
-        <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-5 flex items-center gap-4">
-            <div class="p-3 bg-emerald-600 text-white rounded-xl shadow-sm">
-                <x-lucide-info class="w-6 h-6" />
-            </div>
-            <div>
-                <h3 class="text-sm font-bold text-emerald-950">Cara Pengisian Pembayaran:</h3>
-                <p class="text-xs text-emerald-800">
-                    Pilih siswa pada tabel <strong>Daftar Siswa Menunggak</strong> di bawah dengan menekan tombol <span class="font-bold text-emerald-900 bg-emerald-200/60 px-1.5 py-0.5 rounded">Bayar Sekarang</span> untuk mengisi setoran pembayaran.
-                </p>
-            </div>
-        </div>
-    @endif
-
     <!-- MAIN TABLE: DAFTAR TUNGGAKAN SISWA -->
-    <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-stone-200 pb-4">
-            <div>
-                <h3 class="text-lg font-bold text-stone-800">Daftar Siswa Menunggak / Memiliki Tagihan Aktif</h3>
-                <p class="text-xs text-stone-500">Klik "Bayar Sekarang" pada siswa di bawah untuk memproses pembayaran.</p>
+    <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            <div class="max-w-md w-full">
+                <x-search-input wire:model.live.debounce.300ms="search" placeholder="Cari nama siswa atau NIS..." />
             </div>
             
-            <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                <!-- Filter Kelas -->
-                <select wire:model.live="filterKelas" class="w-full sm:w-44 px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-xs focus:ring-2 focus:ring-emerald-500">
+            <div class="flex items-center gap-3">
+                <span class="text-xs font-bold text-stone-600 uppercase tracking-wider shrink-0">Filter Kelas:</span>
+                <select wire:model.live="filterKelas" class="px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
                     <option value="">Semua Kelas</option>
                     @foreach ($classes as $c)
                         <option value="{{ $c['id'] }}">Kelas {{ $c['nama_kelas'] }}</option>
                     @endforeach
                 </select>
-
-                <!-- Search NIS/Nama -->
-                <div class="w-full sm:w-64 relative">
-                    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari nama siswa / NIS..." 
-                        class="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-xs focus:ring-2 focus:ring-emerald-500" />
-                    <x-lucide-search class="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
-                </div>
             </div>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="border-b border-stone-200 text-xs font-semibold text-stone-500 uppercase tracking-wider">
-                        <th class="pb-3">Siswa &amp; Kelas</th>
-                        <th class="pb-3">Jenis Tagihan</th>
-                        <th class="pb-3 text-center">Periode</th>
-                        <th class="pb-3 text-right">Nominal Tagihan</th>
-                        <th class="pb-3 text-right">Sisa Tunggakan</th>
-                        <th class="pb-3 text-center">Status</th>
-                        <th class="pb-3 text-center">Aksi Cepat</th>
+        <x-table loadingTarget="search, filterKelas, page">
+            <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+                <tr>
+                    <x-table.th class="min-w-[180px]">Siswa &amp; Kelas</x-table.th>
+                    <x-table.th class="w-44">Jenis Tagihan</x-table.th>
+                    <x-table.th align="center" class="w-32">Periode</x-table.th>
+                    <x-table.th align="right" class="w-40">Nominal Tagihan</x-table.th>
+                    <x-table.th align="right" class="w-40">Sisa Tunggakan</x-table.th>
+                    <x-table.th align="center" class="w-32">Status</x-table.th>
+                    <x-table.th align="center" class="w-36">Aksi Kasir</x-table.th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-200 bg-white">
+                @forelse ($activeTunggakan as $t)
+                    @php
+                        $sisa = floatval($t->nominal - $t->total_dibayar);
+                        $isSelected = $selectedInvoiceInfo && $selectedInvoiceInfo['id'] === $t->id;
+                    @endphp
+                    <tr class="hover:bg-emerald-50/40 transition {{ $isSelected ? 'bg-emerald-50/80 font-bold' : '' }}">
+                        <td class="p-3.5 border-r border-stone-200">
+                            <span class="font-extrabold text-stone-900 text-xs block">{{ $t->siswa->user->nama ?? '-' }}</span>
+                            <span class="text-[10px] text-stone-500 font-mono">NIS: {{ $t->siswa->nis ?? '-' }} | Kelas {{ $t->siswa->kelas->nama_kelas ?? '-' }}</span>
+                        </td>
+                        <td class="p-3.5 text-xs font-bold text-stone-900 border-r border-stone-200">
+                            {{ $t->jenisTagihan->nama ?? '-' }}
+                        </td>
+                        <td class="p-3.5 text-center text-xs text-stone-600 font-semibold border-r border-stone-200">
+                            {{ $t->bulan ?: '-' }}
+                        </td>
+                        <td class="p-3.5 text-right font-bold text-xs text-stone-800 border-r border-stone-200">
+                            Rp {{ number_format($t->nominal, 0, ',', '.') }}
+                        </td>
+                        <td class="p-3.5 text-right font-black text-rose-700 text-xs border-r border-stone-200">
+                            Rp {{ number_format($sisa, 0, ',', '.') }}
+                        </td>
+                        <td class="p-3.5 text-center border-r border-stone-200">
+                            @if ($t->status === 'belum_bayar')
+                                <x-badge variant="rose" size="xs" :dot="true">Belum Bayar</x-badge>
+                            @else
+                                <x-badge variant="amber" size="xs" :dot="true">Sebagian</x-badge>
+                            @endif
+                        </td>
+                        <td class="p-3.5 text-center">
+                            <x-button variant="primary" size="xs" icon="plus" wire:click="pilihSiswaAndTagihan({{ $t->siswa_id }}, {{ $t->id }})">
+                                Bayar Sekarang
+                            </x-button>
+                        </td>
                     </tr>
-                </thead>
-                <tbody class="divide-y divide-stone-100 text-sm">
-                    @forelse ($activeTunggakan as $t)
-                        @php
-                            $sisa = floatval($t->nominal - $t->total_dibayar);
-                            $isSelected = $selectedInvoiceInfo && $selectedInvoiceInfo['id'] === $t->id;
-                        @endphp
-                        <tr class="hover:bg-stone-50 transition {{ $isSelected ? 'bg-emerald-50/60 font-semibold' : '' }}">
-                            <td class="py-3.5">
-                                <span class="font-bold text-stone-800 block">{{ $t->siswa->user->nama ?? '-' }}</span>
-                                <span class="text-xs text-stone-500">NIS: {{ $t->siswa->nis ?? '-' }} | Kelas {{ $t->siswa->kelas->nama_kelas ?? '-' }}</span>
-                            </td>
-                            <td class="py-3.5 font-medium text-stone-700">
-                                {{ $t->jenisTagihan->nama ?? '-' }}
-                            </td>
-                            <td class="py-3.5 text-center text-xs text-stone-500 font-semibold">
-                                {{ $t->bulan ?: '-' }}
-                            </td>
-                            <td class="py-3.5 text-right font-semibold text-stone-700">
-                                Rp {{ number_format($t->nominal, 0, ',', '.') }}
-                            </td>
-                            <td class="py-3.5 text-right font-black text-red-600">
-                                Rp {{ number_format($sisa, 0, ',', '.') }}
-                            </td>
-                            <td class="py-3.5 text-center">
-                                @if ($t->status === 'belum_bayar')
-                                    <span class="px-2.5 py-1 bg-red-50 text-red-700 border border-red-200 rounded-lg text-xs font-bold">Belum Bayar</span>
-                                @else
-                                    <span class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-xs font-bold">Sebagian</span>
-                                @endif
-                            </td>
-                            <td class="py-3.5 text-center">
-                                <button type="button" wire:click="pilihSiswaAndTagihan({{ $t->siswa_id }}, {{ $t->id }})" 
-                                    class="py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition duration-150 flex items-center gap-1 mx-auto shadow-sm">
-                                    <x-lucide-arrow-up-right class="w-3.5 h-3.5" />
-                                    <span>Bayar Sekarang</span>
-                                </button>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="py-12 text-center text-stone-400 font-medium text-sm">
-                                Tidak ada siswa yang menunggak saat ini.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                @empty
+                    <x-table.empty :colspan="7" title="Tidak ada tagihan tertunggak" message="Seluruh siswa telah melunasi tagihan yang dirilis." />
+                @endforelse
+            </tbody>
+        </x-table>
 
-        <div class="pt-2 border-t border-stone-200">
+        <div class="pt-2">
             {{ $activeTunggakan->links() }}
         </div>
     </div>
+
+    <!-- FLOATING CARD INPUT MODAL: KASIR PEMBAYARAN -->
+    @if ($selectedInvoiceInfo)
+        <x-floating-card 
+            :show="true" 
+            title="Form Setoran Kasir Pembayaran" 
+            :subtitle="$selectedInvoiceInfo['siswa_nama'] . ' (NIS: ' . $selectedInvoiceInfo['siswa_nis'] . ' - Kelas ' . $selectedInvoiceInfo['siswa_kelas'] . ')'"
+            badge="KASIR SETORAN"
+            badgeVariant="emerald"
+            icon="plus-circle"
+            maxWidth="max-w-xl"
+            closeAction="resetSelection"
+        >
+            <!-- Invoice Summary Metrics in Card -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <div class="p-2.5 bg-stone-50 border border-stone-200 rounded-xl text-center">
+                    <span class="text-[9px] font-bold text-stone-400 uppercase tracking-wider block">Jenis Tagihan</span>
+                    <span class="text-xs font-bold text-stone-800 block mt-0.5">{{ $selectedInvoiceInfo['jenis'] }}</span>
+                </div>
+                <div class="p-2.5 bg-stone-50 border border-stone-200 rounded-xl text-center">
+                    <span class="text-[9px] font-bold text-stone-400 uppercase tracking-wider block">Total Tagihan</span>
+                    <span class="text-xs font-bold text-stone-800 block mt-0.5">Rp {{ number_format($selectedInvoiceInfo['nominal'], 0, ',', '.') }}</span>
+                </div>
+                <div class="p-2.5 bg-stone-50 border border-stone-200 rounded-xl text-center">
+                    <span class="text-[9px] font-bold text-stone-400 uppercase tracking-wider block">Telah Dibayar</span>
+                    <span class="text-xs font-bold text-emerald-700 block mt-0.5">Rp {{ number_format($selectedInvoiceInfo['total_dibayar'], 0, ',', '.') }}</span>
+                </div>
+                <div class="p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-center">
+                    <span class="text-[9px] font-bold text-rose-600 uppercase tracking-wider block">Sisa Tunggakan</span>
+                    <span class="text-xs font-black text-rose-800 block mt-0.5">Rp {{ number_format($selectedInvoiceInfo['sisa'], 0, ',', '.') }}</span>
+                </div>
+            </div>
+
+            @if ($siswaDeposit > 0)
+                <div class="px-3.5 py-2 bg-emerald-50 border border-emerald-300 rounded-xl flex items-center justify-between text-xs shadow-2xs">
+                    <div class="flex items-center gap-2">
+                        <x-lucide-wallet class="w-4 h-4 text-emerald-600" />
+                        <span class="text-stone-700 font-bold">Saldo Deposit Tersedia:</span>
+                    </div>
+                    <span class="font-black text-emerald-800">Rp {{ number_format($siswaDeposit, 0, ',', '.') }}</span>
+                </div>
+            @endif
+
+            <!-- Form Inputs -->
+            <form wire:submit.prevent="savePayment" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Nominal Bayar -->
+                    <x-input-currency 
+                        label="Nominal Bayar (Rp)" 
+                        name="nominal_dibayar" 
+                        wire:model="nominal_dibayar" 
+                        placeholder="Contoh: 350.000" 
+                        hint="Kelebihan nominal akan otomatis masuk ke Deposit Siswa."
+                        required 
+                    />
+
+                    <!-- Tanggal Bayar -->
+                    <x-input 
+                        type="date" 
+                        label="Tanggal Bayar" 
+                        name="tanggal_bayar" 
+                        wire:model="tanggal_bayar" 
+                        required 
+                    />
+                </div>
+
+                <!-- Metode Bayar -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Metode Pembayaran</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        @foreach (['Tunai', 'Transfer Bank', 'E-Wallet', 'Deposit'] as $method)
+                            <button type="button" 
+                                wire:click="setMetodeBayar('{{ $method }}')"
+                                class="flex items-center justify-center gap-1.5 p-2.5 border rounded-xl text-xs select-none transition duration-150
+                                {{ $metode_bayar === $method ? 'border-emerald-500 text-emerald-900 bg-emerald-50 font-black shadow-2xs ring-2 ring-emerald-500/20' : 'border-stone-300 text-stone-600 bg-white hover:bg-stone-50 hover:border-stone-400 font-bold' }}
+                            ">
+                                @if($method === 'Tunai') <x-lucide-banknote class="w-3.5 h-3.5 text-emerald-600" />
+                                @elseif($method === 'Transfer Bank') <x-lucide-building-2 class="w-3.5 h-3.5 text-blue-600" />
+                                @elseif($method === 'E-Wallet') <x-lucide-smartphone class="w-3.5 h-3.5 text-purple-600" />
+                                @elseif($method === 'Deposit') <x-lucide-wallet class="w-3.5 h-3.5 text-amber-600" />
+                                @endif
+                                <span>{{ $method }}</span>
+                            </button>
+                        @endforeach
+                    </div>
+                    @error('metode_bayar') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-stone-200">
+                    <x-button variant="secondary" size="md" wire:click="resetSelection">
+                        Batal
+                    </x-button>
+                    <x-button variant="primary" size="md" type="submit" loadingTarget="savePayment">
+                        Simpan Setoran Kasir
+                    </x-button>
+                </div>
+            </form>
+        </x-floating-card>
+    @endif
 </div>

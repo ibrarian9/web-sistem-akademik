@@ -39,11 +39,11 @@ class Dashboard extends Component
                 ->sum('jumlah')
         );
 
-        // Outstanding Bills (unpaid amount)
+        // Outstanding Bills (unpaid amount direct DB calculation)
         $this->outstandingBills = floatval(
             Tagihan::whereIn('status', ['belum_bayar', 'sebagian'])
-                ->get()
-                ->sum(fn($t) => $t->nominal - $t->total_dibayar)
+                ->selectRaw('SUM(nominal - total_dibayar) as aggregate')
+                ->value('aggregate') ?? 0.00
         );
 
         // Total student deposit balance

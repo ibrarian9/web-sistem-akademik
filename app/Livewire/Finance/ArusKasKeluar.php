@@ -5,15 +5,23 @@ namespace App\Livewire\Finance;
 use Livewire\Component;
 use App\Models\Pengeluaran;
 use App\Models\KategoriPengeluaran;
+use App\Traits\WithDateFilter;
 use Livewire\WithPagination;
 
 class ArusKasKeluar extends Component
 {
-    use WithPagination;
+    use WithPagination, WithDateFilter;
+
+    // Modal state
+    public bool $showCreateModal = false;
 
     // Filters
     public ?int $filterKategori = null;
     public string $search = '';
+
+    // Bulk selection
+    public array $selectedIds = [];
+    public bool $selectAll = false;
 
     // Create Expense Form properties
     public ?int $kategori_pengeluaran_id = null;
@@ -39,6 +47,66 @@ class ArusKasKeluar extends Component
         }
     }
 
+    public function updatingSearch()
+    {
+        $this->resetPage();
+        $this->resetSelection();
+    }
+
+    public function updatingFilterKategori()
+    {
+        $this->resetPage();
+        $this->resetSelection();
+    }
+
+    public function updatedSelectAll($value)
+    {
+        if ($value) {
+            $this->selectedIds = $this->getCurrentIds();
+        } else {
+            $this->selectedIds = [];
+        }
+    }
+
+    public function resetSelection()
+    {
+        $this->selectedIds = [];
+        $this->selectAll = false;
+    }
+
+    protected function getCurrentIds(): array
+    {
+        $query = Pengeluaran::query();
+
+        if ($this->filterKategori) {
+            $query->where('kategori_pengeluaran_id', $this->filterKategori);
+        }
+
+        if ($this->search !== '') {
+            $query->where('keterangan', 'like', '%' . $this->search . '%');
+        }
+
+        $this->applyDateFilter($query, 'tanggal');
+
+        return $query->pluck('id')->map(fn($id) => (string) $id)->toArray();
+    }
+
+    public function openCreateModal()
+    {
+        $this->resetValidation();
+        $this->reset(['jumlah', 'keterangan']);
+        $this->tanggal = date('Y-m-d');
+        if (!empty($this->categories)) {
+            $this->kategori_pengeluaran_id = $this->categories[0]['id'];
+        }
+        $this->showCreateModal = true;
+    }
+
+    public function closeCreateModal()
+    {
+        $this->showCreateModal = false;
+    }
+
     public function saveExpense()
     {
         $this->validate();
@@ -51,8 +119,9 @@ class ArusKasKeluar extends Component
             'petugas_id' => auth()->id(),
         ]);
 
-        session()->flash('message', 'Pengeluaran kas operasional berhasil dicatat.');
+        session()->flash('message', 'Pengeluaran kas yayasan & operasional berhasil dicatat.');
 
+        $this->showCreateModal = false;
         $this->reset(['jumlah', 'keterangan']);
         $this->tanggal = date('Y-m-d');
         $this->resetPage();
@@ -66,6 +135,19 @@ class ArusKasKeluar extends Component
         session()->flash('message', 'Catatan pengeluaran kas berhasil dihapus.');
     }
 
+    public function bulkDelete()
+    {
+        if (empty($this->selectedIds)) {
+            return;
+        }
+
+        $count = Pengeluaran::whereIn('id', $this->selectedIds)->delete();
+        session()->flash('message', "Berhasil menghapus {$count} catatan pengeluaran kas.");
+
+        $this->resetSelection();
+        $this->resetPage();
+    }
+
     public function exportPdf()
     {
         $query = Pengeluaran::with(['kategori', 'petugas'])->orderBy('tanggal', 'desc');
@@ -77,6 +159,8 @@ class ArusKasKeluar extends Component
         if ($this->search !== '') {
             $query->where('keterangan', 'like', '%' . $this->search . '%');
         }
+
+        $this->applyDateFilter($query, 'tanggal');
 
         $data = $query->get();
 
@@ -103,12 +187,14 @@ class ArusKasKeluar extends Component
             $query->where('keterangan', 'like', '%' . $this->search . '%');
         }
 
+        $this->applyDateFilter($query, 'tanggal');
+
         $pengeluarans = $query->paginate(15);
         $totalPengeluaranKas = Pengeluaran::sum('jumlah');
 
         return view('livewire.finance.arus-kas-keluar', [
             'pengeluarans' => $pengeluarans,
             'totalPengeluaranKas' => $totalPengeluaranKas,
-        ])->layout('components.layouts.app', ['title' => 'Arus Kas Keluar']);
+        ])->layout('components.layouts.app', ['title' => 'Arus Kas Keluar Yayasan']);
     }
 }

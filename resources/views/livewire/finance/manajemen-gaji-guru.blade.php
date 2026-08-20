@@ -1,243 +1,239 @@
-<div class="space-y-6">
+<div class="space-y-6 font-sans">
+    <!-- Header Title Bar -->
+    <x-page-header 
+        title="Manajemen Gaji Guru" 
+        subtitle="Kelola draf penggajian bulanan guru, insentif piket &amp; mengaji, potongan kasbon, serta cetak slip gaji ber-QR code."
+        badge="HONORARIUM &amp; PENGGAJIAN"
+        badgeVariant="emerald"
+        icon="wallet"
+    >
+        <x-slot:actions>
+            <x-button variant="primary" size="md" icon="plus" wire:click="openGenerateModal">
+                Generate Draf Gaji
+            </x-button>
+        </x-slot:actions>
+    </x-page-header>
+
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
         title="Petunjuk Penggajian Guru & Tenaga Pendidik"
         :steps="[
             ['title' => 'Generate Draf Gaji', 'desc' => 'Klik Generate Draf Gaji untuk menghitung gaji pokok, tunjangan jam mengajar, serta insentif piket bulanan.'],
             ['title' => 'Potongan Kasbon', 'desc' => 'Sistem secara otomatis memperhitungkan potongan cicilan pinjaman/kasbon guru yang masih berjalan.'],
-            ['title' => 'Pencairan & Slip Gaji', 'desc' => 'Klik Cairkan Gaji untuk mengonfirmasi pembayaran dan mengunduh Slip Gaji fisik ber-QR Code & TTD.']
+            ['title' => 'Pencairan & Slip Gaji', 'desc' => 'Klik Bayar untuk mengonfirmasi pembayaran dan mencetak Slip Gaji sah ber-QR Code & TTD.']
         ]"
     />
 
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <h2 class="text-2xl font-bold text-stone-800 tracking-tight">Manajemen Gaji Guru</h2>
-            <p class="text-sm text-stone-500">Kelola draf penggajian bulanan guru, insentif, potongan kasbon, dan pencatatan pengeluaran otomatis.</p>
-        </div>
-        <button wire:click="openGenerateModal" class="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold transition duration-200 shadow-md shadow-green-600/10 flex items-center gap-2">
-            <x-lucide-plus-circle class="w-4 h-4" />
-            <span>Generate Draf Gaji</span>
-        </button>
-    </div>
-
-
-
     @if (session()->has('message'))
-        <div class="p-4 bg-green-50 border border-green-200 text-green-800 rounded-xl text-sm font-semibold flex items-center gap-2">
-            <x-lucide-check-circle class="w-5 h-5 text-green-600" />
-            <span>{{ session('message') }}</span>
-        </div>
+        <x-alert-banner type="success" :message="session('message')" />
     @endif
 
     @if (session()->has('error'))
-        <div class="p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl text-sm font-semibold flex items-center gap-2">
-            <x-lucide-alert-triangle class="w-5 h-5 text-red-600" />
-            <span>{{ session('error') }}</span>
-        </div>
+        <x-alert-banner type="error" :message="session('error')" />
     @endif
 
-    <!-- Search & Filters Bar -->
-    <div class="bg-white border border-stone-200 rounded-2xl p-4 shadow-sm flex flex-wrap items-center gap-4">
-        <div class="flex-1 min-w-[200px]">
-            <input wire:model.live="search" type="text" placeholder="Cari nama guru..." class="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:ring-2 focus:ring-green-500/50 focus:border-green-500" />
-        </div>
-        
-        <div class="w-40">
-            <select wire:model.live="filterStatus" class="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:ring-2 focus:ring-green-500/50 focus:border-green-500">
-                <option value="">Semua Status</option>
-                <option value="draft">Draft</option>
-                <option value="dibayar">Dibayar</option>
-            </select>
+    <!-- Search & Filters Bar (Full Width) -->
+    <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <div class="sm:col-span-1">
+                <x-search-input wire:model.live.debounce.300ms="search" placeholder="Cari nama guru..." />
+            </div>
+            
+            <div>
+                <select wire:model.live="filterStatus" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
+                    <option value="">Semua Status</option>
+                    <option value="draft">Draft</option>
+                    <option value="dibayar">Dibayar</option>
+                </select>
+            </div>
+
+            <div>
+                <select wire:model.live="filterBulan" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
+                    <option value="">Semua Bulan</option>
+                    @foreach ($listBulan as $b)
+                        <option value="{{ $b }}">{{ $b }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <input wire:model.live="filterTahun" type="number" placeholder="Tahun" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 text-center shadow-2xs" />
+            </div>
         </div>
 
-        <div class="w-40">
-            <select wire:model.live="filterBulan" class="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:ring-2 focus:ring-green-500/50 focus:border-green-500">
-                <option value="">Semua Bulan</option>
-                @foreach ($listBulan as $b)
-                    <option value="{{ $b }}">{{ $b }}</option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="w-32">
-            <input wire:model.live="filterTahun" type="number" placeholder="Tahun" class="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:ring-2 focus:ring-green-500/50 focus:border-green-500 text-center" />
-        </div>
-    </div>
-
-    <!-- Salary List Table -->
-    <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="border-b border-stone-200">
-                        <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">Guru</th>
-                        <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider text-center">Periode</th>
-                        <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider text-right">Gaji Pokok</th>
-                        <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider text-right">Insentif</th>
-                        <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider text-right">Potongan</th>
-                        <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider text-right">Total Diterima</th>
-                        <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider text-center">Status</th>
-                        <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider text-center">Aksi</th>
+        <!-- Salary List Table -->
+        <x-table loadingTarget="search, filterStatus, filterBulan, filterTahun, page">
+            <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+                <tr>
+                    <x-table.th class="min-w-[180px]">Guru</x-table.th>
+                    <x-table.th align="center" class="w-32">Periode</x-table.th>
+                    <x-table.th align="right" class="w-36">Gaji Pokok</x-table.th>
+                    <x-table.th align="right" class="w-44">Insentif</x-table.th>
+                    <x-table.th align="right" class="w-44">Potongan</x-table.th>
+                    <x-table.th align="right" class="w-44">Total Diterima</x-table.th>
+                    <x-table.th align="center" class="w-32">Status</x-table.th>
+                    <x-table.th align="center" class="w-44">Aksi</x-table.th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-200 bg-white">
+                @forelse ($salaries as $sal)
+                    <tr class="hover:bg-emerald-50/40 transition">
+                        <td class="p-3.5 font-extrabold text-stone-900 text-xs border-r border-stone-200">{{ $sal->guru->user->nama ?? '-' }}</td>
+                        <td class="p-3.5 text-xs text-stone-600 text-center font-bold border-r border-stone-200">{{ $sal->bulan }} {{ $sal->tahun }}</td>
+                        <td class="p-3.5 text-xs text-stone-800 text-right font-bold border-r border-stone-200">Rp {{ number_format($sal->gaji_pokok, 0, ',', '.') }}</td>
+                        <td class="p-3.5 text-xs text-stone-700 text-right border-r border-stone-200">
+                            <span class="text-[11px] block text-stone-600 font-medium">BPJS: Rp {{ number_format($sal->insentif_bpjs, 0, ',', '.') }}</span>
+                            <span class="text-[11px] block text-stone-600 font-medium">Ngaji: Rp {{ number_format($sal->insentif_maghrib_mengaji, 0, ',', '.') }}</span>
+                        </td>
+                        <td class="p-3.5 text-xs text-stone-700 text-right border-r border-stone-200">
+                            <span class="text-[11px] block text-rose-600 font-bold">Kasbon: Rp {{ number_format($sal->potongan_peminjaman, 0, ',', '.') }}</span>
+                            <span class="text-[11px] block text-stone-500 font-medium">Lain: Rp {{ number_format($sal->potongan_lainnya, 0, ',', '.') }}</span>
+                        </td>
+                        <td class="p-3.5 text-xs font-black text-emerald-800 text-right border-r border-stone-200">Rp {{ number_format($sal->total_diterima, 0, ',', '.') }}</td>
+                        <td class="p-3.5 text-center border-r border-stone-200">
+                            @if ($sal->status === 'dibayar')
+                                <x-badge variant="emerald" size="xs" :dot="true">Dibayar</x-badge>
+                            @else
+                                <x-badge variant="amber" size="xs" :dot="true">Draft</x-badge>
+                            @endif
+                        </td>
+                        <td class="p-3.5 text-center">
+                            <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                                @if ($sal->status === 'draft')
+                                    <x-button variant="secondary" size="xs" icon="edit" wire:click="openEditModal({{ $sal->id }})" title="Edit Draf">
+                                        Edit
+                                    </x-button>
+                                    <x-button variant="primary" size="xs" icon="credit-card" wire:click="paySalary({{ $sal->id }})" title="Bayar">
+                                        Bayar
+                                    </x-button>
+                                    <x-button variant="danger" size="xs" icon="trash-2" wire:click="deleteDraft({{ $sal->id }})" wire:confirm="Apakah Anda yakin ingin menghapus draf gaji ini?" title="Hapus Draf" />
+                                @else
+                                    <x-button variant="outline" size="xs" icon="file-text" href="{{ route('finance.gaji-guru.slip', $sal->id) }}" target="_blank">
+                                        Slip PDF
+                                    </x-button>
+                                @endif
+                            </div>
+                        </td>
                     </tr>
-                </thead>
-                <tbody class="divide-y divide-stone-100">
-                    @forelse ($salaries as $sal)
-                        <tr class="hover:bg-stone-50">
-                            <td class="py-3.5 text-sm font-semibold text-stone-800">{{ $sal->guru->user->nama ?? '-' }}</td>
-                            <td class="py-3.5 text-sm text-stone-600 text-center">{{ $sal->bulan }} {{ $sal->tahun }}</td>
-                            <td class="py-3.5 text-sm text-stone-700 text-right">Rp {{ number_format($sal->gaji_pokok, 0, ',', '.') }}</td>
-                            <td class="py-3.5 text-sm text-stone-700 text-right">
-                                <span class="text-xs block text-stone-500">BPJS: Rp {{ number_format($sal->insentif_bpjs, 0, ',', '.') }}</span>
-                                <span class="text-xs block text-stone-500">Ngaji: Rp {{ number_format($sal->insentif_maghrib_mengaji, 0, ',', '.') }}</span>
-                            </td>
-                            <td class="py-3.5 text-sm text-stone-700 text-right">
-                                <span class="text-xs block text-stone-500">Kasbon: Rp {{ number_format($sal->potongan_peminjaman, 0, ',', '.') }}</span>
-                                <span class="text-xs block text-stone-500">Lain: Rp {{ number_format($sal->potongan_lainnya, 0, ',', '.') }}</span>
-                            </td>
-                            <td class="py-3.5 text-sm font-bold text-stone-900 text-right">Rp {{ number_format($sal->total_diterima, 0, ',', '.') }}</td>
-                            <td class="py-3.5 text-center">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
-                                    {{ $sal->status === 'dibayar' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-amber-50 text-amber-700 border border-amber-200' }}
-                                ">
-                                    {{ ucfirst($sal->status) }}
-                                </span>
-                            </td>
-                            <td class="py-3.5 text-center">
-                                <div class="flex items-center justify-center gap-2">
-                                    @if ($sal->status === 'draft')
-                                        <button wire:click="openEditModal({{ $sal->id }})" class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-500 border border-amber-200 hover:border-amber-500 text-amber-700 hover:text-slate-950 rounded-xl text-[11px] font-bold transition-all duration-150 inline-flex items-center gap-1.5 shadow-xs" title="Edit Draf">
-                                            <x-lucide-edit class="w-3.5 h-3.5" />
-                                            <span>Edit</span>
-                                        </button>
-                                        <button wire:click="paySalary({{ $sal->id }})" class="px-2.5 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-sm" title="Bayar">
-                                            <x-lucide-credit-card class="w-3.5 h-3.5" />
-                                            <span>Bayar</span>
-                                        </button>
-                                        <button wire:click="deleteDraft({{ $sal->id }})" wire:confirm="Apakah Anda yakin ingin menghapus draf gaji ini?" class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-600 border border-rose-200 hover:border-rose-600 text-rose-700 hover:text-white rounded-xl text-[11px] font-bold transition-all duration-150 inline-flex items-center gap-1.5 shadow-xs" title="Hapus Draf">
-                                            <x-lucide-trash-2 class="w-3.5 h-3.5" />
-                                            <span>Hapus</span>
-                                        </button>
-                                    @else
-                                        <a href="{{ route('finance.gaji-guru.slip', $sal->id) }}" target="_blank" class="px-2.5 py-1 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Unduh Slip Gaji">
-                                            <x-lucide-file-text class="w-3.5 h-3.5" />
-                                            <span>Slip PDF</span>
-                                        </a>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="8" class="py-8 text-center text-stone-400 font-medium text-sm">
-                                Belum ada draf/data gaji guru yang direkam.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                @empty
+                    <x-table.empty :colspan="8" title="Belum ada draf gaji guru" message="Gunakan tombol Generate Draf Gaji di atas untuk memproses penggajian." />
+                @endforelse
+            </tbody>
+        </x-table>
 
-        <div class="pt-4 border-t border-stone-200">
+        <div class="pt-2">
             {{ $salaries->links() }}
         </div>
     </div>
 
-    <!-- Generate Draft Modal -->
-    @if ($showGenerateModal)
-        <div class="fixed inset-0 z-50 overflow-y-auto bg-stone-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-            <div class="bg-white border border-stone-200 rounded-2xl w-full max-w-md p-6 shadow-xl space-y-6">
-                <div class="flex items-center justify-between border-b border-stone-200 pb-3">
-                    <h3 class="text-base font-bold text-stone-800">Generate Draf Gaji Guru</h3>
-                    <button wire:click="closeGenerateModal" class="text-stone-400 hover:text-stone-600">
-                        <x-lucide-x class="w-5 h-5" />
-                    </button>
-                </div>
-                
-                <div class="space-y-4">
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Bulan</label>
-                        <select wire:model="generateBulan" class="w-full px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:ring-2 focus:ring-green-500/50 focus:border-green-500">
-                            @foreach ($listBulan as $b)
-                                <option value="{{ $b }}">{{ $b }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+    <!-- Floating Card Generate Draft Modal -->
+    <x-floating-card 
+        :show="$showGenerateModal" 
+        title="Generate Draf Gaji Guru" 
+        subtitle="Hitung otomatis gaji pokok, tunjangan jam mengajar, dan potongan cicilan kasbon."
+        badge="PENGGAJIAN BULANAN"
+        badgeVariant="emerald"
+        icon="plus-circle"
+        maxWidth="max-w-md"
+        closeAction="closeGenerateModal"
+    >
+        <div class="space-y-4">
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Bulan Penggajian</label>
+                <select wire:model="generateBulan" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
+                    @foreach ($listBulan as $b)
+                        <option value="{{ $b }}">{{ $b }}</option>
+                    @endforeach
+                </select>
+            </div>
 
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Tahun</label>
-                        <input wire:model="generateTahun" type="number" class="w-full px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:ring-2 focus:ring-green-500/50 focus:border-green-500 text-center font-bold" />
-                    </div>
-                </div>
-
-                <div class="flex justify-end gap-3 pt-3 border-t border-stone-200">
-                    <button wire:click="closeGenerateModal" class="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-sm font-semibold transition">
-                        Batal
-                    </button>
-                    <button wire:click="generateDrafts" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold transition shadow-md shadow-green-600/10">
-                        Generate
-                    </button>
-                </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Tahun</label>
+                <input wire:model="generateTahun" type="number" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 text-center shadow-2xs" />
             </div>
         </div>
-    @endif
 
-    <!-- Edit Draft Modal -->
-    @if ($showEditModal)
-        <div class="fixed inset-0 z-50 overflow-y-auto bg-stone-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-            <div class="bg-white border border-stone-200 rounded-2xl w-full max-w-lg p-6 shadow-xl space-y-6">
-                <div class="flex items-center justify-between border-b border-stone-200 pb-3">
-                    <h3 class="text-base font-bold text-stone-800">Edit Draf Gaji: {{ $editGuruNama }}</h3>
-                    <button wire:click="closeEditModal" class="text-stone-400 hover:text-stone-600">
-                        <x-lucide-x class="w-5 h-5" />
-                    </button>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-1.5 col-span-2">
-                        <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Gaji Pokok</label>
-                        <input wire:model="editGajiPokok" wire:keyup="calculateEditTotal" type="number" class="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm font-bold text-right focus:ring-2 focus:ring-green-500/50" />
-                        @error('editGajiPokok') <span class="text-red-600 text-xs">{{ $message }}</span> @enderror
-                    </div>
+        <div class="flex justify-end gap-2 pt-3 border-t border-stone-200">
+            <x-button variant="secondary" size="md" wire:click="closeGenerateModal">
+                Batal
+            </x-button>
+            <x-button variant="primary" size="md" wire:click="generateDrafts" loadingTarget="generateDrafts">
+                Generate Gaji
+            </x-button>
+        </div>
+    </x-floating-card>
 
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Insentif BPJS</label>
-                        <input wire:model="editInsentifBpjs" wire:keyup="calculateEditTotal" type="number" class="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm text-right focus:ring-2 focus:ring-green-500/50" />
-                        @error('editInsentifBpjs') <span class="text-red-600 text-xs">{{ $message }}</span> @enderror
-                    </div>
+    <!-- Floating Card Edit Draft Modal -->
+    <x-floating-card 
+        :show="$showEditModal" 
+        :title="$editGuruNama" 
+        subtitle="Penyesuaian nominal gaji pokok, insentif, atau potongan slip gaji."
+        badge="EDIT DRAF GAJI"
+        badgeVariant="emerald"
+        icon="edit"
+        maxWidth="max-w-lg"
+        closeAction="closeEditModal"
+    >
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="sm:col-span-2">
+                <x-input-currency 
+                    label="Gaji Pokok (Rp)" 
+                    name="editGajiPokok" 
+                    wire:model="editGajiPokok" 
+                    wire:keyup="calculateEditTotal" 
+                    required 
+                />
+            </div>
 
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Insentif Maghrib Mengaji</label>
-                        <input wire:model="editInsentifMaghrib" wire:keyup="calculateEditTotal" type="number" class="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm text-right focus:ring-2 focus:ring-green-500/50" />
-                        @error('editInsentifMaghrib') <span class="text-red-600 text-xs">{{ $message }}</span> @enderror
-                    </div>
+            <div>
+                <x-input-currency 
+                    label="Insentif BPJS (Rp)" 
+                    name="editInsentifBpjs" 
+                    wire:model="editInsentifBpjs" 
+                    wire:keyup="calculateEditTotal" 
+                />
+            </div>
 
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Potongan Pinjaman (Kasbon)</label>
-                        <input wire:model="editPotonganPinjaman" wire:keyup="calculateEditTotal" type="number" class="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm text-right focus:ring-2 focus:ring-green-500/50" />
-                        @error('editPotonganPinjaman') <span class="text-red-600 text-xs">{{ $message }}</span> @enderror
-                    </div>
+            <div>
+                <x-input-currency 
+                    label="Insentif Maghrib Mengaji (Rp)" 
+                    name="editInsentifMaghrib" 
+                    wire:model="editInsentifMaghrib" 
+                    wire:keyup="calculateEditTotal" 
+                />
+            </div>
 
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Potongan Lainnya</label>
-                        <input wire:model="editPotonganLainnya" wire:keyup="calculateEditTotal" type="number" class="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm text-right focus:ring-2 focus:ring-green-500/50" />
-                        @error('editPotonganLainnya') <span class="text-red-600 text-xs">{{ $message }}</span> @enderror
-                    </div>
+            <div>
+                <x-input-currency 
+                    label="Potongan Kasbon / Pinjaman (Rp)" 
+                    name="editPotonganPinjaman" 
+                    wire:model="editPotonganPinjaman" 
+                    wire:keyup="calculateEditTotal" 
+                />
+            </div>
 
-                    <div class="col-span-2 p-4 bg-stone-50 rounded-xl border border-stone-200 flex items-center justify-between">
-                        <span class="text-sm font-semibold text-stone-600">Total Diterima Guru:</span>
-                        <span class="text-lg font-bold text-green-700">Rp {{ number_format($editTotalDiterima, 0, ',', '.') }}</span>
-                    </div>
-                </div>
+            <div>
+                <x-input-currency 
+                    label="Potongan Lainnya (Rp)" 
+                    name="editPotonganLainnya" 
+                    wire:model="editPotonganLainnya" 
+                    wire:keyup="calculateEditTotal" 
+                />
+            </div>
 
-                <div class="flex justify-end gap-3 pt-3 border-t border-stone-200">
-                    <button wire:click="closeEditModal" class="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-sm font-semibold transition">
-                        Batal
-                    </button>
-                    <button wire:click="saveEdit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold transition shadow-md shadow-green-600/10">
-                        Simpan Perubahan
-                    </button>
-                </div>
+            <div class="sm:col-span-2 p-4 bg-emerald-50 rounded-2xl border border-emerald-200 flex items-center justify-between shadow-2xs">
+                <span class="text-xs font-bold text-emerald-900 uppercase tracking-wider">Total Diterima Guru:</span>
+                <span class="text-lg font-black text-emerald-800">Rp {{ number_format($editTotalDiterima, 0, ',', '.') }}</span>
             </div>
         </div>
-    @endif
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-stone-200">
+            <x-button variant="secondary" size="md" wire:click="closeEditModal">
+                Batal
+            </x-button>
+            <x-button variant="primary" size="md" wire:click="saveEdit" loadingTarget="saveEdit">
+                Simpan Perubahan
+            </x-button>
+        </div>
+    </x-floating-card>
 </div>

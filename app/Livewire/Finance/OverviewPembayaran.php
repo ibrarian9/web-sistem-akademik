@@ -190,27 +190,33 @@ class OverviewPembayaran extends Component
             ->whereRaw('total_n = total_d')
             ->count();
 
-        // Main Query
-        $query = Siswa::with(['user', 'kelas'])
-            ->whereHas('user', function ($q) {
-                $q->where('nama', 'like', '%' . $this->search . '%')
-                  ->orWhere('username', 'like', '%' . $this->search . '%');
-            });
+        // Main Query with eager loading (eliminates 1,000+ queries per request!)
+        $query = Siswa::with([
+            'user', 
+            'kelas',
+            'tagihans' => function ($q) {
+                if ($this->filterTahunAjaran) {
+                    $q->where('tahun_ajaran_id', $this->filterTahunAjaran);
+                }
+                $q->with('pembayarans');
+            }
+        ])
+        ->whereHas('user', function ($q) {
+            $q->where('nama', 'like', '%' . $this->search . '%')
+              ->orWhere('username', 'like', '%' . $this->search . '%');
+        });
 
         if ($this->filterKelas) {
             $query->where('kelas_id', $this->filterKelas);
         }
 
-        // Aggregate per student for display & filtering
+        // Aggregate per student for display & filtering in memory without executing extra queries
         $siswas = $query->get()->map(function ($siswa) {
-            $tagihans = Tagihan::where('siswa_id', $siswa->id)
-                ->when($this->filterTahunAjaran, fn($q) => $q->where('tahun_ajaran_id', $this->filterTahunAjaran))
-                ->get();
+            $tagihans = $siswa->tagihans;
+            $allPembayarans = $tagihans->flatMap(fn($t) => $t->pembayarans);
 
-            $pembayarans = Pembayaran::whereIn('tagihan_id', $tagihans->pluck('id'))->get();
-
-            $totalNominal = $tagihans->sum('nominal');
-            $totalPaid = $tagihans->sum('total_dibayar');
+            $totalNominal = (float) $tagihans->sum('nominal');
+            $totalPaid = (float) $tagihans->sum('total_dibayar');
             $sisaTunggakan = $totalNominal - $totalPaid;
 
             $status = 'Lunas Semua';
@@ -231,7 +237,7 @@ class OverviewPembayaran extends Component
                 'total_nominal' => $totalNominal,
                 'total_dibayar' => $totalPaid,
                 'sisa_tunggakan' => $sisaTunggakan,
-                'terakhir_bayar' => $pembayarans->max('tanggal_bayar')?->format('d-m-Y') ?? '-',
+                'terakhir_bayar' => $allPembayarans->max('tanggal_bayar') ? \Carbon\Carbon::parse($allPembayarans->max('tanggal_bayar'))->format('d-m-Y') : '-',
                 'status' => $status,
             ];
         });

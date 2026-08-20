@@ -1,4 +1,4 @@
-<div class="space-y-8">
+<div class="space-y-6 font-sans">
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
         title="Petunjuk Monitoring Status Pembayaran Siswa"
@@ -9,25 +9,26 @@
         ]"
     />
 
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-            <h2 class="text-2xl font-bold text-stone-800 tracking-tight">Overview Pembayaran Siswa</h2>
-            <p class="text-sm text-stone-500">Pantau rangkuman lunas/tunggakan administrasi siswa per tahun ajaran.</p>
-        </div>
-        
-        <!-- Filter Tahun Ajaran -->
-        <div class="flex items-center gap-3 bg-white border border-stone-200 px-4 py-2 rounded-2xl shadow-sm">
-            <span class="text-xs font-bold text-stone-500 uppercase tracking-wider">Tahun Ajaran:</span>
-            <select wire:model.live="filterTahunAjaran" class="bg-transparent border-none text-sm font-semibold text-stone-800 focus:ring-0 p-0 cursor-pointer">
-                @foreach ($tahunAjarans as $ta)
-                    <option value="{{ $ta->id }}">{{ $ta->nama }}</option>
-                @endforeach
-            </select>
-        </div>
-    </div>
-
-    <!-- Stats Grid -->
+    <!-- Header Title Bar -->
+    <x-page-header 
+        title="Overview Pembayaran Siswa" 
+        subtitle="Pantau rangkuman lunas dan tunggakan tagihan administrasi/SPP siswa per tahun ajaran."
+        badge="MONITORING ADMINISTRASI"
+        badgeVariant="emerald"
+        icon="eye"
+    >
+        <x-slot:actions>
+            <!-- Filter Tahun Ajaran -->
+            <div class="flex items-center gap-3 bg-stone-50 border border-stone-200 px-4 py-2.5 rounded-2xl shadow-2xs">
+                <span class="text-xs font-bold text-stone-600 uppercase tracking-wider">Tahun Ajaran:</span>
+                <select wire:model.live="filterTahunAjaran" class="bg-transparent border-none text-xs font-bold text-stone-900 focus:ring-0 p-0 cursor-pointer">
+                    @foreach ($tahunAjarans as $ta)
+                        <option value="{{ $ta->id }}">{{ $ta->nama }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </x-slot:actions>
+    </x-page-header>
 
     <!-- Alert / Toast Banner -->
     @if (session()->has('message'))
@@ -38,233 +39,228 @@
     @endif
 
     <!-- Quick Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <x-stat-card title="Siswa Ada Tunggakan" :value="$tunggakanCount" icon="alert-circle" color="red" />
-        <x-stat-card title="Siswa Lunas Semua" :value="$lunasCount" icon="check-circle" color="green" />
-        <x-stat-card title="Nominal Tunggakan" :value="'Rp ' . number_format($nominalTunggakan, 0, ',', '.')" icon="wallet" color="amber" />
-        <x-stat-card title="Realisasi Pembayaran" :value="$realisasiPersen . '%'" icon="trending-up" color="blue" />
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <x-stat-card 
+            title="Siswa Ada Tunggakan" 
+            :value="$tunggakanCount . ' Siswa'" 
+            subtitle="Belum melunasi tagihan aktif"
+            icon="alert-circle" 
+            variant="white" 
+        />
+
+        <x-stat-card 
+            title="Siswa Lunas Semua" 
+            :value="$lunasCount . ' Siswa'" 
+            subtitle="Tertib administrasi 100%"
+            icon="check-circle" 
+            variant="white" 
+        />
+
+        <x-stat-card 
+            title="Nominal Tunggakan" 
+            :value="'Rp ' . number_format($nominalTunggakan, 0, ',', '.')" 
+            subtitle="Piutang SPP belum tertagih"
+            icon="wallet" 
+            variant="white" 
+        />
+
+        <x-stat-card 
+            title="Realisasi Pembayaran" 
+            :value="$realisasiPersen . '%'" 
+            subtitle="Rasio pembayaran selesai"
+            icon="trending-up" 
+            variant="white" 
+        />
     </div>
 
-    <!-- Filter & Search Controls -->
-    <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
+    <!-- Content Table Card (Full Width) -->
+    <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
+        <!-- Filter & Search Controls -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <!-- Search -->
-            <div class="space-y-1">
-                <label class="text-xs font-bold text-stone-500 uppercase tracking-wider">Cari Siswa</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-stone-400">
-                        <x-lucide-search class="w-4 h-4" />
-                    </span>
-                    <input wire:model.live="search" type="text" placeholder="Nama siswa atau NIS..." 
-                        class="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition duration-200 text-sm" />
-                </div>
-            </div>
+            <x-search-input wire:model.live.debounce.300ms="search" placeholder="Cari nama siswa atau NIS..." />
 
             <!-- Filter Kelas -->
-            <div class="space-y-1">
-                <label class="text-xs font-bold text-stone-500 uppercase tracking-wider">Filter Kelas</label>
-                <select wire:model.live="filterKelas" class="w-full px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition">
-                    <option value="">Semua Kelas</option>
-                    @foreach ($kelases as $k)
-                        <option value="{{ $k->id }}">Kelas {{ $k->nama_kelas }}</option>
-                    @endforeach
-                </select>
-            </div>
+            <select wire:model.live="filterKelas" class="px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
+                <option value="">Semua Kelas</option>
+                @foreach ($kelases as $k)
+                    <option value="{{ $k->id }}">Kelas {{ $k->nama_kelas }}</option>
+                @endforeach
+            </select>
 
-            <!-- Filter Status Lunas/Tunggakan -->
-            <div class="space-y-1">
-                <label class="text-xs font-bold text-stone-500 uppercase tracking-wider">Filter Status</label>
-                <select wire:model.live="filterStatus" class="w-full px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition">
-                    <option value="">Semua Status</option>
-                    <option value="lunas">Lunas Semua</option>
-                    <option value="tunggakan">Ada Tunggakan</option>
-                </select>
-            </div>
+            <!-- Filter Status -->
+            <select wire:model.live="filterStatus" class="px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
+                <option value="">Semua Status Tagihan</option>
+                <option value="lunas">Lunas Semua</option>
+                <option value="tunggakan">Ada Tunggakan</option>
+            </select>
         </div>
-    </div>
 
-    <!-- Data Table Card -->
-    <div class="bg-white border border-stone-200 rounded-2xl shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-stone-50/50 border-b border-stone-200">
-                        <th class="px-6 py-4 text-xs font-semibold text-stone-500 uppercase tracking-wider">Siswa</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-stone-500 uppercase tracking-wider">Kelas</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-stone-500 uppercase tracking-wider text-center">Jumlah Tagihan</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-stone-500 uppercase tracking-wider text-right">Rincian Nominal</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-stone-500 uppercase tracking-wider text-center">Status</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-stone-500 uppercase tracking-wider text-center">Terakhir Bayar</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-stone-500 uppercase tracking-wider text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-stone-100">
-                    @forelse ($siswas as $item)
-                        <tr class="hover:bg-stone-50 transition duration-150">
-                            <!-- Student identity -->
-                            <td class="px-6 py-4.5 whitespace-nowrap">
-                                <div class="font-bold text-stone-800 text-sm">{{ $item['nama'] }}</div>
-                                <div class="text-xs text-stone-400 mt-0.5">NIS: {{ $item['nis'] }}</div>
-                            </td>
-                            <!-- Class -->
-                            <td class="px-6 py-4.5 whitespace-nowrap text-stone-600 text-sm font-semibold">
+        <!-- Data Table Card -->
+        <x-table loadingTarget="search, filterKelas, filterStatus, filterTahunAjaran, page">
+            <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+                <tr>
+                    <x-table.th class="min-w-[180px]">Siswa</x-table.th>
+                    <x-table.th class="w-32">Kelas</x-table.th>
+                    <x-table.th align="center" class="w-36">Jml Tagihan</x-table.th>
+                    <x-table.th align="right" class="w-48">Rincian Nominal</x-table.th>
+                    <x-table.th align="center" class="w-36">Status</x-table.th>
+                    <x-table.th align="center" class="w-36">Terakhir Bayar</x-table.th>
+                    <x-table.th align="center" class="w-36">Aksi</x-table.th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-200 bg-white">
+                @forelse ($siswas as $item)
+                    <tr class="hover:bg-emerald-50/40 transition">
+                        <!-- Student identity -->
+                        <td class="p-3.5 border-r border-stone-200">
+                            <div class="font-extrabold text-stone-900 text-xs">{{ $item['nama'] }}</div>
+                            <div class="text-[10px] text-stone-400 font-mono">NIS: {{ $item['nis'] }}</div>
+                        </td>
+                        <!-- Class -->
+                        <td class="p-3.5 border-r border-stone-200">
+                            <x-badge variant="stone" size="xs">
                                 {{ $item['kelas'] }}
-                            </td>
-                            <!-- Invoice Counts -->
-                            <td class="px-6 py-4.5 whitespace-nowrap text-center">
-                                @if ($item['total_tagihan_count'] > 0)
-                                    <span class="text-sm font-semibold text-stone-700">
-                                        {{ $item['total_tagihan_count'] }}
-                                    </span>
-                                    <div class="text-[10px] text-stone-400 mt-0.5">
-                                        {{ $item['lunas_count'] }} Lunas / {{ $item['belum_lunas_count'] }} Belum
-                                    </div>
-                                @else
-                                    <span class="text-xs text-stone-400">Tidak ada</span>
-                                @endif
-                            </td>
-                            <!-- In-arrears details -->
-                            <td class="px-6 py-4.5 whitespace-nowrap text-right">
-                                <div class="text-xs text-stone-500">Tagihan: Rp {{ number_format($item['total_nominal'], 0, ',', '.') }}</div>
-                                <div class="text-xs text-green-700 font-medium">Dibayar: Rp {{ number_format($item['total_dibayar'], 0, ',', '.') }}</div>
-                                @if ($item['sisa_tunggakan'] > 0)
-                                    <div class="text-xs text-red-600 font-bold mt-0.5">Sisa: Rp {{ number_format($item['sisa_tunggakan'], 0, ',', '.') }}</div>
-                                @else
-                                    <div class="text-xs text-stone-400 mt-0.5">Sisa: -</div>
-                                @endif
-                            </td>
-                            <!-- Custom Status Badge -->
-                            <td class="px-6 py-4.5 whitespace-nowrap text-center">
-                                @switch($item['status'])
-                                    @case('Lunas Semua')
-                                        <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-200">Lunas Semua</span>
-                                        @break
-                                    @case('Ada Tunggakan')
-                                        <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200">Ada Tunggakan</span>
-                                        @break
-                                    @default
-                                        <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-stone-100 text-stone-500 border border-stone-200">Belum Ada Tagihan</span>
-                                @endswitch
-                            </td>
-                            <!-- Last Pay Date -->
-                            <td class="px-6 py-4.5 whitespace-nowrap text-center text-stone-500 text-xs font-semibold">
-                                {{ $item['terakhir_bayar'] }}
-                            </td>
-                            <!-- Action button triggers -->
-                            <td class="px-6 py-4.5 whitespace-nowrap text-center">
-                                <div class="flex items-center justify-center gap-2">
-                                    <!-- View details modal trigger -->
-                                    <button wire:click="viewDetails({{ $item['id'] }})" 
-                                        class="p-2 text-stone-500 hover:text-green-600 hover:bg-green-50 rounded-xl border border-stone-200 hover:border-green-200 transition" 
-                                        title="Rincian Tagihan">
-                                        <x-lucide-list class="w-4 h-4" />
-                                    </button>
-
-                                    <!-- Send reminder notification if there are outstanding arrears -->
-                                    @if ($item['sisa_tunggakan'] > 0)
-                                        <button wire:click="kirimReminder({{ $item['id'] }})"
-                                            class="p-2 text-stone-500 hover:text-amber-600 hover:bg-amber-50 rounded-xl border border-stone-200 hover:border-amber-200 transition"
-                                            title="Kirim Reminder Tunggakan">
-                                            <x-lucide-bell class="w-4 h-4" />
-                                        </button>
-
-                                        <!-- Go to payment input page -->
-                                        <a href="{{ route('finance.input-pembayaran', ['siswa_id' => $item['id']]) }}"
-                                            class="p-2 text-stone-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl border border-stone-200 hover:border-blue-200 transition"
-                                            title="Input Pembayaran">
-                                            <x-lucide-plus-circle class="w-4 h-4" />
-                                        </a>
-                                    @endif
+                            </x-badge>
+                        </td>
+                        <!-- Invoice Counts -->
+                        <td class="p-3.5 text-center border-r border-stone-200">
+                            @if ($item['total_tagihan_count'] > 0)
+                                <span class="text-xs font-bold text-stone-800">
+                                    {{ $item['total_tagihan_count'] }} Tagihan
+                                </span>
+                                <div class="text-[10px] text-stone-400 font-medium">
+                                    {{ $item['lunas_count'] }} Lunas / {{ $item['belum_lunas_count'] }} Belum
                                 </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="px-6 py-12 text-center text-stone-400 font-medium text-sm">
-                                <x-lucide-wallet-cards class="w-8 h-8 text-stone-300 mx-auto mb-2" />
-                                Tidak ada siswa terdaftar dengan status tagihan terpilih.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                            @else
+                                <span class="text-xs text-stone-400 font-medium">-</span>
+                            @endif
+                        </td>
+                        <!-- In-arrears details -->
+                        <td class="p-3.5 text-right border-r border-stone-200">
+                            <div class="text-[11px] text-stone-500 font-medium">Tagihan: Rp {{ number_format($item['total_nominal'], 0, ',', '.') }}</div>
+                            <div class="text-[11px] text-emerald-700 font-bold">Dibayar: Rp {{ number_format($item['total_dibayar'], 0, ',', '.') }}</div>
+                            @if ($item['sisa_tunggakan'] > 0)
+                                <div class="text-xs text-rose-600 font-black mt-0.5">Sisa: Rp {{ number_format($item['sisa_tunggakan'], 0, ',', '.') }}</div>
+                            @else
+                                <div class="text-xs text-emerald-600 font-bold mt-0.5">Sisa: Lunas</div>
+                            @endif
+                        </td>
+                        <!-- Custom Status Badge -->
+                        <td class="p-3.5 text-center border-r border-stone-200">
+                            @switch($item['status'])
+                                @case('Lunas Semua')
+                                    <x-badge variant="emerald" size="xs" :dot="true">Lunas Semua</x-badge>
+                                    @break
+                                @case('Ada Tunggakan')
+                                    <x-badge variant="rose" size="xs" :dot="true">Ada Tunggakan</x-badge>
+                                    @break
+                                @default
+                                    <x-badge variant="stone" size="xs">Belum Ada Tagihan</x-badge>
+                            @endswitch
+                        </td>
+                        <!-- Last Pay Date -->
+                        <td class="p-3.5 text-center text-stone-600 text-xs font-semibold border-r border-stone-200">
+                            {{ $item['terakhir_bayar'] }}
+                        </td>
+                        <!-- Action button triggers -->
+                        <td class="p-3.5 text-center">
+                            <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                                <!-- View details modal trigger -->
+                                <x-button variant="secondary" size="xs" icon="list" wire:click="viewDetails({{ $item['id'] }})" title="Rincian Tagihan">
+                                    Detail
+                                </x-button>
+
+                                <!-- Send reminder notification if there are outstanding arrears -->
+                                @if ($item['sisa_tunggakan'] > 0)
+                                    <x-button variant="warning" size="xs" icon="bell" wire:click="kirimReminder({{ $item['id'] }})" title="Kirim Reminder" />
+                                    <x-button variant="primary" size="xs" icon="plus" href="{{ route('finance.input-pembayaran', ['siswa_id' => $item['id']]) }}" title="Bayar" />
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <x-table.empty :colspan="7" title="Tidak ada siswa terdaftar" message="Tidak ada data siswa ditemukan dengan filter status yang dipilih." />
+                @endforelse
+            </tbody>
+        </x-table>
         
         <!-- Pagination Links -->
-        <div class="px-6 py-4 border-t border-stone-200">
+        <div class="pt-2">
             {{ $siswas->links() }}
         </div>
     </div>
 
     <!-- Details Modal -->
     @if ($selectedSiswaDetails)
-        <div class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div class="bg-white border border-stone-200 rounded-3xl shadow-2xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[85vh]">
+        <div class="fixed inset-0 z-[99990] flex items-center justify-center bg-stone-950/65 backdrop-blur-xs p-4 sm:p-6 overflow-y-auto">
+            <div class="w-full max-w-3xl bg-white border border-stone-200 rounded-3xl shadow-2xl p-6 space-y-5 my-auto max-h-[90vh] flex flex-col">
                 <!-- Modal Header -->
-                <div class="px-6 py-4.5 bg-stone-50/50 border-b border-stone-200 flex items-center justify-between">
+                <div class="flex items-center justify-between border-b border-stone-200 pb-3">
                     <div>
-                        <h3 class="font-bold text-stone-800 text-lg">Rincian Tagihan Administrasi</h3>
-                        <p class="text-xs text-stone-500 mt-0.5">{{ $selectedSiswaDetails->user->nama }} | Kelas {{ $selectedSiswaDetails->kelas->nama_kelas ?? '-' }} | NIS: {{ $selectedSiswaDetails->nis }}</p>
+                        <x-badge variant="emerald" size="xs">RINCIAN TAGIHAN SISWA</x-badge>
+                        <h3 class="text-base font-extrabold text-stone-900 mt-1">{{ $selectedSiswaDetails->user->nama }}</h3>
+                        <p class="text-xs text-stone-500 font-semibold">Kelas: {{ $selectedSiswaDetails->kelas->nama_kelas ?? '-' }} | NIS: {{ $selectedSiswaDetails->nis }}</p>
                     </div>
-                    <button wire:click="closeDetails" class="p-1.5 text-stone-400 hover:text-stone-600 rounded-xl hover:bg-stone-150 transition">
+                    <button wire:click="closeDetails" class="p-1 text-stone-400 hover:text-stone-700 rounded-lg">
                         <x-lucide-x class="w-5 h-5" />
                     </button>
                 </div>
 
                 <!-- Modal Body -->
-                <div class="p-6 overflow-y-auto space-y-6 custom-scrollbar flex-1">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="border-b border-stone-200">
-                                <th class="pb-2 text-xs font-semibold text-stone-500 uppercase tracking-wider">Kategori Tagihan</th>
-                                <th class="pb-2 text-xs font-semibold text-stone-500 uppercase tracking-wider">Periode / Bulan</th>
-                                <th class="pb-2 text-xs font-semibold text-stone-500 uppercase tracking-wider text-right">Nominal</th>
-                                <th class="pb-2 text-xs font-semibold text-stone-500 uppercase tracking-wider text-right">Telah Dibayar</th>
-                                <th class="pb-2 text-xs font-semibold text-stone-500 uppercase tracking-wider text-right">Sisa</th>
-                                <th class="pb-2 text-xs font-semibold text-stone-500 uppercase tracking-wider text-center">Status</th>
+                <div class="overflow-y-auto space-y-4 flex-1">
+                    <x-table>
+                        <thead class="bg-stone-900 text-white font-extrabold uppercase tracking-wider text-[10px] sticky top-0">
+                            <tr>
+                                <th class="p-3 text-left">Kategori Tagihan</th>
+                                <th class="p-3 text-left">Periode</th>
+                                <th class="p-3 text-right">Nominal</th>
+                                <th class="p-3 text-right">Dibayar</th>
+                                <th class="p-3 text-right">Sisa</th>
+                                <th class="p-3 text-center">Status</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-stone-100">
+                        <tbody class="divide-y divide-stone-200 bg-white">
                             @forelse ($selectedSiswaDetails->tagihans as $t)
                                 <tr>
-                                    <td class="py-3 text-sm font-semibold text-stone-800">{{ $t->jenisTagihan->nama }}</td>
-                                    <td class="py-3 text-sm text-stone-500">{{ $t->bulan ?: '-' }}</td>
-                                    <td class="py-3 text-sm text-stone-800 text-right font-semibold">Rp {{ number_format($t->nominal, 0, ',', '.') }}</td>
-                                    <td class="py-3 text-sm text-green-700 text-right font-medium">Rp {{ number_format($t->total_dibayar, 0, ',', '.') }}</td>
-                                    <td class="py-3 text-sm text-red-600 text-right font-bold">Rp {{ number_format($t->nominal - $t->total_dibayar, 0, ',', '.') }}</td>
-                                    <td class="py-3 text-center">
+                                    <td class="p-3 text-xs font-bold text-stone-900 border-r border-stone-200">{{ $t->jenisTagihan->nama }}</td>
+                                    <td class="p-3 text-xs text-stone-600 border-r border-stone-200">{{ $t->bulan ?: '-' }}</td>
+                                    <td class="p-3 text-xs font-bold text-stone-900 text-right border-r border-stone-200">Rp {{ number_format($t->nominal, 0, ',', '.') }}</td>
+                                    <td class="p-3 text-xs text-emerald-700 text-right font-bold border-r border-stone-200">Rp {{ number_format($t->total_dibayar, 0, ',', '.') }}</td>
+                                    <td class="p-3 text-xs text-rose-600 text-right font-black border-r border-stone-200">Rp {{ number_format($t->nominal - $t->total_dibayar, 0, ',', '.') }}</td>
+                                    <td class="p-3 text-center">
                                         @switch($t->status)
                                             @case('lunas')
-                                                <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-50 text-green-700 border border-green-200">Lunas</span>
+                                                <x-badge variant="emerald" size="xs">Lunas</x-badge>
                                                 @break
                                             @case('sebagian')
-                                                <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Sebagian</span>
+                                                <x-badge variant="amber" size="xs">Sebagian</x-badge>
                                                 @break
                                             @case('batal')
-                                                <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-stone-100 text-stone-500 border border-stone-200">Batal</span>
+                                                <x-badge variant="stone" size="xs">Batal</x-badge>
                                                 @break
                                             @default
-                                                <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">Belum Bayar</span>
+                                                <x-badge variant="rose" size="xs">Belum Bayar</x-badge>
                                         @endswitch
                                     </td>
                                 </tr>
                                 @if ($t->pembayarans && $t->pembayarans->count() > 0)
                                     <tr>
-                                        <td colspan="6" class="bg-stone-50/70 p-3 rounded-xl border border-stone-200 text-xs my-1">
-                                            <span class="font-bold text-stone-700 block mb-2">Riwayat Setoran Pembayaran:</span>
+                                        <td colspan="6" class="bg-stone-50 p-3 text-xs">
+                                            <span class="font-bold text-stone-700 block mb-2">Riwayat Pembayaran Kuitansi:</span>
                                             <div class="space-y-1.5">
                                                 @foreach ($t->pembayarans as $p)
-                                                    <div class="flex items-center justify-between bg-white p-2 rounded-lg border border-stone-200">
-                                                        <div class="flex items-center gap-3">
-                                                            <span class="font-mono font-bold text-stone-800 text-[11px]">{{ $p->no_resi ?? '-' }}</span>
-                                                            <span class="text-stone-500">{{ date('d/m/Y', strtotime($p->tanggal_bayar)) }}</span>
-                                                            <span class="px-2 py-0.5 bg-stone-100 text-stone-600 rounded font-semibold text-[10px] capitalize">{{ $p->metode_bayar }}</span>
+                                                    <div class="flex items-center justify-between bg-white p-2.5 rounded-xl border border-stone-200 shadow-2xs">
+                                                        <div class="flex items-center gap-2.5">
+                                                            <span class="font-mono font-bold text-stone-900 text-[11px]">{{ $p->no_resi ?? '-' }}</span>
+                                                            <span class="text-stone-500 text-[11px]">{{ date('d/m/Y', strtotime($p->tanggal_bayar)) }}</span>
+                                                            <x-badge variant="stone" size="xs">{{ $p->metode_bayar }}</x-badge>
                                                             @if ($p->is_void)
-                                                                <span class="px-2 py-0.5 bg-rose-100 text-rose-700 rounded font-bold text-[10px]">VOID</span>
+                                                                <x-badge variant="rose" size="xs">VOID</x-badge>
                                                             @endif
                                                         </div>
-                                                        <div class="flex items-center gap-3">
-                                                            <span class="font-bold text-emerald-700">Rp {{ number_format($p->nominal_dibayar, 0, ',', '.') }}</span>
+                                                        <div class="flex items-center gap-2">
+                                                            <span class="font-black text-emerald-800 text-xs">Rp {{ number_format($p->nominal_dibayar, 0, ',', '.') }}</span>
                                                             @if (!$p->is_void)
                                                                 <a href="{{ route('finance.pembayaran.resi', $p->id) }}" target="_blank" class="p-1 text-stone-500 hover:text-emerald-700 hover:bg-emerald-50 rounded" title="Cetak Resi">
                                                                     <x-lucide-printer class="w-3.5 h-3.5" />
@@ -282,20 +278,20 @@
                                 @endif
                             @empty
                                 <tr>
-                                    <td colspan="6" class="py-6 text-center text-stone-400 font-medium text-sm">
+                                    <td colspan="6" class="py-6 text-center text-stone-400 font-medium text-xs">
                                         Tidak ada tagihan yang dirilis untuk tahun ajaran terpilih.
                                     </td>
                                 </tr>
                             @endforelse
                         </tbody>
-                    </table>
+                    </x-table>
                 </div>
 
                 <!-- Modal Footer -->
-                <div class="px-6 py-4 bg-stone-50/50 border-t border-stone-200 flex justify-end">
-                    <button wire:click="closeDetails" class="px-5 py-2 bg-stone-200 hover:bg-stone-300 text-stone-700 text-sm font-semibold rounded-xl transition">
+                <div class="flex justify-end pt-3 border-t border-stone-200">
+                    <x-button variant="secondary" size="md" wire:click="closeDetails">
                         Tutup
-                    </button>
+                    </x-button>
                 </div>
             </div>
         </div>

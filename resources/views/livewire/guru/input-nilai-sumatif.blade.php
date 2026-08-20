@@ -60,21 +60,19 @@
             </div>
             
             <div class="flex items-center gap-3">
-                <a href="{{ route('guru.kurikulum-merdeka') }}" class="bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 transition">
-                    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    + Setup Bab &amp; TP
-                </a>
-                <button wire:click="saveAllScores" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 transition shadow-md">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                <x-button variant="secondary" size="md" icon="layers" href="{{ route('guru.kurikulum-merdeka') }}">
+                    Setup Bab &amp; TP
+                </x-button>
+                <x-button variant="primary" size="md" icon="check" wire:click="saveAllScores" loadingTarget="saveAllScores">
                     Simpan &amp; Hitung Rapor
-                </button>
+                </x-button>
             </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
             <div>
                 <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">Kelas</label>
-                <select wire:model.live="kelas_id" class="w-full bg-white border border-stone-300 rounded-xl text-stone-900 px-3.5 py-2 text-xs font-bold focus:ring-2 focus:ring-emerald-500">
+                <select wire:model.live="kelas_id" class="w-full bg-white border border-stone-300 rounded-xl text-stone-900 px-3.5 py-2 text-xs font-bold focus:ring-2 focus:ring-emerald-500 shadow-xs">
                     @foreach($kelases as $k)
                         <option value="{{ $k->id }}">{{ $k->nama_kelas }}</option>
                     @endforeach
@@ -82,7 +80,7 @@
             </div>
             <div>
                 <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">Mata Pelajaran</label>
-                <select wire:model.live="mapel_id" class="w-full bg-white border border-stone-300 rounded-xl text-stone-900 px-3.5 py-2 text-xs font-bold focus:ring-2 focus:ring-emerald-500">
+                <select wire:model.live="mapel_id" class="w-full bg-white border border-stone-300 rounded-xl text-stone-900 px-3.5 py-2 text-xs font-bold focus:ring-2 focus:ring-emerald-500 shadow-xs">
                     @foreach($mapels as $m)
                         <option value="{{ $m->id }}">{{ $m->nama_mapel }}</option>
                     @endforeach
@@ -90,7 +88,7 @@
             </div>
             <div>
                 <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">Filter Bab (Lingkup Materi)</label>
-                <select wire:model.live="lingkup_materi_id" class="w-full bg-white border border-stone-300 rounded-xl text-stone-900 px-3.5 py-2 text-xs font-bold focus:ring-2 focus:ring-emerald-500">
+                <select wire:model.live="lingkup_materi_id" class="w-full bg-white border border-stone-300 rounded-xl text-stone-900 px-3.5 py-2 text-xs font-bold focus:ring-2 focus:ring-emerald-500 shadow-xs">
                     <option value="">-- Semua Bab --</option>
                     @foreach($lingkupMateris as $lm)
                         <option value="{{ $lm->id }}">{{ $lm->nama_lingkup_materi }}</option>
@@ -99,12 +97,17 @@
             </div>
             <div>
                 <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">Semester</label>
-                <select wire:model.live="semester_id" class="w-full bg-white border border-stone-300 rounded-xl text-stone-900 px-3.5 py-2 text-xs font-bold focus:ring-2 focus:ring-emerald-500">
+                <select wire:model.live="semester_id" class="w-full bg-white border border-stone-300 rounded-xl text-stone-900 px-3.5 py-2 text-xs font-bold focus:ring-2 focus:ring-emerald-500 shadow-xs">
                     @foreach($semesters as $sem)
                         <option value="{{ $sem->id }}">{{ $sem->tahunAjaran->nama ?? '' }} - {{ ucfirst($sem->semester) }}</option>
                     @endforeach
                 </select>
             </div>
+        </div>
+
+        <!-- Filter Livewire Loading Bar Indicator -->
+        <div wire:loading.delay wire:target="kelas_id, mapel_id, lingkup_materi_id, semester_id" class="w-full">
+            <x-loading-state type="bar" target="kelas_id, mapel_id, lingkup_materi_id, semester_id" />
         </div>
     </div>
 

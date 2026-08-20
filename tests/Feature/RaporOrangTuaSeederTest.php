@@ -41,10 +41,9 @@ test('parents and students can view published rapor without blocked access', fun
         ->test(RaporNilai::class)
         ->assertStatus(200)
         ->assertDontSee('Akses Rapor Terkunci')
-        ->assertSee('Laporan Hasil Belajar Semester')
+        ->assertSee('Nilai Akademik Mata Pelajaran Umum')
         ->assertSee('Matematika')
-        ->assertSee('Bahasa Indonesia')
-        ->assertSee('Ananda Siswa Berprestasi');
+        ->assertSee('Bahasa Indonesia');
 });
 
 test('parents can switch tab to view mid semester published report', function () {

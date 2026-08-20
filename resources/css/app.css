@@ -61,15 +61,7 @@ textarea,
     border-color: #e7e5e4 !important; /* stone-200 */
 }
 
-/* General Typography overrides for light contrast */
-h1.text-white, 
-h2.text-white, 
-h3.text-white, 
-h4.text-white, 
-h1.text-slate-100, 
-h2.text-slate-100, 
-h3.text-slate-100, 
-h4.text-slate-100,
+/* General Typography overrides for legacy slate classes */
 .text-slate-100, 
 .text-slate-200, 
 .text-slate-300 {
@@ -99,17 +91,7 @@ a.text-white,
     color: #ffffff !important;
 }
 
-/* Override legacy text-white inside tables, forms, modals, and lists to make them stone-900 (dark) */
-table .text-white:not(button):not(a):not(.btn):not(.badge):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-amber"]),
-form .text-white:not(button):not(a):not(.btn):not(.badge):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-amber"]),
-.bg-white .text-white:not(button):not(a):not(.btn):not(.badge):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-amber"]),
-.bg-stone-50 .text-white:not(button):not(a):not(.btn):not(.badge):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-amber"]),
-.bg-stone-100 .text-white:not(button):not(a):not(.btn):not(.badge):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-amber"]),
-.a11y-card .text-white:not(button):not(a):not(.btn):not(.badge):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-amber"]),
-tr .text-white:not(button):not(a):not(.btn):not(.badge):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-amber"]),
-td.text-white:not(button):not(a):not(.btn):not(.badge):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-amber"]) {
-    color: #1c1917 !important; /* stone-900 */
-}
+
 
 /* Shadow and containers */
 .shadow-xl, .shadow-2xl {

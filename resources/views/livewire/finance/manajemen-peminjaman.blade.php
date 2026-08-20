@@ -1,136 +1,154 @@
-<div class="space-y-6">
-    <div>
-        <h2 class="text-2xl font-bold text-stone-800 tracking-tight">Manajemen Peminjaman / Kasbon Guru</h2>
-        <p class="text-sm text-stone-500">Kelola pinjaman kasbon para guru beserta riwayat cicilan bulanan yang terintegrasi dengan pemotongan gaji.</p>
-    </div>
+<div class="space-y-6 font-sans">
+    <!-- Header Title Bar -->
+    <x-page-header 
+        title="Manajemen Peminjaman / Kasbon Guru" 
+        subtitle="Kelola pinjaman kasbon guru beserta riwayat cicilan bulanan yang terintegrasi dengan pemotongan slip gaji."
+        badge="FASILITAS KASBON &amp; PINJAMAN"
+        badgeVariant="emerald"
+        icon="link"
+    >
+        <x-slot:actions>
+            <x-button variant="primary" size="md" icon="plus" wire:click="openCreateModal">
+                Catat Pinjaman Baru
+            </x-button>
+        </x-slot:actions>
+    </x-page-header>
 
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
         title="Petunjuk Kasbon & Peminjaman Guru"
         :steps="[
-            ['title' => 'Catat Pinjaman Baru', 'desc' => 'Pilih nama guru, tentukan nominal pinjaman, tenor bulan, serta alasan pengajuan kasbon.'],
+            ['title' => 'Catat Pinjaman Baru', 'desc' => 'Pilih nama guru, tentukan nominal pinjaman, tenor bulan, serta tanggal pencairan kasbon.'],
             ['title' => 'Potong Gaji Otomatis', 'desc' => 'Cicilan per bulan akan terpotong secara otomatis pada perhitungan slip gaji bulanan guru.'],
             ['title' => 'Pelunasan Kasbon', 'desc' => 'Status pinjaman akan otomatis berubah menjadi Lunas setelah seluruh angsuran terpenuhi.']
         ]"
     />
 
     @if (session()->has('message'))
-        <div class="p-4 bg-green-50 border border-green-200 text-green-800 rounded-xl text-sm font-semibold flex items-center gap-2">
-            <x-lucide-check-circle class="w-5 h-5 text-green-600" />
-            <span>{{ session('message') }}</span>
-        </div>
+        <x-alert-banner type="success" :message="session('message')" />
     @endif
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Input Form Panel -->
-        <div class="lg:col-span-1 bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-6 h-fit">
-            <h3 class="text-sm font-bold text-stone-800 uppercase tracking-wider border-b border-stone-200 pb-2">Catat Pinjaman Baru</h3>
+    <!-- Loans List Panel (Full Width) -->
+    <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            <div class="max-w-md w-full">
+                <x-search-input wire:model.live.debounce.300ms="search" placeholder="Cari nama guru peminjam..." />
+            </div>
             
-            <form wire:submit.prevent="savePeminjaman" class="space-y-4">
-                <!-- Guru -->
-                <div class="space-y-1.5">
-                    <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Nama Guru</label>
-                    <select wire:model="guru_id" class="w-full px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:ring-2 focus:ring-green-500/50 focus:border-green-500">
-                        <option value="">-- Pilih Guru --</option>
-                        @foreach ($gurus as $g)
-                            <option value="{{ $g->id }}">{{ $g->user->nama ?? '-' }} (NIP: {{ $g->nip }})</option>
-                        @endforeach
-                    </select>
-                    @error('guru_id') <span class="text-red-600 text-xs block mt-1">{{ $message }}</span> @enderror
-                </div>
-
-                <!-- Nominal -->
-                <div class="space-y-1.5">
-                    <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Nominal Pinjaman (Rp)</label>
-                    <input wire:model="nominal" type="number" class="w-full px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:ring-2 focus:ring-green-500/50 focus:border-green-500 text-right font-bold" />
-                    @error('nominal') <span class="text-red-600 text-xs block mt-1">{{ $message }}</span> @enderror
-                </div>
-
-                <!-- Tenor -->
-                <div class="space-y-1.5">
-                    <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Tenor (Bulan)</label>
-                    <input wire:model="tenor_bulan" type="number" class="w-full px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:ring-2 focus:ring-green-500/50 focus:border-green-500 text-center font-bold" min="1" max="60" />
-                    @error('tenor_bulan') <span class="text-red-600 text-xs block mt-1">{{ $message }}</span> @enderror
-                </div>
-
-                <!-- Tanggal Pinjam -->
-                <div class="space-y-1.5">
-                    <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Tanggal Pinjam</label>
-                    <input wire:model="tanggal_pinjam" type="date" class="w-full px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-sm focus:ring-2 focus:ring-green-500/50 focus:border-green-500" />
-                    @error('tanggal_pinjam') <span class="text-red-600 text-xs block mt-1">{{ $message }}</span> @enderror
-                </div>
-
-                <div class="pt-4">
-                    <button type="submit" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold transition duration-200 shadow-md shadow-green-600/10">
-                        Simpan Pinjaman
-                    </button>
-                </div>
-            </form>
+            <div class="flex items-center gap-3">
+                <span class="text-xs font-bold text-stone-600 uppercase tracking-wider shrink-0">Status Pinjaman:</span>
+                <select wire:model.live="filterStatus" class="px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
+                    <option value="">Semua Status</option>
+                    <option value="berjalan">Berjalan (Belum Lunas)</option>
+                    <option value="lunas">Lunas</option>
+                </select>
+            </div>
         </div>
 
-        <!-- Loans List Panel -->
-        <div class="lg:col-span-2 bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <h3 class="text-sm font-bold text-stone-800 uppercase tracking-wider">Daftar Peminjaman</h3>
-                
-                <!-- Search & Filters -->
-                <div class="flex flex-wrap items-center gap-3">
-                    <input wire:model.live="search" type="text" placeholder="Cari nama guru..." class="px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-xs focus:ring-2 focus:ring-green-500/50 focus:border-green-500 w-44" />
-                    
-                    <select wire:model.live="filterStatus" class="px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 text-xs focus:ring-2 focus:ring-green-500/50 focus:border-green-500">
-                        <option value="">Semua Status</option>
-                        <option value="berjalan">Berjalan</option>
-                        <option value="lunas">Lunas</option>
-                    </select>
-                </div>
-            </div>
+        <!-- List Table -->
+        <x-table loadingTarget="search, filterStatus, page">
+            <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+                <tr>
+                    <x-table.th class="min-w-[180px]">Guru Peminjam</x-table.th>
+                    <x-table.th align="center" class="w-36">Tgl Pinjam</x-table.th>
+                    <x-table.th align="right" class="w-40">Nominal Pinjaman</x-table.th>
+                    <x-table.th align="center" class="w-28">Tenor</x-table.th>
+                    <x-table.th align="right" class="w-40">Cicilan / Bulan</x-table.th>
+                    <x-table.th align="right" class="w-40">Sisa Pinjaman</x-table.th>
+                    <x-table.th align="center" class="w-32">Status</x-table.th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-200 bg-white">
+                @forelse ($loans as $loan)
+                    <tr class="hover:bg-emerald-50/40 transition">
+                        <td class="p-3.5 font-extrabold text-stone-900 text-xs border-r border-stone-200">{{ $loan->guru->user->nama ?? '-' }}</td>
+                        <td class="p-3.5 text-xs text-stone-600 text-center font-semibold border-r border-stone-200">{{ $loan->tanggal_pinjam ? $loan->tanggal_pinjam->format('d/m/Y') : '-' }}</td>
+                        <td class="p-3.5 text-xs font-bold text-stone-900 text-right border-r border-stone-200">Rp {{ number_format($loan->nominal, 0, ',', '.') }}</td>
+                        <td class="p-3.5 text-xs text-stone-600 text-center font-bold border-r border-stone-200">{{ $loan->tenor_bulan }} Bulan</td>
+                        <td class="p-3.5 text-xs text-stone-700 text-right font-medium border-r border-stone-200">Rp {{ number_format($loan->cicilan_per_bulan, 0, ',', '.') }}</td>
+                        <td class="p-3.5 text-xs font-black text-rose-700 text-right border-r border-stone-200">Rp {{ number_format($loan->sisa_pinjaman, 0, ',', '.') }}</td>
+                        <td class="p-3.5 text-center">
+                            @if ($loan->status === 'lunas')
+                                <x-badge variant="emerald" size="xs" :dot="true">Lunas</x-badge>
+                            @else
+                                <x-badge variant="amber" size="xs" :dot="true">Berjalan</x-badge>
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <x-table.empty :colspan="7" title="Belum ada data peminjaman kasbon guru" message="Gunakan tombol Catat Pinjaman Baru di atas untuk mencatat kasbon guru." />
+                @endforelse
+            </tbody>
+        </x-table>
 
-            <!-- List Table -->
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b border-stone-200">
-                            <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">Guru</th>
-                            <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">Tanggal Pinjam</th>
-                            <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider text-right">Nominal</th>
-                            <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider text-center">Tenor</th>
-                            <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider text-right">Cicilan/Bulan</th>
-                            <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider text-right">Sisa Pinjaman</th>
-                            <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider text-center">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-stone-100">
-                        @forelse ($loans as $loan)
-                            <tr class="hover:bg-stone-50">
-                                <td class="py-3.5 text-sm font-semibold text-stone-800">{{ $loan->guru->user->nama ?? '-' }}</td>
-                                <td class="py-3.5 text-sm text-stone-600">{{ $loan->tanggal_pinjam ? $loan->tanggal_pinjam->format('d-m-Y') : '-' }}</td>
-                                <td class="py-3.5 text-sm font-semibold text-stone-800 text-right">Rp {{ number_format($loan->nominal, 0, ',', '.') }}</td>
-                                <td class="py-3.5 text-sm text-stone-600 text-center">{{ $loan->tenor_bulan }} bln</td>
-                                <td class="py-3.5 text-sm text-stone-600 text-right">Rp {{ number_format($loan->cicilan_per_bulan, 0, ',', '.') }}</td>
-                                <td class="py-3.5 text-sm font-bold text-stone-800 text-right">Rp {{ number_format($loan->sisa_pinjaman, 0, ',', '.') }}</td>
-                                <td class="py-3.5 text-center">
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
-                                        {{ $loan->status === 'lunas' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-blue-50 text-blue-700 border border-blue-200' }}
-                                    ">
-                                        {{ ucfirst($loan->status) }}
-                                    </span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="py-8 text-center text-stone-400 font-medium text-sm">
-                                    Belum ada data peminjaman guru yang direkam.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            <div class="pt-4 border-t border-stone-200">
-                {{ $loans->links() }}
-            </div>
+        <div class="pt-2">
+            {{ $loans->links() }}
         </div>
     </div>
+
+    <!-- Floating Card Create Loan Modal Dialog -->
+    <x-floating-card 
+        :show="$showCreateModal" 
+        title="Catat Pinjaman Kasbon Guru" 
+        subtitle="Kelola pinjaman kasbon guru beserta tenor cicilan yang terintegrasi slip gaji."
+        badge="KASBON GURU"
+        badgeVariant="emerald"
+        icon="plus-circle"
+        maxWidth="max-w-lg"
+        closeAction="closeCreateModal"
+    >
+        <form wire:submit.prevent="savePeminjaman" class="space-y-4">
+            <!-- Guru -->
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Nama Guru Peminjam <span class="text-rose-500">*</span></label>
+                <select wire:model="guru_id" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
+                    <option value="">-- Pilih Guru Peminjam --</option>
+                    @foreach ($gurus as $g)
+                        <option value="{{ $g->id }}">{{ $g->user->nama ?? '-' }} (NIP: {{ $g->nip }})</option>
+                    @endforeach
+                </select>
+                @error('guru_id') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror
+            </div>
+
+            <!-- Nominal Pinjaman -->
+            <x-input-currency 
+                label="Nominal Pinjaman (Rp)" 
+                name="nominal" 
+                wire:model="nominal" 
+                placeholder="Contoh: 1.000.000" 
+                required 
+            />
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Tenor -->
+                <x-input 
+                    type="number" 
+                    label="Tenor (Bulan)" 
+                    name="tenor_bulan" 
+                    wire:model="tenor_bulan" 
+                    min="1" 
+                    max="60" 
+                    required 
+                />
+
+                <!-- Tanggal Pinjam -->
+                <x-input 
+                    type="date" 
+                    label="Tanggal Pinjam" 
+                    name="tanggal_pinjam" 
+                    wire:model="tanggal_pinjam" 
+                    required 
+                />
+            </div>
+
+            <div class="flex justify-end gap-2 pt-3 border-t border-stone-200">
+                <x-button variant="secondary" size="md" wire:click="closeCreateModal">
+                    Batal
+                </x-button>
+                <x-button variant="primary" size="md" type="submit" loadingTarget="savePeminjaman">
+                    Simpan Pinjaman Kasbon
+                </x-button>
+            </div>
+        </form>
+    </x-floating-card>
 </div>

@@ -8,21 +8,27 @@ use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\JenisTagihan;
 use App\Models\TahunAjaran;
+use App\Traits\WithDateFilter;
 use Livewire\WithPagination;
-use Illuminate\Support\Facades\DB;
 
 class ManajemenTagihan extends Component
 {
-    use WithPagination;
+    use WithPagination, WithDateFilter;
 
     // Filters
     public ?int $filterKelas = null;
     public ?int $filterJenis = null;
     public string $filterStatus = '';
+    public string $filterBulan = ''; // NEW Month filter
     public string $search = '';
 
-    // Mode: 'perorangan' vs 'otomatis'
-    public string $modeTagihan = 'perorangan';
+    // Modals
+    public bool $showCreateModal = false;
+    public bool $showDetailModal = false;
+
+    // Selected Student for Detail Modal
+    public ?int $selectedSiswaId = null;
+    public ?Siswa $selectedSiswa = null;
 
     // Create Tagihan Form properties
     public ?int $single_siswa_id = null;
@@ -31,10 +37,9 @@ class ManajemenTagihan extends Component
     public float $nominal = 0.00;
     public string $jatuh_tempo = '';
 
-    // Auto SPP Form properties
-    public string $autoBulan = 'Juli';
-    public float $autoNominal = 350000.00;
-    public string $autoJatuhTempo = '';
+    // Bulk selection (Siswa IDs)
+    public array $selectedIds = [];
+    public bool $selectAll = false;
 
     // Option lists
     public array $classes = [];
@@ -54,27 +59,81 @@ class ManajemenTagihan extends Component
             ->get()
             ->toArray();
         $this->jatuh_tempo = date('Y-m-d', strtotime('+30 days'));
-        $this->autoJatuhTempo = date('Y-m-10', strtotime('+30 days'));
     }
 
     public function updatingSearch()
     {
         $this->resetPage();
+        $this->resetSelection();
     }
 
     public function updatingFilterKelas()
     {
         $this->resetPage();
+        $this->resetSelection();
     }
 
     public function updatingFilterJenis()
     {
         $this->resetPage();
+        $this->resetSelection();
     }
 
     public function updatingFilterStatus()
     {
         $this->resetPage();
+        $this->resetSelection();
+    }
+
+    public function updatingFilterBulan()
+    {
+        $this->resetPage();
+        $this->resetSelection();
+    }
+
+    public function updatedSelectAll($value)
+    {
+        if ($value) {
+            $this->selectedIds = $this->getCurrentStudentIds();
+        } else {
+            $this->selectedIds = [];
+        }
+    }
+
+    public function resetSelection()
+    {
+        $this->selectedIds = [];
+        $this->selectAll = false;
+    }
+
+    protected function getCurrentStudentIds(): array
+    {
+        $query = Siswa::whereHas('tagihans', function ($q) {
+            if ($this->filterJenis) {
+                $q->where('jenis_tagihan_id', $this->filterJenis);
+            }
+            if ($this->filterStatus) {
+                $q->where('status', $this->filterStatus);
+            }
+            if ($this->filterBulan) {
+                $q->where('bulan', $this->filterBulan);
+            }
+            $this->applyDateFilter($q, 'created_at');
+        });
+
+        if ($this->search) {
+            $query->where(function ($q) {
+                $q->whereHas('user', function ($sub) {
+                    $sub->where('nama', 'like', '%' . $this->search . '%');
+                })->orWhere('nis', 'like', '%' . $this->search . '%');
+            });
+        }
+
+        if ($this->filterKelas) {
+            $query->where('kelas_id', $this->filterKelas);
+        }
+
+        return $query->pluck('id')->map(fn($id) => (string) $id)->toArray();
     }
 
     public function updatedJenisTagihanId($value)
@@ -84,7 +143,43 @@ class ManajemenTagihan extends Component
         }
     }
 
+    public function openCreateModal(?int $siswaId = null)
+    {
+        $this->resetValidation();
+        if ($siswaId) {
+            $this->single_siswa_id = $siswaId;
+        }
+        $this->showCreateModal = true;
+    }
 
+    public function closeCreateModal()
+    {
+        $this->showCreateModal = false;
+        $this->resetValidation();
+    }
+
+    public function openDetail(int $siswaId)
+    {
+        $this->selectedSiswaId = $siswaId;
+        $this->loadSelectedSiswa();
+        $this->showDetailModal = true;
+    }
+
+    public function closeDetailModal()
+    {
+        $this->showDetailModal = false;
+        $this->selectedSiswaId = null;
+        $this->selectedSiswa = null;
+    }
+
+    protected function loadSelectedSiswa()
+    {
+        if ($this->selectedSiswaId) {
+            $this->selectedSiswa = Siswa::with(['user', 'kelas', 'tagihans' => function ($q) {
+                $q->with(['jenisTagihan', 'tahunAjaran', 'pembayarans'])->latest();
+            }])->find($this->selectedSiswaId);
+        }
+    }
 
     public function createSingleTagihan()
     {
@@ -115,67 +210,14 @@ class ManajemenTagihan extends Component
             'jatuh_tempo' => $this->jatuh_tempo,
         ]);
 
-        session()->flash('message', "Berhasil merilis tagihan perorangan untuk siswa " . ($siswa->user->nama ?? 'Siswa') . ".");
+        session()->flash('message', "Berhasil merilis tagihan untuk siswa " . ($siswa->user->nama ?? 'Siswa') . ".");
         $this->reset(['single_siswa_id', 'jenis_tagihan_id', 'bulan', 'nominal']);
-        $this->resetPage();
-    }
-
-    public function generateAutoSppBulanan()
-    {
-        $this->validate([
-            'autoBulan' => 'required|string|max:50',
-            'autoNominal' => 'required|numeric|min:1',
-            'autoJatuhTempo' => 'required|date',
-        ]);
-
-        $activeTA = TahunAjaran::where('status_aktif', true)->first();
-        if (!$activeTA) {
-            session()->flash('error', 'Tidak ada tahun ajaran aktif.');
-            return;
+        $this->showCreateModal = false;
+        
+        if ($this->showDetailModal && $this->selectedSiswaId) {
+            $this->loadSelectedSiswa();
         }
-
-        $jenisSpp = JenisTagihan::firstOrCreate(
-            ['nama' => 'SPP'],
-            [
-                'kategori' => 'rutin',
-                'default_nominal' => 350000,
-                'is_blocking' => true,
-            ]
-        );
-
-        $students = Siswa::where('status', 'aktif')->get();
-        if ($students->isEmpty()) {
-            session()->flash('error', 'Tidak ada siswa aktif terdaftar.');
-            return;
-        }
-
-        $createdCount = 0;
-        DB::transaction(function () use ($students, $activeTA, $jenisSpp, &$createdCount) {
-            foreach ($students as $student) {
-                $exists = Tagihan::where([
-                    'siswa_id' => $student->id,
-                    'jenis_tagihan_id' => $jenisSpp->id,
-                    'tahun_ajaran_id' => $activeTA->id,
-                    'bulan' => $this->autoBulan,
-                ])->exists();
-
-                if (!$exists) {
-                    Tagihan::create([
-                        'siswa_id' => $student->id,
-                        'jenis_tagihan_id' => $jenisSpp->id,
-                        'tahun_ajaran_id' => $activeTA->id,
-                        'bulan' => $this->autoBulan,
-                        'nominal' => $this->autoNominal,
-                        'total_dibayar' => 0.00,
-                        'status' => 'belum_bayar',
-                        'jatuh_tempo' => $this->autoJatuhTempo,
-                    ]);
-                    $createdCount++;
-                }
-            }
-        });
-
-        session()->flash('message', "Berhasil merilis {$createdCount} tagihan SPP bulan {$this->autoBulan} untuk seluruh siswa aktif.");
+        
         $this->resetPage();
     }
 
@@ -190,40 +232,95 @@ class ManajemenTagihan extends Component
 
         $tagihan->delete();
         session()->flash('message', 'Tagihan berhasil dihapus/dibatalkan.');
+
+        if ($this->showDetailModal && $this->selectedSiswaId) {
+            $this->loadSelectedSiswa();
+        }
+    }
+
+    public function bulkDelete()
+    {
+        if (empty($this->selectedIds)) {
+            return;
+        }
+
+        // Support both Tagihan IDs and Siswa IDs in selectedIds
+        $tagihans = Tagihan::where(function ($q) {
+            $q->whereIn('id', $this->selectedIds)
+              ->orWhereIn('siswa_id', $this->selectedIds);
+        })->get();
+
+        $deletedCount = 0;
+        $skippedCount = 0;
+
+        foreach ($tagihans as $tagihan) {
+            if ($tagihan->total_dibayar == 0) {
+                $tagihan->delete();
+                $deletedCount++;
+            } else {
+                $skippedCount++;
+            }
+        }
+
+        $msg = "Berhasil menghapus {$deletedCount} tagihan.";
+        if ($skippedCount > 0) {
+            $msg .= " ({$skippedCount} tagihan dilewati karena sudah ada pembayaran).";
+        }
+
+        session()->flash('message', $msg);
+        $this->resetSelection();
+        $this->resetPage();
+
+        if ($this->showDetailModal && $this->selectedSiswaId) {
+            $this->loadSelectedSiswa();
+        }
     }
 
     public function render()
     {
-        $query = Tagihan::with(['siswa.user', 'siswa.kelas', 'jenisTagihan', 'tahunAjaran'])
-            ->latest();
+        // Query Siswa grouped with tagihans
+        $query = Siswa::whereHas('tagihans', function ($q) {
+            if ($this->filterJenis) {
+                $q->where('jenis_tagihan_id', $this->filterJenis);
+            }
+            if ($this->filterStatus) {
+                $q->where('status', $this->filterStatus);
+            }
+            if ($this->filterBulan) {
+                $q->where('bulan', $this->filterBulan);
+            }
+            $this->applyDateFilter($q, 'created_at');
+        })->with(['user', 'kelas', 'tagihans' => function ($q) {
+            if ($this->filterJenis) {
+                $q->where('jenis_tagihan_id', $this->filterJenis);
+            }
+            if ($this->filterStatus) {
+                $q->where('status', $this->filterStatus);
+            }
+            if ($this->filterBulan) {
+                $q->where('bulan', $this->filterBulan);
+            }
+            $this->applyDateFilter($q, 'created_at');
+            $q->with(['jenisTagihan', 'pembayarans']);
+        }]);
 
         if ($this->search) {
-            $query->whereHas('siswa.user', function ($q) {
-                $q->where('nama', 'like', '%' . $this->search . '%');
-            })->orWhereHas('siswa', function ($q) {
-                $q->where('nis', 'like', '%' . $this->search . '%');
+            $query->where(function ($q) {
+                $q->whereHas('user', function ($sub) {
+                    $sub->where('nama', 'like', '%' . $this->search . '%');
+                })->orWhere('nis', 'like', '%' . $this->search . '%');
             });
         }
 
         if ($this->filterKelas) {
-            $query->whereHas('siswa', function ($q) {
-                $q->where('kelas_id', $this->filterKelas);
-            });
+            $query->where('kelas_id', $this->filterKelas);
         }
 
-        if ($this->filterJenis) {
-            $query->where('jenis_tagihan_id', $this->filterJenis);
-        }
-
-        if ($this->filterStatus) {
-            $query->where('status', $this->filterStatus);
-        }
-
-        $tagihans = $query->paginate(15);
+        $students = $query->paginate(15);
         $allStudents = Siswa::where('status', 'aktif')->with('user', 'kelas')->get();
 
         return view('livewire.finance.manajemen-tagihan', [
-            'tagihans' => $tagihans,
+            'students' => $students,
             'allStudents' => $allStudents,
         ])->layout('components.layouts.app', ['title' => 'Manajemen Tagihan']);
     }

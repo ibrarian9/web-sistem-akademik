@@ -16,6 +16,7 @@ class ManajemenPeminjaman extends Component
     public string $filterStatus = ''; // 'berjalan', 'lunas'
 
     // Form fields
+    public bool $showCreateModal = false;
     public ?int $guru_id = null;
     public float $nominal = 0.00;
     public int $tenor_bulan = 1;
@@ -31,6 +32,20 @@ class ManajemenPeminjaman extends Component
     public function mount()
     {
         $this->tanggal_pinjam = date('Y-m-d');
+    }
+
+    public function openCreateModal()
+    {
+        $this->resetValidation();
+        $this->reset(['guru_id', 'nominal', 'tenor_bulan']);
+        $this->tanggal_pinjam = date('Y-m-d');
+        $this->showCreateModal = true;
+    }
+
+    public function closeCreateModal()
+    {
+        $this->showCreateModal = false;
+        $this->resetValidation();
     }
 
     public function updatingSearch()
@@ -62,6 +77,7 @@ class ManajemenPeminjaman extends Component
         session()->flash('message', 'Pinjaman kasbon guru berhasil dicatat.');
         $this->reset(['guru_id', 'nominal', 'tenor_bulan']);
         $this->tanggal_pinjam = date('Y-m-d');
+        $this->showCreateModal = false;
     }
 
     public function render()

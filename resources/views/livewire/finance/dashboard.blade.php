@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-6 font-sans">
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
         title="Panduan Pusat Kendali Keuangan Sekolah (Finance)"
@@ -10,180 +10,173 @@
         notes="Gunakan tombol Ekspor Laporan pada menu Arus Kas untuk mengunduh laporan keuangan berformat Excel/PDF."
     />
 
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-        <div>
-            <h2 class="text-2xl font-bold text-stone-800 tracking-tight">Dashboard Keuangan</h2>
-            <p class="text-sm text-stone-500">Pantau arus kas, realisasi SPP, dan pengeluaran operasional sekolah.</p>
-        </div>
-        <div class="px-4 py-2 bg-white border border-stone-200 rounded-2xl shadow-sm">
-            <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider block">Bulan Ini</span>
-            <span class="text-sm font-bold text-stone-800">{{ Carbon\Carbon::now()->locale('id')->monthName }} {{ Carbon\Carbon::now()->year }}</span>
-        </div>
-    </div>
-
-    <!-- Header -->
+    <!-- Header Title Bar -->
+    <x-page-header 
+        title="Dashboard Keuangan Sekolah" 
+        subtitle="Pantau arus kas yayasan, realisasi SPP siswa, dan pengeluaran operasional secara terpusat."
+        badge="PUSAT KENDALI KEUANGAN"
+        badgeVariant="emerald"
+        icon="wallet"
+    >
+        <x-slot:actions>
+            <div class="px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-2xl shadow-2xs">
+                <span class="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Periode Berjalan</span>
+                <span class="text-xs font-black text-stone-800">{{ Carbon\Carbon::now()->locale('id')->isoFormat('MMMM YYYY') }}</span>
+            </div>
+        </x-slot:actions>
+    </x-page-header>
 
     <!-- Stats Grid -->
+    @php
+        $netFlow = $incomeThisMonth - $expenseThisMonth;
+    @endphp
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Pemasukan -->
-        <div class="bg-white border border-stone-200 rounded-2xl p-5 flex items-center justify-between shadow-sm">
-            <div class="space-y-1">
-                <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider block">Pemasukan Bulan Ini</span>
-                <span class="text-lg font-bold text-green-700 tracking-tight">Rp {{ number_format($incomeThisMonth, 0, ',', '.') }}</span>
-            </div>
-            <div class="p-3 bg-green-50 text-green-600 rounded-2xl border border-green-200">
-                <x-lucide-trending-up class="w-6 h-6" />
-            </div>
-        </div>
+        <x-stat-card 
+            title="Pemasukan Bulan Ini" 
+            :value="'Rp ' . number_format($incomeThisMonth, 0, ',', '.')" 
+            icon="trending-up" 
+            variant="white" 
+        />
+        <x-stat-card 
+            title="Pengeluaran Bulan Ini" 
+            :value="'Rp ' . number_format($expenseThisMonth, 0, ',', '.')" 
+            icon="trending-down" 
+            variant="white" 
+        />
+        <x-stat-card 
+            title="Kas Bersih Bulan Ini" 
+            :value="'Rp ' . number_format($netFlow, 0, ',', '.')" 
+            icon="dollar-sign" 
+            variant="white" 
+        />
+        <x-stat-card 
+            title="Total Tunggakan Aktif" 
+            :value="'Rp ' . number_format($outstandingBills, 0, ',', '.')" 
+            icon="alert-triangle" 
+            variant="white" 
+        />
 
-        <!-- Pengeluaran -->
-        <div class="bg-white border border-stone-200 rounded-2xl p-5 flex items-center justify-between shadow-sm">
-            <div class="space-y-1">
-                <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider block">Pengeluaran Bulan Ini</span>
-                <span class="text-lg font-bold text-red-700 tracking-tight">Rp {{ number_format($expenseThisMonth, 0, ',', '.') }}</span>
-            </div>
-            <div class="p-3 bg-red-50 text-red-600 rounded-2xl border border-red-200">
-                <x-lucide-trending-down class="w-6 h-6" />
-            </div>
-        </div>
-
-        <!-- Arus Kas Bersih -->
-        @php
-            $netFlow = $incomeThisMonth - $expenseThisMonth;
-        @endphp
-        <div class="bg-white border border-stone-200 rounded-2xl p-5 flex items-center justify-between shadow-sm">
-            <div class="space-y-1">
-                <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider block">Kas Bersih Bulan Ini</span>
-                <span class="text-lg font-bold {{ $netFlow >= 0 ? 'text-blue-700' : 'text-red-700' }} tracking-tight">
-                    Rp {{ number_format($netFlow, 0, ',', '.') }}
-                </span>
-            </div>
-            <div class="p-3 bg-blue-50 text-blue-600 rounded-2xl border border-blue-200">
-                <x-lucide-dollar-sign class="w-6 h-6" />
-            </div>
-        </div>
-
-        <!-- Total Tunggakan SPP -->
-        <div class="bg-white border border-stone-200 rounded-2xl p-5 flex items-center justify-between shadow-sm">
-            <div class="space-y-1">
-                <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider block">Total Tunggakan Aktif</span>
-                <span class="text-lg font-bold text-amber-700 tracking-tight">Rp {{ number_format($outstandingBills, 0, ',', '.') }}</span>
-            </div>
-            <div class="p-3 bg-amber-50 text-amber-600 rounded-2xl border border-amber-200">
-                <x-lucide-alert-triangle class="w-6 h-6" />
-            </div>
-        </div>
-
-        <!-- Total Saldo Deposit Siswa -->
-        <div class="bg-white border border-stone-200 rounded-2xl p-5 flex items-center justify-between shadow-sm sm:col-span-2 lg:col-span-4">
-            <div class="space-y-1">
-                <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider block">Total Saldo Deposit Siswa Mengendap</span>
-                <span class="text-xl font-black text-emerald-700 tracking-tight">Rp {{ number_format($totalStudentDeposit, 0, ',', '.') }}</span>
-                <p class="text-xs text-stone-500">Akumulasi kelebihan pembayaran tagihan dari seluruh siswa yang dapat dialokasikan untuk tagihan periode berikutnya.</p>
-            </div>
-            <div class="p-3 bg-emerald-50 text-emerald-600 rounded-2xl border border-emerald-200">
-                <x-lucide-wallet class="w-6 h-6" />
-            </div>
+        <div class="sm:col-span-2 lg:col-span-4">
+            <x-stat-card 
+                title="Total Saldo Deposit Siswa Mengendap" 
+                :value="'Rp ' . number_format($totalStudentDeposit, 0, ',', '.')" 
+                subtitle="Akumulasi kelebihan pembayaran tagihan dari seluruh siswa yang dapat dialokasikan untuk tagihan berikutnya."
+                icon="wallet" 
+                variant="emerald" 
+            />
         </div>
     </div>
 
     <!-- Content Sections -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Recent Payment Logs -->
-        <div class="lg:col-span-2 bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
-            <h3 class="text-sm font-bold text-stone-800 uppercase tracking-wider">Pembayaran Terbaru</h3>
-            
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b border-stone-200">
-                            <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">No. Resi</th>
-                            <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">Siswa</th>
-                            <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">Jenis Tagihan</th>
-                            <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider text-right">Nominal</th>
-                            <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider text-center">Tanggal</th>
-                            <th class="pb-3 text-xs font-semibold text-stone-500 uppercase tracking-wider text-center">Cetak</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-stone-100">
-                        @forelse ($recentPayments as $pay)
-                            <tr class="hover:bg-stone-50">
-                                <td class="py-3 text-xs font-mono font-bold text-stone-800">{{ $pay['no_resi'] }}</td>
-                                <td class="py-3 text-sm font-semibold text-stone-800">{{ $pay['siswa'] }}</td>
-                                <td class="py-3 text-sm text-stone-600">{{ $pay['jenis'] }}</td>
-                                <td class="py-3 text-sm font-bold text-green-700 text-right">Rp {{ number_format($pay['nominal'], 0, ',', '.') }}</td>
-                                <td class="py-3 text-sm text-stone-500 text-center">{{ $pay['tanggal'] }}</td>
-                                <td class="py-3 text-sm text-stone-500 text-center">
-                                    <a href="{{ route('pembayaran.resi', $pay['id']) }}" target="_blank" class="p-1.5 bg-stone-100 hover:bg-emerald-50 text-stone-700 hover:text-emerald-700 rounded-lg inline-flex items-center justify-center border border-stone-200 hover:border-emerald-300">
-                                        <x-lucide-printer class="w-4 h-4" />
-                                    </a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="py-8 text-center text-stone-400 font-medium text-sm">
-                                    Belum ada transaksi pembayaran masuk.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+        <div class="lg:col-span-2 bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
+            <div class="flex items-center justify-between border-b border-stone-200 pb-3">
+                <h3 class="text-sm font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-2">
+                    <x-lucide-clock class="w-4 h-4 text-emerald-600" />
+                    <span>Pembayaran Masuk Terbaru</span>
+                </h3>
+                <x-button variant="outline" size="xs" href="{{ route('finance.input-pembayaran') }}">
+                    Input Kasir
+                </x-button>
             </div>
+            
+            <x-table>
+                <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+                    <tr>
+                        <x-table.th class="w-28">No. Resi</x-table.th>
+                        <x-table.th class="min-w-[150px]">Siswa</x-table.th>
+                        <x-table.th class="min-w-[140px]">Jenis Tagihan</x-table.th>
+                        <x-table.th align="right" class="w-36">Nominal</x-table.th>
+                        <x-table.th align="center" class="w-28">Tanggal</x-table.th>
+                        <x-table.th align="center" class="w-20">Cetak</x-table.th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-200 bg-white">
+                    @forelse ($recentPayments as $pay)
+                        <tr class="hover:bg-emerald-50/40 transition">
+                            <td class="p-3 font-mono font-bold text-xs text-stone-900 border-r border-stone-200">{{ $pay['no_resi'] }}</td>
+                            <td class="p-3 text-xs font-bold text-stone-900 border-r border-stone-200">{{ $pay['siswa'] }}</td>
+                            <td class="p-3 text-xs font-semibold text-stone-700 border-r border-stone-200">{{ $pay['jenis'] }}</td>
+                            <td class="p-3 text-xs font-black text-emerald-800 text-right border-r border-stone-200">Rp {{ number_format($pay['nominal'], 0, ',', '.') }}</td>
+                            <td class="p-3 text-xs font-semibold text-stone-600 text-center border-r border-stone-200">{{ $pay['tanggal'] }}</td>
+                            <td class="p-3 text-center">
+                                <a href="{{ route('pembayaran.resi', $pay['id']) }}" target="_blank" class="p-1.5 bg-stone-100 hover:bg-emerald-100 text-stone-700 hover:text-emerald-900 rounded-lg inline-flex items-center justify-center border border-stone-300 transition" title="Cetak Resi">
+                                    <x-lucide-printer class="w-3.5 h-3.5" />
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <x-table.empty :colspan="6" title="Belum ada transaksi pembayaran masuk" message="Transaksi kasir pembayaran siswa akan tampil di sini." />
+                    @endforelse
+                </tbody>
+            </x-table>
         </div>
 
         <!-- Quick Access panel -->
-        <div class="lg:col-span-1 bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
-            <h3 class="text-sm font-bold text-stone-800 uppercase tracking-wider">Akses Cepat Keuangan</h3>
+        <div class="lg:col-span-1 bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
+            <h3 class="text-sm font-extrabold text-stone-900 uppercase tracking-wider border-b border-stone-200 pb-3">
+                Menu Cepat Keuangan
+            </h3>
             
-            <div class="grid grid-cols-1 gap-3">
-                <a href="{{ route('finance.input-pembayaran') }}" class="p-4 bg-stone-50 border border-stone-200 hover:border-green-300 rounded-2xl flex items-center gap-4 group transition duration-200">
-                    <div class="p-2.5 bg-green-50 text-green-600 rounded-xl border border-green-200 group-hover:bg-green-600 group-hover:text-white transition duration-200">
-                        <x-lucide-plus-circle class="w-5 h-5" />
+            <div class="grid grid-cols-1 gap-2.5">
+                <a href="{{ route('finance.input-pembayaran') }}" class="p-3.5 bg-stone-50 border border-stone-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-2xl flex items-center gap-3.5 group transition duration-150">
+                    <div class="p-2.5 bg-emerald-100 text-emerald-700 rounded-xl border border-emerald-300 group-hover:bg-emerald-700 group-hover:text-white transition duration-150 shrink-0">
+                        <x-lucide-plus-circle class="w-4 h-4" />
                     </div>
                     <div>
-                        <h4 class="text-sm font-semibold text-stone-800">Input Pembayaran</h4>
-                        <span class="text-xs text-stone-500 block">Catat setoran SPP siswa</span>
+                        <h4 class="text-xs font-bold text-stone-900">Input Pembayaran</h4>
+                        <span class="text-[11px] text-stone-500 font-medium block">Catat setoran SPP siswa</span>
                     </div>
                 </a>
 
-                <a href="{{ route('finance.tagihan') }}" class="p-4 bg-stone-50 border border-stone-200 hover:border-green-300 rounded-2xl flex items-center gap-4 group transition duration-200">
-                    <div class="p-2.5 bg-blue-50 text-blue-600 rounded-xl border border-blue-200 group-hover:bg-blue-600 group-hover:text-white transition duration-200">
-                        <x-lucide-file-text class="w-5 h-5" />
+                <a href="{{ route('finance.tagihan') }}" class="p-3.5 bg-stone-50 border border-stone-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-2xl flex items-center gap-3.5 group transition duration-150">
+                    <div class="p-2.5 bg-sky-100 text-sky-700 rounded-xl border border-sky-300 group-hover:bg-sky-700 group-hover:text-white transition duration-150 shrink-0">
+                        <x-lucide-file-text class="w-4 h-4" />
                     </div>
                     <div>
-                        <h4 class="text-sm font-semibold text-stone-800">Kelola Tagihan</h4>
-                        <span class="text-xs text-stone-500 block">Buat tagihan SPP bulanan</span>
+                        <h4 class="text-xs font-bold text-stone-900">Kelola Tagihan</h4>
+                        <span class="text-[11px] text-stone-500 font-medium block">Buat tagihan SPP bulanan</span>
                     </div>
                 </a>
 
-                <a href="{{ route('finance.pengajuan-dana') }}" class="p-4 bg-stone-50 border border-stone-200 hover:border-green-300 rounded-2xl flex items-center gap-4 group transition duration-200">
-                    <div class="p-2.5 bg-purple-50 text-purple-600 rounded-xl border border-purple-200 group-hover:bg-purple-600 group-hover:text-white transition duration-200">
-                        <x-lucide-banknote class="w-5 h-5" />
+                <a href="{{ route('finance.tabungan') }}" class="p-3.5 bg-stone-50 border border-stone-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-2xl flex items-center gap-3.5 group transition duration-150">
+                    <div class="p-2.5 bg-purple-100 text-purple-700 rounded-xl border border-purple-300 group-hover:bg-purple-700 group-hover:text-white transition duration-150 shrink-0">
+                        <x-lucide-wallet class="w-4 h-4" />
                     </div>
                     <div>
-                        <h4 class="text-sm font-semibold text-stone-800">Pengajuan Dana</h4>
-                        <span class="text-xs text-stone-500 block">Pengajuan anggaran & persetujuan</span>
+                        <h4 class="text-xs font-bold text-stone-900">Tabungan Siswa</h4>
+                        <span class="text-[11px] text-stone-500 font-medium block">Setor & tarik tabungan</span>
                     </div>
                 </a>
 
-                <a href="{{ route('finance.arus-kas-masuk') }}" class="p-4 bg-stone-50 border border-stone-200 hover:border-green-300 rounded-2xl flex items-center gap-4 group transition duration-200">
-                    <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-200 group-hover:bg-emerald-600 group-hover:text-white transition duration-200">
-                        <x-lucide-heart-handshake class="w-5 h-5" />
+                <a href="{{ route('finance.dana-bos') }}" class="p-3.5 bg-stone-50 border border-stone-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-2xl flex items-center gap-3.5 group transition duration-150">
+                    <div class="p-2.5 bg-amber-100 text-amber-700 rounded-xl border border-amber-300 group-hover:bg-amber-700 group-hover:text-white transition duration-150 shrink-0">
+                        <x-lucide-box class="w-4 h-4" />
                     </div>
                     <div>
-                        <h4 class="text-sm font-semibold text-stone-800">Arus Kas Masuk (Infaq/Donasi)</h4>
-                        <span class="text-xs text-stone-500 block">Input infaq, sedekah, & donasi kas</span>
+                        <h4 class="text-xs font-bold text-stone-900">Dana BOS (Masuk & Keluar)</h4>
+                        <span class="text-[11px] text-stone-500 font-medium block">Realisasi belanja RKAS BOS</span>
                     </div>
                 </a>
 
-                <a href="{{ route('finance.arus-kas-keluar') }}" class="p-4 bg-stone-50 border border-stone-200 hover:border-green-300 rounded-2xl flex items-center gap-4 group transition duration-200">
-                    <div class="p-2.5 bg-red-50 text-red-600 rounded-xl border border-red-200 group-hover:bg-red-600 group-hover:text-white transition duration-200">
-                        <x-lucide-trending-down class="w-5 h-5" />
+                <a href="{{ route('finance.arus-kas-masuk') }}" class="p-3.5 bg-stone-50 border border-stone-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-2xl flex items-center gap-3.5 group transition duration-150">
+                    <div class="p-2.5 bg-emerald-100 text-emerald-700 rounded-xl border border-emerald-300 group-hover:bg-emerald-700 group-hover:text-white transition duration-150 shrink-0">
+                        <x-lucide-heart-handshake class="w-4 h-4" />
                     </div>
                     <div>
-                        <h4 class="text-sm font-semibold text-stone-800">Arus Kas Keluar (Pengeluaran)</h4>
-                        <span class="text-xs text-stone-500 block">Catat pengeluaran operasional</span>
+                        <h4 class="text-xs font-bold text-stone-900">Kas Masuk Yayasan</h4>
+                        <span class="text-[11px] text-stone-500 font-medium block">Infaq, sedekah & donasi</span>
+                    </div>
+                </a>
+
+                <a href="{{ route('finance.arus-kas-keluar') }}" class="p-3.5 bg-stone-50 border border-stone-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-2xl flex items-center gap-3.5 group transition duration-150">
+                    <div class="p-2.5 bg-rose-100 text-rose-700 rounded-xl border border-rose-300 group-hover:bg-rose-700 group-hover:text-white transition duration-150 shrink-0">
+                        <x-lucide-trending-down class="w-4 h-4" />
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-stone-900">Kas Keluar Yayasan</h4>
+                        <span class="text-[11px] text-stone-500 font-medium block">Pengeluaran operasional</span>
                     </div>
                 </a>
             </div>

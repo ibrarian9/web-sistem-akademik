@@ -8,13 +8,19 @@ use App\Models\Rapor;
 use App\Models\RaporTahfidzDetail;
 use App\Models\Semester;
 use App\Models\Siswa;
+use Carbon\Carbon;
 use Livewire\Component;
 
 class InputNilaiTahfidz extends Component
 {
     public $kelas_id;
     public $semester_id;
+    public $tanggal;
     public $search = '';
+
+    // Breakdown View Tab: 'daily', 'weekly', 'monthly'
+    public string $viewTab = 'daily';
+    public string $selectedMonth = '';
 
     public bool $showScoreModal = false;
 
@@ -40,16 +46,23 @@ class InputNilaiTahfidz extends Component
 
     public $editingId = null;
 
-    protected $rules = [
-        'siswa_id' => 'required|exists:siswa,id',
-        'nilai_tahsin' => 'nullable|numeric|min:0|max:100',
-        'nilai_murajaah' => 'nullable|numeric|min:0|max:100',
-        'nilai_kitabah' => 'nullable|numeric|min:0|max:100',
-        'nilai_ziyadah' => 'nullable|numeric|min:0|max:100',
-    ];
+    protected function rules()
+    {
+        return [
+            'siswa_id' => 'required|exists:siswa,id',
+            'tanggal' => 'required|date',
+            'nilai_tahsin' => 'nullable|numeric|min:0|max:100',
+            'nilai_murajaah' => 'nullable|numeric|min:0|max:100',
+            'nilai_kitabah' => 'nullable|numeric|min:0|max:100',
+            'nilai_ziyadah' => 'nullable|numeric|min:0|max:100',
+        ];
+    }
 
     public function mount()
     {
+        $this->tanggal = date('Y-m-d');
+        $this->selectedMonth = date('Y-m');
+
         // Access Guard: Block pure Guru Umum from Input Tahfizh
         $user = auth()->user();
         if ($user && $user->role?->nama === 'guru' && $user->guru) {
@@ -91,12 +104,40 @@ class InputNilaiTahfidz extends Component
         }
     }
 
+    public function selectTab(string $tab): void
+    {
+        $this->viewTab = in_array($tab, ['daily', 'weekly', 'monthly']) ? $tab : 'daily';
+    }
+
+    public function setTanggalToday(): void
+    {
+        $this->tanggal = date('Y-m-d');
+    }
+
+    public function setTanggalYesterday(): void
+    {
+        $this->tanggal = Carbon::yesterday()->format('Y-m-d');
+    }
+
     public function openScoreModal($siswaId = null)
     {
         $this->resetScoreForm();
 
         if ($siswaId) {
             $this->siswa_id = $siswaId;
+            // Check if there is an existing record for this date and student
+            $existing = NilaiTahfidz::where('siswa_id', $siswaId)
+                ->where('semester_id', $this->semester_id)
+                ->where(function ($q) {
+                    $q->where('tanggal', $this->tanggal)
+                      ->orWhereDate('created_at', $this->tanggal);
+                })
+                ->first();
+
+            if ($existing) {
+                $this->editScore($existing->id);
+                return;
+            }
         } else {
             if ($this->kelas_id) {
                 $siswas = Siswa::where('kelas_tahfidz_id', $this->kelas_id)
@@ -153,35 +194,62 @@ class InputNilaiTahfidz extends Component
 
         $surahText = $this->materi_ziyadah ?: ($this->materi_tahsin ?: 'Al-Baqarah');
 
-        NilaiTahfidz::updateOrCreate(
-            [
-                'siswa_id' => $this->siswa_id,
-                'semester_id' => $this->semester_id,
-            ],
-            [
-                'surah' => $surahText,
-                'juz' => $this->juz ?: 1,
-                'materi_tahsin' => $this->materi_tahsin ?: null,
-                'nilai_tahsin' => $tahsinScore,
-                'murajaah_bersama' => $this->murajaah_bersama ?: null,
-                'murajaah_mandiri' => $this->murajaah_mandiri ?: null,
-                'nilai_murajaah' => $murajaahScore,
-                'materi_kitabah' => $this->materi_kitabah ?: null,
-                'nilai_kitabah' => $kitabahScore,
-                'materi_ziyadah' => $this->materi_ziyadah ?: null,
-                'nilai_ziyadah' => $ziyadahScore,
-                'nilai_kelancaran' => $kelancaran,
-                'nilai_tajwid' => $tajwid,
-                'predikat_keagamaan' => $predikat,
-                'catatan_ustadz' => $this->catatan_ustadz ?: null,
-            ]
-        );
+        if ($this->editingId) {
+            $record = NilaiTahfidz::find($this->editingId);
+            if ($record) {
+                $record->update([
+                    'siswa_id' => $this->siswa_id,
+                    'semester_id' => $this->semester_id,
+                    'tanggal' => $this->tanggal,
+                    'surah' => $surahText,
+                    'juz' => $this->juz ?: 1,
+                    'materi_tahsin' => $this->materi_tahsin ?: null,
+                    'nilai_tahsin' => $tahsinScore,
+                    'murajaah_bersama' => $this->murajaah_bersama ?: null,
+                    'murajaah_mandiri' => $this->murajaah_mandiri ?: null,
+                    'nilai_murajaah' => $murajaahScore,
+                    'materi_kitabah' => $this->materi_kitabah ?: null,
+                    'nilai_kitabah' => $kitabahScore,
+                    'materi_ziyadah' => $this->materi_ziyadah ?: null,
+                    'nilai_ziyadah' => $ziyadahScore,
+                    'nilai_kelancaran' => $kelancaran,
+                    'nilai_tajwid' => $tajwid,
+                    'predikat_keagamaan' => $predikat,
+                    'catatan_ustadz' => $this->catatan_ustadz ?: null,
+                ]);
+            }
+        } else {
+            NilaiTahfidz::updateOrCreate(
+                [
+                    'siswa_id' => $this->siswa_id,
+                    'semester_id' => $this->semester_id,
+                    'tanggal' => $this->tanggal,
+                ],
+                [
+                    'surah' => $surahText,
+                    'juz' => $this->juz ?: 1,
+                    'materi_tahsin' => $this->materi_tahsin ?: null,
+                    'nilai_tahsin' => $tahsinScore,
+                    'murajaah_bersama' => $this->murajaah_bersama ?: null,
+                    'murajaah_mandiri' => $this->murajaah_mandiri ?: null,
+                    'nilai_murajaah' => $murajaahScore,
+                    'materi_kitabah' => $this->materi_kitabah ?: null,
+                    'nilai_kitabah' => $kitabahScore,
+                    'materi_ziyadah' => $this->materi_ziyadah ?: null,
+                    'nilai_ziyadah' => $ziyadahScore,
+                    'nilai_kelancaran' => $kelancaran,
+                    'nilai_tajwid' => $tajwid,
+                    'predikat_keagamaan' => $predikat,
+                    'catatan_ustadz' => $this->catatan_ustadz ?: null,
+                ]
+            );
+        }
 
         $this->updateRaporTahfidzSummary($this->siswa_id);
 
         $this->showScoreModal = false;
         $this->resetScoreForm();
-        session()->flash('message', 'Catatan Mutaba\'ah Tahfizh berhasil disimpan.');
+        session()->flash('message', 'Catatan Mutaba\'ah Tahfizh tanggal ' . Carbon::parse($this->tanggal)->translatedFormat('d M Y') . ' berhasil disimpan.');
     }
 
     public function editScore($id)
@@ -189,6 +257,7 @@ class InputNilaiTahfidz extends Component
         $nt = NilaiTahfidz::findOrFail($id);
         $this->editingId = $nt->id;
         $this->siswa_id = $nt->siswa_id;
+        $this->tanggal = $nt->tanggal ? $nt->tanggal->format('Y-m-d') : ($nt->created_at ? $nt->created_at->format('Y-m-d') : date('Y-m-d'));
         $this->juz = $nt->juz ?: 1;
         $this->surah = $nt->surah ?: '';
         $this->materi_tahsin = $nt->materi_tahsin ?: '';
@@ -277,7 +346,7 @@ class InputNilaiTahfidz extends Component
                 'tipe_rapor' => 'tahfizh',
             ],
             [
-                'kelas_id' => $siswa->kelas_id,
+                'kelas_id' => $siswa->kelas_id ?: ($siswa->kelas_tahfidz_id ?: $this->kelas_id),
                 'catatan_wali_kelas' => 'Alhamdulillah, tingkatkan hafalan dan terus muraja\'ah.',
                 'tanggal_terbit' => date('Y-m-d'),
                 'status' => 'draft',
@@ -287,9 +356,10 @@ class InputNilaiTahfidz extends Component
         RaporTahfidzDetail::updateOrCreate(
             ['rapor_id' => $rapor->id],
             [
-                'jumlah_juz' => $maxJuz,
-                'surah_terakhir' => $surahSummary,
-                'predikat_keagamaan' => $predikat,
+                'total_juz_dihafal' => $maxJuz,
+                'daftar_surah_lulus' => $surahSummary,
+                'nilai_tajwid_rata' => $rataRata,
+                'predikat_tahfidz' => $predikat,
             ]
         );
     }
@@ -319,7 +389,10 @@ class InputNilaiTahfidz extends Component
         $semesters = Semester::orderBy('tahun_ajaran_id', 'desc')->get();
 
         $siswas = collect();
-        $scores = collect();
+        $dailyScores = collect();
+        $weeklyScores = [];
+        $monthlyScores = [];
+        $weekDays = [];
 
         if ($this->kelas_id) {
             $siswaQuery = Siswa::with(['user', 'kelas', 'kelasTahfidz'])
@@ -339,12 +412,94 @@ class InputNilaiTahfidz extends Component
                 });
             }
             $siswas = $siswaQuery->get();
+            $siswaIds = $siswas->pluck('id')->toArray();
 
-            if ($this->semester_id) {
-                $scores = NilaiTahfidz::whereIn('siswa_id', $siswas->pluck('id'))
+            if ($this->semester_id && !empty($siswaIds)) {
+                // 1. DAILY RECORDS (for selected date $tanggal)
+                $dailyScores = NilaiTahfidz::whereIn('siswa_id', $siswaIds)
                     ->where('semester_id', $this->semester_id)
+                    ->where(function ($q) {
+                        $q->where('tanggal', $this->tanggal)
+                          ->orWhereDate('created_at', $this->tanggal);
+                    })
                     ->get()
                     ->keyBy('siswa_id');
+
+                // 2. WEEKLY RECORDS (Senin-Sabtu for selected $tanggal week)
+                $selectedDate = !empty($this->tanggal) ? $this->tanggal : date('Y-m-d');
+                $selectedCarbon = Carbon::parse($selectedDate);
+                $startOfWeek = $selectedCarbon->copy()->startOfWeek(Carbon::MONDAY);
+                $endOfWeek = $selectedCarbon->copy()->endOfWeek(Carbon::SATURDAY);
+
+                for ($d = $startOfWeek->copy(); $d->lte($endOfWeek); $d->addDay()) {
+                    $weekDays[] = [
+                        'date' => $d->format('Y-m-d'),
+                        'day_name' => $d->translatedFormat('l'),
+                        'short_date' => $d->format('d/m'),
+                        'is_today' => $d->isToday(),
+                        'is_selected' => $d->format('Y-m-d') === $selectedDate,
+                    ];
+                }
+
+                $weeklyRecords = NilaiTahfidz::whereIn('siswa_id', $siswaIds)
+                    ->where('semester_id', $this->semester_id)
+                    ->where(function ($q) use ($startOfWeek, $endOfWeek) {
+                        $q->whereBetween('tanggal', [$startOfWeek->format('Y-m-d'), $endOfWeek->format('Y-m-d')])
+                          ->orWhereBetween('created_at', [$startOfWeek->startOfDay(), $endOfWeek->endOfDay()]);
+                    })
+                    ->get();
+
+                // Key by siswa_id -> date
+                foreach ($weeklyRecords as $wr) {
+                    $dateKey = $wr->tanggal ? $wr->tanggal->format('Y-m-d') : ($wr->created_at ? $wr->created_at->format('Y-m-d') : '');
+                    if ($dateKey) {
+                        $weeklyScores[$wr->siswa_id][$dateKey] = $wr;
+                    }
+                }
+
+                // 3. MONTHLY RECORDS (for selected month $selectedMonth)
+                $monthStr = !empty($this->selectedMonth) ? $this->selectedMonth : date('Y-m');
+                $monthCarbon = Carbon::parse($monthStr . '-01');
+                $startOfMonth = $monthCarbon->copy()->startOfMonth();
+                $endOfMonth = $monthCarbon->copy()->endOfMonth();
+
+                $monthlyRecords = NilaiTahfidz::whereIn('siswa_id', $siswaIds)
+                    ->where('semester_id', $this->semester_id)
+                    ->where(function ($q) use ($startOfMonth, $endOfMonth) {
+                        $q->whereBetween('tanggal', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
+                          ->orWhereBetween('created_at', [$startOfMonth->startOfDay(), $endOfMonth->endOfDay()]);
+                    })
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
+                // Group by student for monthly summary
+                foreach ($siswas as $s) {
+                    $sRecs = $monthlyRecords->where('siswa_id', $s->id);
+                    $totalEntries = $sRecs->count();
+                    $scoresList = [];
+                    $latestSurah = '-';
+                    $maxJuzMonth = 1;
+
+                    foreach ($sRecs as $sr) {
+                        if ($sr->nilai_tahsin !== null) $scoresList[] = (float)$sr->nilai_tahsin;
+                        if ($sr->nilai_murajaah !== null) $scoresList[] = (float)$sr->nilai_murajaah;
+                        if ($sr->nilai_kitabah !== null) $scoresList[] = (float)$sr->nilai_kitabah;
+                        if ($sr->nilai_ziyadah !== null) $scoresList[] = (float)$sr->nilai_ziyadah;
+
+                        if ($sr->materi_ziyadah && $latestSurah === '-') $latestSurah = $sr->materi_ziyadah;
+                        if ($sr->juz > $maxJuzMonth) $maxJuzMonth = (int)$sr->juz;
+                    }
+
+                    $avgMonth = count($scoresList) > 0 ? array_sum($scoresList) / count($scoresList) : null;
+
+                    $monthlyScores[$s->id] = [
+                        'total_entries' => $totalEntries,
+                        'avg_score' => $avgMonth !== null ? round($avgMonth, 1) : '-',
+                        'latest_ziyadah' => $latestSurah,
+                        'max_juz' => $maxJuzMonth,
+                        'records' => $sRecs
+                    ];
+                }
             }
         }
 
@@ -352,7 +507,10 @@ class InputNilaiTahfidz extends Component
             'kelases' => $kelases,
             'semesters' => $semesters,
             'siswas' => $siswas,
-            'scores' => $scores,
+            'dailyScores' => $dailyScores,
+            'weeklyScores' => $weeklyScores,
+            'monthlyScores' => $monthlyScores,
+            'weekDays' => $weekDays,
         ]);
     }
 }

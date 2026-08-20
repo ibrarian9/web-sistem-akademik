@@ -19,8 +19,8 @@ class RekapAbsensiSiswa extends Component
 
     public function mount()
     {
-        $this->bulan = date('m');
-        $this->tahun = date('Y');
+        $this->bulan = intval(date('m'));
+        $this->tahun = intval(date('Y'));
 
         $classes = $this->getAvailableClasses();
         if ($classes->count() > 0) {
@@ -28,10 +28,22 @@ class RekapAbsensiSiswa extends Component
         }
     }
 
+    public function setPeriodPreset(string $preset)
+    {
+        if ($preset === 'this_month') {
+            $this->bulan = intval(date('m'));
+            $this->tahun = intval(date('Y'));
+        } elseif ($preset === 'last_month') {
+            $lastMonth = Carbon::now()->subMonth();
+            $this->bulan = intval($lastMonth->format('m'));
+            $this->tahun = intval($lastMonth->format('Y'));
+        }
+    }
+
     public function getAvailableClasses()
     {
         $user = auth()->user();
-        if ($user->role->nama === 'guru') {
+        if ($user && $user->role && $user->role->nama === 'guru') {
             $guru = $user->guru;
             if ($guru) {
                 $kelasIds = Kelas::where('guru_umum_id', $guru->id)
@@ -41,11 +53,11 @@ class RekapAbsensiSiswa extends Component
                         GuruMapelKelas::where('guru_id', $guru->id)->pluck('kelas_id')
                     )
                     ->unique();
-                return Kelas::whereIn('id', $kelasIds)->get();
+                return Kelas::whereIn('id', $kelasIds)->orderBy('nama_kelas', 'asc')->get();
             }
             return collect();
         }
-        return Kelas::all();
+        return Kelas::orderBy('nama_kelas', 'asc')->get();
     }
 
     public function getMatrixData()
@@ -59,27 +71,34 @@ class RekapAbsensiSiswa extends Component
         }
 
         $kelas = Kelas::with(['guruUmum.user', 'guruTahfidz.user'])->find($this->kelasId);
-        $students = Siswa::where('kelas_id', $this->kelasId)
+        
+        $students = Siswa::where(function ($q) {
+                $q->where('siswa.kelas_id', $this->kelasId)
+                  ->orWhere('siswa.kelas_tahfidz_id', $this->kelasId)
+                  ->orWhereIn('siswa.id', function($sub) {
+                      $sub->select('siswa_id')
+                          ->from('absensi_siswa')
+                          ->where('kelas_id', $this->kelasId);
+                  });
+            })
             ->where('siswa.status', 'aktif')
             ->join('users', 'siswa.user_id', '=', 'users.id')
             ->orderBy('users.nama', 'asc')
             ->select('siswa.*')
             ->get();
 
-        $start = Carbon::create($this->tahun, $this->bulan, 1)->startOfMonth();
-        $end = Carbon::create($this->tahun, $this->bulan, 1)->endOfMonth();
+        $start = Carbon::create(intval($this->tahun), intval($this->bulan), 1)->startOfMonth();
+        $end = Carbon::create(intval($this->tahun), intval($this->bulan), 1)->endOfMonth();
         $daysInMonth = $start->daysInMonth;
 
         $absensiRecords = AbsensiSiswa::where('kelas_id', $this->kelasId)
             ->whereBetween('tanggal', [$start->format('Y-m-d'), $end->format('Y-m-d')])
             ->get();
 
-        // Build a lookup map to prevent strict comparison issues with Carbon objects
+        // Build a robust lookup map
         $absensiMap = [];
         foreach ($absensiRecords as $record) {
-            $recordDate = $record->tanggal instanceof \Carbon\Carbon 
-                ? $record->tanggal->format('Y-m-d') 
-                : substr($record->tanggal, 0, 10);
+            $recordDate = Carbon::parse($record->tanggal)->format('Y-m-d');
             $absensiMap[$record->siswa_id . '_' . $recordDate] = $record;
         }
 
@@ -91,7 +110,7 @@ class RekapAbsensiSiswa extends Component
             $days = [];
 
             for ($day = 1; $day <= $daysInMonth; $day++) {
-                $dateStr = sprintf('%s-%02d-%02d', $this->tahun, $this->bulan, $day);
+                $dateStr = sprintf('%s-%02d-%02d', $this->tahun, intval($this->bulan), $day);
                 $record = $absensiMap[$siswa->id . '_' . $dateStr] ?? null;
 
                 if ($record) {
@@ -143,11 +162,13 @@ class RekapAbsensiSiswa extends Component
             '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
         ];
 
+        $monthKey = sprintf('%02d', intval($this->bulan));
+
         $pdfData = [
             'matrix' => $data['matrix'],
             'daysInMonth' => $data['daysInMonth'],
             'kelas' => $data['kelas'],
-            'namaBulan' => $bulanNames[sprintf('%02d', $this->bulan)],
+            'namaBulan' => $bulanNames[$monthKey] ?? 'Bulan ' . $this->bulan,
             'tahun' => $this->tahun
         ];
 

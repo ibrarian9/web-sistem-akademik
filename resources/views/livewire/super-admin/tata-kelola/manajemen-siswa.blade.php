@@ -37,10 +37,9 @@
             <h1 class="text-2xl font-extrabold text-stone-900 tracking-tight">Kelola Data Siswa &amp; Penempatan 2 Kelas</h1>
             <p class="text-xs text-stone-600 font-semibold mt-1">Pencatatan biodata siswa, penempatan Kelas Umum (1-6) &amp; Kelas Tahfizh, dan akses portal.</p>
         </div>
-        <button type="button" wire:click.prevent="openCreate" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-2">
-            <x-lucide-plus class="w-4 h-4" />
-            <span>Tambah Siswa Baru</span>
-        </button>
+        <x-button variant="primary" size="md" icon="plus" wire:click.prevent="openCreate">
+            Tambah Siswa Baru
+        </x-button>
     </div>
 
     <!-- Content Card -->
@@ -65,85 +64,76 @@
             </div>
         </div>
 
-        <!-- Data Table -->
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs text-stone-800">
-                <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
-                    <tr>
-                        <th class="p-3.5 border-r border-emerald-700 w-28">NIS / NISN</th>
-                        <th class="p-3.5 border-r border-emerald-700 min-w-[180px]">Nama Siswa</th>
-                        <th class="p-3.5 border-r border-emerald-700 min-w-[140px]">Kelas Umum</th>
-                        <th class="p-3.5 border-r border-emerald-700 min-w-[160px]">Kelas Tahfizh</th>
-                        <th class="p-3.5 border-r border-emerald-700 min-w-[150px]">Wali Murid</th>
-                        <th class="p-3.5 border-r border-emerald-700 w-24 text-center">Status</th>
-                        <th class="p-3.5 text-center min-w-[140px]">Aksi</th>
+        <!-- Data Table with Livewire Filter Loading -->
+        <x-table loadingTarget="search, perPage, page">
+            <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+                <tr>
+                    <x-table.th class="w-28">NIS / NISN</x-table.th>
+                    <x-table.th class="min-w-[180px]">Nama Siswa</x-table.th>
+                    <x-table.th class="min-w-[140px]">Kelas Umum</x-table.th>
+                    <x-table.th class="min-w-[160px]">Kelas Tahfizh</x-table.th>
+                    <x-table.th class="min-w-[150px]">Wali Murid</x-table.th>
+                    <x-table.th align="center" class="w-24">Status</x-table.th>
+                    <x-table.th align="center" class="min-w-[180px]">Aksi</x-table.th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-200 bg-white">
+                @forelse ($siswas as $siswa)
+                    <tr class="hover:bg-emerald-50/50 transition">
+                        <td class="p-3.5 font-semibold text-stone-600 border-r border-stone-200">
+                            <div class="font-bold text-stone-900">{{ $siswa->nis }}</div>
+                            <div class="text-[10px] text-stone-500">NISN: {{ $siswa->nisn ?: '-' }}</div>
+                        </td>
+                        <td class="p-3.5 border-r border-stone-200">
+                            <div class="font-extrabold text-stone-900 text-xs">{{ strtoupper($siswa->user->nama ?? '-') }}</div>
+                            <div class="text-[10px] text-stone-500 font-medium">User: {{ $siswa->user->username ?? '-' }}</div>
+                        </td>
+                        <td class="p-3.5 border-r border-stone-200">
+                            @if($siswa->kelas)
+                                <span class="px-2.5 py-1 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-lg text-xs font-bold inline-flex items-center gap-1">
+                                    <x-lucide-book-open class="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                                    <span>{{ $siswa->kelas->nama_kelas }}</span>
+                                </span>
+                            @else
+                                <span class="text-stone-400 italic text-[11px]">- Belum Set -</span>
+                            @endif
+                        </td>
+                        <td class="p-3.5 border-r border-stone-200">
+                            @if($siswa->kelasTahfidz)
+                                <span class="px-2.5 py-1 bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-xs font-bold inline-flex items-center gap-1">
+                                    <x-lucide-bookmark class="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                                    <span>{{ $siswa->kelasTahfidz->nama_kelas }}</span>
+                                </span>
+                            @else
+                                <span class="text-stone-400 italic text-[11px]">- Belum Set -</span>
+                            @endif
+                        </td>
+                        <td class="p-3.5 border-r border-stone-200">
+                            <div class="text-stone-900 font-bold">{{ $siswa->nama_wali ?: '-' }}</div>
+                            <div class="text-[10px] text-stone-500 font-medium">{{ $siswa->no_hp_wali ?: '-' }}</div>
+                        </td>
+                        <td class="p-3.5 text-center border-r border-stone-200">
+                            <x-status-badge :status="$siswa->status" />
+                        </td>
+                        <td class="p-3.5 text-center">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <x-button variant="outline" size="xs" icon="eye" wire:click.prevent="openDetail({{ $siswa->id }})">
+                                    Detail
+                                </x-button>
+                                <x-button variant="warning" size="xs" icon="edit-3" wire:click.prevent="openEdit({{ $siswa->id }})">
+                                    Edit
+                                </x-button>
+                                <x-button variant="danger" size="xs" icon="trash-2" wire:click.prevent="delete({{ $siswa->id }})" data-confirm="Apakah Anda yakin ingin menghapus data siswa ini?">
+                                    Hapus
+                                </x-button>
+                            </div>
+                        </td>
                     </tr>
-                </thead>
-                <tbody class="divide-y divide-stone-200 bg-white">
-                    @forelse ($siswas as $siswa)
-                        <tr class="hover:bg-emerald-50/50 transition">
-                            <td class="p-3.5 font-semibold text-stone-600 border-r border-stone-200">
-                                <div class="font-bold text-stone-900">{{ $siswa->nis }}</div>
-                                <div class="text-[10px] text-stone-500">NISN: {{ $siswa->nisn ?: '-' }}</div>
-                            </td>
-                            <td class="p-3.5 border-r border-stone-200">
-                                <div class="font-extrabold text-stone-900 text-xs">{{ strtoupper($siswa->user->nama ?? '-') }}</div>
-                                <div class="text-[10px] text-stone-500 font-medium">User: {{ $siswa->user->username ?? '-' }}</div>
-                            </td>
-                            <td class="p-3.5 border-r border-stone-200">
-                                @if($siswa->kelas)
-                                    <span class="px-2.5 py-1 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-lg text-xs font-bold inline-flex items-center gap-1">
-                                        <x-lucide-book-open class="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                                        <span>{{ $siswa->kelas->nama_kelas }}</span>
-                                    </span>
-                                @else
-                                    <span class="text-stone-400 italic text-[11px]">- Belum Set -</span>
-                                @endif
-                            </td>
-                            <td class="p-3.5 border-r border-stone-200">
-                                @if($siswa->kelasTahfidz)
-                                    <span class="px-2.5 py-1 bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-xs font-bold inline-flex items-center gap-1">
-                                        <x-lucide-bookmark class="w-3.5 h-3.5 text-amber-700 shrink-0" />
-                                        <span>{{ $siswa->kelasTahfidz->nama_kelas }}</span>
-                                    </span>
-                                @else
-                                    <span class="text-stone-400 italic text-[11px]">- Belum Set -</span>
-                                @endif
-                            </td>
-                            <td class="p-3.5 border-r border-stone-200">
-                                <div class="text-stone-900 font-bold">{{ $siswa->nama_wali ?: '-' }}</div>
-                                <div class="text-[10px] text-stone-500 font-medium">{{ $siswa->no_hp_wali ?: '-' }}</div>
-                            </td>
-                            <td class="p-3.5 text-center border-r border-stone-200">
-                                <x-status-badge :status="$siswa->status" />
-                            </td>
-                            <td class="p-3.5 text-center">
-                                <div class="flex items-center justify-center gap-1.5">
-                                    <button type="button" wire:click.prevent="openDetail({{ $siswa->id }})" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 rounded-lg font-bold text-xs border border-emerald-300 transition shadow-xs flex items-center gap-1">
-                                        <x-lucide-eye class="w-3.5 h-3.5 text-emerald-700" />
-                                        <span>Detail</span>
-                                    </button>
-                                    <button type="button" wire:click.prevent="openEdit({{ $siswa->id }})" class="px-2.5 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg font-bold text-xs border border-amber-300 transition shadow-xs flex items-center gap-1">
-                                        <x-lucide-edit class="w-3.5 h-3.5 text-amber-700" />
-                                        <span>Edit</span>
-                                    </button>
-                                    <button type="button" wire:click.prevent="delete({{ $siswa->id }})" data-confirm="Apakah Anda yakin ingin menghapus data siswa ini?" class="px-2.5 py-1 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded-lg font-bold text-xs border border-rose-300 transition shadow-xs flex items-center gap-1">
-                                        <x-lucide-trash-2 class="w-3.5 h-3.5 text-rose-600" />
-                                        <span>Hapus</span>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="p-8 text-center text-stone-500 font-semibold italic">
-                                Tidak ada data siswa ditemukan.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                @empty
+                    <x-table.empty :colspan="7" title="Tidak ada data siswa ditemukan" message="Pastikan kata kunci pencarian benar atau tambahkan data siswa baru." />
+                @endforelse
+            </tbody>
+        </x-table>
 
         <!-- Pagination -->
         <div class="pt-2">

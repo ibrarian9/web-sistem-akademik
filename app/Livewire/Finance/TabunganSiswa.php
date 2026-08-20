@@ -151,7 +151,7 @@ class TabunganSiswa extends Component
     {
         $kelasList = Kelas::orderBy('nama_kelas', 'asc')->get();
 
-        $siswaQuery = Siswa::with(['user', 'kelas']);
+        $siswaQuery = Siswa::with(['user', 'kelas', 'latestTabungan']);
 
         if ($this->search) {
             $siswaQuery->where(function ($q) {

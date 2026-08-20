@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\GajiGuru;
+use App\Models\Pembayaran;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 
 class FinanceReportController extends Controller
 {
-    public function slipGaji(int $id)
+    public function slipGaji(Request $request, int $id)
     {
         if (!auth()->check()) {
             abort(403, 'Akses tidak sah.');
@@ -24,25 +27,35 @@ class FinanceReportController extends Controller
         }
 
         if (!in_array($userRole, ['finance', 'super_admin', 'kepala_sekolah']) && !$isOwnSlip) {
-            abort(403, 'Anda tidak memiliki akses untuk mengunduh slip gaji ini.');
+            abort(403, 'Anda tidak memiliki akses untuk melihat slip gaji ini.');
         }
 
         $pdf = Pdf::loadView('livewire.shared.laporan.pdf-slip-gaji', [
             'gaji' => $gaji,
         ]);
 
-        return response()->streamDownload(function () use ($pdf) {
-            echo $pdf->stream();
-        }, 'slip_gaji_' . str_replace(' ', '_', strtolower($gaji->guru->user->nama ?? 'guru')) . '_' . strtolower($gaji->bulan) . '_' . $gaji->tahun . '.pdf');
+        $filename = 'slip_gaji_' . str_replace(' ', '_', strtolower($gaji->guru->user->nama ?? 'guru')) . '_' . strtolower($gaji->bulan) . '_' . $gaji->tahun . '.pdf';
+
+        if ($request->query('download') === '1' || request('download') === '1') {
+            return response()->streamDownload(function () use ($pdf) {
+                echo $pdf->stream();
+            }, $filename, ['Content-Type' => 'application/pdf']);
+        }
+
+        // Default: Inline Preview (Browser PDF viewer)
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"'
+        ]);
     }
 
-    public function cetakResi(int $id)
+    public function cetakResi(Request $request, int $id)
     {
         if (!auth()->check()) {
             abort(403, 'Akses tidak sah.');
         }
 
-        $pembayaran = \App\Models\Pembayaran::with(['tagihan.siswa.user', 'tagihan.jenisTagihan', 'petugas'])->findOrFail($id);
+        $pembayaran = Pembayaran::with(['tagihan.siswa.user', 'tagihan.siswa.kelas', 'tagihan.jenisTagihan', 'petugas'])->findOrFail($id);
         $user = auth()->user();
         $userRole = $user->role->nama ?? '';
 
@@ -53,20 +66,42 @@ class FinanceReportController extends Controller
         }
 
         if (!in_array($userRole, ['finance', 'super_admin', 'tata_usaha', 'kepala_sekolah']) && !$isOwnReceipt) {
-            abort(403, 'Anda tidak memiliki akses untuk mengunduh resi ini.');
+            abort(403, 'Anda tidak memiliki akses untuk melihat resi ini.');
         }
 
-        $staffFinance = \App\Models\User::whereHas('role', function ($q) {
+        $staffFinance = User::whereHas('role', function ($q) {
             $q->where('nama', 'finance');
         })->first();
 
-        $pdf = Pdf::loadView('livewire.shared.laporan.pdf-resi-pembayaran', [
+        // 1. If user explicitly requests direct PDF download
+        if ($request->query('download') === '1' || request('download') === '1') {
+            $pdf = Pdf::loadView('livewire.shared.laporan.pdf-resi-pembayaran', [
+                'pembayaran' => $pembayaran,
+                'staffFinance' => $pembayaran->petugas ?? $staffFinance,
+            ]);
+
+            return response()->streamDownload(function () use ($pdf) {
+                echo $pdf->stream();
+            }, 'resi_pembayaran_' . $pembayaran->id . '.pdf', ['Content-Type' => 'application/pdf']);
+        }
+
+        // 2. If user requests inline raw PDF stream
+        if ($request->query('format') === 'pdf' || request('format') === 'pdf') {
+            $pdf = Pdf::loadView('livewire.shared.laporan.pdf-resi-pembayaran', [
+                'pembayaran' => $pembayaran,
+                'staffFinance' => $pembayaran->petugas ?? $staffFinance,
+            ]);
+
+            return response($pdf->output(), 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="resi_pembayaran_' . $pembayaran->id . '.pdf"'
+            ]);
+        }
+
+        // 3. Default: Interactive Web Preview Page with Print & Download Toolbar
+        return view('preview.resi-pembayaran', [
             'pembayaran' => $pembayaran,
             'staffFinance' => $pembayaran->petugas ?? $staffFinance,
         ]);
-
-        return response()->streamDownload(function () use ($pdf) {
-            echo $pdf->stream();
-        }, 'resi_pembayaran_' . $pembayaran->id . '.pdf');
     }
 }

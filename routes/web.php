@@ -102,6 +102,7 @@ Route::middleware(['auth'])->group(function () {
         Route::match(['get', 'post'], '/user', \App\Livewire\SuperAdmin\TataKelola\ManajemenUser::class)->name('user');
         Route::match(['get', 'post'], '/absensi-karyawan', \App\Livewire\TataUsaha\InputAbsensiKaryawan::class)->name('absensi-karyawan');
         Route::match(['get', 'post'], '/karyawan', \App\Livewire\TataUsaha\ManajemenKaryawan::class)->name('karyawan');
+        Route::match(['get', 'post'], '/piket', \App\Livewire\TataUsaha\ManajemenPiketGuru::class)->name('piket');
         Route::match(['get', 'post'], '/alumni', \App\Livewire\TataUsaha\DataAlumni::class)->name('alumni');
         Route::match(['get', 'post'], '/kelas', \App\Livewire\SuperAdmin\TataKelola\ManajemenKelas::class)->name('kelas');
         Route::match(['get', 'post'], '/plotting-kelas', \App\Livewire\TataUsaha\PlottingSiswaKelas::class)->name('plotting-kelas');
@@ -116,11 +117,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/laporan/absensi-siswa', \App\Livewire\Shared\Laporan\RekapAbsensiSiswa::class)->name('laporan.absensi-siswa');
         Route::get('/laporan/absensi-guru', \App\Livewire\Shared\Laporan\RekapAbsensiGuru::class)->name('laporan.absensi-guru');
         Route::get('/laporan/rekap-nilai', \App\Livewire\Shared\Laporan\RekapNilai::class)->name('laporan.rekap-nilai');
-        
-        // Revision Routes
-        Route::get('/karyawan', \App\Livewire\TataUsaha\ManajemenKaryawan::class)->name('karyawan');
-        Route::get('/piket', \App\Livewire\TataUsaha\ManajemenPiketGuru::class)->name('piket');
-        Route::get('/alumni', \App\Livewire\TataUsaha\DataAlumni::class)->name('alumni');
     });
 
     // Pengawas Group (Renamed from Koordinator)

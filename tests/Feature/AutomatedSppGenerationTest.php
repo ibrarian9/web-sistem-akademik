@@ -103,17 +103,21 @@ class AutomatedSppGenerationTest extends TestCase
 
         $this->actingAs($financeUser);
 
+        $siswa = Siswa::first();
+        $jenisTagihan = \App\Models\JenisTagihan::first();
+
         Livewire::test(ManajemenTagihan::class)
-            ->set('autoBulan', 'Agustus')
-            ->set('autoNominal', 400000)
-            ->set('autoJatuhTempo', '2026-08-10')
-            ->call('generateAutoSppBulanan');
+            ->set('single_siswa_id', $siswa->id)
+            ->set('jenis_tagihan_id', $jenisTagihan->id)
+            ->set('bulan', 'Agustus')
+            ->set('nominal', 400000)
+            ->set('jatuh_tempo', '2026-08-10')
+            ->call('createSingleTagihan');
 
         $this->assertDatabaseHas('tagihan', [
+            'siswa_id' => $siswa->id,
             'bulan' => 'Agustus',
             'nominal' => 400000,
         ]);
-
-        $this->assertEquals(2, Tagihan::where('bulan', 'Agustus')->count());
     }
 }

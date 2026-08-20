@@ -4,16 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Auditable;
 
 class NilaiTahfidz extends Model
 {
-    use HasFactory;
+    use HasFactory, Auditable;
 
     protected $table = 'nilai_tahfidz';
 
     protected $fillable = [
         'siswa_id',
         'semester_id',
+        'tanggal',
         'surah',
         'juz',
         'nilai_kelancaran',
@@ -35,6 +37,7 @@ class NilaiTahfidz extends Model
     ];
 
     protected $casts = [
+        'tanggal' => 'date',
         'tanggal_tanggapan' => 'datetime',
     ];
 
