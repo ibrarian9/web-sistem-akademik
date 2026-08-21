@@ -11,6 +11,7 @@ use App\Models\Tagihan;
 use App\Models\Tabungan;
 use App\Models\AuditLog;
 use App\Livewire\Finance\ManajemenTagihan;
+use App\Livewire\Finance\DetailTagihanSiswa;
 use App\Livewire\Finance\TabunganSiswa;
 use Livewire\Livewire;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -242,3 +243,50 @@ test('founder can edit and delete tabungan with balance recalculation and audit 
     $logs = DB::table('activity_log')->where('subject_type', Tabungan::class)->get();
     expect($logs->count())->toBeGreaterThanOrEqual(1);
 });
+
+test('detail tagihan siswa page renders correctly with filters and metrics', function () {
+    $this->actingAs($this->financeUser);
+
+    $t1 = Tagihan::create([
+        'siswa_id' => $this->siswa->id,
+        'tahun_ajaran_id' => $this->ta->id,
+        'jenis_tagihan_id' => $this->jenisTagihan->id,
+        'bulan' => 'Juli',
+        'nominal' => 350000.00,
+        'total_dibayar' => 350000.00,
+        'status' => 'lunas',
+        'jatuh_tempo' => date('Y-m-d', strtotime('+30 days')),
+    ]);
+
+    $t2 = Tagihan::create([
+        'siswa_id' => $this->siswa->id,
+        'tahun_ajaran_id' => $this->ta->id,
+        'jenis_tagihan_id' => $this->jenisTagihan->id,
+        'bulan' => 'Agustus',
+        'nominal' => 350000.00,
+        'total_dibayar' => 0.00,
+        'status' => 'belum_bayar',
+        'jatuh_tempo' => date('Y-m-d', strtotime('+60 days')),
+    ]);
+
+    // Test component rendering
+    Livewire::test(DetailTagihanSiswa::class, ['siswaId' => $this->siswa->id])
+        ->assertOk()
+        ->assertSee('Ahmad Santri')
+        ->assertSee('Total Tagihan')
+        ->assertSee('700.000')
+        ->assertSee('Total Terbayar')
+        ->assertSee('350.000')
+        ->assertSee('Sisa Tunggakan')
+        ->set('filterBulan', 'Agustus')
+        ->assertSee('20/10/2026') // Due date of Agustus
+        ->set('filterBulan', '')
+        ->set('filterStatus', 'lunas')
+        ->assertSee('350.000');
+
+    // Test HTTP route access
+    $response = $this->get(route('finance.tagihan.detail', $this->siswa->id));
+    $response->assertOk();
+    $response->assertSee('Ahmad Santri');
+});
+

@@ -319,7 +319,9 @@
                         </td>
                         <td class="p-3.5 text-center">
                             @if ($item->can_delete)
-                                <x-button variant="danger-outline" size="xs" icon="trash-2" wire:click="deleteExpense({{ $item->raw_id }})" data-confirm="Apakah Anda yakin ingin menghapus catatan pengeluaran ini?" title="Hapus Pengeluaran" />
+                                <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="deleteExpense({{ $item->raw_id }})" data-confirm="Apakah Anda yakin ingin menghapus catatan pengeluaran ini?" title="Hapus Pengeluaran">
+                                    Hapus
+                                </x-button>
                             @else
                                 <span class="text-[10px] text-stone-400 font-mono italic">Terkunci</span>
                             @endif

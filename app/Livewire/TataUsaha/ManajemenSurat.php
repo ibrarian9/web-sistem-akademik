@@ -59,6 +59,16 @@ class ManajemenSurat extends Component
     public int $perPage = 10;
     public string $searchRiwayat = '';
 
+    public function updatingPerPage()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingSearchRiwayat()
+    {
+        $this->resetPage();
+    }
+
     public function mount()
     {
         $this->tanggal_surat = date('Y-m-d');

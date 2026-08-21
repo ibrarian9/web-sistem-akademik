@@ -12,6 +12,17 @@ class DataAlumni extends Component
 
     public string $search = '';
     public string $filterTahun = 'semua';
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterTahun()
+    {
+        $this->resetPage();
+    }
+
     public ?int $editingSiswaId = null;
     public ?int $tahun_lulus = null;
     public ?string $catatan_alumni = null;

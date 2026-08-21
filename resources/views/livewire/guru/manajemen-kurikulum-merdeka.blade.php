@@ -99,29 +99,31 @@
 
     <!-- Template Frasa Auto-Narasi Capaian -->
     <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-stone-200 pb-4">
-            <div class="flex items-center gap-3">
-                <div class="p-2 bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        <form wire:submit.prevent="saveTemplate" class="space-y-4">
+            <div class="flex items-center justify-between flex-wrap gap-3 pb-3 border-b border-stone-200">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-extrabold text-stone-900 uppercase tracking-wider">Template Frasa Auto-Narasi Capaian Rapor</h2>
+                        <p class="text-xs text-stone-500 font-medium">Kalimat pembuka yang akan digabung otomatis dengan TP tertinggi &amp; terendah.</p>
+                    </div>
                 </div>
-                <div>
-                    <h2 class="text-sm font-extrabold text-stone-900 uppercase tracking-wider">Template Frasa Auto-Narasi Capaian Rapor</h2>
-                    <p class="text-xs text-stone-500 font-medium">Kalimat pembuka yang akan digabung otomatis dengan TP tertinggi &amp; terendah.</p>
-                </div>
+                <x-button type="submit" variant="primary" size="sm" icon="check" loadingTarget="saveTemplate">
+                    Simpan Template Frasa
+                </x-button>
             </div>
-            <button type="button" wire:click="saveTemplate" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-sm">
-                Simpan Template Frasa
-            </button>
-        </div>
 
-        <form wire:submit.prevent="saveTemplate" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-stone-800">Frasa Pembuka Nilai Tertinggi</label>
-                <input type="text" wire:model="frasa_tertinggi" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-2.5 text-stone-900 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 shadow-xs">
-            </div>
-            <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-stone-800">Frasa Pembuka Nilai Terendah</label>
-                <input type="text" wire:model="frasa_terendah" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-2.5 text-stone-900 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 shadow-xs">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-stone-800">Frasa Pembuka Nilai Tertinggi</label>
+                    <input type="text" wire:model="frasa_tertinggi" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-2.5 text-stone-900 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 shadow-xs">
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-stone-800">Frasa Pembuka Nilai Terendah</label>
+                    <input type="text" wire:model="frasa_terendah" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-2.5 text-stone-900 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 shadow-xs">
+                </div>
             </div>
         </form>
 

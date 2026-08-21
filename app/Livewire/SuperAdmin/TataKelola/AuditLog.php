@@ -17,6 +17,7 @@ class AuditLog extends Component
 
     public $selectedLog = null;
     public bool $showDetailModal = false;
+    public string $detailTab = 'diff'; // 'diff', 'properties', 'raw'
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -60,13 +61,32 @@ class AuditLog extends Component
 
         if ($log) {
             $logArray = (array) $log;
-            // Parse JSON properties if string
-            if (isset($logArray['properties']) && is_string($logArray['properties'])) {
-                $decoded = json_decode($logArray['properties'], true);
-                $logArray['properties_parsed'] = json_last_error() === JSON_ERROR_NONE ? $decoded : $logArray['properties'];
-            } else {
-                $logArray['properties_parsed'] = $logArray['properties'] ?? [];
+            
+            // Parse JSON attribute_changes
+            $changes = [];
+            if (!empty($logArray['attribute_changes'])) {
+                if (is_string($logArray['attribute_changes'])) {
+                    $decodedChanges = json_decode($logArray['attribute_changes'], true);
+                    $changes = json_last_error() === JSON_ERROR_NONE ? $decodedChanges : ['raw' => $logArray['attribute_changes']];
+                } elseif (is_array($logArray['attribute_changes'])) {
+                    $changes = $logArray['attribute_changes'];
+                }
             }
+            $logArray['changes_parsed'] = $changes;
+
+            // Parse JSON properties
+            $props = [];
+            if (!empty($logArray['properties'])) {
+                if (is_string($logArray['properties'])) {
+                    $decodedProps = json_decode($logArray['properties'], true);
+                    $props = json_last_error() === JSON_ERROR_NONE ? $decodedProps : ['raw' => $logArray['properties']];
+                } elseif (is_array($logArray['properties'])) {
+                    $props = $logArray['properties'];
+                }
+            }
+            $logArray['properties_parsed'] = $props;
+
+            $this->detailTab = !empty($changes) ? 'diff' : 'properties';
             $this->selectedLog = $logArray;
             $this->showDetailModal = true;
         }
@@ -76,6 +96,7 @@ class AuditLog extends Component
     {
         $this->selectedLog = null;
         $this->showDetailModal = false;
+        $this->detailTab = 'diff';
     }
 
     public function render()

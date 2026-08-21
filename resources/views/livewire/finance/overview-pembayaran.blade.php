@@ -257,8 +257,12 @@
                                                     <div class="flex items-center gap-2">
                                                         <span class="font-black text-emerald-800 text-xs">Rp {{ number_format($p->nominal_dibayar, 0, ',', '.') }}</span>
                                                         @if (!$p->is_void)
-                                                            <x-button variant="outline" size="xs" icon="printer" href="{{ route('finance.pembayaran.resi', $p->id) }}" target="_blank" title="Cetak Resi" />
-                                                            <x-button variant="danger-outline" size="xs" icon="trash-2" wire:click="voidPayment({{ $p->id }})" data-confirm="Apakah Anda yakin ingin membatalkan (VOID) transaksi pembayaran ini?" title="Batalkan (VOID)" />
+                                                            <x-button type="button" variant="outline" size="xs" icon="printer" href="{{ route('finance.pembayaran.resi', $p->id) }}" target="_blank" title="Cetak Resi">
+                                                                Cetak
+                                                            </x-button>
+                                                            <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="voidPayment({{ $p->id }})" data-confirm="Apakah Anda yakin ingin membatalkan (VOID) transaksi pembayaran ini?" title="Batalkan (VOID)">
+                                                                Batalkan (VOID)
+                                                            </x-button>
                                                         @endif
                                                     </div>
                                                 </div>

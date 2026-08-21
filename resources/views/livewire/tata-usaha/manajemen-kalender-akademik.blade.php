@@ -113,7 +113,7 @@
                         @if ($canManage)
                             <td class="p-3.5 text-center">
                                 <div class="flex items-center justify-center gap-1.5">
-                                    <x-button variant="warning" size="xs" icon="edit" wire:click="openEditModal({{ $event->id }})">
+                                    <x-button type="button" variant="secondary" size="xs" icon="edit" wire:click="openEditModal({{ $event->id }})">
                                         Edit
                                     </x-button>
                                     <x-button variant="danger" size="xs" icon="trash-2" type="button" wire:click="delete({{ $event->id }})" data-confirm="Apakah Anda yakin ingin menghapus agenda {{ $event->nama_kegiatan }} ini?">

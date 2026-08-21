@@ -333,7 +333,9 @@
                         </td>
                         <td class="p-3.5 text-center">
                             @if ($item->can_delete)
-                                <x-button variant="danger-outline" size="xs" icon="trash-2" wire:click="deleteIncome({{ $item->raw_id }})" data-confirm="Apakah Anda yakin ingin menghapus catatan penerimaan kas ini?" title="Hapus Penerimaan" />
+                                <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="deleteIncome({{ $item->raw_id }})" data-confirm="Apakah Anda yakin ingin menghapus catatan penerimaan kas ini?" title="Hapus Penerimaan">
+                                    Hapus
+                                </x-button>
                             @elseif ($item->stream === 'pembayaran_spp' && $item->raw_id)
                                 <a href="{{ route('finance.cetak-resi', $item->raw_id) }}" target="_blank" class="p-1.5 bg-stone-100 hover:bg-emerald-100 text-stone-700 hover:text-emerald-900 rounded-lg inline-flex items-center justify-center border border-stone-300 transition" title="Cetak Resi">
                                     <x-lucide-printer class="w-3.5 h-3.5" />

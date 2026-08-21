@@ -82,7 +82,7 @@
 
                     <!-- Actions -->
                     <div class="flex items-center gap-1.5">
-                        <x-button type="button" variant="warning" size="xs" icon="edit" wire:click="openEdit({{ $komponen['id'] }})">
+                        <x-button type="button" variant="secondary" size="xs" icon="edit" wire:click="openEdit({{ $komponen['id'] }})">
                             Edit
                         </x-button>
                         <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="delete({{ $komponen['id'] }})" data-confirm="Yakin ingin menghapus komponen nilai ini?">

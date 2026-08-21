@@ -106,7 +106,9 @@
                                     <x-button variant="primary" size="xs" icon="credit-card" wire:click="paySalary({{ $sal->id }})" title="Bayar">
                                         Bayar
                                     </x-button>
-                                    <x-button variant="danger" size="xs" icon="trash-2" wire:click="deleteDraft({{ $sal->id }})" data-confirm="Apakah Anda yakin ingin menghapus draf gaji ini?" title="Hapus Draf" />
+                                    <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="deleteDraft({{ $sal->id }})" data-confirm="Apakah Anda yakin ingin menghapus draf gaji ini?" title="Hapus Draf">
+                                        Hapus
+                                    </x-button>
                                 @else
                                     <x-button variant="outline" size="xs" icon="file-text" href="{{ route('finance.gaji-guru.slip', $sal->id) }}" target="_blank">
                                         Slip PDF

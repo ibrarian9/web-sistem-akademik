@@ -143,7 +143,7 @@
                         </td>
                         <td class="p-3.5 text-center">
                             <div class="flex items-center justify-center gap-1.5">
-                                <x-button type="button" variant="warning" size="xs" icon="edit" wire:click.prevent="openEdit({{ $kelas->id }})">
+                                <x-button type="button" variant="secondary" size="xs" icon="edit" wire:click.prevent="openEdit({{ $kelas->id }})">
                                     Edit
                                 </x-button>
                                 <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click.prevent="delete({{ $kelas->id }})" data-confirm="Apakah Anda yakin ingin menghapus kelas {{ $kelas->nama_kelas }} ini?">

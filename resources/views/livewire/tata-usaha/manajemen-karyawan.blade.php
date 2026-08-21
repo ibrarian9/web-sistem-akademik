@@ -103,7 +103,7 @@
                     </div>
 
                     <div class="flex items-center gap-1.5">
-                        <x-button type="button" variant="warning" size="xs" icon="edit" wire:click.prevent="openEdit({{ $k->id }})" title="Edit Karyawan">
+                        <x-button type="button" variant="secondary" size="xs" icon="edit" wire:click.prevent="openEdit({{ $k->id }})" title="Edit Karyawan">
                             Edit
                         </x-button>
                         @if ($k->id !== auth()->id() && $k->role?->nama !== 'super_admin')

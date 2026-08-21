@@ -200,14 +200,13 @@
                         <!-- Actions -->
                         <td class="p-3.5 text-center">
                             <div class="flex items-center justify-center gap-1.5">
-                                <x-button variant="secondary" size="xs" icon="eye" wire:click="openDetail({{ $siswa->id }})" title="Lihat Rincian Tagihan">
+                                <x-button variant="outline" size="xs" icon="file-text" href="{{ route('finance.tagihan.detail', $siswa->id) }}" title="Buka Halaman Rincian Tagihan Siswa">
                                     Detail
                                 </x-button>
                                 @if ($sisaPiutang > 0)
-                                    <a href="{{ route('finance.input-pembayaran', ['siswa_id' => $siswa->id]) }}" class="inline-flex items-center justify-center font-extrabold transition rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white shadow-2xs px-2.5 py-1 text-[11px] gap-1 cursor-pointer" title="Bayar Sekarang di Kasir">
-                                        <x-lucide-credit-card class="w-3.5 h-3.5" />
-                                        <span>Bayar</span>
-                                    </a>
+                                    <x-button variant="primary" size="xs" icon="credit-card" href="{{ route('finance.input-pembayaran', ['siswa_id' => $siswa->id]) }}" title="Bayar Sekarang di Kasir">
+                                        Bayar
+                                    </x-button>
                                 @endif
                             </div>
                         </td>
@@ -232,149 +231,6 @@
     @if ($isFounder)
         <x-bulk-actions :selectedCount="count($selectedIds)" deleteAction="bulkDelete" cancelAction="resetSelection" confirmText="Apakah Anda yakin ingin menghapus seluruh tagihan yang belum dibayar dari siswa terpilih?" />
     @endif
-
-    <!-- FLOATING CARD: DETAIL RINCIAN TAGIHAN SISWA -->
-    <x-floating-card 
-        :show="$showDetailModal" 
-        :title="$selectedSiswa ? ($selectedSiswa->user->nama ?? 'Siswa') : 'Detail Tagihan Siswa'" 
-        :subtitle="$selectedSiswa ? ('NIS: ' . $selectedSiswa->nis . ' | Kelas: ' . ($selectedSiswa->kelas->nama_kelas ?? '-')) : ''"
-        badge="RINCIAN TAGIHAN SISWA"
-        badgeVariant="emerald"
-        icon="file-text"
-        maxWidth="max-w-4xl"
-        closeAction="closeDetailModal"
-    >
-        @if ($selectedSiswa)
-            <div class="space-y-4">
-                <!-- Summary Header within Modal -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div class="p-3 bg-stone-50 border border-stone-200 rounded-2xl">
-                        <span class="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Total Tagihan</span>
-                        <span class="text-base font-black text-stone-900">Rp {{ number_format($selectedSiswa->tagihans->sum('nominal'), 0, ',', '.') }}</span>
-                    </div>
-                    <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl">
-                        <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider block">Total Terbayar</span>
-                        <span class="text-base font-black text-emerald-800">Rp {{ number_format($selectedSiswa->tagihans->sum('total_dibayar'), 0, ',', '.') }}</span>
-                    </div>
-                    <div class="p-3 bg-rose-50 border border-rose-200 rounded-2xl">
-                        <span class="text-[10px] font-bold text-rose-700 uppercase tracking-wider block">Sisa Piutang</span>
-                        <span class="text-base font-black text-rose-800">Rp {{ number_format(max(0, $selectedSiswa->tagihans->sum('nominal') - $selectedSiswa->tagihans->sum('total_dibayar')), 0, ',', '.') }}</span>
-                    </div>
-                </div>
-
-                <!-- Action Button in Modal -->
-                <div class="flex items-center justify-between flex-wrap gap-2">
-                    <h4 class="text-xs font-bold text-stone-800 uppercase tracking-wider">Daftar Tagihan Siswa:</h4>
-                    <div class="flex items-center gap-2">
-                        <x-button variant="secondary" size="sm" icon="credit-card" href="{{ route('finance.input-pembayaran', ['siswa_id' => $selectedSiswa->id]) }}">
-                            Buka Kasir Siswa Ini
-                        </x-button>
-                        <x-button variant="primary" size="sm" icon="plus" wire:click="openCreateModal({{ $selectedSiswa->id }})">
-                            Tambah Tagihan Siswa Ini
-                        </x-button>
-                    </div>
-                </div>
-
-                <!-- Specific Invoices Table -->
-                <div class="border border-stone-200 rounded-2xl overflow-hidden max-h-80 overflow-y-auto">
-                    <x-table>
-                        <thead class="bg-stone-900 text-white font-extrabold uppercase tracking-wider text-[10px] sticky top-0">
-                            <tr>
-                                <th class="p-3 text-left">Kategori &amp; Periode</th>
-                                <th class="p-3 text-left">Jatuh Tempo</th>
-                                <th class="p-3 text-right">Nominal</th>
-                                <th class="p-3 text-right">Dibayar</th>
-                                <th class="p-3 text-right">Sisa</th>
-                                <th class="p-3 text-center">Status</th>
-                                <th class="p-3 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-stone-200 bg-white">
-                            @forelse ($selectedSiswa->tagihans as $item)
-                                @php
-                                    $sisaItem = max(0, $item->nominal - $item->total_dibayar);
-                                @endphp
-                                <tr class="hover:bg-stone-50 text-xs">
-                                    <td class="p-3 border-r border-stone-200">
-                                        <div class="font-bold text-stone-900">{{ $item->jenisTagihan->nama ?? '-' }}</div>
-                                        <div class="text-[11px] text-stone-500 font-medium">Bulan: {{ $item->bulan ?: '-' }}</div>
-                                    </td>
-                                    <td class="p-3 text-stone-600 border-r border-stone-200 font-medium">
-                                        {{ \Carbon\Carbon::parse($item->jatuh_tempo)->translatedFormat('d M Y') }}
-                                    </td>
-                                    <td class="p-3 text-right font-bold text-stone-900 border-r border-stone-200">
-                                        Rp {{ number_format($item->nominal, 0, ',', '.') }}
-                                    </td>
-                                    <td class="p-3 text-right font-bold text-emerald-700 border-r border-stone-200">
-                                        Rp {{ number_format($item->total_dibayar, 0, ',', '.') }}
-                                    </td>
-                                    <td class="p-3 text-right font-black text-rose-700 border-r border-stone-200">
-                                        Rp {{ number_format($sisaItem, 0, ',', '.') }}
-                                    </td>
-                                    <td class="p-3 text-center border-r border-stone-200">
-                                        @if ($item->status === 'lunas')
-                                            <x-badge variant="emerald" size="xs">Lunas</x-badge>
-                                        @elseif ($item->status === 'sebagian')
-                                            <x-badge variant="amber" size="xs">Sebagian</x-badge>
-                                        @else
-                                            <x-badge variant="rose" size="xs">Belum Bayar</x-badge>
-                                        @endif
-                                    </td>
-                                    <td class="p-3 text-center">
-                                        <div class="flex items-center justify-center gap-1.5">
-                                            <!-- Edit Tagihan Button (Founder & Finance) -->
-                                            <button 
-                                                type="button"
-                                                wire:click="openEditModal({{ $item->id }})" 
-                                                class="p-1.5 text-stone-500 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition cursor-pointer"
-                                                title="Edit Tagihan">
-                                                <x-lucide-edit-3 class="w-4 h-4" />
-                                            </button>
-
-                                            <!-- Delete Tagihan Button (Founder Only) -->
-                                            @if ($isFounder && $item->total_dibayar == 0)
-                                                <button 
-                                                    type="button"
-                                                    wire:click="deleteTagihan({{ $item->id }})" 
-                                                    data-confirm="Apakah Anda yakin ingin menghapus tagihan ini?"
-                                                    class="p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer"
-                                                    title="Hapus Tagihan">
-                                                    <x-lucide-trash-2 class="w-4 h-4" />
-                                                </button>
-                                            @endif
-
-                                            <!-- Print Receipt Button -->
-                                            @if ($item->pembayarans && $item->pembayarans->count() > 0)
-                                                <a 
-                                                    href="{{ route('finance.pembayaran.resi', $item->pembayarans->first()->id) }}" 
-                                                    target="_blank" 
-                                                    class="p-1.5 text-stone-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition"
-                                                    title="Lihat Kuitansi Resi">
-                                                    <x-lucide-printer class="w-4 h-4" />
-                                                </a>
-                                            @endif
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="py-6 text-center text-stone-400 text-xs font-medium">
-                                        Tidak ada tagihan yang tercatat untuk siswa ini.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </x-table>
-                </div>
-
-                <div class="flex items-center justify-end pt-3 border-t border-stone-200">
-                    <x-button variant="secondary" size="md" wire:click="closeDetailModal">
-                        Tutup
-                    </x-button>
-                </div>
-            </div>
-        @endif
-    </x-floating-card>
 
     <!-- FLOATING CARD: FORM EDIT TAGIHAN SISWA (FOUNDER & FINANCE) -->
     <x-floating-card 

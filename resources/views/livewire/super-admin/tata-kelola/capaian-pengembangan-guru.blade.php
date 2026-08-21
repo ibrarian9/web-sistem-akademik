@@ -164,7 +164,8 @@
                                     {{ $item->status_penilaian === 'dinilai' ? 'Nilai' : 'Beri Nilai' }}
                                 </x-button>
 
-                                <x-button type="button" variant="danger-outline" size="xs" icon="trash-2" wire:click="delete({{ $item->id }})" data-confirm="Apakah Anda yakin ingin menghapus data pengajuan ini?">
+                                <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="delete({{ $item->id }})" data-confirm="Apakah Anda yakin ingin menghapus data pengajuan ini?">
+                                    Hapus
                                 </x-button>
                             </div>
                         </td>

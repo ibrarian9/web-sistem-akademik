@@ -97,9 +97,11 @@
 
                         @if ($item->status_penilaian !== 'dinilai')
                             <x-button type="button" variant="secondary" size="xs" icon="edit-3" wire:click="openEdit({{ $item->id }})">
+                                Edit
                             </x-button>
-                            <x-button type="button" variant="danger-outline" size="xs" icon="trash-2" wire:click="delete({{ $item->id }})" 
+                            <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="delete({{ $item->id }})" 
                                     data-confirm="Apakah Anda yakin ingin menghapus data pengajuan ini?">
+                                Hapus
                             </x-button>
                         @endif
                     </div>

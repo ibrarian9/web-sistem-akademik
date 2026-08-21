@@ -191,6 +191,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', \App\Livewire\Finance\Dashboard::class)->name('dashboard');
         Route::get('/overview-pembayaran', \App\Livewire\Finance\OverviewPembayaran::class)->name('overview-pembayaran');
         Route::get('/tagihan', \App\Livewire\Finance\ManajemenTagihan::class)->name('tagihan');
+        Route::get('/tagihan/{siswaId}', \App\Livewire\Finance\DetailTagihanSiswa::class)->name('tagihan.detail');
         Route::get('/tabungan', \App\Livewire\Finance\TabunganSiswa::class)->name('tabungan');
         Route::get('/input-pembayaran', \App\Livewire\Finance\InputPembayaran::class)->name('input-pembayaran');
         Route::get('/arus-masuk', \App\Livewire\Finance\ArusMasuk::class)->name('arus-masuk');

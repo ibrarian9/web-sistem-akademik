@@ -79,7 +79,7 @@
                         </td>
                         <td class="p-3.5 text-center">
                             <div class="flex items-center justify-center gap-1.5">
-                                <x-button type="button" variant="warning" size="xs" icon="edit" wire:click.prevent="openEdit({{ $u->id }})">
+                                <x-button type="button" variant="secondary" size="xs" icon="edit" wire:click.prevent="openEdit({{ $u->id }})">
                                     Edit
                                 </x-button>
                                 @if ($u->id !== auth()->id())

@@ -34,6 +34,16 @@ class ManajemenRemedial extends Component
     public $filterKelas = '';
     public $filterStatus = '';
 
+    public function updatingFilterKelas()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterStatus()
+    {
+        $this->resetPage();
+    }
+
     public array $kelasList = [];
     public array $mapelList = [];
     public array $siswaList = [];

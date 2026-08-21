@@ -324,24 +324,28 @@
                                 <td class="p-3 text-center">
                                     <div class="flex items-center justify-center gap-1.5">
                                         <!-- Edit Button (Founder & Finance) -->
-                                        <button 
+                                        <x-button 
                                             type="button" 
+                                            variant="secondary" 
+                                            size="xs" 
+                                            icon="edit-3" 
                                             wire:click="openEditTransaction({{ $tx->id }})" 
-                                            class="p-1.5 text-stone-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
                                             title="Edit Transaksi">
-                                            <x-lucide-edit-3 class="w-4 h-4" />
-                                        </button>
+                                            Edit
+                                        </x-button>
 
                                         <!-- Delete Button (Founder Only) -->
                                         @if ($isFounder)
-                                            <button 
+                                            <x-button 
                                                 type="button" 
+                                                variant="danger" 
+                                                size="xs" 
+                                                icon="trash-2" 
                                                 wire:click="deleteTransaction({{ $tx->id }})" 
-                                                data-confirm="Apakah Anda yakin ingin menghapus catatan transaksi tabungan ini? Saldo tabungan siswa akan dihitung ulang secara otomatis."
-                                                class="p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer"
+                                                data-confirm="Apakah Anda yakin ingin menghapus catatan transaksi tabungan ini? Saldo tabungan siswa akan dihitung ulang secara otomatis." 
                                                 title="Hapus Transaksi">
-                                                <x-lucide-trash-2 class="w-4 h-4" />
-                                            </button>
+                                                Hapus
+                                            </x-button>
                                         @endif
                                     </div>
                                 </td>

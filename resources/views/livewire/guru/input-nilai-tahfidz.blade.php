@@ -303,7 +303,7 @@
                                 <td class="p-2 text-center" @click.stop>
                                     @if($rec)
                                         <div class="flex items-center justify-center gap-1.5">
-                                            <x-button variant="outline" size="xs" icon="edit-3" wire:click.prevent="editScore({{ $rec->id }})" title="Edit Mutaba'ah">
+                                            <x-button type="button" variant="secondary" size="xs" icon="edit-3" wire:click.prevent="editScore({{ $rec->id }})" title="Edit Mutaba'ah">
                                                 Edit
                                             </x-button>
                                             <x-button variant="danger" size="xs" icon="trash-2" wire:click.prevent="deleteScore({{ $rec->id }})" data-confirm="Apakah Anda yakin ingin menghapus data mutaba'ah santri ini?" title="Hapus Mutaba'ah">

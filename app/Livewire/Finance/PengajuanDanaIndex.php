@@ -17,6 +17,16 @@ class PengajuanDanaIndex extends Component
     public string $filterStatus = 'semua';
     public string $search = '';
 
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterStatus()
+    {
+        $this->resetPage();
+    }
+
     // Form Modal properties
     public bool $showModal = false;
     public string $judul = '';

@@ -14,6 +14,11 @@ class ManajemenKoreksiNilai extends Component
 
     public string $filterStatus = 'pending';
 
+    public function updatingFilterStatus()
+    {
+        $this->resetPage();
+    }
+
     public function approve($id)
     {
         $pengajuan = PengajuanKoreksiNilai::with(['nilai', 'guru.user'])->find($id);

@@ -123,12 +123,20 @@
                         </td>
                         <td class="p-3.5 text-center">
                             <div class="flex items-center justify-center gap-1.5">
-                                <x-button variant="outline" size="xs" icon="edit" wire:click="openEdit({{ $item->id }})" title="Edit Jadwal" />
+                                <x-button type="button" variant="secondary" size="xs" icon="edit" wire:click="openEdit({{ $item->id }})" title="Edit Jadwal">
+                                    Edit
+                                </x-button>
                                 @if ($item->status === 'dijadwalkan')
-                                    <x-button variant="primary" size="xs" icon="check" wire:click="updateStatus({{ $item->id }}, 'selesai')" title="Tandai Selesai" />
-                                    <x-button variant="secondary" size="xs" icon="x" wire:click="updateStatus({{ $item->id }}, 'dibatalkan')" title="Batalkan" />
+                                    <x-button type="button" variant="primary" size="xs" icon="check" wire:click="updateStatus({{ $item->id }}, 'selesai')" title="Tandai Selesai">
+                                        Selesai
+                                    </x-button>
+                                    <x-button type="button" variant="secondary" size="xs" icon="x" wire:click="updateStatus({{ $item->id }}, 'dibatalkan')" title="Batalkan">
+                                        Batal
+                                    </x-button>
                                 @endif
-                                <x-button variant="danger-outline" size="xs" icon="trash-2" wire:click="delete({{ $item->id }})" wire:confirm="Hapus jadwal remedial ini?" title="Hapus" />
+                                <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="delete({{ $item->id }})" wire:confirm="Hapus jadwal remedial ini?" title="Hapus">
+                                    Hapus
+                                </x-button>
                             </div>
                         </td>
                     </tr>

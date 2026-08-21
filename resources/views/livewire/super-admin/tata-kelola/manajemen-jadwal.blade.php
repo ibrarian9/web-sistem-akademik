@@ -97,10 +97,10 @@
                                             {{ date('H:i', strtotime($sched->jam_mulai)) }} - {{ date('H:i', strtotime($sched->jam_selesai)) }}
                                         </span>
                                         <div class="inline-flex items-center gap-1 shrink-0">
-                                            <button wire:click="openEdit({{ $sched->id }})" class="p-1 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded border border-amber-300 transition" title="Edit">
+                                            <button type="button" wire:click="openEdit({{ $sched->id }})" class="p-1 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg border border-stone-300 transition cursor-pointer" title="Edit">
                                                 <x-lucide-edit class="w-3.5 h-3.5" />
                                             </button>
-                                            <button type="button" wire:click="delete({{ $sched->id }})" data-confirm="Apakah Anda yakin ingin menghapus jadwal ini?" class="p-1 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded border border-rose-300 transition" title="Hapus">
+                                            <button type="button" wire:click="delete({{ $sched->id }})" data-confirm="Apakah Anda yakin ingin menghapus jadwal ini?" class="p-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg border border-rose-200 transition cursor-pointer" title="Hapus">
                                                 <x-lucide-trash-2 class="w-3.5 h-3.5" />
                                             </button>
                                         </div>
@@ -199,7 +199,7 @@
                             <td class="p-3.5 border-r border-stone-200 font-bold text-stone-700">{{ $jadwal->guruMapelKelas->guru->user->nama ?? '-' }}</td>
                             <td class="p-3.5 text-center">
                                 <div class="flex items-center justify-center gap-1.5">
-                                    <x-button type="button" variant="warning" size="xs" icon="edit" wire:click="openEdit({{ $jadwal->id }})">
+                                    <x-button type="button" variant="secondary" size="xs" icon="edit" wire:click="openEdit({{ $jadwal->id }})">
                                         Edit
                                     </x-button>
                                     <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="delete({{ $jadwal->id }})" data-confirm="Apakah Anda yakin ingin menghapus jadwal ini?">

@@ -16,8 +16,10 @@
     $variants = [
         'primary' => 'bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white shadow-xs focus:ring-emerald-600',
         'secondary' => 'bg-stone-100 hover:bg-stone-200 active:bg-stone-300 text-stone-700 border border-stone-300 shadow-2xs focus:ring-stone-400',
-        'danger' => 'bg-rose-100 hover:bg-rose-200 active:bg-rose-300 text-rose-800 border border-rose-300 shadow-2xs focus:ring-rose-400',
-        'danger-solid' => 'bg-rose-700 hover:bg-rose-800 active:bg-rose-900 text-white shadow-xs focus:ring-rose-600',
+        'danger' => 'bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-700 border border-rose-200 shadow-2xs focus:ring-rose-400',
+        'danger-outline' => 'bg-transparent hover:bg-rose-50 active:bg-rose-100 text-rose-700 border border-rose-300 shadow-2xs focus:ring-rose-400',
+        'danger-solid' => 'bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white shadow-xs focus:ring-rose-600',
+        'danger-ghost' => 'bg-transparent hover:bg-rose-50 text-rose-700 focus:ring-rose-400',
         'warning' => 'bg-amber-100 hover:bg-amber-200 active:bg-amber-300 text-amber-900 border border-amber-300 shadow-2xs focus:ring-amber-400',
         'outline' => 'bg-transparent hover:bg-emerald-50 text-emerald-800 border border-emerald-600 shadow-2xs focus:ring-emerald-600',
         'ghost' => 'bg-transparent hover:bg-stone-100 text-stone-600 hover:text-stone-900 focus:ring-stone-300',
@@ -40,6 +42,7 @@
     $variantClass = $variants[$variant] ?? $variants['primary'];
     $sizeClass = $sizes[$size] ?? $sizes['sm'];
     $iconSizeClass = $iconSizes[$size] ?? $iconSizes['sm'];
+    $hasSlot = !empty(trim((string)$slot));
 @endphp
 
 @if ($href)
@@ -50,7 +53,9 @@
             <x-dynamic-component :component="'lucide-' . $icon" class="{{ $iconSizeClass }} shrink-0" />
         @endif
 
-        <span>{{ $slot }}</span>
+        @if ($hasSlot)
+            <span>{{ $slot }}</span>
+        @endif
 
         @if ($iconRight)
             <x-dynamic-component :component="'lucide-' . $iconRight" class="{{ $iconSizeClass }} shrink-0" />
@@ -75,7 +80,9 @@
             </span>
         @endif
 
-        <span>{{ $slot }}</span>
+        @if ($hasSlot)
+            <span>{{ $slot }}</span>
+        @endif
 
         @if ($iconRight)
             <span @if($loadingTarget) wire:loading.remove wire:target="{{ $loadingTarget }}" @endif class="inline-flex">

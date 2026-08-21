@@ -146,6 +146,11 @@ class PenilaianP5 extends Component
         $this->loadP5Matrix();
     }
 
+    public function saveP5Scores()
+    {
+        return $this->saveMatrix();
+    }
+
     public function render()
     {
         $user = auth()->user();

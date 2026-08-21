@@ -180,6 +180,11 @@ class InputNilaiSumatif extends Component
         $this->loadMatrixData();
     }
 
+    public function saveAllScores()
+    {
+        return $this->saveMatrix();
+    }
+
     protected function syncRaporDetailForSiswa($siswaId)
     {
         $siswa = Siswa::find($siswaId);
