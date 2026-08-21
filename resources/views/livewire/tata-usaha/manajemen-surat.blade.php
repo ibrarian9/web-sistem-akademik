@@ -1,4 +1,24 @@
 <div class="space-y-6 font-sans">
+    <!-- Header Title Bar -->
+    <x-page-header 
+        title="Layanan Generator &amp; PDF Surat Resmi" 
+        subtitle="Pembuatan, pengeditan langsung, pratinjau, dan unduh PDF resmi SD TAHFIZH F3 Pekanbaru."
+        badge="PERSURATAN &amp; ARSIP TATA USAHA"
+        badgeVariant="emerald"
+        icon="file-text"
+    >
+        <x-slot:actions>
+            <div class="flex items-center gap-1.5 bg-stone-100 p-1.5 rounded-2xl border border-stone-200 shadow-2xs">
+                <x-button type="button" :variant="$activeTab === 'buat' ? 'primary' : 'ghost'" size="sm" icon="file-plus" wire:click="$set('activeTab', 'buat')">
+                    Buat Surat Baru
+                </x-button>
+                <x-button type="button" :variant="$activeTab === 'riwayat' ? 'primary' : 'ghost'" size="sm" icon="history" wire:click="$set('activeTab', 'riwayat')">
+                    Riwayat Surat
+                </x-button>
+            </div>
+        </x-slot:actions>
+    </x-page-header>
+
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
         title="Petunjuk Layanan Persuratan & Cetak Dokumen Resmi Tata Usaha"
@@ -9,29 +29,6 @@
         ]"
         notes="Format Kop & susunan surat 100% disesuaikan dengan dokumen resmi Yayasan Firyal Indonesia / SD Tahfizh F3 Pekanbaru."
     />
-
-    <!-- Hero Header Card -->
-    <div class="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-            <span class="px-3 py-1 bg-emerald-100 border border-emerald-300 text-emerald-900 rounded-full text-xs font-bold uppercase tracking-wider inline-block mb-1">
-                PERSURATAN &amp; ARSIP TATA USAHA
-            </span>
-            <h1 class="text-2xl font-extrabold text-stone-900 tracking-tight">Layanan Generator &amp; PDF Surat Resmi</h1>
-            <p class="text-xs text-stone-600 font-semibold mt-1">Pembuatan, pengeditan langsung, pratinjau, dan unduh PDF resmi SD TAHFIZH F3 Pekanbaru.</p>
-        </div>
-
-        <!-- Navigation Tabs -->
-        <div class="flex items-center gap-2 bg-stone-100 p-1.5 rounded-2xl border border-stone-200">
-            <button type="button" wire:click="$set('activeTab', 'buat')" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 {{ $activeTab === 'buat' ? 'bg-emerald-700 text-white shadow-xs' : 'text-stone-600 hover:text-stone-900' }}">
-                <x-lucide-file-plus class="w-4 h-4" />
-                <span>Buat Surat Baru</span>
-            </button>
-            <button type="button" wire:click="$set('activeTab', 'riwayat')" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 {{ $activeTab === 'riwayat' ? 'bg-emerald-700 text-white shadow-xs' : 'text-stone-600 hover:text-stone-900' }}">
-                <x-lucide-history class="w-4 h-4" />
-                <span>Riwayat Surat Diterbitkan</span>
-            </button>
-        </div>
-    </div>
 
     @if (session()->has('message'))
         <x-alert-banner type="success" :message="session('message')" />
@@ -44,12 +41,12 @@
             
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <!-- Template 1: Aktif Sekolah -->
-                <button type="button" wire:click="$set('jenis_surat', 'aktif_sekolah')" class="p-4 rounded-2xl border text-left transition flex flex-col justify-between space-y-3 {{ $jenis_surat === 'aktif_sekolah' ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-md' : 'bg-white border-stone-200 hover:border-stone-300 shadow-xs' }}">
+                <button type="button" wire:click="$set('jenis_surat', 'aktif_sekolah')" class="p-4 rounded-2xl border text-left transition flex flex-col justify-between space-y-3 cursor-pointer {{ $jenis_surat === 'aktif_sekolah' ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-md' : 'bg-white border-stone-200 hover:border-stone-300 shadow-xs' }}">
                     <div class="flex items-center justify-between">
                         <div class="w-10 h-10 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-900 flex items-center justify-center font-black">
                             <x-lucide-graduation-cap class="w-5 h-5 text-emerald-800" />
                         </div>
-                        @if($jenis_surat === 'aktif_sekolah') <span class="px-2 py-0.5 bg-emerald-700 text-white text-[10px] font-bold rounded-full">Terpilih</span> @endif
+                        @if($jenis_surat === 'aktif_sekolah') <x-badge variant="emerald" size="xs">Terpilih</x-badge> @endif
                     </div>
                     <div>
                         <h4 class="font-extrabold text-stone-900 text-xs">Surat Keterangan Aktif Sekolah</h4>
@@ -58,12 +55,12 @@
                 </button>
 
                 <!-- Template 2: Pengalaman Kerja -->
-                <button type="button" wire:click="$set('jenis_surat', 'pengalaman_kerja')" class="p-4 rounded-2xl border text-left transition flex flex-col justify-between space-y-3 {{ $jenis_surat === 'pengalaman_kerja' ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-md' : 'bg-white border-stone-200 hover:border-stone-300 shadow-xs' }}">
+                <button type="button" wire:click="$set('jenis_surat', 'pengalaman_kerja')" class="p-4 rounded-2xl border text-left transition flex flex-col justify-between space-y-3 cursor-pointer {{ $jenis_surat === 'pengalaman_kerja' ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-md' : 'bg-white border-stone-200 hover:border-stone-300 shadow-xs' }}">
                     <div class="flex items-center justify-between">
                         <div class="w-10 h-10 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-900 flex items-center justify-center font-black">
                             <x-lucide-briefcase class="w-5 h-5 text-emerald-800" />
                         </div>
-                        @if($jenis_surat === 'pengalaman_kerja') <span class="px-2 py-0.5 bg-emerald-700 text-white text-[10px] font-bold rounded-full">Terpilih</span> @endif
+                        @if($jenis_surat === 'pengalaman_kerja') <x-badge variant="emerald" size="xs">Terpilih</x-badge> @endif
                     </div>
                     <div>
                         <h4 class="font-extrabold text-stone-900 text-xs">Surat Pengalaman Kerja</h4>
@@ -72,12 +69,12 @@
                 </button>
 
                 <!-- Template 3: Menerima Pindah -->
-                <button type="button" wire:click="$set('jenis_surat', 'menerima_pindah')" class="p-4 rounded-2xl border text-left transition flex flex-col justify-between space-y-3 {{ $jenis_surat === 'menerima_pindah' ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-md' : 'bg-white border-stone-200 hover:border-stone-300 shadow-xs' }}">
+                <button type="button" wire:click="$set('jenis_surat', 'menerima_pindah')" class="p-4 rounded-2xl border text-left transition flex flex-col justify-between space-y-3 cursor-pointer {{ $jenis_surat === 'menerima_pindah' ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-md' : 'bg-white border-stone-200 hover:border-stone-300 shadow-xs' }}">
                     <div class="flex items-center justify-between">
                         <div class="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 flex items-center justify-center font-black">
                             <x-lucide-arrow-down-left class="w-5 h-5 text-amber-800" />
                         </div>
-                        @if($jenis_surat === 'menerima_pindah') <span class="px-2 py-0.5 bg-emerald-700 text-white text-[10px] font-bold rounded-full">Terpilih</span> @endif
+                        @if($jenis_surat === 'menerima_pindah') <x-badge variant="amber" size="xs">Terpilih</x-badge> @endif
                     </div>
                     <div>
                         <h4 class="font-extrabold text-stone-900 text-xs">Mutasi: Menerima Pindah</h4>
@@ -86,12 +83,12 @@
                 </button>
 
                 <!-- Template 4: Pindah Sekolah -->
-                <button type="button" wire:click="$set('jenis_surat', 'pindah_sekolah')" class="p-4 rounded-2xl border text-left transition flex flex-col justify-between space-y-3 {{ $jenis_surat === 'pindah_sekolah' ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-md' : 'bg-white border-stone-200 hover:border-stone-300 shadow-xs' }}">
+                <button type="button" wire:click="$set('jenis_surat', 'pindah_sekolah')" class="p-4 rounded-2xl border text-left transition flex flex-col justify-between space-y-3 cursor-pointer {{ $jenis_surat === 'pindah_sekolah' ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-md' : 'bg-white border-stone-200 hover:border-stone-300 shadow-xs' }}">
                     <div class="flex items-center justify-between">
                         <div class="w-10 h-10 rounded-xl bg-rose-100 border border-rose-300 text-rose-900 flex items-center justify-center font-black">
                             <x-lucide-arrow-up-right class="w-5 h-5 text-rose-800" />
                         </div>
-                        @if($jenis_surat === 'pindah_sekolah') <span class="px-2 py-0.5 bg-emerald-700 text-white text-[10px] font-bold rounded-full">Terpilih</span> @endif
+                        @if($jenis_surat === 'pindah_sekolah') <x-badge variant="rose" size="xs">Terpilih</x-badge> @endif
                     </div>
                     <div>
                         <h4 class="font-extrabold text-stone-900 text-xs">Mutasi: Pindah Sekolah</h4>
@@ -102,10 +99,10 @@
         </div>
 
         <!-- FORM BUILDER CARD -->
-        <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-6">
+        <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-6">
             <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-stone-200 pb-4">
                 <div>
-                    <h3 class="text-sm font-extrabold text-emerald-950 uppercase tracking-wider flex items-center gap-2">
+                    <h3 class="text-xs font-extrabold text-emerald-950 uppercase tracking-wider flex items-center gap-2">
                         <span class="w-6 h-6 rounded-full bg-emerald-200 text-emerald-950 text-xs flex items-center justify-center font-black">
                             <x-lucide-file-text class="w-3.5 h-3.5 text-emerald-900" />
                         </span>
@@ -118,7 +115,7 @@
                 <div class="w-full md:w-80">
                     @if($jenis_surat === 'pengalaman_kerja')
                         <label class="block text-[11px] font-bold text-stone-600 uppercase mb-1">Pilih Guru / Karyawan (Auto-Fill)</label>
-                        <select wire:model.live="selected_guru_id" class="w-full bg-emerald-50 border border-emerald-300 text-emerald-950 rounded-xl px-3 py-2 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
+                        <select wire:model.live="selected_guru_id" class="w-full bg-white border border-stone-300 text-stone-900 rounded-xl px-3.5 py-2 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
                             <option value="">-- Pilih Guru / Karyawan --</option>
                             @foreach($gurus as $g)
                                 <option value="{{ $g->id }}">{{ $g->user->nama ?? '-' }} (NIY: {{ $g->niy ?: '-' }})</option>
@@ -126,7 +123,7 @@
                         </select>
                     @else
                         <label class="block text-[11px] font-bold text-stone-600 uppercase mb-1">Pilih Siswa (Auto-Fill)</label>
-                        <select wire:model.live="selected_siswa_id" class="w-full bg-emerald-50 border border-emerald-300 text-emerald-950 rounded-xl px-3 py-2 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
+                        <select wire:model.live="selected_siswa_id" class="w-full bg-white border border-stone-300 text-stone-900 rounded-xl px-3.5 py-2 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
                             <option value="">-- Pilih Siswa Aktif --</option>
                             @foreach($siswas as $s)
                                 <option value="{{ $s->id }}">{{ $s->user->nama ?? '-' }} (NISN: {{ $s->nisn ?: '-' }})</option>
@@ -137,21 +134,21 @@
             </div>
 
             <!-- Form Fields Grid -->
-            <form wire:submit.prevent="simpanDanCetak" class="space-y-6">
+            <form wire:submit.prevent="simpanDanCetak" class="space-y-6 text-xs">
                 <!-- Section 1: Nomor & Tanggal Surat -->
                 <div class="p-4 bg-stone-50 border border-stone-200 rounded-2xl space-y-4">
                     <span class="text-xs font-black text-stone-900 uppercase tracking-wider block">1. IDENTITAS SURAT &amp; NOMOR ARSIP</span>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div class="space-y-1 sm:col-span-2">
                             <label class="text-xs font-bold text-stone-700 uppercase">Nomor Surat <span class="text-rose-600">*</span></label>
-                            <input type="text" wire:model.live="nomor_surat" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-extrabold focus:ring-2 focus:ring-emerald-600" />
-                            @error('nomor_surat') <span class="text-rose-600 text-[10px] font-bold block">{{ $message }}</span> @enderror
+                            <input type="text" wire:model.live="nomor_surat" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-extrabold focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
+                            @error('nomor_surat') <span class="text-rose-600 text-[10px] font-bold block mt-1">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="space-y-1">
                             <label class="text-xs font-bold text-stone-700 uppercase">Tanggal Surat <span class="text-rose-600">*</span></label>
-                            <input type="date" wire:model.live="tanggal_surat" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" />
-                            @error('tanggal_surat') <span class="text-rose-600 text-[10px] font-bold block">{{ $message }}</span> @enderror
+                            <input type="date" wire:model.live="tanggal_surat" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
+                            @error('tanggal_surat') <span class="text-rose-600 text-[10px] font-bold block mt-1">{{ $message }}</span> @enderror
                         </div>
                     </div>
                 </div>
@@ -163,14 +160,14 @@
                         <!-- Nama Lengkap -->
                         <div class="space-y-1 lg:col-span-2">
                             <label class="text-xs font-bold text-stone-700 uppercase">Nama Lengkap <span class="text-rose-600">*</span></label>
-                            <input type="text" wire:model.live="penerima_nama" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="Aisyah Arumi / Rina, S.Pd." />
-                            @error('penerima_nama') <span class="text-rose-600 text-[10px] font-bold block">{{ $message }}</span> @enderror
+                            <input type="text" wire:model.live="penerima_nama" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" placeholder="Aisyah Arumi / Rina, S.Pd." />
+                            @error('penerima_nama') <span class="text-rose-600 text-[10px] font-bold block mt-1">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Gender -->
                         <div class="space-y-1">
                             <label class="text-xs font-bold text-stone-700 uppercase">Jenis Kelamin</label>
-                            <select wire:model.live="penerima_gender" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
+                            <select wire:model.live="penerima_gender" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
                                 <option value="Laki-Laki">Laki-Laki</option>
                                 <option value="Perempuan">Perempuan</option>
                             </select>
@@ -179,39 +176,39 @@
                         <!-- Tempat / Tanggal Lahir -->
                         <div class="space-y-1">
                             <label class="text-xs font-bold text-stone-700 uppercase">Tempat / Tgl Lahir</label>
-                            <input type="text" wire:model.live="penerima_ttl" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="Pekanbaru, 15 April 2018" />
+                            <input type="text" wire:model.live="penerima_ttl" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" placeholder="Pekanbaru, 15 April 2018" />
                         </div>
 
                         @if($jenis_surat !== 'pengalaman_kerja')
                             <!-- NISN / NIS -->
                             <div class="space-y-1">
                                 <label class="text-xs font-bold text-stone-700 uppercase">NISN / NIS</label>
-                                <input type="text" wire:model.live="penerima_nisn" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="3184651522" />
+                                <input type="text" wire:model.live="penerima_nisn" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" placeholder="3184651522" />
                             </div>
 
                             <!-- Kelas -->
                             <div class="space-y-1">
                                 <label class="text-xs font-bold text-stone-700 uppercase">Kelas / Tingkat</label>
-                                <input type="text" wire:model.live="penerima_kelas" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="I (Satu) / II (Dua)" />
+                                <input type="text" wire:model.live="penerima_kelas" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" placeholder="I (Satu) / II (Dua)" />
                             </div>
                         @else
                             <!-- NIY / NIK -->
                             <div class="space-y-1">
                                 <label class="text-xs font-bold text-stone-700 uppercase">NIY / NIK</label>
-                                <input type="text" wire:model.live="penerima_niy" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="NIY / NIK KTP" />
+                                <input type="text" wire:model.live="penerima_niy" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" placeholder="NIY / NIK KTP" />
                             </div>
 
                             <!-- Pendidikan -->
                             <div class="space-y-1">
                                 <label class="text-xs font-bold text-stone-700 uppercase">Pendidikan Terakhir</label>
-                                <input type="text" wire:model.live="penerima_pendidikan" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="S1 Pendidikan / SMA" />
+                                <input type="text" wire:model.live="penerima_pendidikan" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" placeholder="S1 Pendidikan / SMA" />
                             </div>
                         @endif
 
                         <!-- Alamat -->
                         <div class="space-y-1 sm:col-span-2 lg:col-span-3">
                             <label class="text-xs font-bold text-stone-700 uppercase">Alamat Lengkap Rumah</label>
-                            <input type="text" wire:model.live="penerima_alamat" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600" placeholder="Jl. Amal, Perum Puri Taman Lestari, Pekanbaru" />
+                            <input type="text" wire:model.live="penerima_alamat" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 shadow-2xs" placeholder="Jl. Amal, Perum Puri Taman Lestari, Pekanbaru" />
                         </div>
                     </div>
                 </div>
@@ -224,26 +221,26 @@
                             <!-- Nama Orang Tua -->
                             <div class="space-y-1">
                                 <label class="text-xs font-bold text-stone-700 uppercase">Nama Orang Tua / Wali</label>
-                                <input type="text" wire:model.live="ortu_nama" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="Budi Chandra" />
+                                <input type="text" wire:model.live="ortu_nama" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" placeholder="Budi Chandra" />
                             </div>
 
                             <!-- Pekerjaan Ortu -->
                             <div class="space-y-1">
                                 <label class="text-xs font-bold text-stone-700 uppercase">Pekerjaan Orang Tua</label>
-                                <input type="text" wire:model.live="ortu_pekerjaan" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="Wiraswasta / PNS" />
+                                <input type="text" wire:model.live="ortu_pekerjaan" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" placeholder="Wiraswasta / PNS" />
                             </div>
 
                             @if($jenis_surat === 'pindah_sekolah')
                                 <!-- Sekolah Tujuan -->
                                 <div class="space-y-1 sm:col-span-2">
                                     <label class="text-xs font-bold text-stone-700 uppercase">Sekolah Tujuan Pindah</label>
-                                    <input type="text" wire:model.live="sekolah_tujuan" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="SD IT BPMAA Kec. Pekanbaru Kota, Kota Pekanbaru" />
+                                    <input type="text" wire:model.live="sekolah_tujuan" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" placeholder="SD IT BPMAA Kec. Pekanbaru Kota, Kota Pekanbaru" />
                                 </div>
 
                                 <!-- Alasan Pindah -->
                                 <div class="space-y-1 sm:col-span-2">
                                     <label class="text-xs font-bold text-stone-700 uppercase">Alasan Pindah</label>
-                                    <input type="text" wire:model.live="alasan_pindah" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="Permintaan Orang Tua / Ikut Orang Tua" />
+                                    <input type="text" wire:model.live="alasan_pindah" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" placeholder="Permintaan Orang Tua / Ikut Orang Tua" />
                                 </div>
                             @endif
                         </div>
@@ -255,13 +252,13 @@
                             <!-- Posisi Kerja -->
                             <div class="space-y-1">
                                 <label class="text-xs font-bold text-stone-700 uppercase">Jabatan / Posisi Kerja</label>
-                                <input type="text" wire:model.live="posisi_kerja" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="Guru Pendamping / Guru Pengajar" />
+                                <input type="text" wire:model.live="posisi_kerja" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" placeholder="Guru Pendamping / Guru Pengajar" />
                             </div>
 
                             <!-- Periode Kerja -->
                             <div class="space-y-1">
                                 <label class="text-xs font-bold text-stone-700 uppercase">Periode Masa Kerja</label>
-                                <input type="text" wire:model.live="periode_kerja" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" placeholder="November 2021 sampai Maret 2023" />
+                                <input type="text" wire:model.live="periode_kerja" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" placeholder="November 2021 sampai Maret 2023" />
                             </div>
                         </div>
                     </div>
@@ -273,97 +270,87 @@
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div class="space-y-1">
                             <label class="text-xs font-bold text-stone-700 uppercase">Nama Kepala Sekolah / Pejabat</label>
-                            <input type="text" wire:model.live="penandatangan_nama" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" />
+                            <input type="text" wire:model.live="penandatangan_nama" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
                         </div>
                         <div class="space-y-1">
                             <label class="text-xs font-bold text-stone-700 uppercase">Jabatan Pejabat</label>
-                            <input type="text" wire:model.live="penandatangan_jabatan" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" />
+                            <input type="text" wire:model.live="penandatangan_jabatan" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
                         </div>
                         <div class="space-y-1">
                             <label class="text-xs font-bold text-stone-700 uppercase">NIY Pejabat</label>
-                            <input type="text" wire:model.live="penandatangan_niy" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" />
+                            <input type="text" wire:model.live="penandatangan_niy" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
                         </div>
                     </div>
                 </div>
 
                 <!-- Submit Action Button -->
                 <div class="flex items-center justify-end border-t border-stone-200 pt-4 gap-2">
-                    <button type="submit" class="px-8 py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-extrabold shadow-md flex items-center gap-2 transition">
-                        <x-lucide-save class="w-4 h-4" />
-                        <span>Simpan &amp; Pratinjau PDF Surat (Live Editor)</span>
-                    </button>
+                    <x-button type="submit" variant="primary" size="md" icon="save" loadingTarget="simpanDanCetak">
+                        Simpan &amp; Pratinjau PDF Surat (Live Editor)
+                    </x-button>
                 </div>
             </form>
         </div>
     @else
         <!-- RIWAYAT SURAT TAB CARD -->
-        <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
+        <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-                <div class="relative max-w-md w-full">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-stone-400">
-                        <x-lucide-search class="w-4 h-4" />
-                    </span>
-                    <input wire:model.live.debounce.300ms="searchRiwayat" type="text" placeholder="Cari nomor surat atau nama penerima..."
-                        class="w-full pl-9 pr-4 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 placeholder-stone-400 text-xs font-medium focus:ring-2 focus:ring-emerald-600 shadow-xs" />
+                <div class="max-w-md w-full">
+                    <x-search-input wire:model.live.debounce.300ms="searchRiwayat" placeholder="Cari nomor surat atau nama penerima..." />
                 </div>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-xs text-stone-800">
-                    <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
-                        <tr>
-                            <th class="p-3.5 border-r border-emerald-700 w-44">Nomor Surat</th>
-                            <th class="p-3.5 border-r border-emerald-700 min-w-[180px]">Jenis Surat</th>
-                            <th class="p-3.5 border-r border-emerald-700 min-w-[180px]">Nama Penerima</th>
-                            <th class="p-3.5 border-r border-emerald-700 w-32">Tanggal Surat</th>
-                            <th class="p-3.5 border-r border-emerald-700 min-w-[140px]">Dibuat Oleh</th>
-                            <th class="p-3.5 text-center min-w-[160px]">Aksi</th>
+            <x-table loadingTarget="searchRiwayat, activeTab">
+                <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+                    <tr>
+                        <x-table.th class="w-44">Nomor Surat</x-table.th>
+                        <x-table.th class="min-w-[180px]">Jenis Surat</x-table.th>
+                        <x-table.th class="min-w-[180px]">Nama Penerima</x-table.th>
+                        <x-table.th class="w-32">Tanggal Surat</x-table.th>
+                        <x-table.th class="min-w-[140px]">Dibuat Oleh</x-table.th>
+                        <x-table.th align="center" class="min-w-[200px]">Aksi</x-table.th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-200 bg-white">
+                    @forelse ($riwayats as $r)
+                        @php
+                            $jenisLabel = match($r->jenis_surat) {
+                                'aktif_sekolah' => 'Surat Keterangan Aktif Sekolah',
+                                'pengalaman_kerja' => 'Surat Pengalaman Kerja',
+                                'menerima_pindah' => 'Mutasi: Menerima Pindah',
+                                'pindah_sekolah' => 'Mutasi: Pindah Sekolah',
+                                default => $r->jenis_surat,
+                            };
+                        @endphp
+                        <tr class="hover:bg-stone-50 transition">
+                            <td class="p-3.5 font-bold text-stone-900 border-r border-stone-200">{{ $r->nomor_surat }}</td>
+                            <td class="p-3.5 border-r border-stone-200 font-extrabold text-stone-900">{{ $jenisLabel }}</td>
+                            <td class="p-3.5 border-r border-stone-200 font-bold text-stone-800">{{ strtoupper($r->penerima_nama) }}</td>
+                            <td class="p-3.5 border-r border-stone-200 font-semibold text-stone-600">{{ $r->tanggal_surat ? $r->tanggal_surat->format('d M Y') : '-' }}</td>
+                            <td class="p-3.5 border-r border-stone-200 font-medium text-stone-500">{{ $r->creator->nama ?? 'Admin TU' }}</td>
+                            <td class="p-3.5 text-center">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <x-button type="button" variant="secondary" size="xs" icon="edit" wire:click="loadRiwayatSurat({{ $r->id }})">
+                                        Edit / Preview
+                                    </x-button>
+                                    <x-button type="button" variant="warning" size="xs" icon="download" wire:click="downloadPdfById({{ $r->id }})">
+                                        PDF
+                                    </x-button>
+                                    <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="deleteRiwayat({{ $r->id }})" data-confirm="Apakah Anda yakin ingin menghapus arsip surat ini?">
+                                        Hapus
+                                    </x-button>
+                                </div>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody class="divide-y divide-stone-200 bg-white">
-                        @forelse ($riwayats as $r)
-                            @php
-                                $jenisLabel = match($r->jenis_surat) {
-                                    'aktif_sekolah' => 'Surat Keterangan Aktif Sekolah',
-                                    'pengalaman_kerja' => 'Surat Pengalaman Kerja',
-                                    'menerima_pindah' => 'Mutasi: Menerima Pindah',
-                                    'pindah_sekolah' => 'Mutasi: Pindah Sekolah',
-                                    default => $r->jenis_surat,
-                                };
-                            @endphp
-                            <tr class="hover:bg-emerald-50/50 transition">
-                                <td class="p-3.5 font-bold text-stone-900 border-r border-stone-200">{{ $r->nomor_surat }}</td>
-                                <td class="p-3.5 border-r border-stone-200 font-extrabold text-stone-900">{{ $jenisLabel }}</td>
-                                <td class="p-3.5 border-r border-stone-200 font-bold text-stone-800">{{ strtoupper($r->penerima_nama) }}</td>
-                                <td class="p-3.5 border-r border-stone-200 font-semibold text-stone-600">{{ $r->tanggal_surat ? $r->tanggal_surat->format('d M Y') : '-' }}</td>
-                                <td class="p-3.5 border-r border-stone-200 font-medium text-stone-500">{{ $r->creator->nama ?? 'Admin TU' }}</td>
-                                <td class="p-3.5 text-center">
-                                    <div class="flex items-center justify-center gap-1.5">
-                                        <button type="button" wire:click="loadRiwayatSurat({{ $r->id }})" class="px-2.5 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 rounded-lg font-bold text-xs border border-emerald-300 transition shadow-xs flex items-center gap-1">
-                                            <x-lucide-edit class="w-3.5 h-3.5 text-emerald-700" />
-                                            <span>Edit / Preview</span>
-                                        </button>
-                                        <button type="button" wire:click="downloadPdfById({{ $r->id }})" class="px-2.5 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg font-bold text-xs border border-amber-300 transition shadow-xs flex items-center gap-1">
-                                            <x-lucide-download class="w-3.5 h-3.5 text-amber-700" />
-                                            <span>PDF</span>
-                                        </button>
-                                        <button type="button" wire:click="deleteRiwayat({{ $r->id }})" data-confirm="Apakah Anda yakin ingin menghapus arsip surat ini?" class="px-2.5 py-1 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded-lg font-bold text-xs border border-rose-300 transition shadow-xs flex items-center gap-1">
-                                            <x-lucide-trash-2 class="w-3.5 h-3.5 text-rose-600" />
-                                            <span>Hapus</span>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="p-8 text-center text-stone-500 font-semibold italic">
-                                    Belum ada riwayat penerbitan surat.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="py-12 text-center text-stone-400">
+                                <x-table.empty title="Belum ada riwayat penerbitan surat" subtitle="Buat surat resmi pertama Anda melalui tab Buat Surat Baru di atas." />
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </x-table>
 
             <div class="pt-2">
                 {{ $riwayats->links() }}
@@ -373,7 +360,7 @@
 
     <!-- MODAL PRATINJAU REAL-TIME & LIVE INTERACTIVE EDITOR (KOP YFI PRESISI DOCX) -->
     @if ($showPrintModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-xs p-4 overflow-y-auto print:p-0 print:bg-white print:static">
+        <div class="fixed inset-0 z-[99990] flex items-center justify-center bg-stone-950/65 backdrop-blur-xs p-4 overflow-y-auto print:p-0 print:bg-white print:static animate-fade-in">
             <div class="bg-white rounded-3xl p-6 shadow-2xl max-w-6xl w-full space-y-4 max-h-[95vh] overflow-y-auto print:max-h-none print:shadow-none print:rounded-none print:p-0">
                 <!-- Header Controls Bar -->
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-stone-200 pb-3 print:hidden">
@@ -388,24 +375,22 @@
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <button type="button" wire:click="downloadCurrentPdf" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-extrabold shadow-md flex items-center gap-1.5 transition">
-                            <x-lucide-download class="w-4 h-4" />
-                            <span>Unduh File PDF</span>
-                        </button>
-                        <button type="button" onclick="window.print()" class="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-extrabold shadow-md flex items-center gap-1.5 transition">
-                            <x-lucide-printer class="w-4 h-4" />
-                            <span>Cetak Dokumen</span>
-                        </button>
-                        <button type="button" wire:click="$set('showPrintModal', false)" class="px-4 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold">
+                        <x-button type="button" variant="warning" size="md" icon="download" wire:click="downloadCurrentPdf">
+                            Unduh File PDF
+                        </x-button>
+                        <x-button type="button" variant="primary" size="md" icon="printer" onclick="window.print()">
+                            Cetak Dokumen
+                        </x-button>
+                        <x-button type="button" variant="secondary" size="md" wire:click="$set('showPrintModal', false)">
                             Tutup
-                        </button>
+                        </x-button>
                     </div>
                 </div>
 
                 <!-- LIVE PREVIEW CONTAINER (FORMAT 100% PERSIS DOCX & KOP YFI) -->
                 <div id="printable-letter" class="p-10 bg-white font-serif text-black text-sm leading-relaxed max-w-[210mm] mx-auto min-h-[297mm] shadow-xs print:shadow-none print:p-0 border border-stone-200 print:border-none">
                     
-                    <!-- KOP SURAT RESMI YAYASAN FIRYAL INDONESIA / SD TAHFIZH F3 (LOGO YAYASAN + LOGO TUT WURI HANDAYANI) -->
+                    <!-- KOP SURAT RESMI YAYASAN FIRYAL INDONESIA / SD TAHFIZH F3 -->
                     <div class="border-b-4 border-double border-black pb-2 mb-6 text-center font-sans relative">
                         <div class="flex items-center justify-between">
                             <!-- Logo Yayasan (Kiri) -->
@@ -431,8 +416,7 @@
                         </div>
                     </div>
 
-
-                    <!-- ISIAN SURAT PRESISI DENGA BERKAS DOCX TEMPLATE -->
+                    <!-- ISIAN SURAT PRESISI DENGAN BERKAS DOCX TEMPLATE -->
                     @if($jenis_surat === 'aktif_sekolah')
                         <!-- 1. SURAT KETERANGAN AKTIF SEKOLAH -->
                         <div class="text-center mb-6 space-y-1">

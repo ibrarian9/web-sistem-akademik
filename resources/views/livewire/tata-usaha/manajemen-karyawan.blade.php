@@ -1,4 +1,19 @@
 <div class="space-y-6 font-sans">
+    <!-- Header Title Bar -->
+    <x-page-header 
+        title="Direktori Karyawan &amp; Tenaga Kependidikan" 
+        subtitle="Kelola data kepegawaian staf Guru, TU, Finance, Pengawas, dan Kepala Sekolah."
+        badge="MANAJEMEN KARYAWAN &amp; STAF"
+        badgeVariant="emerald"
+        icon="users"
+    >
+        <x-slot:actions>
+            <x-button variant="primary" size="md" icon="plus-circle" wire:click.prevent="openCreate">
+                Tambah Karyawan Baru
+            </x-button>
+        </x-slot:actions>
+    </x-page-header>
+
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
         title="Petunjuk Direktori & Kelola Karyawan / Staff"
@@ -10,53 +25,24 @@
         notes="Tata Usaha berhak mengelola data kepegawaian dan akun staf/guru secara terpusat."
     />
 
-    <!-- Hero Header Card -->
-    <div class="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-            <span class="px-3 py-1 bg-emerald-100 border border-emerald-300 text-emerald-900 rounded-full text-xs font-bold uppercase tracking-wider inline-block mb-1">
-                MANAJEMEN KARYAWAN &amp; STAF
-            </span>
-            <h1 class="text-2xl font-extrabold text-stone-900 tracking-tight">Direktori Karyawan &amp; Tenaga Kependidikan</h1>
-            <p class="text-xs text-stone-600 font-semibold mt-1">Kelola data kepegawaian staf Guru, TU, Finance, Pengawas, dan Kepala Sekolah.</p>
-        </div>
-        <button type="button" wire:click.prevent="openCreate" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-2">
-            <x-lucide-plus-circle class="w-4 h-4" />
-            <span>Tambah Karyawan Baru</span>
-        </button>
-    </div>
-
     <!-- Session Flash Notifications -->
     @if (session()->has('message'))
-        <div class="p-4 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-2xl flex items-center justify-between text-xs font-bold shadow-xs">
-            <div class="flex items-center gap-2">
-                <x-lucide-check-circle class="w-4 h-4 text-emerald-700 shrink-0" />
-                <span>{{ session('message') }}</span>
-            </div>
-            <button type="button" onclick="this.parentElement.remove()" class="text-emerald-700 hover:text-emerald-900 font-extrabold">✕</button>
-        </div>
+        <x-alert-banner type="success" :message="session('message')" />
     @endif
 
     @if (session()->has('error'))
-        <div class="p-4 bg-rose-50 border border-rose-300 text-rose-900 rounded-2xl flex items-center justify-between text-xs font-bold shadow-xs">
-            <div class="flex items-center gap-2">
-                <x-lucide-alert-circle class="w-4 h-4 text-rose-700 shrink-0" />
-                <span>{{ session('error') }}</span>
-            </div>
-            <button type="button" onclick="this.parentElement.remove()" class="text-rose-700 hover:text-rose-900 font-extrabold">✕</button>
-        </div>
+        <x-alert-banner type="error" :message="session('error')" />
     @endif
 
     <!-- Content Toolbar Card -->
-    <div class="bg-white border border-stone-200 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-        <div class="relative flex-1 max-w-md">
-            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari nama / NIP / email..." 
-                class="w-full bg-white border border-stone-300 text-stone-900 placeholder-stone-400 rounded-xl pl-9 pr-4 py-2 text-xs font-medium focus:ring-2 focus:ring-emerald-600 shadow-xs" />
-            <x-lucide-search class="w-4 h-4 text-stone-400 absolute left-3 top-2.5 pointer-events-none" />
+    <div class="bg-white border border-stone-200 rounded-2xl p-4 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        <div class="flex-1 max-w-md">
+            <x-search-input wire:model.live.debounce.300ms="search" placeholder="Cari nama / NIP / email..." />
         </div>
 
         <div class="flex items-center gap-2">
             <span class="text-xs font-bold text-stone-600">Filter Role:</span>
-            <select wire:model.live="filterRole" class="bg-white border border-stone-300 text-stone-900 rounded-xl px-3 py-2 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-xs">
+            <select wire:model.live="filterRole" class="bg-white border border-stone-300 text-stone-900 rounded-xl px-3 py-2 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
                 <option value="semua">Semua Role</option>
                 <option value="guru">Guru</option>
                 <option value="tata_usaha">Tata Usaha</option>
@@ -71,11 +57,11 @@
     <!-- Employee Cards Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         @forelse ($karyawanList as $k)
-            <div class="bg-white border border-stone-200 rounded-2xl p-5 shadow-sm space-y-4 flex flex-col justify-between hover:border-emerald-400 hover:shadow-md transition">
+            <div class="bg-white border border-stone-200 rounded-2xl p-5 shadow-xs space-y-4 flex flex-col justify-between hover:border-emerald-400 hover:shadow-md transition">
                 <div class="space-y-3">
                     <div class="flex items-start justify-between gap-2">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-2xl bg-emerald-100 border border-emerald-300 text-emerald-950 flex items-center justify-center font-black text-sm select-none shadow-xs">
+                            <div class="w-10 h-10 rounded-2xl bg-emerald-100 border border-emerald-300 text-emerald-950 flex items-center justify-center font-black text-sm select-none shadow-2xs">
                                 {{ strtoupper(substr($k->nama, 0, 2)) }}
                             </div>
                             <div>
@@ -83,9 +69,9 @@
                                 <p class="text-[10px] text-stone-500 font-medium">@ {{ $k->username }}</p>
                             </div>
                         </div>
-                        <span class="px-2.5 py-1 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-lg text-[10px] font-extrabold uppercase">
+                        <x-badge variant="emerald" size="xs">
                             {{ str_replace('_', ' ', $k->role->nama ?? '-') }}
-                        </span>
+                        </x-badge>
                     </div>
 
                     <div class="space-y-1.5 pt-2 border-t border-stone-100 text-xs">
@@ -117,15 +103,13 @@
                     </div>
 
                     <div class="flex items-center gap-1.5">
-                        <button type="button" wire:click.prevent="openEdit({{ $k->id }})" class="px-2.5 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg font-bold text-xs border border-amber-300 transition shadow-xs flex items-center gap-1" title="Edit Karyawan">
-                            <x-lucide-edit-3 class="w-3.5 h-3.5 text-amber-700" />
-                            <span>Edit</span>
-                        </button>
+                        <x-button type="button" variant="warning" size="xs" icon="edit" wire:click.prevent="openEdit({{ $k->id }})" title="Edit Karyawan">
+                            Edit
+                        </x-button>
                         @if ($k->id !== auth()->id() && $k->role?->nama !== 'super_admin')
-                            <button type="button" wire:click.prevent="delete({{ $k->id }})" data-confirm="Apakah Anda yakin ingin menghapus akun karyawan {{ $k->nama }}?" class="px-2.5 py-1 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded-lg font-bold text-xs border border-rose-300 transition shadow-xs flex items-center gap-1" title="Hapus Karyawan">
-                                <x-lucide-trash-2 class="w-3.5 h-3.5 text-rose-600" />
-                                <span>Hapus</span>
-                            </button>
+                            <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click.prevent="delete({{ $k->id }})" data-confirm="Apakah Anda yakin ingin menghapus akun karyawan {{ $k->nama }}?" title="Hapus Karyawan">
+                                Hapus
+                            </x-button>
                         @endif
                     </div>
                 </div>
@@ -141,146 +125,134 @@
         {{ $karyawanList->links() }}
     </div>
 
-    <!-- Modal Form Create & Edit Karyawan -->
-    @if ($isFormOpen)
-        <div x-data x-init="window.scrollTo({ top: 0, behavior: 'smooth' })" class="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-stone-900/60 backdrop-blur-xs px-4 py-8 sm:py-12 overflow-y-auto">
-            <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-stone-200 space-y-4 max-h-[82vh] sm:max-h-[85vh] my-auto overflow-y-auto shadow-stone-950/20">
-                <div class="flex justify-between items-center border-b border-stone-200 pb-3 sticky -top-6 bg-white z-20 pt-1">
-                    <h3 class="text-sm font-extrabold text-emerald-950 uppercase tracking-wider flex items-center gap-2">
-                        <span class="w-6 h-6 rounded-full bg-emerald-200 text-emerald-950 text-xs flex items-center justify-center font-black">★</span>
-                        <span>{{ $karyawanId ? 'Edit Data Karyawan & Akun' : 'Tambah Karyawan & Akun Baru' }}</span>
-                    </h3>
-                    <button type="button" wire:click="$set('isFormOpen', false)" class="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 font-bold">✕</button>
+    <!-- Floating Modal Form: Create & Edit Karyawan -->
+    <x-floating-card 
+        :show="$isFormOpen ? true : false"
+        :title="$karyawanId ? 'Edit Data Karyawan & Akun' : 'Tambah Karyawan & Akun Baru'"
+        subtitle="Lengkapi biodata staf dan kredensial login akun SIAKAD."
+        badge="DATA KEPEGAWAIAN"
+        badgeVariant="emerald"
+        icon="users"
+        maxWidth="max-w-xl"
+        closeAction="$set('isFormOpen', false)"
+    >
+        @if ($errors->any())
+            <div class="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl space-y-1.5 text-xs shadow-2xs">
+                <div class="flex items-center gap-2 font-extrabold text-rose-900">
+                    <x-lucide-alert-triangle class="w-4 h-4 text-rose-600 shrink-0" />
+                    <span>Mohon Perbaiki Isian Formulir:</span>
+                </div>
+                <ul class="list-disc list-inside text-[11px] font-bold text-rose-700 space-y-0.5 pl-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form wire:submit.prevent="save" action="javascript:void(0);" class="space-y-4 text-xs">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Nama Lengkap -->
+                <div class="sm:col-span-2 space-y-1">
+                    <label class="block text-xs font-bold text-stone-700 uppercase">Nama Lengkap <span class="text-rose-600">*</span></label>
+                    <input type="text" wire:model="nama" placeholder="Masukkan nama lengkap"
+                        class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs font-bold text-stone-900 focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
+                    @error('nama') <span class="text-[10px] text-rose-600 font-bold block mt-1">{{ $message }}</span> @enderror
                 </div>
 
-                <!-- Validation & Session Error Banner Inside Modal -->
-                @if (session()->has('error'))
-                    <div class="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl flex items-center gap-2 text-xs font-extrabold shadow-xs">
-                        <x-lucide-alert-triangle class="w-4 h-4 text-rose-600 shrink-0" />
-                        <span>{{ session('error') }}</span>
-                    </div>
-                @endif
+                <!-- Username -->
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-stone-700 uppercase">Username <span class="text-rose-600">*</span></label>
+                    <input type="text" wire:model="username" placeholder="Username login"
+                        class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs font-bold text-stone-900 focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
+                    @error('username') <span class="text-[10px] text-rose-600 font-bold block mt-1">{{ $message }}</span> @enderror
+                </div>
 
-                @if ($errors->any())
-                    <div class="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl space-y-1.5 text-xs shadow-xs">
-                        <div class="flex items-center gap-2 font-extrabold text-rose-900">
-                            <x-lucide-alert-triangle class="w-4 h-4 text-rose-600 shrink-0" />
-                            <span>Mohon Perbaiki Isian Formulir:</span>
-                        </div>
-                        <ul class="list-disc list-inside text-[11px] font-bold text-rose-700 space-y-0.5 pl-1">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+                <!-- Role / Peranan -->
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-stone-700 uppercase">Role Hak Akses <span class="text-rose-600">*</span></label>
+                    <select wire:model="role_id" class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs font-bold text-stone-900 focus:ring-2 focus:ring-emerald-600 shadow-2xs">
+                        <option value="">-- Pilih Role --</option>
+                        @foreach ($selectableRoles as $r)
+                            <option value="{{ $r->id }}">{{ ucwords(str_replace('_', ' ', $r->nama)) }}</option>
+                        @endforeach
+                    </select>
+                    @error('role_id') <span class="text-[10px] text-rose-600 font-bold block mt-1">{{ $message }}</span> @enderror
+                </div>
 
-                <form wire:submit.prevent="save" action="javascript:void(0);" class="space-y-4">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <!-- Nama Lengkap -->
-                        <div class="sm:col-span-2 space-y-1">
-                            <label class="block text-xs font-bold text-stone-700 uppercase">Nama Lengkap <span class="text-rose-600">*</span></label>
-                            <input type="text" wire:model="nama" placeholder="Masukkan nama lengkap"
-                                class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-xs font-bold text-stone-900 focus:ring-2 focus:ring-emerald-600" />
-                            @error('nama') <span class="text-[10px] text-rose-600 font-bold block mt-1">{{ $message }}</span> @enderror
-                        </div>
+                <!-- Email -->
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-stone-700 uppercase">Email (Opsional)</label>
+                    <input type="email" wire:model="email" placeholder="karyawan@sekolah.sch.id"
+                        class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs font-bold text-stone-900 focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
+                    @error('email') <span class="text-[10px] text-rose-600 font-bold block mt-1">{{ $message }}</span> @enderror
+                </div>
 
-                        <!-- Username -->
-                        <div class="space-y-1">
-                            <label class="block text-xs font-bold text-stone-700 uppercase">Username <span class="text-rose-600">*</span></label>
-                            <input type="text" wire:model="username" placeholder="Username login"
-                                class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-xs font-bold text-stone-900 focus:ring-2 focus:ring-emerald-600" />
-                            @error('username') <span class="text-[10px] text-rose-600 font-bold block mt-1">{{ $message }}</span> @enderror
-                        </div>
+                <!-- Password -->
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-stone-700 uppercase">
+                        Password {{ $karyawanId ? '(Kosongkan jika tak diubah)' : '*' }}
+                    </label>
+                    <input type="password" wire:model="password" placeholder="Minimal 6 karakter"
+                        class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs font-bold text-stone-900 focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
+                    @error('password') <span class="text-[10px] text-rose-600 font-bold block mt-1">{{ $message }}</span> @enderror
+                </div>
 
-                        <!-- Role / Peranan -->
-                        <div class="space-y-1">
-                            <label class="block text-xs font-bold text-stone-700 uppercase">Role Hak Akses <span class="text-rose-600">*</span></label>
-                            <select wire:model="role_id" class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-xs font-bold text-stone-900 focus:ring-2 focus:ring-emerald-600">
-                                <option value="">-- Pilih Role --</option>
-                                @foreach ($selectableRoles as $r)
-                                    <option value="{{ $r->id }}">{{ ucwords(str_replace('_', ' ', $r->nama)) }}</option>
-                                @endforeach
-                            </select>
-                            @error('role_id') <span class="text-[10px] text-rose-600 font-bold block mt-1">{{ $message }}</span> @enderror
-                        </div>
+                <!-- NIP / ID Staff -->
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-stone-700 uppercase">NIP / ID Staff (Opsional)</label>
+                    <input type="text" wire:model="nip" placeholder="Contoh: 198501102010011005"
+                        class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs font-bold text-stone-900 focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
+                    @error('nip') <span class="text-[10px] text-rose-600 font-bold block mt-1">{{ $message }}</span> @enderror
+                </div>
 
-                        <!-- Email -->
-                        <div class="space-y-1">
-                            <label class="block text-xs font-bold text-stone-700 uppercase">Email (Opsional)</label>
-                            <input type="email" wire:model="email" placeholder="karyawan@sekolah.sch.id"
-                                class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-xs font-bold text-stone-900 focus:ring-2 focus:ring-emerald-600" />
-                            @error('email') <span class="text-[10px] text-rose-600 font-bold block mt-1">{{ $message }}</span> @enderror
-                        </div>
+                <!-- No HP -->
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-stone-700 uppercase">No. Telepon / WhatsApp</label>
+                    <input type="text" wire:model="no_hp" placeholder="081234567890"
+                        class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs font-bold text-stone-900 focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
+                    @error('no_hp') <span class="text-[10px] text-rose-600 font-bold block mt-1">{{ $message }}</span> @enderror
+                </div>
 
-                        <!-- Password -->
-                        <div class="space-y-1">
-                            <label class="block text-xs font-bold text-stone-700 uppercase">
-                                Password {{ $karyawanId ? '(Kosongkan jika tak diubah)' : '*' }}
-                            </label>
-                            <input type="password" wire:model="password" placeholder="Minimal 6 karakter"
-                                class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-xs font-bold text-stone-900 focus:ring-2 focus:ring-emerald-600" />
-                            @error('password') <span class="text-[10px] text-rose-600 font-bold block mt-1">{{ $message }}</span> @enderror
-                        </div>
+                <!-- Status Kepegawaian -->
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-stone-700 uppercase">Status Kepegawaian</label>
+                    <select wire:model="status_kepegawaian" class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs font-bold text-stone-900 focus:ring-2 focus:ring-emerald-600 shadow-2xs">
+                        <option value="pns">PNS / ASN</option>
+                        <option value="gtt">GTT / Guru Kontrak</option>
+                        <option value="honorer">Honorer</option>
+                        <option value="tetap_yayasan">Tetap Yayasan</option>
+                    </select>
+                    @error('status_kepegawaian') <span class="text-[10px] text-rose-600 font-bold block mt-1">{{ $message }}</span> @enderror
+                </div>
 
-                        <!-- NIP / ID Staff -->
-                        <div class="space-y-1">
-                            <label class="block text-xs font-bold text-stone-700 uppercase">NIP / ID Staff (Opsional)</label>
-                            <input type="text" wire:model="nip" placeholder="Contoh: 198501102010011005"
-                                class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-xs font-bold text-stone-900 focus:ring-2 focus:ring-emerald-600" />
-                            @error('nip') <span class="text-[10px] text-rose-600 font-bold block mt-1">{{ $message }}</span> @enderror
-                        </div>
+                <!-- Status Akun -->
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-stone-700 uppercase">Status Akun</label>
+                    <select wire:model="status" class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs font-bold text-stone-900 focus:ring-2 focus:ring-emerald-600 shadow-2xs">
+                        <option value="aktif">Aktif</option>
+                        <option value="nonaktif">Nonaktif</option>
+                    </select>
+                    @error('status') <span class="text-[10px] text-rose-600 font-bold block mt-1">{{ $message }}</span> @enderror
+                </div>
 
-                        <!-- No HP -->
-                        <div class="space-y-1">
-                            <label class="block text-xs font-bold text-stone-700 uppercase">No. Telepon / WhatsApp</label>
-                            <input type="text" wire:model="no_hp" placeholder="081234567890"
-                                class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-xs font-bold text-stone-900 focus:ring-2 focus:ring-emerald-600" />
-                            @error('no_hp') <span class="text-[10px] text-rose-600 font-bold block mt-1">{{ $message }}</span> @enderror
-                        </div>
-
-                        <!-- Status Kepegawaian -->
-                        <div class="space-y-1">
-                            <label class="block text-xs font-bold text-stone-700 uppercase">Status Kepegawaian</label>
-                            <select wire:model="status_kepegawaian" class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-xs font-bold text-stone-900 focus:ring-2 focus:ring-emerald-600">
-                                <option value="pns">PNS / ASN</option>
-                                <option value="gtt">GTT / Guru Kontrak</option>
-                                <option value="honorer">Honorer</option>
-                                <option value="tetap_yayasan">Tetap Yayasan</option>
-                            </select>
-                            @error('status_kepegawaian') <span class="text-[10px] text-rose-600 font-bold block mt-1">{{ $message }}</span> @enderror
-                        </div>
-
-                        <!-- Status Akun -->
-                        <div class="space-y-1">
-                            <label class="block text-xs font-bold text-stone-700 uppercase">Status Akun</label>
-                            <select wire:model="status" class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-xs font-bold text-stone-900 focus:ring-2 focus:ring-emerald-600">
-                                <option value="aktif">Aktif</option>
-                                <option value="nonaktif">Nonaktif</option>
-                            </select>
-                            @error('status') <span class="text-[10px] text-rose-600 font-bold block mt-1">{{ $message }}</span> @enderror
-                        </div>
-
-                        <!-- Alamat -->
-                        <div class="sm:col-span-2 space-y-1">
-                            <label class="block text-xs font-bold text-stone-700 uppercase">Alamat Tempat Tinggal</label>
-                            <textarea wire:model="alamat" rows="2" placeholder="Alamat domisili karyawan..."
-                                class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-xs font-medium text-stone-900 focus:ring-2 focus:ring-emerald-600 resize-none"></textarea>
-                            @error('alamat') <span class="text-[10px] text-rose-600 font-bold block mt-1">{{ $message }}</span> @enderror
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-stone-200">
-                        <button type="button" wire:click="$set('isFormOpen', false)" class="px-4 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold">
-                            Batal
-                        </button>
-                        <button type="submit" class="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-2">
-                            <x-lucide-save class="w-4 h-4" />
-                            <span>Simpan Data</span>
-                        </button>
-                    </div>
-                </form>
+                <!-- Alamat -->
+                <div class="sm:col-span-2 space-y-1">
+                    <label class="block text-xs font-bold text-stone-700 uppercase">Alamat Tempat Tinggal</label>
+                    <textarea wire:model="alamat" rows="2" placeholder="Alamat domisili karyawan..."
+                        class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs font-medium text-stone-900 focus:ring-2 focus:ring-emerald-600 shadow-2xs resize-none"></textarea>
+                    @error('alamat') <span class="text-[10px] text-rose-600 font-bold block mt-1">{{ $message }}</span> @enderror
+                </div>
             </div>
-        </div>
-    @endif
+
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-stone-200">
+                <x-button type="button" variant="secondary" size="md" wire:click="$set('isFormOpen', false)">
+                    Batal
+                </x-button>
+                <x-button type="submit" variant="primary" size="md" icon="save" loadingTarget="save">
+                    Simpan Data
+                </x-button>
+            </div>
+        </form>
+    </x-floating-card>
 </div>

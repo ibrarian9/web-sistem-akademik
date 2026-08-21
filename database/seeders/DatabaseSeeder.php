@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             RaporOrangTuaSeeder::class,
             TahfidzMutabaahSeeder::class,
             ProductionAccountsSeeder::class,
+            CapaianGuruSeeder::class,
         ]);
 
     }

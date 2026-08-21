@@ -194,9 +194,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/tabungan', \App\Livewire\Finance\TabunganSiswa::class)->name('tabungan');
         Route::get('/input-pembayaran', \App\Livewire\Finance\InputPembayaran::class)->name('input-pembayaran');
         Route::get('/arus-masuk', \App\Livewire\Finance\ArusMasuk::class)->name('arus-masuk');
-        Route::get('/arus-kas-masuk', \App\Livewire\Finance\ArusKasMasuk::class)->name('arus-kas-masuk');
-        Route::get('/arus-kas-keluar', \App\Livewire\Finance\ArusKasKeluar::class)->name('arus-kas-keluar');
-        Route::get('/arus-kas', \App\Livewire\Finance\ArusKasKeluar::class)->name('arus-kas');
+        Route::get('/arus-kas', \App\Livewire\Finance\ArusKas::class)->name('arus-kas');
+        Route::get('/arus-kas-masuk', \App\Livewire\Finance\ArusKas::class)->name('arus-kas-masuk');
+        Route::get('/arus-kas-keluar', \App\Livewire\Finance\ArusKas::class)->name('arus-kas-keluar');
         Route::get('/dana-bos', \App\Livewire\Finance\DanaBos::class)->name('dana-bos');
 
         // Peminjaman & Gaji Guru

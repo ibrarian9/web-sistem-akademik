@@ -1,42 +1,55 @@
 <div class="space-y-6 font-sans">
+    <!-- Header Title Bar -->
+    <x-page-header 
+        title="Audit Log Aktivitas Sistem" 
+        subtitle="Pantau seluruh riwayat aksi, perubahan data, alamat IP, dan aktivitas user pada sistem secara real-time."
+        badge="ACTIVITY TRACKER"
+        badgeVariant="emerald"
+        icon="activity"
+    >
+        <x-slot:actions>
+            <div class="flex items-center gap-1.5 bg-stone-100 border border-stone-200 p-1 rounded-xl overflow-x-auto shadow-2xs">
+                <x-button type="button" :variant="$filterPeriode === '' ? 'primary' : 'ghost'" size="xs" wire:click="$set('filterPeriode', '')">
+                    Semua Waktu
+                </x-button>
+                <x-button type="button" :variant="$filterPeriode === 'today' ? 'primary' : 'ghost'" size="xs" wire:click="setPeriodPreset('today')">
+                    Hari Ini
+                </x-button>
+                <x-button type="button" :variant="$filterPeriode === 'yesterday' ? 'primary' : 'ghost'" size="xs" wire:click="setPeriodPreset('yesterday')">
+                    Kemarin
+                </x-button>
+                <x-button type="button" :variant="$filterPeriode === 'this_week' ? 'primary' : 'ghost'" size="xs" wire:click="setPeriodPreset('this_week')">
+                    Minggu Ini
+                </x-button>
+                <x-button type="button" :variant="$filterPeriode === 'this_month' ? 'primary' : 'ghost'" size="xs" wire:click="setPeriodPreset('this_month')">
+                    Bulan Ini
+                </x-button>
+            </div>
+        </x-slot:actions>
+    </x-page-header>
+
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
         title="Petunjuk Monitoring Audit Log Sistem"
         :steps="[
             ['title' => 'Jejak Audit Real-time', 'desc' => 'Tabel mencatat seluruh aksi entri, update, dan penghapusan data beserta IP pelakunya.'],
-            ['title' => 'Filter Jenis Event', 'desc' => 'Gunakan filter event (Created, Updated, Deleted) untuk mempersempit penelusuran audit.'],
+            ['title' => 'Filter Periode & Event', 'desc' => 'Gunakan filter periode (Hari Ini, Kemarin, Minggu Ini, Bulan Ini) atau filter event (Created, Updated, Deleted) untuk penelusuran cepat.'],
             ['title' => 'Pencarian Pengguna', 'desc' => 'Cari nama user atau alamat IP tertentu pada kotak pencarian di bagian atas.']
         ]"
     />
 
-    <!-- Header Page -->
-    <div class="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-            <span class="px-3 py-1 bg-emerald-100 border border-emerald-300 text-emerald-900 rounded-full text-xs font-bold uppercase tracking-wider inline-block">
-                SD Tahfizh F3 Activity Tracker
-            </span>
-            <h2 class="text-xl font-extrabold text-stone-900 tracking-tight mt-1 flex items-center gap-2">
-                <x-lucide-activity class="w-5 h-5 text-emerald-600 shrink-0" />
-                <span>Audit Log Aktivitas Sistem</span>
-            </h2>
-            <p class="text-xs text-stone-500 font-medium">Pantau seluruh riwayat aksi, perubahan data, alamat IP, dan aktivitas user pada sistem secara real-time.</p>
-        </div>
-    </div>
-
-    <!-- Table Section -->
-    <div class="space-y-4">
+    <!-- Content Card -->
+    <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
         <!-- Controls: Search & Event Selector -->
-        <div class="bg-white border border-stone-200 p-4 rounded-2xl shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:max-w-xl">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:max-w-xl">
                 <!-- Search bar -->
-                <div class="relative w-full flex-1">
-                    <x-lucide-search class="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
-                    <input wire:model.live.debounce.300ms="search" type="text" placeholder="Cari aktivitas, nama user, atau IP..."
-                        class="w-full pl-10 pr-4 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 placeholder-stone-400 focus:ring-2 focus:ring-emerald-500 focus:bg-white transition" />
+                <div class="w-full flex-1">
+                    <x-search-input wire:model.live.debounce.300ms="search" placeholder="Cari aktivitas, nama user, atau IP..." />
                 </div>
                 
                 <!-- Event selector -->
-                <select wire:model.live="filterEvent" class="w-full sm:w-auto bg-stone-50 border border-stone-200 rounded-xl text-stone-900 text-xs font-medium px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                <select wire:model.live="filterEvent" class="bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold px-3.5 py-2.5 focus:ring-2 focus:ring-emerald-600 shadow-2xs">
                     <option value="">Semua Event</option>
                     @foreach ($events as $evt)
                         <option value="{{ $evt }}">{{ ucfirst($evt) }}</option>
@@ -44,163 +57,157 @@
                 </select>
             </div>
             
-            <div class="flex items-center gap-2 shrink-0">
-                <span class="text-xs text-stone-500 font-bold">Tampilkan:</span>
-                <select wire:model.live="perPage" class="bg-stone-50 border border-stone-200 rounded-xl text-stone-900 text-xs font-medium px-2.5 py-1.5 focus:ring-2 focus:ring-emerald-500">
-                    <option value="20">20</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-stone-600 font-bold">Tampilkan:</span>
+                <select wire:model.live="perPage" class="bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold px-3 py-2 focus:ring-2 focus:ring-emerald-600 shadow-2xs">
+                    <option value="20">20 Baris</option>
+                    <option value="50">50 Baris</option>
+                    <option value="100">100 Baris</option>
                 </select>
             </div>
         </div>
 
         <!-- Table -->
-        <x-data-table>
-            <x-slot:thead>
-                <th class="px-6 py-3.5">Waktu</th>
-                <th class="px-6 py-3.5">Nama User (Pelaku)</th>
-                <th class="px-6 py-3.5">Event</th>
-                <th class="px-6 py-3.5">Deskripsi Aktivitas</th>
-                <th class="px-6 py-3.5">IP Address &amp; Perangkat</th>
-                <th class="px-6 py-3.5 text-center">Aksi</th>
-            </x-slot:thead>
-            <x-slot:tbody>
+        <x-table loadingTarget="filterEvent, filterPeriode, perPage, search">
+            <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+                <tr>
+                    <x-table.th class="w-44">Waktu</x-table.th>
+                    <x-table.th class="min-w-[180px]">Nama User (Pelaku)</x-table.th>
+                    <x-table.th class="w-28 text-center">Event</x-table.th>
+                    <x-table.th class="min-w-[220px]">Deskripsi Aktivitas</x-table.th>
+                    <x-table.th class="min-w-[180px]">IP Address &amp; Perangkat</x-table.th>
+                    <x-table.th align="center" class="w-28">Aksi</x-table.th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-200 bg-white">
                 @forelse ($logs as $log)
-                    <tr class="hover:bg-stone-50/80 transition-colors cursor-pointer" wire:click="openDetail({{ $log->id }})">
-                        <td class="px-6 py-4 text-xs font-mono font-semibold text-stone-600">
+                    <tr class="hover:bg-stone-50 transition cursor-pointer" wire:click="openDetail({{ $log->id }})">
+                        <td class="p-3.5 text-xs font-mono font-bold text-stone-600 border-r border-stone-200">
                             {{ date('d-m-Y H:i:s', strtotime($log->created_at)) }}
                         </td>
-                        <td class="px-6 py-4">
-                            <div class="font-extrabold text-stone-900">{{ $log->causer_name ?? 'Sistem / Guest' }}</div>
+                        <td class="p-3.5 border-r border-stone-200">
+                            <div class="font-extrabold text-stone-900 text-xs">{{ $log->causer_name ?? 'Sistem / Guest' }}</div>
                             @if ($log->causer_username)
                                 <div class="text-[10px] text-stone-500 font-mono">@ {{ $log->causer_username }}</div>
                             @endif
                         </td>
-                        <td class="px-6 py-4">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-none text-[10px] font-black uppercase tracking-wider border
-                                {{ $log->event === 'created' || $log->event === 'updated' ? 'bg-emerald-100 text-emerald-950 border-emerald-300' : '' }}
-                                {{ $log->event === 'deleted' ? 'bg-rose-100 text-rose-950 border-rose-300' : '' }}
-                                {{ !in_array($log->event, ['created', 'updated', 'deleted']) ? 'bg-stone-100 text-stone-800 border-stone-300' : '' }}
-                            ">
-                                {{ $log->event ?: 'log' }}
-                            </span>
+                        <td class="p-3.5 text-center border-r border-stone-200">
+                            @if ($log->event === 'created')
+                                <x-badge variant="emerald" size="xs">Created</x-badge>
+                            @elseif ($log->event === 'updated')
+                                <x-badge variant="blue" size="xs">Updated</x-badge>
+                            @elseif ($log->event === 'deleted')
+                                <x-badge variant="rose" size="xs">Deleted</x-badge>
+                            @else
+                                <x-badge variant="stone" size="xs">{{ $log->event ?: 'log' }}</x-badge>
+                            @endif
                         </td>
-                        <td class="px-6 py-4 text-stone-800 font-semibold max-w-sm truncate" title="{{ $log->description }}">
+                        <td class="p-3.5 text-stone-800 font-semibold max-w-sm truncate border-r border-stone-200" title="{{ $log->description }}">
                             {{ $log->description }}
                         </td>
-                        <td class="px-6 py-4">
-                            <div class="font-bold text-stone-800 text-xs font-mono">{{ $log->ip_address ?: '-' }}</div>
+                        <td class="p-3.5 border-r border-stone-200">
+                            <div class="font-bold text-stone-900 text-xs font-mono">{{ $log->ip_address ?: '-' }}</div>
                             <div class="text-[10px] text-stone-500 truncate max-w-xs font-medium" title="{{ $log->user_agent }}">
                                 {{ $log->user_agent ?: 'Standard Web Client' }}
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-center" @click.stop>
-                            <button type="button" wire:click="openDetail({{ $log->id }})" 
-                                    class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-none text-xs font-extrabold transition flex items-center justify-center gap-1.5 mx-auto">
-                                <x-lucide-eye class="w-3.5 h-3.5 text-emerald-700" />
-                                <span>Detail</span>
-                            </button>
+                        <td class="p-3.5 text-center" @click.stop>
+                            <x-button type="button" variant="outline" size="xs" icon="eye" wire:click="openDetail({{ $log->id }})">
+                                Detail
+                            </x-button>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-8 text-center text-stone-400 font-medium">
-                            Tidak ada log aktivitas ditemukan
+                        <td colspan="6" class="py-12 text-center text-stone-400">
+                            <x-table.empty title="Tidak ada log aktivitas ditemukan" subtitle="Aktivitas audit sistem akan tercatat secara otomatis saat data dimodifikasi." />
                         </td>
                     </tr>
                 @endforelse
-            </x-slot:tbody>
-        </x-data-table>
+            </tbody>
+        </x-table>
 
         <!-- Pagination -->
-        <div class="mt-4">
+        <div class="pt-2">
             {{ $logs->links() }}
         </div>
     </div>
 
     <!-- Audit Log Detail Modal -->
-    @if ($showDetailModal && $selectedLog)
-        <div class="fixed inset-0 z-[99990] flex items-center justify-center bg-stone-950/65 backdrop-blur-xs p-4 sm:p-6 pt-20 sm:pt-8 pb-8 overflow-y-auto">
-            <div class="bg-white border border-stone-200 rounded-none max-w-2xl w-full shadow-2xl overflow-hidden relative animate-[fadeIn_0.2s_ease-out]">
-                <!-- Top Header Accent Bar -->
-                <div class="h-1.5 bg-emerald-600"></div>
-
-                <div class="p-6 space-y-5">
-                    <div class="flex items-start justify-between gap-4 border-b border-stone-200 pb-4">
-                        <div class="space-y-1">
-                            <div class="flex items-center gap-2">
-                                <span class="px-2.5 py-0.5 rounded-none text-[10px] font-black uppercase tracking-wider border
-                                    {{ $selectedLog['event'] === 'created' || $selectedLog['event'] === 'updated' ? 'bg-emerald-100 text-emerald-950 border-emerald-300' : '' }}
-                                    {{ $selectedLog['event'] === 'deleted' ? 'bg-rose-100 text-rose-950 border-rose-300' : 'bg-stone-100 text-stone-900 border-stone-300' }}
-                                ">
-                                    {{ strtoupper($selectedLog['event'] ?? 'LOG') }}
-                                </span>
-                                <span class="text-xs text-stone-500 font-bold">ID #{{ $selectedLog['id'] }}</span>
-                            </div>
-                            <h3 class="text-lg font-black text-stone-900 tracking-tight flex items-center gap-2">
-                                <x-lucide-file-text class="w-5 h-5 text-emerald-600 shrink-0" />
-                                <span>Detail Audit Log Aktivitas</span>
-                            </h3>
-                        </div>
-
-                        <button type="button" wire:click="closeDetail" class="p-1.5 rounded-none text-stone-400 hover:text-stone-800 hover:bg-stone-100 transition text-sm font-bold">
-                            ✕
-                        </button>
+    <x-floating-card 
+        :show="($showDetailModal && $selectedLog) ? true : false"
+        title="Detail Audit Log Aktivitas"
+        :subtitle="'ID #' . ($selectedLog['id'] ?? '') . ' - Dicatat pada ' . (isset($selectedLog['created_at']) ? date('d F Y, H:i:s', strtotime($selectedLog['created_at'])) : '-')"
+        badge="LOG ACTIVITY"
+        badgeVariant="emerald"
+        icon="activity"
+        maxWidth="max-w-2xl"
+        closeAction="closeDetail"
+    >
+        @if ($selectedLog)
+            <div class="space-y-4 text-xs">
+                <!-- Metadata Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-1">
+                        <div class="text-[10px] uppercase font-bold text-stone-500">Pelaku (Causer)</div>
+                        <div class="font-bold text-stone-900">{{ $selectedLog['causer_name'] ?? 'Sistem / Guest' }}</div>
+                        @if(!empty($selectedLog['causer_username']))
+                            <div class="text-[11px] text-stone-500 font-mono">@ {{ $selectedLog['causer_username'] }}</div>
+                        @endif
                     </div>
 
-                    <!-- Metadata Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                        <div class="p-3 bg-stone-50 border border-stone-200 rounded-none space-y-1">
-                            <div class="text-[10px] uppercase font-bold text-stone-400">Waktu Kejadian</div>
-                            <div class="font-mono font-bold text-stone-900">{{ date('d F Y, H:i:s', strtotime($selectedLog['created_at'])) }}</div>
-                        </div>
-
-                        <div class="p-3 bg-stone-50 border border-stone-200 rounded-none space-y-1">
-                            <div class="text-[10px] uppercase font-bold text-stone-400">Pelaku (Causer)</div>
-                            <div class="font-bold text-stone-900">{{ $selectedLog['causer_name'] ?? 'Sistem / Guest' }}</div>
-                            @if(!empty($selectedLog['causer_username']))
-                                <div class="text-[11px] text-stone-500 font-mono">@ {{ $selectedLog['causer_username'] }}</div>
+                    <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-1">
+                        <div class="text-[10px] uppercase font-bold text-stone-500">Event Aksi</div>
+                        <div>
+                            @if (($selectedLog['event'] ?? '') === 'created')
+                                <x-badge variant="emerald" size="xs">CREATED</x-badge>
+                            @elseif (($selectedLog['event'] ?? '') === 'updated')
+                                <x-badge variant="blue" size="xs">UPDATED</x-badge>
+                            @elseif (($selectedLog['event'] ?? '') === 'deleted')
+                                <x-badge variant="rose" size="xs">DELETED</x-badge>
+                            @else
+                                <x-badge variant="stone" size="xs">{{ strtoupper($selectedLog['event'] ?? 'LOG') }}</x-badge>
                             @endif
                         </div>
-
-                        <div class="p-3 bg-stone-50 border border-stone-200 rounded-none space-y-1">
-                            <div class="text-[10px] uppercase font-bold text-stone-400">IP Address</div>
-                            <div class="font-mono font-bold text-stone-900">{{ $selectedLog['ip_address'] ?: '-' }}</div>
-                        </div>
-
-                        <div class="p-3 bg-stone-50 border border-stone-200 rounded-none space-y-1">
-                            <div class="text-[10px] uppercase font-bold text-stone-400">User Agent / Perangkat</div>
-                            <div class="text-[11px] text-stone-700 font-medium truncate" title="{{ $selectedLog['user_agent'] }}">
-                                {{ $selectedLog['user_agent'] ?: 'Standard Web Browser' }}
-                            </div>
-                        </div>
                     </div>
 
-                    <!-- Description -->
-                    <div class="space-y-1.5">
-                        <div class="text-xs font-bold text-stone-800">Deskripsi Aktivitas Lengkap</div>
-                        <div class="p-3.5 bg-stone-100 border border-stone-200 rounded-none text-xs font-medium text-stone-800 leading-relaxed">
-                            {{ $selectedLog['description'] }}
-                        </div>
+                    <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-1">
+                        <div class="text-[10px] uppercase font-bold text-stone-500">IP Address</div>
+                        <div class="font-mono font-bold text-stone-900">{{ $selectedLog['ip_address'] ?: '-' }}</div>
                     </div>
 
-                    <!-- JSON Properties if available -->
-                    @if (!empty($selectedLog['properties_parsed']))
-                        <div class="space-y-1.5">
-                            <div class="text-xs font-bold text-stone-800">Data Perubahan / Context Properties</div>
-                            <div class="p-3 bg-stone-900 text-emerald-400 rounded-none font-mono text-xs overflow-x-auto whitespace-pre leading-relaxed border border-stone-800 shadow-inner max-h-56">
-                                {{ is_array($selectedLog['properties_parsed']) ? json_encode($selectedLog['properties_parsed'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : $selectedLog['properties_parsed'] }}
-                            </div>
+                    <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-1">
+                        <div class="text-[10px] uppercase font-bold text-stone-500">User Agent / Perangkat</div>
+                        <div class="text-[11px] text-stone-700 font-medium truncate" title="{{ $selectedLog['user_agent'] ?? '' }}">
+                            {{ $selectedLog['user_agent'] ?: 'Standard Web Browser' }}
                         </div>
-                    @endif
+                    </div>
                 </div>
 
-                <div class="px-6 py-4 bg-stone-50 border-t border-stone-200 flex justify-end">
-                    <button type="button" wire:click="closeDetail" class="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-none text-xs font-bold transition">
+                <!-- Description -->
+                <div class="space-y-1">
+                    <div class="text-xs font-bold text-stone-800 uppercase">Deskripsi Aktivitas Lengkap</div>
+                    <div class="p-3.5 bg-stone-100 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 leading-relaxed">
+                        {{ $selectedLog['description'] }}
+                    </div>
+                </div>
+
+                <!-- JSON Properties if available -->
+                @if (!empty($selectedLog['properties_parsed']))
+                    <div class="space-y-1">
+                        <div class="text-xs font-bold text-stone-800 uppercase">Data Perubahan / Context Properties</div>
+                        <div class="p-3 bg-stone-900 text-emerald-400 rounded-xl font-mono text-xs overflow-x-auto whitespace-pre leading-relaxed border border-stone-800 shadow-inner max-h-56">
+                            {{ is_array($selectedLog['properties_parsed']) ? json_encode($selectedLog['properties_parsed'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : $selectedLog['properties_parsed'] }}
+                        </div>
+                    </div>
+                @endif
+
+                <div class="flex justify-end pt-3 border-t border-stone-200">
+                    <x-button type="button" variant="secondary" size="md" wire:click="closeDetail">
                         Tutup
-                    </button>
+                    </x-button>
                 </div>
             </div>
-        </div>
-    @endif
+        @endif
+    </x-floating-card>
 </div>

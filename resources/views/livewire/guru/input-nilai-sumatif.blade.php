@@ -143,100 +143,91 @@
             <span class="text-[11px] text-stone-500 font-semibold">Total {{ count($siswas) }} Siswa</span>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs text-stone-800">
-                <thead class="bg-stone-100 text-stone-700 font-extrabold uppercase tracking-wider border-b border-stone-200">
-                    <tr>
-                        <th class="p-3.5 sticky left-0 bg-stone-100 z-10 w-12 text-center border-r border-stone-200">No</th>
-                        <th class="p-3.5 sticky left-12 bg-stone-100 z-10 min-w-[200px] border-r border-stone-200">Nama Siswa</th>
-                        @foreach($tps as $tpIdx => $tp)
-
-                            <th class="p-3 text-center min-w-[90px] border-r border-stone-200" title="{{ $tp->deskripsi_tp }}">
-                                <span class="block text-emerald-700 font-black">TP {{ $tp->urutan }}</span>
-                                <span class="text-[10px] text-stone-500 font-normal block truncate max-w-[100px]">{{ $tp->deskripsi_tp }}</span>
-                            </th>
-                        @endforeach
-                        <th class="p-3.5 text-center bg-cyan-50 text-cyan-900 min-w-[90px] font-black border-r border-stone-200">Nilai SAS</th>
+        <x-table loadingTarget="selectedKelasId, selectedMapelId, selectedSemesterId">
+            <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+                <tr>
+                    <x-table.th align="center" class="w-12 sticky left-0 bg-emerald-800 z-10">No</x-table.th>
+                    <x-table.th class="min-w-[200px] sticky left-12 bg-emerald-800 z-10">Nama Siswa</x-table.th>
+                    @foreach($tps as $tpIdx => $tp)
+                        <x-table.th align="center" class="min-w-[90px]" title="{{ $tp->deskripsi_tp }}">
+                            <span class="block text-emerald-100 font-black">TP {{ $tp->urutan }}</span>
+                            <span class="text-[10px] text-emerald-200 font-normal block truncate max-w-[100px]">{{ $tp->deskripsi_tp }}</span>
+                        </x-table.th>
+                    @endforeach
+                    <x-table.th align="center" class="w-24 bg-emerald-900 text-white font-black">Nilai SAS</x-table.th>
+                    <x-table.th align="center" class="w-28 bg-emerald-950 text-white font-black">Nilai Rapor</x-table.th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-200 bg-white">
+                @forelse($siswas as $index => $s)
+                    @php
+                        $tpScores = array_filter(array_values($nilaiTpMatrix[$s->id] ?? []), function($v) {
+                            return $v !== '' && $v !== null && is_numeric($v);
+                        });
+                        $avgTp = count($tpScores) > 0 ? array_sum($tpScores) / count($tpScores) : null;
                         
-                        <!-- Calculated Final Rapor Column -->
-                        <th class="p-3.5 text-center bg-emerald-50 text-emerald-900 min-w-[100px] font-black">Nilai Rapor</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-stone-200">
-                    @forelse($siswas as $index => $s)
-                        @php
-                            $tpScores = array_filter(array_values($nilaiTpMatrix[$s->id] ?? []), function($v) {
-                                return $v !== '' && $v !== null && is_numeric($v);
-                            });
-                            $avgTp = count($tpScores) > 0 ? array_sum($tpScores) / count($tpScores) : null;
-                            
-                            $sasVal = $nilaiSasMatrix[$s->id] ?? '';
-                            $sasNum = (is_numeric($sasVal) && $sasVal !== '') ? (float)$sasVal : null;
-                            
-                            $components = [];
-                            if ($avgTp !== null) $components[] = $avgTp;
-                            if ($sasNum !== null) $components[] = $sasNum;
-                            
-                            $nilaiRapor = count($components) > 0 ? array_sum($components) / count($components) : null;
-                            $nilaiRaporFormatted = $nilaiRapor !== null ? round($nilaiRapor, 2) : null;
-                        @endphp
-                        <tr class="hover:bg-stone-50 transition">
-                            <td class="p-3 text-center sticky left-0 bg-white font-bold text-stone-500 border-r border-stone-200">{{ $index + 1 }}</td>
-                            <td class="p-3 sticky left-12 bg-white font-bold text-stone-900 border-r border-stone-200">
-                                {{ $s->user->nama ?? $s->nama_panggilan }}
-                                <span class="block text-[10px] text-stone-500 font-normal">NISN: {{ $s->nisn }}</span>
-                            </td>
-                            @foreach($tps as $colIdx => $tp)
-
-                                <td class="p-2 text-center border-r border-stone-200">
-                                    <input 
-                                        type="number" 
-                                        step="0.01" 
-                                        min="0" 
-                                        max="100"
-                                        data-row="{{ $index }}"
-                                        data-col="{{ $colIdx }}"
-                                        @keydown.enter.prevent="navigateCell($event, {{ $index }}, {{ $colIdx }})"
-                                        @keydown.arrow-down.prevent="navigateCell($event, {{ $index }}, {{ $colIdx }})"
-                                        @keydown.arrow-up.prevent="navigateCell($event, {{ $index }}, {{ $colIdx }})"
-                                        wire:model.defer="nilaiTpMatrix.{{ $s->id }}.{{ $tp->id }}"
-                                        class="w-16 bg-white border border-stone-300 rounded-lg text-center text-stone-900 font-black py-1.5 focus:ring-2 focus:ring-emerald-500 focus:bg-emerald-50 text-xs shadow-xs"
-                                        placeholder="0"
-                                    >
-                                </td>
-                            @endforeach
-                            <!-- Input SAS -->
-                            <td class="p-2 text-center bg-cyan-50/50 border-r border-stone-200">
+                        $sasVal = $nilaiSasMatrix[$s->id] ?? '';
+                        $sasNum = (is_numeric($sasVal) && $sasVal !== '') ? (float)$sasVal : null;
+                        
+                        $components = [];
+                        if ($avgTp !== null) $components[] = $avgTp;
+                        if ($sasNum !== null) $components[] = $sasNum;
+                        
+                        $nilaiRapor = count($components) > 0 ? array_sum($components) / count($components) : null;
+                        $nilaiRaporFormatted = $nilaiRapor !== null ? round($nilaiRapor, 2) : null;
+                    @endphp
+                    <tr class="hover:bg-stone-50 transition">
+                        <td class="p-3 text-center sticky left-0 bg-white font-bold text-stone-500 border-r border-stone-200 text-xs">{{ $index + 1 }}</td>
+                        <td class="p-3 sticky left-12 bg-white font-bold text-stone-900 border-r border-stone-200 text-xs">
+                            {{ $s->user->nama ?? $s->nama_panggilan }}
+                            <span class="block text-[10px] text-stone-500 font-normal">NISN: {{ $s->nisn }}</span>
+                        </td>
+                        @foreach($tps as $colIdx => $tp)
+                            <td class="p-2 text-center border-r border-stone-200">
                                 <input 
                                     type="number" 
                                     step="0.01" 
                                     min="0" 
                                     max="100"
                                     data-row="{{ $index }}"
-                                    data-col="{{ count($allTps) }}"
-                                    @keydown.enter.prevent="navigateCell($event, {{ $index }}, {{ count($allTps) }})"
-                                    @keydown.arrow-down.prevent="navigateCell($event, {{ $index }}, {{ count($allTps) }})"
-                                    @keydown.arrow-up.prevent="navigateCell($event, {{ $index }}, {{ count($allTps) }})"
-                                    wire:model.defer="nilaiSasMatrix.{{ $s->id }}"
-                                    class="w-20 bg-white border border-cyan-400 text-cyan-900 font-black rounded-lg text-center py-1.5 focus:ring-2 focus:ring-cyan-500 text-xs shadow-xs"
+                                    data-col="{{ $colIdx }}"
+                                    @keydown.enter.prevent="navigateCell($event, {{ $index }}, {{ $colIdx }})"
+                                    @keydown.arrow-down.prevent="navigateCell($event, {{ $index }}, {{ $colIdx }})"
+                                    @keydown.arrow-up.prevent="navigateCell($event, {{ $index }}, {{ $colIdx }})"
+                                    wire:model.defer="nilaiTpMatrix.{{ $s->id }}.{{ $tp->id }}"
+                                    class="w-16 bg-white border border-stone-300 rounded-lg text-center text-stone-900 font-black py-1.5 focus:ring-2 focus:ring-emerald-500 focus:bg-emerald-50 text-xs shadow-xs"
                                     placeholder="0"
                                 >
                             </td>
+                        @endforeach
+                        <!-- Input SAS -->
+                        <td class="p-2 text-center bg-cyan-50/50 border-r border-stone-200">
+                            <input 
+                                type="number" 
+                                step="0.01" 
+                                min="0" 
+                                max="100"
+                                data-row="{{ $index }}"
+                                data-col="{{ count($allTps) }}"
+                                @keydown.enter.prevent="navigateCell($event, {{ $index }}, {{ count($allTps) }})"
+                                @keydown.arrow-down.prevent="navigateCell($event, {{ $index }}, {{ count($allTps) }})"
+                                @keydown.arrow-up.prevent="navigateCell($event, {{ $index }}, {{ count($allTps) }})"
+                                wire:model.defer="nilaiSasMatrix.{{ $s->id }}"
+                                class="w-20 bg-white border border-cyan-400 text-cyan-900 font-black rounded-lg text-center py-1.5 focus:ring-2 focus:ring-cyan-500 text-xs shadow-xs"
+                                placeholder="0"
+                            >
+                        </td>
 
-                            <!-- Calculated Column: Nilai Rapor Akhir -->
-                            <td class="p-2 text-center bg-emerald-50/60 font-black text-emerald-900 text-sm">
-                                {{ $nilaiRaporFormatted !== null ? number_format($nilaiRaporFormatted, 2) : '-' }}
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="{{ count($allTps) + 3 }}" class="p-8 text-center text-stone-500 font-medium">
-                                Tidak ada siswa terdaftar pada kelas ini.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                        <!-- Calculated Column: Nilai Rapor Akhir -->
+                        <td class="p-2 text-center bg-emerald-50/60 font-black text-emerald-900 text-sm">
+                            {{ $nilaiRaporFormatted !== null ? number_format($nilaiRaporFormatted, 2) : '-' }}
+                        </td>
+                    </tr>
+                @empty
+                    <x-table.empty :colspan="count($allTps) + 3" title="Tidak ada siswa" message="Tidak ada siswa terdaftar pada rombel kelas ini." />
+                @endforelse
+            </tbody>
+        </x-table>
+    </div>
     </div>
 </div>

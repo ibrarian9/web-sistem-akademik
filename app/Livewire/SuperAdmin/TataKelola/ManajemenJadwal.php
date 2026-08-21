@@ -45,6 +45,12 @@ class ManajemenJadwal extends Component
         $this->resetPage();
     }
 
+    public function updatedSelectedKelasId($value)
+    {
+        $this->filterKelasId = $value ? (int) $value : null;
+        $this->resetPage();
+    }
+
     public function updatingSearch()
     {
         $this->resetPage();

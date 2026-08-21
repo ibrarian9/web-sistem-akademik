@@ -12,6 +12,7 @@ class AuditLog extends Component
 
     public string $search = '';
     public string $filterEvent = '';
+    public string $filterPeriode = ''; // '', 'today', 'yesterday', 'this_week', 'this_month'
     public int $perPage = 20;
 
     public $selectedLog = null;
@@ -20,6 +21,7 @@ class AuditLog extends Component
     protected $queryString = [
         'search' => ['except' => ''],
         'filterEvent' => ['except' => ''],
+        'filterPeriode' => ['except' => ''],
     ];
 
     public function updatingSearch()
@@ -29,6 +31,17 @@ class AuditLog extends Component
 
     public function updatingFilterEvent()
     {
+        $this->resetPage();
+    }
+
+    public function updatingFilterPeriode()
+    {
+        $this->resetPage();
+    }
+
+    public function setPeriodPreset(string $preset)
+    {
+        $this->filterPeriode = ($this->filterPeriode === $preset) ? '' : $preset;
         $this->resetPage();
     }
 
@@ -87,6 +100,15 @@ class AuditLog extends Component
             })
             ->when($this->filterEvent, function ($query) {
                 $query->where('activity_log.event', $this->filterEvent);
+            })
+            ->when($this->filterPeriode, function ($query) {
+                match($this->filterPeriode) {
+                    'today' => $query->whereDate('activity_log.created_at', now()->toDateString()),
+                    'yesterday' => $query->whereDate('activity_log.created_at', now()->subDay()->toDateString()),
+                    'this_week' => $query->whereBetween('activity_log.created_at', [now()->startOfWeek(), now()->endOfWeek()]),
+                    'this_month' => $query->whereMonth('activity_log.created_at', now()->month)->whereYear('activity_log.created_at', now()->year),
+                    default => null,
+                };
             })
             ->orderBy('activity_log.created_at', 'desc')
             ->paginate($this->perPage);

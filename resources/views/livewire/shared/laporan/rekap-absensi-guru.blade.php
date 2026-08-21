@@ -10,12 +10,19 @@
     />
 
     <!-- Page Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <h2 class="text-xl font-bold text-stone-800 tracking-tight">Rekap Absensi Guru</h2>
-            <p class="text-sm text-stone-500 font-medium">Laporan kehadiran guru per bulan.</p>
-        </div>
-    </div>
+    <x-page-header 
+        title="Rekap Absensi Guru &amp; Tenaga Pendidik" 
+        subtitle="Laporan rekapitulasi kehadiran dewan guru per bulan."
+        badge="LAPORAN PRESENSI"
+        badgeVariant="emerald"
+        icon="calendar-check"
+    >
+        <x-slot:actions>
+            <x-button type="button" variant="outline" size="sm" icon="file-text" wire:click="downloadPdf">
+                Ekspor PDF
+            </x-button>
+        </x-slot:actions>
+    </x-page-header>
 
     <!-- Filters Card -->
     <div class="bg-white border border-stone-200 rounded-2xl shadow-sm p-6">
@@ -61,76 +68,68 @@
                 Laporan Kehadiran Seluruh Guru Aktif
             </div>
             
-            <button wire:click="downloadPdf" 
-                    class="inline-flex items-center justify-center gap-2 py-2 px-4 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-sm font-semibold text-stone-700 shadow-sm transition duration-150 shrink-0">
-                <x-lucide-file-text class="w-4 h-4 text-red-600" />
-                <span>Ekspor PDF</span>
-            </button>
+            <x-button type="button" variant="outline" size="sm" icon="file-text" wire:click="downloadPdf">
+                Ekspor PDF
+            </x-button>
         </div>
 
         <!-- Scrollable Matrix Table -->
-        <div class="overflow-x-auto">
-            <table class="w-full border-collapse text-left text-xs text-stone-600 min-w-[900px]">
-                <thead>
-                    <tr class="bg-stone-50 border-b border-stone-200 font-bold text-stone-700">
-                        <th class="py-3 px-4 w-12 text-center border-r border-stone-200">No</th>
-                        <th class="py-3 px-4 w-52 border-r border-stone-200">Nama Guru</th>
+        <x-table loadingTarget="month, year">
+            <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+                <tr>
+                    <x-table.th align="center" class="w-10">No</x-table.th>
+                    <x-table.th class="w-52">Nama Guru</x-table.th>
+                    @for ($day = 1; $day <= $daysInMonth; $day++)
+                        <x-table.th align="center" class="w-7 text-[11px] p-1">{{ $day }}</x-table.th>
+                    @endfor
+                    <x-table.th align="center" class="w-10 bg-emerald-900 text-white font-black">H</x-table.th>
+                    <x-table.th align="center" class="w-10 bg-amber-700 text-white font-black">T</x-table.th>
+                    <x-table.th align="center" class="w-10 bg-amber-900 text-white font-black">I</x-table.th>
+                    <x-table.th align="center" class="w-10 bg-rose-900 text-white font-black">A</x-table.th>
+                    <x-table.th align="center" class="w-16 bg-emerald-950 text-white font-black">%</x-table.th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-200 bg-white">
+                @forelse ($matrix as $index => $row)
+                    <tr class="hover:bg-stone-50 transition">
+                        <td class="p-2.5 text-center border-r border-stone-200 font-bold text-stone-400 text-xs">{{ $index + 1 }}</td>
+                        <td class="p-2.5 border-r border-stone-200 font-bold text-stone-900 text-xs">
+                            {{ $row['guru']->user->nama }}
+                            <div class="text-[10px] text-stone-400 font-semibold mt-0.5">NIP: {{ $row['guru']->nip ?? '-' }}</div>
+                        </td>
                         @for ($day = 1; $day <= $daysInMonth; $day++)
-                            <th class="py-3 px-1 w-7 text-center border-r border-stone-200 bg-stone-50">{{ $day }}</th>
+                            @php
+                                $status = $row['days'][$day];
+                                $cellClass = 'text-stone-300';
+                                $cellText = '•';
+                                
+                                if ($status === 'hadir') {
+                                    $cellClass = 'bg-emerald-100 text-emerald-800 font-bold';
+                                    $cellText = 'H';
+                                } elseif ($status === 'telat') {
+                                    $cellClass = 'bg-amber-100 text-amber-800 font-bold';
+                                    $cellText = 'T';
+                                } elseif ($status === 'izin') {
+                                    $cellClass = 'bg-amber-200/60 text-amber-900 font-bold';
+                                    $cellText = 'I';
+                                } elseif ($status === 'tidak_hadir') {
+                                    $cellClass = 'bg-rose-100 text-rose-800 font-bold';
+                                    $cellText = 'A';
+                                }
+                            @endphp
+                            <td class="p-1 text-center border-r border-stone-200 text-xs {{ $cellClass }}">{{ $cellText }}</td>
                         @endfor
-                        <th class="py-3 px-2 w-10 text-center border-r border-stone-200 bg-green-50 text-green-800">H</th>
-                        <th class="py-3 px-2 w-10 text-center border-r border-stone-200 bg-orange-50 text-orange-800">T</th>
-                        <th class="py-3 px-2 w-10 text-center border-r border-stone-200 bg-amber-50 text-amber-800">I</th>
-                        <th class="py-3 px-2 w-10 text-center border-r border-stone-200 bg-red-50 text-red-800">A</th>
-                        <th class="py-3 px-3 w-16 text-center bg-stone-100 text-stone-800 font-extrabold">%</th>
+                        <td class="p-2.5 text-center border-r border-stone-200 bg-emerald-50 text-emerald-800 font-bold text-xs">{{ $row['hadir'] }}</td>
+                        <td class="p-2.5 text-center border-r border-stone-200 bg-amber-50 text-amber-800 font-bold text-xs">{{ $row['telat'] }}</td>
+                        <td class="p-2.5 text-center border-r border-stone-200 bg-amber-50 text-amber-900 font-bold text-xs">{{ $row['izin'] }}</td>
+                        <td class="p-2.5 text-center border-r border-stone-200 bg-rose-50 text-rose-800 font-bold text-xs">{{ $row['tidak_hadir'] }}</td>
+                        <td class="p-2.5 text-center bg-stone-50 font-black text-stone-800 text-xs">{{ $row['rate'] }}%</td>
                     </tr>
-                </thead>
-                <tbody class="divide-y divide-stone-200">
-                    @forelse ($matrix as $index => $row)
-                        <tr class="hover:bg-stone-50/50 transition">
-                            <td class="py-2.5 px-4 text-center border-r border-stone-100 font-bold text-stone-400">{{ $index + 1 }}</td>
-                            <td class="py-2.5 px-4 border-r border-stone-100 font-bold text-stone-800">
-                                {{ $row['guru']->user->nama }}
-                                <div class="text-[10px] text-stone-400 font-semibold mt-0.5">NIP: {{ $row['guru']->nip ?? '-' }}</div>
-                            </td>
-                            @for ($day = 1; $day <= $daysInMonth; $day++)
-                                @php
-                                    $status = $row['days'][$day];
-                                    $cellClass = 'text-stone-300';
-                                    $cellText = '•';
-                                    
-                                    if ($status === 'hadir') {
-                                        $cellClass = 'bg-green-100 text-green-800 font-bold';
-                                        $cellText = 'H';
-                                    } elseif ($status === 'telat') {
-                                        $cellClass = 'bg-orange-100 text-orange-800 font-bold';
-                                        $cellText = 'T';
-                                    } elseif ($status === 'izin') {
-                                        $cellClass = 'bg-amber-100 text-amber-800 font-bold';
-                                        $cellText = 'I';
-                                    } elseif ($status === 'tidak_hadir') {
-                                        $cellClass = 'bg-red-100 text-red-800 font-bold';
-                                        $cellText = 'A';
-                                    }
-                                @endphp
-                                <td class="py-2 px-0 text-center border-r border-stone-100 {{ $cellClass }}">{{ $cellText }}</td>
-                            @endfor
-                            <td class="py-2.5 px-2 text-center border-r border-stone-100 bg-green-50/50 text-green-700 font-bold">{{ $row['hadir'] }}</td>
-                            <td class="py-2.5 px-2 text-center border-r border-stone-100 bg-orange-50/50 text-orange-700 font-bold">{{ $row['telat'] }}</td>
-                            <td class="py-2.5 px-2 text-center border-r border-stone-100 bg-amber-50/50 text-amber-700 font-bold">{{ $row['izin'] }}</td>
-                            <td class="py-2.5 px-2 text-center border-r border-stone-100 bg-red-50/50 text-red-700 font-bold">{{ $row['tidak_hadir'] }}</td>
-                            <td class="py-2.5 px-3 text-center bg-stone-50 font-extrabold text-stone-700">{{ $row['rate'] }}%</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="{{ $daysInMonth + 7 }}" class="py-12 text-center text-stone-400 font-medium">
-                                Tidak ada data guru aktif dalam sistem.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                @empty
+                    <x-table.empty :colspan="$daysInMonth + 7" title="Belum ada data absensi guru" message="Tidak ada data guru aktif dalam sistem." />
+                @endforelse
+            </tbody>
+        </x-table>
 
         <!-- Legend Info Panel -->
         <div class="p-6 border-t border-stone-200 bg-stone-50/30 flex flex-wrap gap-4 text-xs font-semibold text-stone-500">

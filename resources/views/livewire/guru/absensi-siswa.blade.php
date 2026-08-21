@@ -150,76 +150,70 @@
         </div>
 
         <!-- Attendance Table -->
-        <div class="bg-white border border-stone-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-white border border-stone-200 rounded-2xl shadow-xs overflow-hidden">
             <form wire:submit.prevent="save">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs border-collapse">
-                        <thead class="bg-stone-50 border-b border-stone-200 text-stone-600 font-bold uppercase tracking-wider">
-                            <tr>
-                                <th class="p-3.5 border-r border-stone-200 w-12 text-center">No</th>
-                                <th class="p-3.5 border-r border-stone-200 w-28">NIS</th>
-                                <th class="p-3.5 border-r border-stone-200">Nama Siswa</th>
-                                <th class="p-3.5 border-r border-stone-200 w-96 text-center">Pilih Status Kehadiran</th>
-                                <th class="p-3.5">Catatan</th>
+                <x-table loadingTarget="selectedKelasId, tanggal">
+                    <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+                        <tr>
+                            <x-table.th align="center" class="w-12">No</x-table.th>
+                            <x-table.th class="w-28">NIS</x-table.th>
+                            <x-table.th>Nama Siswa</x-table.th>
+                            <x-table.th align="center" class="w-96">Pilih Status Kehadiran</x-table.th>
+                            <x-table.th>Catatan</x-table.th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-stone-200 bg-white">
+                        @forelse ($attendance as $index => $att)
+                            @php
+                                $currentStatus = $att['status'] ?? 'hadir';
+                            @endphp
+                            <tr class="hover:bg-stone-50 transition">
+                                <td class="p-3.5 border-r border-stone-200 text-center font-bold text-stone-400 text-xs">{{ $index + 1 }}</td>
+                                <td class="p-3.5 border-r border-stone-200 text-stone-600 font-mono font-bold text-xs">{{ $att['nis'] }}</td>
+                                <td class="p-3.5 border-r border-stone-200">
+                                    <span class="font-extrabold text-stone-900 block text-xs">{{ $att['nama'] }}</span>
+                                </td>
+                                <td class="p-3.5 border-r border-stone-200">
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <!-- Hadir Button -->
+                                        <button type="button" wire:click="setStatus({{ $index }}, 'hadir')"
+                                            class="px-3 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider flex items-center gap-1 cursor-pointer {{ $currentStatus === 'hadir' ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-400 font-extrabold' : 'bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200' }}">
+                                            <x-lucide-check-circle class="w-3.5 h-3.5" />
+                                            <span>Hadir</span>
+                                        </button>
+
+                                        <!-- Sakit Button -->
+                                        <button type="button" wire:click="setStatus({{ $index }}, 'sakit')"
+                                            class="px-3 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider flex items-center gap-1 cursor-pointer {{ $currentStatus === 'sakit' ? 'bg-blue-600 text-white shadow-xs ring-2 ring-blue-400 font-extrabold' : 'bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200' }}">
+                                            <x-lucide-activity class="w-3.5 h-3.5" />
+                                            <span>Sakit</span>
+                                        </button>
+
+                                        <!-- Izin Button -->
+                                        <button type="button" wire:click="setStatus({{ $index }}, 'izin')"
+                                            class="px-3 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider flex items-center gap-1 cursor-pointer {{ $currentStatus === 'izin' ? 'bg-amber-500 text-stone-950 shadow-xs ring-2 ring-amber-300 font-black' : 'bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200' }}">
+                                            <x-lucide-file-text class="w-3.5 h-3.5" />
+                                            <span>Izin</span>
+                                        </button>
+
+                                        <!-- Alpa Button -->
+                                        <button type="button" wire:click="setStatus({{ $index }}, 'alpa')"
+                                            class="px-3 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider flex items-center gap-1 cursor-pointer {{ $currentStatus === 'alpa' ? 'bg-rose-600 text-white shadow-xs ring-2 ring-rose-400 font-extrabold' : 'bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200' }}">
+                                            <x-lucide-x-circle class="w-3.5 h-3.5" />
+                                            <span>Alpa</span>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td class="p-3.5">
+                                    <input type="text" wire:model="attendance.{{ $index }}.catatan" 
+                                        class="w-full px-3 py-1.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 shadow-xs" placeholder="Keterangan / alasan izin..." />
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody class="divide-y divide-stone-200 bg-white">
-                            @forelse ($attendance as $index => $att)
-                                @php
-                                    $currentStatus = $att['status'] ?? 'hadir';
-                                @endphp
-                                <tr class="hover:bg-stone-50/60 transition">
-                                    <td class="p-3.5 border-r border-stone-200 text-center font-bold text-stone-400">{{ $index + 1 }}</td>
-                                    <td class="p-3.5 border-r border-stone-200 text-stone-600 font-mono font-bold">{{ $att['nis'] }}</td>
-                                    <td class="p-3.5 border-r border-stone-200">
-                                        <span class="font-extrabold text-stone-900 block text-xs">{{ $att['nama'] }}</span>
-                                    </td>
-                                    <td class="p-3.5 border-r border-stone-200">
-                                        <div class="flex items-center justify-center gap-1.5">
-                                            <!-- Hadir Button -->
-                                            <button type="button" wire:click="setStatus({{ $index }}, 'hadir')"
-                                                class="px-3 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider flex items-center gap-1 {{ $currentStatus === 'hadir' ? 'bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-400 font-extrabold' : 'bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200' }}">
-                                                <x-lucide-check-circle class="w-3.5 h-3.5" />
-                                                <span>Hadir</span>
-                                            </button>
-
-                                            <!-- Sakit Button -->
-                                            <button type="button" wire:click="setStatus({{ $index }}, 'sakit')"
-                                                class="px-3 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider flex items-center gap-1 {{ $currentStatus === 'sakit' ? 'bg-blue-600 text-white shadow-sm ring-2 ring-blue-400 font-extrabold' : 'bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200' }}">
-                                                <x-lucide-activity class="w-3.5 h-3.5" />
-                                                <span>Sakit</span>
-                                            </button>
-
-                                            <!-- Izin Button -->
-                                            <button type="button" wire:click="setStatus({{ $index }}, 'izin')"
-                                                class="px-3 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider flex items-center gap-1 {{ $currentStatus === 'izin' ? 'bg-amber-500 text-stone-950 shadow-sm ring-2 ring-amber-300 font-black' : 'bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200' }}">
-                                                <x-lucide-file-text class="w-3.5 h-3.5" />
-                                                <span>Izin</span>
-                                            </button>
-
-                                            <!-- Alpa Button -->
-                                            <button type="button" wire:click="setStatus({{ $index }}, 'alpa')"
-                                                class="px-3 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider flex items-center gap-1 {{ $currentStatus === 'alpa' ? 'bg-rose-600 text-white shadow-sm ring-2 ring-rose-400 font-extrabold' : 'bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200' }}">
-                                                <x-lucide-x-circle class="w-3.5 h-3.5" />
-                                                <span>Alpa</span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td class="p-3.5">
-                                        <input type="text" wire:model="attendance.{{ $index }}.catatan" 
-                                            class="w-full px-3 py-1.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 shadow-xs" placeholder="Keterangan / alasan izin..." />
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="p-8 text-center text-stone-500 font-semibold">
-                                        Tidak ada siswa aktif terdaftar di kelas ini.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                        @empty
+                            <x-table.empty :colspan="5" title="Tidak ada data siswa" message="Tidak ada data siswa terdaftar di rombel kelas ini." />
+                        @endforelse
+                    </tbody>
+                </x-table>
 
                 @if (count($attendance) > 0)
                     <div class="flex items-center justify-between border-t border-stone-200 p-4 bg-stone-50">

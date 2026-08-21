@@ -90,53 +90,46 @@
             </div>
 
             <form wire:submit.prevent="save" class="space-y-6">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs border-collapse">
-                        <thead class="bg-stone-50 border-b border-stone-200 text-stone-600 font-bold uppercase tracking-wider">
-                            <tr>
-                                <th class="p-3.5 border-r border-stone-200">NIS</th>
-                                <th class="p-3.5 border-r border-stone-200">Nama Siswa</th>
-                                <th class="p-3.5 border-r border-stone-200 w-36">Nilai (0 - 100)</th>
-                                <th class="p-3.5">Catatan Pengajar</th>
+                <x-table loadingTarget="selectedKelasId, selectedMapelId, selectedKomponenId">
+                    <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+                        <tr>
+                            <x-table.th class="w-32">NIS</x-table.th>
+                            <x-table.th class="w-64">Nama Siswa</x-table.th>
+                            <x-table.th class="w-40">Nilai (0 - 100)</x-table.th>
+                            <x-table.th>Catatan Pengajar</x-table.th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-stone-200 bg-white">
+                        @forelse ($grades as $index => $grade)
+                            <tr class="hover:bg-stone-50 transition">
+                                <td class="p-3.5 border-r border-stone-200 text-stone-600 font-mono font-bold text-xs">{{ $grade['nis'] }}</td>
+                                <td class="p-3.5 border-r border-stone-200 font-extrabold text-stone-900 text-xs">{{ $grade['nama'] }}</td>
+                                <td class="p-3.5 border-r border-stone-200">
+                                    <input wire:model="grades.{{ $index }}.nilai" type="number" step="0.01" min="0" max="100"
+                                        class="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 text-xs focus:ring-2 focus:ring-emerald-600 text-right font-black shadow-xs" placeholder="0.0" />
+                                    @error("grades.{$index}.nilai") 
+                                        <span class="text-rose-600 text-[10px] font-bold block mt-1">{{ $message }}</span> 
+                                    @enderror
+                                </td>
+                                <td class="p-3.5">
+                                    <input wire:model="grades.{{ $index }}.catatan" type="text"
+                                        class="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 shadow-xs" placeholder="Keterangan pencapaian siswa..." />
+                                    @error("grades.{$index}.catatan") 
+                                        <span class="text-rose-600 text-[10px] font-bold block mt-1">{{ $message }}</span> 
+                                    @enderror
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody class="divide-y divide-stone-200 bg-white">
-                            @forelse ($grades as $index => $grade)
-                                <tr class="hover:bg-stone-50 transition">
-                                    <td class="p-3.5 border-r border-stone-200 text-stone-600 font-mono font-bold">{{ $grade['nis'] }}</td>
-                                    <td class="p-3.5 border-r border-stone-200 font-extrabold text-stone-900">{{ $grade['nama'] }}</td>
-                                    <td class="p-3.5 border-r border-stone-200">
-                                        <input wire:model="grades.{{ $index }}.nilai" type="number" step="0.01" min="0" max="100"
-                                            class="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 text-xs focus:ring-2 focus:ring-emerald-600 text-right font-black shadow-xs" placeholder="0.0" />
-                                        @error("grades.{$index}.nilai") 
-                                            <span class="text-rose-600 text-[10px] font-bold block mt-1">{{ $message }}</span> 
-                                        @enderror
-                                    </td>
-                                    <td class="p-3.5">
-                                        <input wire:model="grades.{{ $index }}.catatan" type="text"
-                                            class="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 shadow-xs" placeholder="Keterangan pencapaian siswa..." />
-                                        @error("grades.{$index}.catatan") 
-                                            <span class="text-rose-600 text-[10px] font-bold block mt-1">{{ $message }}</span> 
-                                        @enderror
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="p-8 text-center text-stone-500 font-semibold">
-                                        Tidak ada siswa aktif terdaftar di kelas ini.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                        @empty
+                            <x-table.empty :colspan="4" title="Tidak ada data siswa" message="Tidak ada data siswa aktif terdaftar di rombel kelas ini." />
+                        @endforelse
+                    </tbody>
+                </x-table>
 
                 @if (count($grades) > 0)
                     <div class="flex justify-end border-t border-stone-200 p-4 bg-stone-50">
-                        <button type="submit" class="py-2.5 px-6 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-2">
-                            <x-lucide-check-circle class="w-4 h-4" />
-                            <span>Simpan Seluruh Nilai</span>
-                        </button>
+                        <x-button type="submit" variant="primary" size="md" icon="check-circle">
+                            Simpan Seluruh Nilai
+                        </x-button>
                     </div>
                 @endif
             </form>

@@ -64,6 +64,7 @@ test('finance user can access all finance pages successfully', function () {
         'finance.tabungan',
         'finance.input-pembayaran',
         'finance.arus-masuk',
+        'finance.arus-kas',
         'finance.arus-kas-masuk',
         'finance.arus-kas-keluar',
         'finance.pengajuan-dana',

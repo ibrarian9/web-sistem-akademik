@@ -91,48 +91,44 @@
                 <span class="text-[10px] bg-stone-100 text-stone-700 font-bold px-2.5 py-0.5 rounded-full border border-stone-200">Terbaru</span>
             </div>
             
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs border-collapse">
-                    <thead class="bg-stone-50 border-b border-stone-200 text-stone-600 font-bold uppercase tracking-wider">
-                        <tr>
-                            <th class="p-3 border-r border-stone-200">Tanggal</th>
-                            <th class="p-3 border-r border-stone-200">Datang</th>
-                            <th class="p-3 border-r border-stone-200">Pulang</th>
-                            <th class="p-3">Status</th>
+            <x-table>
+                <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+                    <tr>
+                        <x-table.th class="w-40">Tanggal</x-table.th>
+                        <x-table.th class="w-32">Datang</x-table.th>
+                        <x-table.th class="w-32">Pulang</x-table.th>
+                        <x-table.th align="center" class="w-32">Status</x-table.th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-200 bg-white">
+                    @forelse ($history as $hist)
+                        <tr class="hover:bg-stone-50 transition">
+                            <td class="p-3.5 border-r border-stone-200 text-stone-900 font-bold text-xs">
+                                {{ date('d-m-Y', strtotime($hist['tanggal'])) }}
+                            </td>
+                            <td class="p-3.5 border-r border-stone-200 text-stone-700 font-semibold text-xs">
+                                {{ $hist['waktu_datang'] ? date('H:i', strtotime($hist['waktu_datang'])) : '-' }}
+                            </td>
+                            <td class="p-3.5 border-r border-stone-200 text-stone-700 font-semibold text-xs">
+                                {{ $hist['waktu_pulang'] ? date('H:i', strtotime($hist['waktu_pulang'])) : '-' }}
+                            </td>
+                            <td class="p-3.5 text-center">
+                                @if ($hist['status'] === 'hadir')
+                                    <x-badge variant="emerald" size="xs">Hadir</x-badge>
+                                @elseif ($hist['status'] === 'telat')
+                                    <x-badge variant="amber" size="xs">Terlambat</x-badge>
+                                @elseif ($hist['status'] === 'izin')
+                                    <x-badge variant="sky" size="xs">Izin</x-badge>
+                                @else
+                                    <x-badge variant="rose" size="xs">{{ strtoupper($hist['status']) }}</x-badge>
+                                @endif
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody class="divide-y divide-stone-200 bg-white">
-                        @forelse ($history as $hist)
-                            <tr class="hover:bg-stone-50 transition">
-                                <td class="p-3 border-r border-stone-200 text-stone-900 font-bold">
-                                    {{ date('d-m-Y', strtotime($hist['tanggal'])) }}
-                                </td>
-                                <td class="p-3 border-r border-stone-200 text-stone-700 font-semibold">
-                                    {{ $hist['waktu_datang'] ? date('H:i', strtotime($hist['waktu_datang'])) : '-' }}
-                                </td>
-                                <td class="p-3 border-r border-stone-200 text-stone-700 font-semibold">
-                                    {{ $hist['waktu_pulang'] ? date('H:i', strtotime($hist['waktu_pulang'])) : '-' }}
-                                </td>
-                                <td class="p-3">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider
-                                        {{ $hist['status'] === 'hadir' ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : '' }}
-                                        {{ $hist['status'] === 'telat' ? 'bg-amber-100 text-amber-800 border border-amber-300' : '' }}
-                                        {{ !in_array($hist['status'], ['hadir', 'telat']) ? 'bg-stone-100 text-stone-700 border border-stone-300' : '' }}
-                                    ">
-                                        {{ $hist['status'] }}
-                                    </span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="4" class="py-8 text-center text-stone-500 font-semibold">
-                                    Belum ada riwayat kehadiran tercatat.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                    @empty
+                        <x-table.empty :colspan="4" title="Belum ada riwayat" message="Belum ada riwayat kehadiran tercatat." />
+                    @endforelse
+                </tbody>
+            </x-table>
         </div>
     </div>
 </div>

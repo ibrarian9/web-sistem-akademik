@@ -5,14 +5,21 @@ namespace App\Livewire\Finance;
 use Livewire\Component;
 use App\Models\Pengeluaran;
 use App\Models\KategoriPengeluaran;
+use App\Models\GajiGuru;
+use App\Models\Peminjaman;
 use App\Traits\WithDateFilter;
 use Livewire\WithPagination;
+use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ArusKasKeluar extends Component
 {
     use WithPagination, WithDateFilter;
 
-    // Modal state
+    // Stream selector: 'semua', 'operasional', 'gaji', 'peminjaman' (Dana BOS dipisah)
+    public string $stream = 'semua';
+
+    // Modal state for recording new operational cash outflow
     public bool $showCreateModal = false;
 
     // Filters
@@ -31,6 +38,15 @@ class ArusKasKeluar extends Component
 
     public array $categories = [];
 
+    protected $queryString = [
+        'stream' => ['except' => 'semua'],
+        'filterPeriode' => ['except' => 'semua'],
+        'startDate' => ['except' => null],
+        'endDate' => ['except' => null],
+        'filterKategori' => ['except' => null],
+        'search' => ['except' => ''],
+    ];
+
     protected $rules = [
         'kategori_pengeluaran_id' => 'required|exists:kategori_pengeluaran,id',
         'jumlah' => 'required|numeric|min:1000',
@@ -45,6 +61,13 @@ class ArusKasKeluar extends Component
         if (!empty($this->categories)) {
             $this->kategori_pengeluaran_id = $this->categories[0]['id'];
         }
+    }
+
+    public function selectStream(string $stream)
+    {
+        $this->stream = $stream;
+        $this->resetPage();
+        $this->resetSelection();
     }
 
     public function updatingSearch()
@@ -119,7 +142,7 @@ class ArusKasKeluar extends Component
             'petugas_id' => auth()->id(),
         ]);
 
-        session()->flash('message', 'Pengeluaran kas yayasan & operasional berhasil dicatat.');
+        session()->flash('message', 'Pengeluaran kas operasional yayasan berhasil dicatat.');
 
         $this->showCreateModal = false;
         $this->reset(['jumlah', 'keterangan']);
@@ -177,24 +200,198 @@ class ArusKasKeluar extends Component
 
     public function render()
     {
-        $query = Pengeluaran::with(['kategori', 'petugas'])->latest('tanggal');
+        // 1. Calculate Summary Metrics for the Active Date Filter (Tanpa Dana BOS)
+        // Operational Outflow (Yayasan)
+        $opQuery = Pengeluaran::query();
+        $this->applyDateFilter($opQuery, 'tanggal');
+        $totalOperasional = (float) $opQuery->sum('jumlah');
 
-        if ($this->filterKategori) {
-            $query->where('kategori_pengeluaran_id', $this->filterKategori);
+        // Teacher Payroll Outflow
+        $gajiQuery = GajiGuru::where('status', 'dibayar');
+        $this->applyDateFilter($gajiQuery, 'tanggal_bayar');
+        $totalGaji = (float) $gajiQuery->sum('total_diterima');
+
+        // Teacher Loans (Kasbon) Outflow
+        $loanQuery = Peminjaman::query();
+        $this->applyDateFilter($loanQuery, 'tanggal_pinjam');
+        $totalPeminjaman = (float) $loanQuery->sum('nominal');
+
+        $totalOutflowAll = $totalOperasional + $totalGaji + $totalPeminjaman;
+
+        // 2. Compute 6-Month Outflow Trend for Interactive Chart
+        $monthlyChartData = [];
+        $maxMonthTotal = 1;
+
+        for ($i = 5; $i >= 0; $i--) {
+            $monthCarbon = Carbon::now()->subMonths($i);
+            $year = $monthCarbon->year;
+            $monthNum = $monthCarbon->month;
+            $monthLabel = $monthCarbon->locale('id')->isoFormat('MMM YYYY');
+
+            $mOp = (float) Pengeluaran::whereYear('tanggal', $year)->whereMonth('tanggal', $monthNum)->sum('jumlah');
+            $mGaji = (float) GajiGuru::where('status', 'dibayar')
+                ->where(function ($q) use ($year, $monthNum, $monthCarbon) {
+                    $q->whereYear('tanggal_bayar', $year)->whereMonth('tanggal_bayar', $monthNum)
+                      ->orWhere(function ($sq) use ($year, $monthCarbon) {
+                          $sq->where('tahun', $year)->where('bulan', $monthCarbon->locale('id')->isoFormat('MMMM'));
+                      });
+                })->sum('total_diterima');
+            $mLoan = (float) Peminjaman::whereYear('tanggal_pinjam', $year)->whereMonth('tanggal_pinjam', $monthNum)->sum('nominal');
+
+            $mTotal = $mOp + $mGaji + $mLoan;
+            if ($mTotal > $maxMonthTotal) {
+                $maxMonthTotal = $mTotal;
+            }
+
+            $monthlyChartData[] = [
+                'label' => $monthLabel,
+                'year' => $year,
+                'month' => $monthNum,
+                'operasional' => $mOp,
+                'gaji' => $mGaji,
+                'peminjaman' => $mLoan,
+                'total' => $mTotal,
+            ];
         }
 
-        if ($this->search !== '') {
-            $query->where('keterangan', 'like', '%' . $this->search . '%');
+        // Add percentage height for CSS bar chart
+        foreach ($monthlyChartData as &$mItem) {
+            $mItem['height_percentage'] = $maxMonthTotal > 0 ? round(($mItem['total'] / $maxMonthTotal) * 100) : 0;
+            $mItem['op_pct'] = $mItem['total'] > 0 ? round(($mItem['operasional'] / $mItem['total']) * 100) : 0;
+            $mItem['gaji_pct'] = $mItem['total'] > 0 ? round(($mItem['gaji'] / $mItem['total']) * 100) : 0;
+            $mItem['loan_pct'] = $mItem['total'] > 0 ? round(($mItem['peminjaman'] / $mItem['total']) * 100) : 0;
+        }
+        unset($mItem);
+
+        // 3. Compute Top Expense Category Breakdown
+        $categoryBreakdown = [];
+        $rawCategories = Pengeluaran::with('kategori')
+            ->selectRaw('kategori_pengeluaran_id, sum(jumlah) as total_nominal')
+            ->groupBy('kategori_pengeluaran_id')
+            ->orderByDesc('total_nominal')
+            ->take(5)
+            ->get();
+
+        foreach ($rawCategories as $rc) {
+            $catName = $rc->kategori->nama ?? 'Umum / Lainnya';
+            $catNominal = (float) $rc->total_nominal;
+            $catPct = $totalOperasional > 0 ? round(($catNominal / $totalOperasional) * 100, 1) : 0;
+            $categoryBreakdown[] = [
+                'nama' => $catName,
+                'nominal' => $catNominal,
+                'percentage' => $catPct,
+            ];
         }
 
-        $this->applyDateFilter($query, 'tanggal');
+        // 4. Query & Unify Outflow Transactions for Data Table (Non-BOS)
+        $unifiedItems = collect();
 
-        $pengeluarans = $query->paginate(15);
-        $totalPengeluaranKas = Pengeluaran::sum('jumlah');
+        // Stream 1: Operasional Yayasan
+        if ($this->stream === 'semua' || $this->stream === 'operasional') {
+            $opTableQuery = Pengeluaran::with(['kategori', 'petugas'])->latest('tanggal');
+            if ($this->filterKategori) {
+                $opTableQuery->where('kategori_pengeluaran_id', $this->filterKategori);
+            }
+            if ($this->search !== '') {
+                $opTableQuery->where('keterangan', 'like', '%' . $this->search . '%');
+            }
+            $this->applyDateFilter($opTableQuery, 'tanggal');
+
+            foreach ($opTableQuery->get() as $item) {
+                $unifiedItems->push((object) [
+                    'id' => 'op_' . $item->id,
+                    'raw_id' => $item->id,
+                    'tanggal' => $item->tanggal ? Carbon::parse($item->tanggal) : Carbon::now(),
+                    'stream' => 'operasional',
+                    'stream_label' => 'Operasional Yayasan',
+                    'stream_badge' => 'rose',
+                    'kategori' => $item->kategori->nama ?? 'Umum',
+                    'keterangan' => $item->keterangan ?: 'Beban operasional kas yayasan',
+                    'nominal' => (float) $item->jumlah,
+                    'petugas' => $item->petugas->nama ?? 'Bendahara',
+                    'can_delete' => true,
+                ]);
+            }
+        }
+
+        // Stream 2: Gaji & Honor Guru
+        if ($this->stream === 'semua' || $this->stream === 'gaji') {
+            $gajiTableQuery = GajiGuru::with(['guru.user'])->where('status', 'dibayar')->latest('tanggal_bayar');
+            if ($this->search !== '') {
+                $gajiTableQuery->whereHas('guru.user', function ($q) {
+                    $q->where('nama', 'like', '%' . $this->search . '%');
+                });
+            }
+            $this->applyDateFilter($gajiTableQuery, 'tanggal_bayar');
+
+            foreach ($gajiTableQuery->get() as $item) {
+                $unifiedItems->push((object) [
+                    'id' => 'gaji_' . $item->id,
+                    'raw_id' => $item->id,
+                    'tanggal' => $item->tanggal_bayar ? Carbon::parse($item->tanggal_bayar) : Carbon::now(),
+                    'stream' => 'gaji',
+                    'stream_label' => 'Gaji & Honor Guru',
+                    'stream_badge' => 'purple',
+                    'kategori' => 'Honorarium & Gaji',
+                    'keterangan' => 'Gaji ' . ($item->guru->user->nama ?? 'Guru') . ' (' . $item->bulan . ' ' . $item->tahun . ')',
+                    'nominal' => (float) $item->total_diterima,
+                    'petugas' => 'Sistem Payroll',
+                    'can_delete' => false,
+                ]);
+            }
+        }
+
+        // Stream 3: Peminjaman / Kasbon Guru
+        if ($this->stream === 'semua' || $this->stream === 'peminjaman') {
+            $loanTableQuery = Peminjaman::with(['guru.user'])->latest('tanggal_pinjam');
+            if ($this->search !== '') {
+                $loanTableQuery->whereHas('guru.user', function ($q) {
+                    $q->where('nama', 'like', '%' . $this->search . '%');
+                });
+            }
+            $this->applyDateFilter($loanTableQuery, 'tanggal_pinjam');
+
+            foreach ($loanTableQuery->get() as $item) {
+                $unifiedItems->push((object) [
+                    'id' => 'loan_' . $item->id,
+                    'raw_id' => $item->id,
+                    'tanggal' => $item->tanggal_pinjam ? Carbon::parse($item->tanggal_pinjam) : Carbon::now(),
+                    'stream' => 'peminjaman',
+                    'stream_label' => 'Kasbon / Pinjaman Guru',
+                    'stream_badge' => 'emerald',
+                    'kategori' => 'Fasilitas Kasbon',
+                    'keterangan' => 'Pencairan kasbon: ' . ($item->guru->user->nama ?? 'Guru') . ' (Tenor ' . $item->tenor_bulan . ' Bln)',
+                    'nominal' => (float) $item->nominal,
+                    'petugas' => 'Finance',
+                    'can_delete' => false,
+                ]);
+            }
+        }
+
+        // Sort unified collection by date descending
+        $sortedItems = $unifiedItems->sortByDesc(fn($item) => $item->tanggal->timestamp)->values();
+
+        // Paginate manually
+        $page = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 15;
+        $currentItems = $sortedItems->slice(($page - 1) * $perPage, $perPage)->values();
+        $paginatedOutflows = new LengthAwarePaginator(
+            $currentItems,
+            $sortedItems->count(),
+            $perPage,
+            $page,
+            ['path' => LengthAwarePaginator::resolveCurrentPath()]
+        );
 
         return view('livewire.finance.arus-kas-keluar', [
-            'pengeluarans' => $pengeluarans,
-            'totalPengeluaranKas' => $totalPengeluaranKas,
-        ])->layout('components.layouts.app', ['title' => 'Arus Kas Keluar Yayasan']);
+            'paginatedOutflows' => $paginatedOutflows,
+            'totalOutflowAll' => $totalOutflowAll,
+            'totalOperasional' => $totalOperasional,
+            'totalGaji' => $totalGaji,
+            'totalPeminjaman' => $totalPeminjaman,
+            'monthlyChartData' => $monthlyChartData,
+            'maxMonthTotal' => $maxMonthTotal,
+            'categoryBreakdown' => $categoryBreakdown,
+        ])->layout('components.layouts.app', ['title' => 'Gabungan Arus Kas Keluar']);
     }
 }

@@ -42,69 +42,61 @@
     </div>
 
     <!-- Invoices Table Card -->
-    <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
-        <h3 class="text-sm font-bold text-stone-900 uppercase tracking-wider">Daftar Tagihan SPP & Administrasi</h3>
+    <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
+        <h3 class="text-xs font-black text-stone-900 uppercase tracking-wider">Daftar Tagihan SPP &amp; Administrasi</h3>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="border-b border-stone-200 bg-stone-50">
-                        <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider">Keterangan / Bulan</th>
-                        <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider text-right">Nominal Tagihan</th>
-                        <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider text-right">Terbayar</th>
-                        <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider text-center">Status</th>
-                        <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider text-center">Resi / Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-stone-200">
-                    @forelse ($invoices as $inv)
-                        <tr class="hover:bg-stone-50 transition">
-                            <td class="py-3.5 px-4 text-xs font-bold text-stone-900">
-                                {{ $inv['jenis'] }} {{ $inv['bulan'] !== '-' ? '(' . $inv['bulan'] . ')' : '' }}
-                            </td>
-                            <td class="py-3.5 px-4 text-xs text-stone-800 font-bold text-right">
-                                Rp {{ number_format($inv['nominal'], 0, ',', '.') }}
-                            </td>
-                            <td class="py-3.5 px-4 text-xs text-emerald-700 font-bold text-right">
-                                Rp {{ number_format($inv['total_dibayar'], 0, ',', '.') }}
-                            </td>
-                            <td class="py-3.5 px-4 text-center">
-                                @if ($inv['status'] === 'lunas')
-                                    <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-bold">Lunas</span>
-                                @elseif ($inv['status'] === 'sebagian')
-                                    <span class="px-2.5 py-1 bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-xs font-bold">Sebagian</span>
-                                @else
-                                    <span class="px-2.5 py-1 bg-rose-100 text-rose-800 border border-rose-200 rounded-lg text-xs font-bold">Belum Bayar</span>
-                                @endif
-                            </td>
-                            <td class="py-3.5 px-4 text-center">
-                                @if (!empty($inv['pembayaran']))
-                                    @php
-                                        $lastBayar = end($inv['pembayaran']);
-                                    @endphp
-                                    @if ($lastBayar && isset($lastBayar['id']))
-                                        <a href="{{ route('finance.cetak-resi', $lastBayar['id']) }}" target="_blank" 
-                                           class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition shadow-sm">
-                                            <x-lucide-printer class="w-3.5 h-3.5" />
-                                            Cetak Resi
-                                        </a>
-                                    @else
-                                        <span class="text-xs text-stone-400 font-medium">-</span>
-                                    @endif
+        <x-table>
+            <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+                <tr>
+                    <x-table.th class="min-w-[180px]">Keterangan / Bulan</x-table.th>
+                    <x-table.th align="right" class="w-40">Nominal Tagihan</x-table.th>
+                    <x-table.th align="right" class="w-40">Terbayar</x-table.th>
+                    <x-table.th align="center" class="w-32">Status</x-table.th>
+                    <x-table.th align="center" class="w-32">Resi / Aksi</x-table.th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-200 bg-white">
+                @forelse ($invoices as $inv)
+                    <tr class="hover:bg-stone-50 transition">
+                        <td class="p-3.5 text-xs font-bold text-stone-900 border-r border-stone-200">
+                            {{ $inv['jenis'] }} {{ $inv['bulan'] !== '-' ? '(' . $inv['bulan'] . ')' : '' }}
+                        </td>
+                        <td class="p-3.5 text-xs text-stone-900 font-bold text-right border-r border-stone-200">
+                            Rp {{ number_format($inv['nominal'], 0, ',', '.') }}
+                        </td>
+                        <td class="p-3.5 text-xs text-emerald-700 font-bold text-right border-r border-stone-200">
+                            Rp {{ number_format($inv['total_dibayar'], 0, ',', '.') }}
+                        </td>
+                        <td class="p-3.5 text-center border-r border-stone-200">
+                            @if ($inv['status'] === 'lunas')
+                                <x-badge variant="emerald" size="xs">Lunas</x-badge>
+                            @elseif ($inv['status'] === 'sebagian')
+                                <x-badge variant="amber" size="xs">Sebagian</x-badge>
+                            @else
+                                <x-badge variant="rose" size="xs">Belum Bayar</x-badge>
+                            @endif
+                        </td>
+                        <td class="p-3.5 text-center">
+                            @if (!empty($inv['pembayaran']))
+                                @php
+                                    $lastBayar = end($inv['pembayaran']);
+                                @endphp
+                                @if ($lastBayar && isset($lastBayar['id']))
+                                    <x-button variant="outline" size="xs" icon="printer" href="{{ route('finance.cetak-resi', $lastBayar['id']) }}" target="_blank">
+                                        Resi
+                                    </x-button>
                                 @else
                                     <span class="text-xs text-stone-400 font-medium">-</span>
                                 @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="py-8 text-center text-xs text-stone-500 font-medium">
-                                Belum ada tagihan SPP yang tercatat untuk Anda.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                            @else
+                                <span class="text-xs text-stone-400 font-medium">-</span>
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <x-table.empty :colspan="5" title="Belum ada tagihan" message="Belum ada tagihan SPP yang tercatat untuk Anda." />
+                @endforelse
+            </tbody>
+        </x-table>
     </div>
 </div>

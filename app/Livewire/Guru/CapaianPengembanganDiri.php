@@ -17,12 +17,44 @@ class CapaianPengembanganDiri extends Component
     public $link_gdrive = '';
     public $deskripsi = '';
 
+    // Modal Detail State
+    public $showDetailModal = false;
+    public $detailCapaian = null;
+
     public function mount()
     {
         $user = auth()->user();
         if (!$user || !in_array($user->role->nama ?? '', ['guru', 'super_admin'])) {
             abort(403, 'Akses Ditolak: Halaman ini khusus untuk Pengajuan Pengembangan Diri Guru.');
         }
+    }
+
+    public function openDetailModal($id)
+    {
+        $user = auth()->user();
+        $guru = $user->guru;
+
+        if (!$guru) {
+            return;
+        }
+
+        $capaian = CapaianGuru::with(['penilai', 'tahunAjaran', 'semester'])
+            ->where('guru_id', $guru->id)
+            ->where('id', $id)
+            ->first();
+
+        if (!$capaian) {
+            return;
+        }
+
+        $this->detailCapaian = $capaian;
+        $this->showDetailModal = true;
+    }
+
+    public function closeDetailModal()
+    {
+        $this->showDetailModal = false;
+        $this->detailCapaian = null;
     }
 
     public function openCreate()

@@ -102,76 +102,70 @@
     @endif
 
     <!-- Matrix Table (High Contrast Light Theme) -->
-    <div class="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-sm">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs text-stone-800">
-                <thead class="bg-stone-100 text-stone-700 font-extrabold uppercase tracking-wider border-b border-stone-200">
-                    <tr>
-                        <th class="p-3.5 sticky left-0 bg-stone-100 z-10 w-12 text-center border-r border-stone-200">No</th>
-                        <th class="p-3.5 sticky left-12 bg-stone-100 z-10 min-w-[200px] border-r border-stone-200">Nama Siswa</th>
+    <div class="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-xs">
+        <x-table loadingTarget="selectedProyekId, selectedKelasId">
+            <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+                <tr>
+                    <x-table.th align="center" class="w-12 sticky left-0 bg-emerald-800 z-10">No</x-table.th>
+                    <x-table.th class="min-w-[200px] sticky left-12 bg-emerald-800 z-10">Nama Siswa</x-table.th>
+                    @foreach($dimensis as $dim)
+                        @foreach($dim->subdimensi as $sub)
+                            <x-table.th align="center" class="min-w-[170px]">
+                                <span class="block text-emerald-100 font-black truncate max-w-[170px]">{{ $dim->nama_dimensi }}</span>
+                                <span class="text-[10px] text-emerald-200 font-semibold block truncate max-w-[170px]">{{ $sub->nama_subdimensi }}</span>
+                            </x-table.th>
+                        @endforeach
+                    @endforeach
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-200 bg-white">
+                @forelse($siswas as $index => $s)
+                    <tr class="hover:bg-stone-50 transition">
+                        <td class="p-3.5 text-center sticky left-0 bg-white font-bold text-stone-500 border-r border-stone-200 text-xs">{{ $index + 1 }}</td>
+                        <td class="p-3.5 sticky left-12 bg-white font-bold text-stone-900 border-r border-stone-200 text-xs">
+                            {{ $s->user->nama ?? $s->nama_panggilan }}
+                        </td>
                         @foreach($dimensis as $dim)
                             @foreach($dim->subdimensi as $sub)
-                                <th class="p-3 text-center border-r border-stone-200 min-w-[170px]">
-                                    <span class="block text-cyan-800 font-black truncate max-w-[170px]">{{ $dim->nama_dimensi }}</span>
-                                    <span class="text-[10px] text-stone-500 font-semibold block truncate max-w-[170px]">{{ $sub->nama_subdimensi }}</span>
-                                </th>
+                                @php
+                                    $currentVal = $nilaiP5Matrix[$s->id][$sub->id][1] ?? '';
+                                @endphp
+                                <td class="p-3 text-center border-r border-stone-200">
+                                    <!-- Segmented Rating Control -->
+                                    <div class="inline-flex p-1 bg-stone-100 border border-stone-300 rounded-xl gap-1">
+                                        <button 
+                                            type="button"
+                                            wire:click="$set('nilaiP5Matrix.{{ $s->id }}.{{ $sub->id }}.1', 1)"
+                                            class="px-2 py-1 text-[10px] font-black rounded-lg transition cursor-pointer {{ (string)$currentVal === '1' ? 'bg-rose-600 text-white shadow-xs' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200' }}"
+                                            title="1: Belum Berkembang (BB)"
+                                        >BB</button>
+                                        <button 
+                                            type="button"
+                                            wire:click="$set('nilaiP5Matrix.{{ $s->id }}.{{ $sub->id }}.1', 2)"
+                                            class="px-2 py-1 text-[10px] font-black rounded-lg transition cursor-pointer {{ (string)$currentVal === '2' ? 'bg-amber-500 text-white shadow-xs' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200' }}"
+                                            title="2: Mulai Berkembang (MB)"
+                                        >MB</button>
+                                        <button 
+                                            type="button"
+                                            wire:click="$set('nilaiP5Matrix.{{ $s->id }}.{{ $sub->id }}.1', 3)"
+                                            class="px-2 py-1 text-[10px] font-black rounded-lg transition cursor-pointer {{ (string)$currentVal === '3' ? 'bg-emerald-600 text-white shadow-xs' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200' }}"
+                                            title="3: Berkembang Sesuai Harapan (BSH)"
+                                        >BSH</button>
+                                        <button 
+                                            type="button"
+                                            wire:click="$set('nilaiP5Matrix.{{ $s->id }}.{{ $sub->id }}.1', 4)"
+                                            class="px-2 py-1 text-[10px] font-black rounded-lg transition cursor-pointer {{ (string)$currentVal === '4' ? 'bg-cyan-700 text-white shadow-xs' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200' }}"
+                                            title="4: Sangat Berkembang (SB)"
+                                        >SB</button>
+                                    </div>
+                                </td>
                             @endforeach
                         @endforeach
                     </tr>
-                </thead>
-                <tbody class="divide-y divide-stone-200">
-                    @forelse($siswas as $index => $s)
-                        <tr class="hover:bg-stone-50 transition">
-                            <td class="p-3.5 text-center sticky left-0 bg-white font-bold text-stone-500 border-r border-stone-200">{{ $index + 1 }}</td>
-                            <td class="p-3.5 sticky left-12 bg-white font-bold text-stone-900 border-r border-stone-200">
-                                {{ $s->user->nama ?? $s->nama_panggilan }}
-                            </td>
-                            @foreach($dimensis as $dim)
-                                @foreach($dim->subdimensi as $sub)
-                                    @php
-                                        $currentVal = $nilaiP5Matrix[$s->id][$sub->id][1] ?? '';
-                                    @endphp
-                                    <td class="p-3 text-center border-r border-stone-200">
-                                        <!-- Segmented Rating Control (High Contrast Light Theme) -->
-                                        <div class="inline-flex p-1 bg-stone-100 border border-stone-300 rounded-xl gap-1">
-                                            <button 
-                                                type="button"
-                                                wire:click="$set('nilaiP5Matrix.{{ $s->id }}.{{ $sub->id }}.1', 1)"
-                                                class="px-2 py-1 text-[10px] font-black rounded-lg transition {{ (string)$currentVal === '1' ? 'bg-rose-600 text-white shadow-xs' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200' }}"
-                                                title="1: Belum Berkembang (BB)"
-                                            >BB</button>
-                                            <button 
-                                                type="button"
-                                                wire:click="$set('nilaiP5Matrix.{{ $s->id }}.{{ $sub->id }}.1', 2)"
-                                                class="px-2 py-1 text-[10px] font-black rounded-lg transition {{ (string)$currentVal === '2' ? 'bg-amber-500 text-white shadow-xs' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200' }}"
-                                                title="2: Mulai Berkembang (MB)"
-                                            >MB</button>
-                                            <button 
-                                                type="button"
-                                                wire:click="$set('nilaiP5Matrix.{{ $s->id }}.{{ $sub->id }}.1', 3)"
-                                                class="px-2 py-1 text-[10px] font-black rounded-lg transition {{ (string)$currentVal === '3' ? 'bg-emerald-600 text-white shadow-xs' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200' }}"
-                                                title="3: Berkembang Sesuai Harapan (BSH)"
-                                            >BSH</button>
-                                            <button 
-                                                type="button"
-                                                wire:click="$set('nilaiP5Matrix.{{ $s->id }}.{{ $sub->id }}.1', 4)"
-                                                class="px-2 py-1 text-[10px] font-black rounded-lg transition {{ (string)$currentVal === '4' ? 'bg-cyan-700 text-white shadow-xs' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200' }}"
-                                                title="4: Sangat Berkembang (SB)"
-                                            >SB</button>
-                                        </div>
-                                    </td>
-                                @endforeach
-                            @endforeach
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="10" class="p-8 text-center text-stone-500 font-medium italic">
-                                Tidak ada siswa terdaftar pada kelas ini.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                @empty
+                    <x-table.empty :colspan="2 + $dimensis->sum(fn($d) => $d->subdimensi->count())" title="Belum ada data siswa" message="Pilih Proyek dan Rombel Kelas untuk memulai penilaian P5." />
+                @endforelse
+            </tbody>
+        </x-table>
     </div>
 </div>

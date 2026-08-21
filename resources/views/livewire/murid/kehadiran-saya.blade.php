@@ -127,65 +127,54 @@
         </div>
 
         <!-- Log Table -->
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="border-b border-stone-200 bg-stone-50">
-                        <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider">Hari & Tanggal</th>
-                        <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider">Status Absensi</th>
-                        <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider">Pengisi Absensi</th>
-                        <th class="py-3 px-4 text-xs font-bold text-stone-600 uppercase tracking-wider">Catatan / Keterangan</th>
+        <x-table loadingTarget="filterStatus, filterMonth, filterYear">
+            <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+                <tr>
+                    <x-table.th class="w-48">Hari &amp; Tanggal</x-table.th>
+                    <x-table.th align="center" class="w-44">Status Absensi</x-table.th>
+                    <x-table.th class="w-48">Pengisi Absensi</x-table.th>
+                    <x-table.th>Catatan / Keterangan</x-table.th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-200 bg-white">
+                @forelse ($history as $h)
+                    <tr class="hover:bg-stone-50 transition">
+                        <td class="p-3.5 text-xs font-semibold border-r border-stone-200">
+                            <div class="flex flex-col">
+                                <span class="text-stone-900 font-bold">{{ $h['tanggal'] }}</span>
+                                <span class="text-[10px] text-stone-500 font-medium">{{ $h['hari'] }}</span>
+                            </div>
+                        </td>
+                        <td class="p-3.5 text-center border-r border-stone-200">
+                            @if ($h['status'] === 'hadir')
+                                <x-badge variant="emerald" size="xs">
+                                    <x-lucide-check-circle class="w-3.5 h-3.5 mr-1 inline" /> Hadir
+                                </x-badge>
+                            @elseif ($h['status'] === 'izin')
+                                <x-badge variant="amber" size="xs">
+                                    <x-lucide-file-text class="w-3.5 h-3.5 mr-1 inline" /> Izin
+                                </x-badge>
+                            @elseif ($h['status'] === 'sakit')
+                                <x-badge variant="sky" size="xs">
+                                    <x-lucide-activity class="w-3.5 h-3.5 mr-1 inline" /> Sakit
+                                </x-badge>
+                            @else
+                                <x-badge variant="rose" size="xs">
+                                    <x-lucide-alert-circle class="w-3.5 h-3.5 mr-1 inline" /> Alpa
+                                </x-badge>
+                            @endif
+                        </td>
+                        <td class="p-3.5 text-xs text-stone-700 font-semibold border-r border-stone-200">
+                            {{ $h['guru'] }}
+                        </td>
+                        <td class="p-3.5 text-xs text-stone-600 font-medium">
+                            {{ $h['catatan'] }}
+                        </td>
                     </tr>
-                </thead>
-                <tbody class="divide-y divide-stone-200">
-                    @forelse ($history as $h)
-                        <tr class="hover:bg-stone-50 transition">
-                            <td class="py-3.5 px-4 text-xs font-semibold">
-                                <div class="flex flex-col">
-                                    <span class="text-stone-900 font-bold">{{ $h['tanggal'] }}</span>
-                                    <span class="text-[10px] text-stone-500">{{ $h['hari'] }}</span>
-                                </div>
-                            </td>
-                            <td class="py-3.5 px-4">
-                                @if ($h['status'] === 'hadir')
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                        <x-lucide-check-circle class="w-3.5 h-3.5" />
-                                        Hadir
-                                    </span>
-                                @elseif ($h['status'] === 'izin')
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200">
-                                        <x-lucide-file-text class="w-3.5 h-3.5" />
-                                        Izin
-                                    </span>
-                                @elseif ($h['status'] === 'sakit')
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-sky-100 text-sky-800 border border-sky-200">
-                                        <x-lucide-activity class="w-3.5 h-3.5" />
-                                        Sakit
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-200">
-                                        <x-lucide-alert-circle class="w-3.5 h-3.5" />
-                                        Alpa / Tidak Hadir
-                                    </span>
-                                @endif
-                            </td>
-                            <td class="py-3.5 px-4 text-xs text-stone-700 font-medium">
-                                {{ $h['guru'] }}
-                            </td>
-                            <td class="py-3.5 px-4 text-xs text-stone-600 font-medium">
-                                {{ $h['catatan'] }}
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="py-12 text-center text-stone-500 space-y-2">
-                                <x-lucide-calendar class="w-10 h-10 mx-auto text-stone-400" />
-                                <p class="text-xs font-semibold">Belum ada riwayat kehadiran tercatat pada filter ini.</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                @empty
+                    <x-table.empty :colspan="4" title="Belum ada data presensi" message="Belum ada riwayat absensi pada periode filter yang dipilih." />
+                @endforelse
+            </tbody>
+        </x-table>
     </div>
 </div>

@@ -160,23 +160,13 @@
                     </div>
                 </a>
 
-                <a href="{{ route('finance.arus-kas-masuk') }}" class="p-3.5 bg-stone-50 border border-stone-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-2xl flex items-center gap-3.5 group transition duration-150">
+                <a href="{{ route('finance.arus-kas') }}" class="p-3.5 bg-stone-50 border border-stone-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-2xl flex items-center gap-3.5 group transition duration-150 sm:col-span-2">
                     <div class="p-2.5 bg-emerald-100 text-emerald-700 rounded-xl border border-emerald-300 group-hover:bg-emerald-700 group-hover:text-white transition duration-150 shrink-0">
-                        <x-lucide-heart-handshake class="w-4 h-4" />
+                        <x-lucide-layers class="w-4 h-4" />
                     </div>
                     <div>
-                        <h4 class="text-xs font-bold text-stone-900">Kas Masuk Yayasan</h4>
-                        <span class="text-[11px] text-stone-500 font-medium block">Infaq, sedekah & donasi</span>
-                    </div>
-                </a>
-
-                <a href="{{ route('finance.arus-kas-keluar') }}" class="p-3.5 bg-stone-50 border border-stone-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-2xl flex items-center gap-3.5 group transition duration-150">
-                    <div class="p-2.5 bg-rose-100 text-rose-700 rounded-xl border border-rose-300 group-hover:bg-rose-700 group-hover:text-white transition duration-150 shrink-0">
-                        <x-lucide-trending-down class="w-4 h-4" />
-                    </div>
-                    <div>
-                        <h4 class="text-xs font-bold text-stone-900">Kas Keluar Yayasan</h4>
-                        <span class="text-[11px] text-stone-500 font-medium block">Pengeluaran operasional</span>
+                        <h4 class="text-xs font-bold text-stone-900">Arus Kas (Cash Flow)</h4>
+                        <span class="text-[11px] text-stone-500 font-medium block">Pusat jurnal pembukuan, komparasi masuk vs keluar &amp; saldo kas</span>
                     </div>
                 </a>
             </div>

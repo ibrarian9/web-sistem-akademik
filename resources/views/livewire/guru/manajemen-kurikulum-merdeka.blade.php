@@ -202,82 +202,76 @@
     </div>
 
     <!-- MODAL 1: FORM LINGKUP MATERI (BAB) -->
-    @if($showLmModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs">
-            <div class="bg-white border border-stone-200 rounded-3xl p-6 shadow-2xl max-w-md w-full space-y-4">
-                <div class="flex items-center justify-between border-b border-stone-200 pb-3">
-                    <h3 class="text-sm font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-2">
-                        <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 text-xs flex items-center justify-center font-black">1</span>
-                        {{ $editingLmId ? 'Edit Lingkup Materi (Bab)' : 'Tambah Bab Baru' }}
-                    </h3>
-                    <button wire:click="closeLmModal" class="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 font-bold">✕</button>
-                </div>
-
-                <form wire:submit.prevent="saveLingkupMateri" class="space-y-3">
-                    <div>
-                        <label class="block text-xs font-bold text-stone-700 mb-1">Nama Lingkup Materi / Bab</label>
-                        <input type="text" wire:model="nama_lingkup_materi" placeholder="misal: Bab 1 Bilangan Bulat" class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-stone-900 text-xs font-semibold focus:ring-2 focus:ring-emerald-500">
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-stone-700 mb-1">Kategori</label>
-                            <input type="text" wire:model="kategori_lm" placeholder="Opsional" class="w-full bg-white border border-stone-300 rounded-xl px-3 py-2 text-stone-900 text-xs font-semibold">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-stone-700 mb-1">Urutan Bab</label>
-                            <input type="number" wire:model="urutan_lm" class="w-full bg-white border border-stone-300 rounded-xl px-3 py-2 text-stone-900 text-xs font-extrabold">
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-stone-200">
-                        <button type="button" wire:click="closeLmModal" class="px-4 py-2 bg-stone-100 text-stone-700 rounded-xl text-xs font-bold hover:bg-stone-200">Batal</button>
-                        <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm">
-                            {{ $editingLmId ? 'Update Bab' : 'Simpan Bab' }}
-                        </button>
-                    </div>
-                </form>
+    <x-floating-card 
+        :show="$showLmModal"
+        :title="$editingLmId ? 'Edit Lingkup Materi (Bab)' : 'Tambah Bab Baru'"
+        subtitle="Definisikan nama bab dan urutan materi pokok pembelajaran."
+        badge="KURIKULUM"
+        badgeVariant="emerald"
+        icon="book"
+        maxWidth="max-w-md"
+        closeAction="closeLmModal"
+    >
+        <form wire:submit.prevent="saveLingkupMateri" class="space-y-3 text-xs">
+            <div>
+                <label class="block text-xs font-bold text-stone-700 mb-1">Nama Lingkup Materi / Bab</label>
+                <input type="text" wire:model="nama_lingkup_materi" placeholder="misal: Bab 1 Bilangan Bulat" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white shadow-xs">
             </div>
-        </div>
-    @endif
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-stone-700 mb-1">Kategori</label>
+                    <input type="text" wire:model="kategori_lm" placeholder="Opsional" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-stone-900 text-xs font-semibold focus:bg-white shadow-xs">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-stone-700 mb-1">Urutan Bab</label>
+                    <input type="number" wire:model="urutan_lm" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-stone-900 text-xs font-black focus:bg-white shadow-xs">
+                </div>
+            </div>
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-stone-200">
+                <x-button type="button" variant="secondary" size="md" wire:click="closeLmModal">Batal</x-button>
+                <x-button type="submit" variant="primary" size="md" icon="check" loadingTarget="saveLingkupMateri">
+                    {{ $editingLmId ? 'Update Bab' : 'Simpan Bab' }}
+                </x-button>
+            </div>
+        </form>
+    </x-floating-card>
 
     <!-- MODAL 2: FORM TUJUAN PEMBELAJARAN (TP) -->
-    @if($showTpModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs">
-            <div class="bg-white border border-stone-200 rounded-3xl p-6 shadow-2xl max-w-md w-full space-y-4">
-                <div class="flex items-center justify-between border-b border-stone-200 pb-3">
-                    <h3 class="text-sm font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-2">
-                        <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 text-xs flex items-center justify-center font-black">2</span>
-                        {{ $editingTpId ? 'Edit Tujuan Pembelajaran (TP)' : 'Tambah Tujuan Pembelajaran (TP)' }}
-                    </h3>
-                    <button wire:click="closeTpModal" class="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 font-bold">✕</button>
-                </div>
-
-                <form wire:submit.prevent="saveTp" class="space-y-3">
-                    <div>
-                        <label class="block text-xs font-bold text-stone-700 mb-1">Pilih Bab Target</label>
-                        <select wire:model="lingkup_materi_id" class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-stone-900 text-xs font-semibold focus:ring-2 focus:ring-emerald-500">
-                            <option value="">-- Pilih Bab --</option>
-                            @foreach($lingkupMateris as $lm)
-                                <option value="{{ $lm->id }}">Bab {{ $lm->urutan }}: {{ $lm->nama_lingkup_materi }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-stone-700 mb-1">Deskripsi Capaian TP</label>
-                        <textarea wire:model="deskripsi_tp" rows="3" placeholder="misal: membaca dan menulis bilangan bulat positif dan negatif" class="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-500"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-stone-700 mb-1">Urutan TP</label>
-                        <input type="number" wire:model="urutan_tp" class="w-full bg-white border border-stone-300 rounded-xl px-3 py-2 text-stone-900 text-xs font-extrabold">
-                    </div>
-                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-stone-200">
-                        <button type="button" wire:click="closeTpModal" class="px-4 py-2 bg-stone-100 text-stone-700 rounded-xl text-xs font-bold hover:bg-stone-200">Batal</button>
-                        <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm">
-                            {{ $editingTpId ? 'Update TP' : 'Simpan TP' }}
-                        </button>
-                    </div>
-                </form>
+    <x-floating-card 
+        :show="$showTpModal"
+        :title="$editingTpId ? 'Edit Tujuan Pembelajaran (TP)' : 'Tambah Tujuan Pembelajaran (TP)'"
+        subtitle="Rincikan indikator ketercapaian tujuan pembelajaran pada bab terpilih."
+        badge="TUJUAN TP"
+        badgeVariant="emerald"
+        icon="target"
+        maxWidth="max-w-md"
+        closeAction="closeTpModal"
+    >
+        <form wire:submit.prevent="saveTp" class="space-y-3 text-xs">
+            <div>
+                <label class="block text-xs font-bold text-stone-700 mb-1">Pilih Bab Target</label>
+                <select wire:model="lingkup_materi_id" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white shadow-xs">
+                    <option value="">-- Pilih Bab --</option>
+                    @foreach($lingkupMateris as $lm)
+                        <option value="{{ $lm->id }}">Bab {{ $lm->urutan }}: {{ $lm->nama_lingkup_materi }}</option>
+                    @endforeach
+                </select>
             </div>
-        </div>
-    @endif
+            <div>
+                <label class="block text-xs font-bold text-stone-700 mb-1">Deskripsi Capaian TP</label>
+                <textarea wire:model="deskripsi_tp" rows="3" placeholder="misal: membaca dan menulis bilangan bulat positif dan negatif" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 focus:bg-white shadow-xs"></textarea>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-stone-700 mb-1">Urutan TP</label>
+                <input type="number" wire:model="urutan_tp" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-stone-900 text-xs font-black focus:bg-white shadow-xs">
+            </div>
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-stone-200">
+                <x-button type="button" variant="secondary" size="md" wire:click="closeTpModal">Batal</x-button>
+                <x-button type="submit" variant="primary" size="md" icon="check" loadingTarget="saveTp">
+                    {{ $editingTpId ? 'Update TP' : 'Simpan TP' }}
+                </x-button>
+            </div>
+        </form>
+    </x-floating-card>
 
 </div>

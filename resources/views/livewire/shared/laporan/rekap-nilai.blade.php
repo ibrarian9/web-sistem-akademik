@@ -10,12 +10,19 @@
     />
 
     <!-- Page Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-            <h2 class="text-xl font-bold text-stone-800 tracking-tight">Rekap Nilai Akademik</h2>
-            <p class="text-sm text-stone-500 font-medium">Laporan rekapitulasi nilai siswa per kelas per mata pelajaran per semester.</p>
-        </div>
-    </div>
+    <x-page-header 
+        title="Rekap Nilai Akademik Siswa" 
+        subtitle="Laporan rekapitulasi nilai siswa per kelas per mata pelajaran per semester."
+        badge="LAPORAN NILAI"
+        badgeVariant="emerald"
+        icon="book-open"
+    >
+        <x-slot:actions>
+            <x-button type="button" variant="outline" size="sm" icon="file-text" wire:click="downloadPdf">
+                Ekspor PDF
+            </x-button>
+        </x-slot:actions>
+    </x-page-header>
 
     <!-- Filters Card -->
     <div class="bg-white border border-stone-200 rounded-2xl shadow-sm p-6">
@@ -67,69 +74,62 @@
                     | Mapel: <span class="text-stone-600 font-semibold">{{ $mapel->nama_mapel }}</span>
                     | Semester: <span class="text-stone-600 font-semibold">{{ $semester->nama_semester }}</span>
                 </div>
-                <button wire:click="downloadPdf" 
-                        class="inline-flex items-center justify-center gap-2 py-2 px-4 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-sm font-semibold text-stone-700 shadow-sm transition duration-150 shrink-0">
-                    <x-lucide-file-text class="w-4 h-4 text-red-600" />
-                    <span>Ekspor PDF</span>
-                </button>
+                <x-button type="button" variant="outline" size="sm" icon="file-text" wire:click="downloadPdf">
+                    Ekspor PDF
+                </x-button>
             </div>
 
             <!-- Scrollable Matrix Table -->
-            <div class="overflow-x-auto">
-                <table class="w-full border-collapse text-left text-xs text-stone-600 min-w-[700px]">
-                    <thead>
-                        <tr class="bg-stone-50 border-b border-stone-200 font-bold text-stone-700">
-                            <th class="py-3 px-4 w-12 text-center border-r border-stone-200">No</th>
-                            <th class="py-3 px-4 w-56 border-r border-stone-200">Nama Siswa</th>
+            <x-table loadingTarget="kelasId, mapelId, semesterId">
+                <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+                    <tr>
+                        <x-table.th align="center" class="w-12">No</x-table.th>
+                        <x-table.th class="w-56">Nama Siswa</x-table.th>
+                        @foreach ($components as $comp)
+                            <x-table.th align="center" class="w-28">
+                                {{ $comp->nama }}
+                                <div class="text-[9px] text-emerald-200 font-semibold mt-0.5">Bobot: {{ intval($comp->bobot) }}%</div>
+                            </x-table.th>
+                        @endforeach
+                        <x-table.th align="center" class="w-28 bg-emerald-900 text-white font-black">Nilai Akhir</x-table.th>
+                        <x-table.th align="center" class="w-20 bg-emerald-950 text-white font-black">Predikat</x-table.th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-200 bg-white">
+                    @forelse ($matrix as $index => $row)
+                        <tr class="hover:bg-stone-50 transition">
+                            <td class="p-3.5 text-center border-r border-stone-200 font-bold text-stone-400 text-xs">{{ $index + 1 }}</td>
+                            <td class="p-3.5 border-r border-stone-200 font-bold text-stone-900 text-xs">
+                                {{ $row['siswa']->user->nama }}
+                                <div class="text-[10px] text-stone-400 font-semibold mt-0.5">NIS: {{ $row['siswa']->nis }}</div>
+                            </td>
                             @foreach ($components as $comp)
-                                <th class="py-3 px-3 text-center border-r border-stone-200 bg-stone-50">
-                                    {{ $comp->nama }}
-                                    <div class="text-[9px] text-stone-400 font-semibold mt-0.5">Bobot: {{ intval($comp->bobot) }}%</div>
-                                </th>
+                                @php
+                                    $val = $row['compGrades'][$comp->id];
+                                    $cellClass = is_null($val) ? 'text-stone-300' : 'text-stone-700 font-bold';
+                                    $cellText = is_null($val) ? '•' : $val;
+                                @endphp
+                                <td class="p-3.5 text-center border-r border-stone-200 text-xs {{ $cellClass }}">{{ $cellText }}</td>
                             @endforeach
-                            <th class="py-3 px-4 w-24 text-center border-r border-stone-200 bg-green-50 text-green-800 font-extrabold text-sm">Nilai Akhir</th>
-                            <th class="py-3 px-3 w-16 text-center bg-stone-100 text-stone-800 font-extrabold text-sm">Predikat</th>
+                            <td class="p-3.5 text-center border-r border-stone-200 bg-emerald-50/50 text-emerald-800 font-black text-sm">{{ $row['finalGrade'] }}</td>
+                            <td class="p-3.5 text-center bg-stone-50 font-black text-sm">
+                                @php
+                                    $badgeVariant = match($row['predikat']) {
+                                        'A' => 'emerald',
+                                        'B' => 'sky',
+                                        'C' => 'amber',
+                                        'D' => 'rose',
+                                        default => 'stone',
+                                    };
+                                @endphp
+                                <x-badge :variant="$badgeVariant" size="xs">{{ $row['predikat'] }}</x-badge>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody class="divide-y divide-stone-200">
-                        @forelse ($matrix as $index => $row)
-                            <tr class="hover:bg-stone-50/50 transition">
-                                <td class="py-3 px-4 text-center border-r border-stone-100 font-bold text-stone-400">{{ $index + 1 }}</td>
-                                <td class="py-3 px-4 border-r border-stone-100 font-bold text-stone-800">
-                                    {{ $row['siswa']->user->nama }}
-                                    <div class="text-[10px] text-stone-400 font-semibold mt-0.5">NIS: {{ $row['siswa']->nis }}</div>
-                                </td>
-                                @foreach ($components as $comp)
-                                    @php
-                                        $val = $row['compGrades'][$comp->id];
-                                        $cellClass = is_null($val) ? 'text-stone-300' : 'text-stone-700 font-semibold';
-                                        $cellText = is_null($val) ? '•' : $val;
-                                    @endphp
-                                    <td class="py-3 px-3 text-center border-r border-stone-100 {{ $cellClass }}">{{ $cellText }}</td>
-                                @endforeach
-                                <td class="py-3 px-4 text-center border-r border-stone-100 bg-green-50/30 text-green-700 font-extrabold text-sm">{{ $row['finalGrade'] }}</td>
-                                <td class="py-3 px-3 text-center bg-stone-50 font-extrabold text-stone-800 text-sm">
-                                    @php
-                                        $predClass = '';
-                                        if ($row['predikat'] === 'A') $predClass = 'text-green-600';
-                                        elseif ($row['predikat'] === 'B') $predClass = 'text-blue-600';
-                                        elseif ($row['predikat'] === 'C') $predClass = 'text-orange-600';
-                                        elseif ($row['predikat'] === 'D') $predClass = 'text-yellow-600';
-                                        else $predClass = 'text-red-600';
-                                    @endphp
-                                    <span class="{{ $predClass }}">{{ $row['predikat'] }}</span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="{{ $components->count() + 4 }}" class="py-12 text-center text-stone-400 font-medium">
-                                    Tidak ada data siswa aktif di kelas ini.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                    @empty
+                        <x-table.empty :colspan="$components->count() + 4" title="Belum ada data nilai" message="Tidak ada data siswa aktif atau penilaian pada rombel kelas ini." />
+                    @endforelse
+                </tbody>
+            </x-table>
 
             <!-- Calculation Note Panel -->
             <div class="p-6 border-t border-stone-200 bg-stone-50/30 text-xs text-stone-500 space-y-1">

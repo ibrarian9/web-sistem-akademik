@@ -25,6 +25,10 @@ class CapaianPengembanganGuru extends Component
     public $catatan_evaluasi = '';
     public $tanggal_penilaian = '';
 
+    // Modal Detail State
+    public $showDetailModal = false;
+    public $detailCapaian = null;
+
     protected $queryString = [
         'search' => ['except' => ''],
         'filterGuru' => ['except' => ''],
@@ -52,9 +56,35 @@ class CapaianPengembanganGuru extends Component
         $this->resetPage();
     }
 
+    public function openDetailModal($id)
+    {
+        $capaian = CapaianGuru::with(['guru.user', 'penilai', 'tahunAjaran', 'semester'])->find($id);
+        if (!$capaian) {
+            return;
+        }
+
+        $this->detailCapaian = $capaian;
+        $this->showDetailModal = true;
+    }
+
+    public function closeDetailModal()
+    {
+        $this->showDetailModal = false;
+        $this->detailCapaian = null;
+    }
+
+    public function openEvaluateFromDetail()
+    {
+        if ($this->detailCapaian) {
+            $id = $this->detailCapaian->id;
+            $this->closeDetailModal();
+            $this->openEvaluateModal($id);
+        }
+    }
+
     public function openEvaluateModal($id)
     {
-        $capaian = CapaianGuru::with('guru.user')->find($id);
+        $capaian = CapaianGuru::with(['guru.user', 'tahunAjaran', 'semester'])->find($id);
         if (!$capaian) {
             return;
         }
