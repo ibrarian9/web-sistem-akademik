@@ -15,7 +15,7 @@
         .modal__overlay { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); }
 
         /* Smooth SPA Navigation Transitions (React/Vue Feel) */
-        main {
+        main > div {
             animation: fadeInPage 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
@@ -78,10 +78,10 @@
         <x-sidebar />
 
         <!-- Main Wrapper -->
-        <div class="flex-1 flex flex-col lg:pl-64 min-w-0 bg-stone-50">
+        <div class="flex-1 flex flex-col lg:pl-64 min-w-0 bg-stone-50 relative">
             
-            <!-- Topbar / Header -->
-            <header class="flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16 border-b border-stone-200 bg-white/80 backdrop-blur-md sticky top-0 z-10 shadow-sm">
+            <!-- Topbar / Header (Non-sticky: stays at the top and scrolls naturally) -->
+            <header class="flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16 border-b border-stone-200 bg-white shrink-0">
                 <div class="flex items-center gap-3 min-w-0">
                     <!-- Hamburger Button (Mobile Only) -->
                     <button @click="sidebarOpen = !sidebarOpen" 
@@ -116,8 +116,8 @@
             </header>
 
             <!-- Main Content Area -->
-            <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-                <div class="mx-auto max-w-7xl">
+            <main class="flex-1 p-4 sm:p-6 lg:p-8">
+                <div class="mx-auto max-w-7xl page-container">
                     {{ $slot }}
                 </div>
             </main>

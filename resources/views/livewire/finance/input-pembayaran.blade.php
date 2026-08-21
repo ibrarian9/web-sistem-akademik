@@ -6,7 +6,13 @@
         badge="KASIR PEMBAYARAN SISWA"
         badgeVariant="emerald"
         icon="plus-circle"
-    />
+    >
+        <x-slot:actions>
+            <x-button variant="secondary" size="md" icon="file-text" href="{{ route('finance.tagihan') }}">
+                Manajemen &amp; Rilis Tagihan
+            </x-button>
+        </x-slot:actions>
+    </x-page-header>
 
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 

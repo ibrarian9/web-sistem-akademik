@@ -10,12 +10,13 @@ use App\Models\JenisTagihan;
 use App\Models\TahunAjaran;
 use App\Traits\WithDateFilter;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\DB;
 
 class ManajemenTagihan extends Component
 {
     use WithPagination, WithDateFilter;
 
-    // Filters
+    // Filters for Main Table
     public ?int $filterKelas = null;
     public ?int $filterJenis = null;
     public string $filterStatus = '';
@@ -31,8 +32,24 @@ class ManajemenTagihan extends Component
     public ?int $selectedSiswaId = null;
     public ?Siswa $selectedSiswa = null;
 
-    // Create Tagihan Form properties
+    // Create / Release Tagihan Form properties
+    public string $releaseMode = 'bulk'; // 'single' | 'bulk'
+    public string $bulkTarget = 'custom'; // 'custom' (Pilih Beberapa Siswa Lintas Kelas) | 'class' (Per Kelas) | 'all' (Seluruh Siswa)
+    
+    // Single Mode properties
+    public ?int $release_kelas_id = null;
+    public string $studentSearch = '';
     public ?int $single_siswa_id = null;
+    public string $selectedStudentName = '';
+    public string $selectedStudentNis = '';
+    public string $selectedStudentKelas = '';
+
+    // Bulk Custom Multi-Select properties
+    public array $bulkSelectedSiswaIds = [];
+    public string $bulkSearchStudent = '';
+    public ?int $bulkSearchKelasId = null;
+
+    // Tagihan Form values
     public ?int $jenis_tagihan_id = null;
     public string $bulan = 'Juli';
     public float $nominal = 0.00;
@@ -47,7 +64,7 @@ class ManajemenTagihan extends Component
     public float $edit_total_dibayar = 0.00;
     public string $edit_siswa_nama = '';
 
-    // Bulk selection (Siswa IDs)
+    // Bulk selection (Siswa IDs for deletion)
     public array $selectedIds = [];
     public bool $selectAll = false;
 
@@ -159,12 +176,94 @@ class ManajemenTagihan extends Component
         }
     }
 
+    public function setReleaseMode(string $mode)
+    {
+        $this->releaseMode = $mode;
+        $this->resetValidation();
+    }
+
+    public function setBulkTarget(string $target)
+    {
+        $this->bulkTarget = $target;
+        $this->resetValidation();
+    }
+
+    // Single student selection methods
+    public function selectStudent(int $id)
+    {
+        $siswa = Siswa::with('user', 'kelas')->find($id);
+        if ($siswa) {
+            $this->single_siswa_id = $siswa->id;
+            $this->selectedStudentName = $siswa->user->nama ?? '-';
+            $this->selectedStudentNis = $siswa->nis ?? '-';
+            $this->selectedStudentKelas = $siswa->kelas->nama_kelas ?? '-';
+            $this->studentSearch = '';
+        }
+    }
+
+    public function clearSelectedStudent()
+    {
+        $this->single_siswa_id = null;
+        $this->selectedStudentName = '';
+        $this->selectedStudentNis = '';
+        $this->selectedStudentKelas = '';
+        $this->studentSearch = '';
+    }
+
+    // Multi-student batch selection methods
+    public function addSiswaToBulk(int $siswaId)
+    {
+        if (!in_array($siswaId, $this->bulkSelectedSiswaIds)) {
+            $this->bulkSelectedSiswaIds[] = $siswaId;
+        }
+    }
+
+    public function removeSiswaFromBulk(int $siswaId)
+    {
+        $this->bulkSelectedSiswaIds = array_values(array_diff($this->bulkSelectedSiswaIds, [$siswaId]));
+    }
+
+    public function clearBulkSelected()
+    {
+        $this->bulkSelectedSiswaIds = [];
+    }
+
+    public function addAllFoundToBulk()
+    {
+        $bQuery = Siswa::where('status', 'aktif');
+        if ($this->bulkSearchKelasId) {
+            $bQuery->where('kelas_id', $this->bulkSearchKelasId);
+        }
+        if (trim($this->bulkSearchStudent) !== '') {
+            $bQuery->where(function ($q) {
+                $q->whereHas('user', function ($uq) {
+                    $uq->where('nama', 'like', '%' . $this->bulkSearchStudent . '%');
+                })->orWhere('nis', 'like', '%' . $this->bulkSearchStudent . '%');
+            });
+        }
+        $foundIds = $bQuery->pluck('id')->toArray();
+        $this->bulkSelectedSiswaIds = array_values(array_unique(array_merge($this->bulkSelectedSiswaIds, $foundIds)));
+    }
+
     public function openCreateModal(?int $siswaId = null)
     {
         $this->resetValidation();
+        $this->releaseMode = $siswaId ? 'single' : 'bulk';
+        $this->bulkTarget = 'custom';
+        $this->release_kelas_id = null;
+        $this->studentSearch = '';
+        $this->single_siswa_id = null;
+        $this->selectedStudentName = '';
+        $this->selectedStudentNis = '';
+        $this->selectedStudentKelas = '';
+        $this->bulkSelectedSiswaIds = [];
+        $this->bulkSearchStudent = '';
+        $this->bulkSearchKelasId = null;
+
         if ($siswaId) {
-            $this->single_siswa_id = $siswaId;
+            $this->selectStudent($siswaId);
         }
+
         $this->showCreateModal = true;
     }
 
@@ -205,6 +304,8 @@ class ManajemenTagihan extends Component
             'bulan' => 'required|string|max:50',
             'nominal' => 'required|numeric|min:1',
             'jatuh_tempo' => 'required|date',
+        ], [
+            'single_siswa_id.required' => 'Pilih siswa penerima tagihan terlebih dahulu.',
         ]);
 
         $activeTA = TahunAjaran::where('status_aktif', true)->first();
@@ -215,6 +316,25 @@ class ManajemenTagihan extends Component
         }
 
         $siswa = Siswa::with('user')->findOrFail($this->single_siswa_id);
+
+        // Check if duplicate tagihan already exists
+        $existing = Tagihan::where('siswa_id', $siswa->id)
+            ->where('jenis_tagihan_id', $this->jenis_tagihan_id)
+            ->where('tahun_ajaran_id', $activeTA->id)
+            ->where('bulan', $this->bulan)
+            ->first();
+
+        if ($existing) {
+            $msg = "Siswa ini sudah memiliki tagihan " . ($existing->jenisTagihan->nama ?? 'Tagihan') . " untuk periode " . $this->bulan . ".";
+            session()->flash('warning', $msg);
+            $this->dispatch('show-alert', [
+                'title' => 'Tagihan Sudah Ada',
+                'message' => $msg,
+                'type' => 'warning',
+            ]);
+            $this->addError('bulan', $msg);
+            return;
+        }
 
         Tagihan::create([
             'siswa_id' => $siswa->id,
@@ -235,7 +355,7 @@ class ManajemenTagihan extends Component
             'type' => 'create',
         ]);
 
-        $this->reset(['single_siswa_id', 'jenis_tagihan_id', 'bulan', 'nominal']);
+        $this->clearSelectedStudent();
         $this->showCreateModal = false;
         
         if ($this->showDetailModal && $this->selectedSiswaId) {
@@ -243,6 +363,115 @@ class ManajemenTagihan extends Component
         }
         
         $this->resetPage();
+    }
+
+    public function createBulkTagihan()
+    {
+        $rules = [
+            'jenis_tagihan_id' => 'required|exists:jenis_tagihan,id',
+            'bulan' => 'required|string|max:50',
+            'nominal' => 'required|numeric|min:1',
+            'jatuh_tempo' => 'required|date',
+        ];
+
+        if ($this->bulkTarget === 'class') {
+            $rules['release_kelas_id'] = 'required|exists:kelas,id';
+        }
+
+        $this->validate($rules, [
+            'release_kelas_id.required' => 'Pilih kelas target untuk rilis massal.',
+        ]);
+
+        if ($this->bulkTarget === 'custom' && count($this->bulkSelectedSiswaIds) === 0) {
+            $this->addError('bulkSelectedSiswaIds', 'Pilih minimal 1 siswa penerima tagihan.');
+            return;
+        }
+
+        $activeTA = TahunAjaran::where('status_aktif', true)->first();
+        if (!$activeTA) {
+            session()->flash('error', 'Tidak ada tahun ajaran aktif.');
+            $this->dispatch('show-alert', ['title' => 'Peringatan', 'message' => 'Tidak ada tahun ajaran aktif.', 'type' => 'warning']);
+            return;
+        }
+
+        $targetStudents = collect();
+        if ($this->bulkTarget === 'custom') {
+            $targetStudents = Siswa::where('status', 'aktif')->whereIn('id', $this->bulkSelectedSiswaIds)->get();
+        } elseif ($this->bulkTarget === 'class') {
+            $targetStudents = Siswa::where('status', 'aktif')->where('kelas_id', $this->release_kelas_id)->get();
+        } elseif ($this->bulkTarget === 'all') {
+            $targetStudents = Siswa::where('status', 'aktif')->get();
+        }
+
+        if ($targetStudents->isEmpty()) {
+            session()->flash('error', 'Tidak ada siswa aktif pada target yang dipilih.');
+            $this->dispatch('show-alert', ['title' => 'Peringatan', 'message' => 'Tidak ada siswa aktif pada target yang dipilih.', 'type' => 'warning']);
+            return;
+        }
+
+        $createdCount = 0;
+        $skippedCount = 0;
+
+        DB::transaction(function () use ($targetStudents, $activeTA, &$createdCount, &$skippedCount) {
+            foreach ($targetStudents as $siswa) {
+                // Check if duplicate tagihan exists
+                $exists = Tagihan::where('siswa_id', $siswa->id)
+                    ->where('jenis_tagihan_id', $this->jenis_tagihan_id)
+                    ->where('tahun_ajaran_id', $activeTA->id)
+                    ->where('bulan', $this->bulan)
+                    ->exists();
+
+                if (!$exists) {
+                    Tagihan::create([
+                        'siswa_id' => $siswa->id,
+                        'jenis_tagihan_id' => $this->jenis_tagihan_id,
+                        'tahun_ajaran_id' => $activeTA->id,
+                        'bulan' => $this->bulan,
+                        'nominal' => $this->nominal,
+                        'total_dibayar' => 0.00,
+                        'status' => 'belum_bayar',
+                        'jatuh_tempo' => $this->jatuh_tempo,
+                    ]);
+                    $createdCount++;
+                } else {
+                    $skippedCount++;
+                }
+            }
+        });
+
+        if ($createdCount === 0 && $skippedCount > 0) {
+            $msg = "Tidak ada tagihan baru yang diterbitkan. ({$skippedCount} siswa dilewati karena sudah memiliki tagihan ini).";
+            session()->flash('warning', $msg);
+            $this->dispatch('show-alert', [
+                'title' => 'Tagihan Sudah Ada',
+                'message' => $msg,
+                'type' => 'warning',
+            ]);
+        } elseif ($createdCount > 0 && $skippedCount > 0) {
+            $msg = "Berhasil merilis tagihan untuk {$createdCount} siswa. ({$skippedCount} siswa dilewati karena sudah memiliki tagihan ini).";
+            session()->flash('warning', $msg);
+            $this->dispatch('show-alert', [
+                'title' => 'Tagihan Dirilis (Sebagian Dilewati)',
+                'message' => $msg,
+                'type' => 'warning',
+            ]);
+        } else {
+            $msg = "Berhasil merilis tagihan untuk {$createdCount} siswa.";
+            session()->flash('message', $msg);
+            $this->dispatch('show-alert', [
+                'title' => 'Rilis Tagihan Berhasil',
+                'message' => $msg,
+                'type' => 'create',
+            ]);
+        }
+
+        $this->bulkSelectedSiswaIds = [];
+        $this->showCreateModal = false;
+        $this->resetPage();
+
+        if ($this->showDetailModal && $this->selectedSiswaId) {
+            $this->loadSelectedSiswa();
+        }
     }
 
     public function openEditModal(int $tagihanId)
@@ -409,7 +638,7 @@ class ManajemenTagihan extends Component
 
     public function render()
     {
-        // Query Siswa grouped with tagihans
+        // Query Siswa grouped with tagihans for Main Table
         $query = Siswa::whereHas('tagihans', function ($q) {
             if ($this->filterJenis) {
                 $q->where('jenis_tagihan_id', $this->filterJenis);
@@ -448,11 +677,68 @@ class ManajemenTagihan extends Component
         }
 
         $students = $query->paginate(15);
-        $allStudents = Siswa::where('status', 'aktif')->with('user', 'kelas')->get();
+
+        // Search Autocomplete for Single Mode
+        $searchedStudents = [];
+        if ($this->showCreateModal && $this->releaseMode === 'single') {
+            $modalStudentQuery = Siswa::where('status', 'aktif')->with('user', 'kelas');
+            
+            if ($this->release_kelas_id) {
+                $modalStudentQuery->where('kelas_id', $this->release_kelas_id);
+            }
+
+            if (trim($this->studentSearch) !== '') {
+                $modalStudentQuery->where(function ($q) {
+                    $q->whereHas('user', function ($uq) {
+                        $uq->where('nama', 'like', '%' . $this->studentSearch . '%');
+                    })->orWhere('nis', 'like', '%' . $this->studentSearch . '%');
+                });
+                $searchedStudents = $modalStudentQuery->limit(8)->get();
+            }
+        }
+
+        // Search for Multi-Select Lintas Kelas in Bulk Mode
+        $bulkSearchedStudents = [];
+        $selectedStudentsList = [];
+        if ($this->showCreateModal && $this->releaseMode === 'bulk') {
+            if ($this->bulkTarget === 'custom') {
+                $bQuery = Siswa::where('status', 'aktif')->with('user', 'kelas');
+                if ($this->bulkSearchKelasId) {
+                    $bQuery->where('kelas_id', $this->bulkSearchKelasId);
+                }
+                if (trim($this->bulkSearchStudent) !== '') {
+                    $bQuery->where(function ($q) {
+                        $q->whereHas('user', function ($uq) {
+                            $uq->where('nama', 'like', '%' . $this->bulkSearchStudent . '%');
+                        })->orWhere('nis', 'like', '%' . $this->bulkSearchStudent . '%');
+                    });
+                }
+                $bulkSearchedStudents = $bQuery->limit(10)->get();
+
+                if (!empty($this->bulkSelectedSiswaIds)) {
+                    $selectedStudentsList = Siswa::whereIn('id', $this->bulkSelectedSiswaIds)->with('user', 'kelas')->get();
+                }
+            }
+        }
+
+        // Total Target Count for Bulk Summary
+        $bulkStudentCount = 0;
+        if ($this->showCreateModal && $this->releaseMode === 'bulk') {
+            if ($this->bulkTarget === 'custom') {
+                $bulkStudentCount = count($this->bulkSelectedSiswaIds);
+            } elseif ($this->bulkTarget === 'class') {
+                $bulkStudentCount = $this->release_kelas_id ? Siswa::where('status', 'aktif')->where('kelas_id', $this->release_kelas_id)->count() : 0;
+            } elseif ($this->bulkTarget === 'all') {
+                $bulkStudentCount = Siswa::where('status', 'aktif')->count();
+            }
+        }
 
         return view('livewire.finance.manajemen-tagihan', [
             'students' => $students,
-            'allStudents' => $allStudents,
+            'searchedStudents' => $searchedStudents,
+            'bulkSearchedStudents' => $bulkSearchedStudents,
+            'selectedStudentsList' => $selectedStudentsList,
+            'bulkStudentCount' => $bulkStudentCount,
             'isFounder' => $this->isFounder(),
         ])->layout('components.layouts.app', ['title' => 'Manajemen Tagihan']);
     }
