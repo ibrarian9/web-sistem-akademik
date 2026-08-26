@@ -1,9 +1,9 @@
 <div class="space-y-6 font-sans">
     <!-- Header Title Bar -->
     <x-page-header 
-        title="Kenaikan Kelas &amp; Kelulusan SD Tahfizh" 
-        subtitle="Pemindahan Kelas Akademik Rombel &amp; Plotting Kelompok Halaqah Tahfizh Lintas Kelas."
-        badge="DUAL KENAIKAN KELAS &amp; HALAQAH"
+        title="Kenaikan Kelas & Kelulusan SD Tahfizh" 
+        subtitle="Pemindahan Kelas Akademik Rombel & Plotting Kelompok Halaqah Tahfizh Lintas Kelas."
+        badge="DUAL KENAIKAN KELAS & HALAQAH"
         badgeVariant="emerald"
         icon="arrow-right-left"
     >
@@ -45,7 +45,7 @@
                 <x-lucide-arrow-right-left class="w-4 h-4 text-emerald-700" />
                 <span>
                     @if($tipeKenaikan === 'tahfidz') Pengaturan Pemindahan Halaqah Tahfizh Lintas Kelas
-                    @else Pengaturan Rombel Akademik &amp; Kenaikan Kelas
+                    @else Pengaturan Rombel Akademik & Kenaikan Kelas
                     @endif
                 </span>
             </h3>
@@ -136,7 +136,7 @@
                         <input type="checkbox" wire:model.live="selectAll" class="w-4 h-4 rounded text-emerald-700 border-stone-300 focus:ring-emerald-600 cursor-pointer" />
                     </x-table.th>
                     <x-table.th class="min-w-[180px]">Nama Santri / Siswa</x-table.th>
-                    <x-table.th class="min-w-[160px]">Kelas Akademik &amp; Halaqah</x-table.th>
+                    <x-table.th class="min-w-[160px]">Kelas Akademik & Halaqah</x-table.th>
                     <x-table.th class="min-w-[160px]">Status Evaluasi Tahfizh</x-table.th>
                     <x-table.th align="center" class="w-36">Keputusan</x-table.th>
                     <x-table.th align="center" class="min-w-[150px]">Diskresi TU</x-table.th>
@@ -169,7 +169,7 @@
                         <td class="p-3.5 border-r border-stone-200">
                             <div class="space-y-1">
                                 <x-badge variant="emerald" size="xs">✓ Target Tahfizh Terpenuhi</x-badge>
-                                <div class="text-[10px] text-stone-500 font-medium">Mutaba'ah &amp; Tajwid Lancar</div>
+                                <div class="text-[10px] text-stone-500 font-medium">Mutaba'ah & Tajwid Lancar</div>
                             </div>
                         </td>
                         <td class="p-3.5 text-center border-r border-stone-200">

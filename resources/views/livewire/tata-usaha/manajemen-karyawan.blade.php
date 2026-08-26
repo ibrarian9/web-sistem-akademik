@@ -1,9 +1,9 @@
 <div class="space-y-6 font-sans">
     <!-- Header Title Bar -->
     <x-page-header 
-        title="Direktori Karyawan &amp; Tenaga Kependidikan" 
+        title="Direktori Karyawan & Tenaga Kependidikan" 
         subtitle="Kelola data kepegawaian staf Guru, TU, Finance, Pengawas, dan Kepala Sekolah."
-        badge="MANAJEMEN KARYAWAN &amp; STAF"
+        badge="MANAJEMEN KARYAWAN & STAF"
         badgeVariant="emerald"
         icon="users"
     >

@@ -1,9 +1,9 @@
 <div class="space-y-6 font-sans">
     <!-- Header Title Bar -->
     <x-page-header 
-        title="Input Absensi Karyawan &amp; Guru" 
-        subtitle="Pencatatan presensi terpusat oleh Tata Usaha untuk seluruh staf pendidik &amp; tenaga kependidikan."
-        badge="PRESENSI KARYAWAN &amp; GURU"
+        title="Input Absensi Karyawan & Guru" 
+        subtitle="Pencatatan presensi terpusat oleh Tata Usaha untuk seluruh staf pendidik & tenaga kependidikan."
+        badge="PRESENSI KARYAWAN & GURU"
         badgeVariant="emerald"
         icon="user-check"
     />
@@ -91,7 +91,7 @@
                         <x-table.th class="min-w-[180px]">Nama Karyawan</x-table.th>
                         <x-table.th class="w-36">Peran / Jabatan</x-table.th>
                         <x-table.th align="center" class="w-44">Status Kehadiran</x-table.th>
-                        <x-table.th align="center" class="w-52">Jam Datang &amp; Pulang</x-table.th>
+                        <x-table.th align="center" class="w-52">Jam Datang & Pulang</x-table.th>
                         <x-table.th class="min-w-[200px]">Catatan</x-table.th>
                     </tr>
                 </thead>

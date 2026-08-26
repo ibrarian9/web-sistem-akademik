@@ -3,10 +3,10 @@
     <div class="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
             <span class="px-3 py-1 bg-emerald-100 border border-emerald-300 text-emerald-800 rounded-full text-xs font-bold uppercase tracking-wider inline-block mb-1">
-                AKADEMIK &amp; EVALUASI BELAJAR
+                AKADEMIK & EVALUASI BELAJAR
             </span>
             <h1 class="text-2xl font-extrabold text-stone-900 tracking-tight">Manajemen Jadwal Remedial Guru</h1>
-            <p class="text-xs text-stone-600 font-semibold mt-1">Kelola dan jadwalkan sesi remedial per-TP &amp; Mid Semester untuk santri pengampu Anda.</p>
+            <p class="text-xs text-stone-600 font-semibold mt-1">Kelola dan jadwalkan sesi remedial per-TP & Mid Semester untuk santri pengampu Anda.</p>
         </div>
         <button type="button" wire:click="openCreate" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-2">
             <x-lucide-plus-circle class="w-4 h-4" />
@@ -58,8 +58,8 @@
         <x-table loadingTarget="filterKelas, filterStatus">
             <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
                 <tr>
-                    <x-table.th class="w-48">Tanggal &amp; Waktu</x-table.th>
-                    <x-table.th class="w-44">Kelas &amp; Mapel</x-table.th>
+                    <x-table.th class="w-48">Tanggal & Waktu</x-table.th>
+                    <x-table.th class="w-44">Kelas & Mapel</x-table.th>
                     <x-table.th class="min-w-[160px]">Topik TP / Kategori</x-table.th>
                     <x-table.th class="w-44">Target Santri</x-table.th>
                     <x-table.th class="min-w-[150px]">Ruangan / Catatan</x-table.th>

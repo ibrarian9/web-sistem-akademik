@@ -1,7 +1,7 @@
 <div class="space-y-6 font-sans">
     <!-- Header Title Bar -->
     <x-page-header 
-        title="Pengaturan Global Sistem &amp; Dokumen" 
+        title="Pengaturan Global Sistem & Dokumen" 
         subtitle="Konfigurasi data instansi yayasan dan identitas pejabat resmi pengesah dokumen."
         badge="PENGATURAN SISTEM"
         badgeVariant="emerald"

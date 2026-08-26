@@ -106,7 +106,7 @@
             <!-- Search Catalog -->
             <div class="w-full sm:w-64 relative">
                 <x-lucide-search class="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input type="text" wire:model.live="searchCatalog" placeholder="Cari nama ekskul..." 
+                <input type="text" wire:model.live.debounce.300ms="searchCatalog" placeholder="Cari nama ekskul..." 
                        class="w-full bg-stone-50 border border-stone-300 rounded-xl pl-9 pr-3 py-1.5 text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium">
             </div>
         </div>

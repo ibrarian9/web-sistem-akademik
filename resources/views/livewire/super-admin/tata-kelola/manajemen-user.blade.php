@@ -1,7 +1,7 @@
 <div class="space-y-6 font-sans">
     <!-- Header Title Bar -->
     <x-page-header 
-        title="Kelola Akun &amp; Hak Akses Pengguna" 
+        title="Kelola Akun & Hak Akses Pengguna" 
         subtitle="Pengaturan kredensial administrator, guru, staf keuangan, dan akun portal."
         badge="MANAJEMEN PENGGUNA"
         badgeVariant="emerald"

@@ -16,9 +16,17 @@ class Dashboard extends Component
     public float $totalStudentDeposit = 0.00;
     public array $recentPayments = [];
 
+    // Chart Data Properties
+    public array $cashflowLabels = [];
+    public array $cashflowIncomes = [];
+    public array $cashflowExpenses = [];
+    public array $billStatusCounts = [0, 0, 0]; // Lunas, Belum Bayar, Sebagian
+    public array $billStatusNominals = [0, 0, 0];
+
     public function mount()
     {
         $this->loadFinanceStats();
+        $this->loadChartData();
     }
 
     public function loadFinanceStats()
@@ -65,6 +73,48 @@ class Dashboard extends Component
                 'metode' => $p->metode_bayar,
             ])
             ->toArray();
+    }
+
+    public function loadChartData()
+    {
+        // 1. 6-Month Cashflow Trend
+        $labels = [];
+        $incomes = [];
+        $expenses = [];
+
+        for ($i = 5; $i >= 0; $i--) {
+            $month = Carbon::now()->subMonths($i);
+            $start = $month->copy()->startOfMonth()->toDateString();
+            $end = $month->copy()->endOfMonth()->toDateString();
+
+            $monthName = $month->locale('id')->isoFormat('MMM YY');
+            $labels[] = $monthName;
+
+            $inc = Pembayaran::where('is_void', false)
+                ->whereBetween('tanggal_bayar', [$start, $end])
+                ->sum('nominal_dibayar');
+            $incomes[] = floatval($inc);
+
+            $exp = Pengeluaran::whereBetween('tanggal', [$start, $end])
+                ->sum('jumlah');
+            $expenses[] = floatval($exp);
+        }
+
+        $this->cashflowLabels = $labels;
+        $this->cashflowIncomes = $incomes;
+        $this->cashflowExpenses = $expenses;
+
+        // 2. Tagihan SPP Status Distribution
+        $lunasCount = Tagihan::where('status', 'lunas')->count();
+        $belumBayarCount = Tagihan::where('status', 'belum_bayar')->count();
+        $sebagianCount = Tagihan::where('status', 'sebagian')->count();
+
+        $lunasNominal = floatval(Tagihan::where('status', 'lunas')->sum('nominal'));
+        $belumBayarNominal = floatval(Tagihan::where('status', 'belum_bayar')->sum('nominal'));
+        $sebagianNominal = floatval(Tagihan::where('status', 'sebagian')->sum('nominal'));
+
+        $this->billStatusCounts = [$lunasCount, $belumBayarCount, $sebagianCount];
+        $this->billStatusNominals = [$lunasNominal, $belumBayarNominal, $sebagianNominal];
     }
 
     public function render()

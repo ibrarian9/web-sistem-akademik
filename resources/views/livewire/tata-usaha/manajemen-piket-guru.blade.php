@@ -1,8 +1,8 @@
 <div class="space-y-6 font-sans">
     <!-- Header Title Bar -->
     <x-page-header 
-        :title="$canManage ? 'Kelola Jadwal Piket &amp; Jam Masuk Guru' : 'Jadwal Piket Guru'" 
-        subtitle="Pengaturan jam check-in piket ({{ $jamMasukPiket }} WIB) &amp; non-piket ({{ $jamMasukNonPiket }} WIB) serta penugasan piket harian."
+        :title="$canManage ? 'Kelola Jadwal Piket & Jam Masuk Guru' : 'Jadwal Piket Guru'" 
+        subtitle="Pengaturan jam check-in piket ({{ $jamMasukPiket }} WIB) & non-piket ({{ $jamMasukNonPiket }} WIB) serta penugasan piket harian."
         badge="JADWAL PIKET GURU"
         badgeVariant="emerald"
         icon="clock"

@@ -75,7 +75,7 @@
                     <x-table.th class="min-w-[180px]">Nama User (Pelaku)</x-table.th>
                     <x-table.th class="w-28 text-center">Event</x-table.th>
                     <x-table.th class="min-w-[220px]">Deskripsi Aktivitas</x-table.th>
-                    <x-table.th class="min-w-[180px]">IP Address &amp; Perangkat</x-table.th>
+                    <x-table.th class="min-w-[180px]">IP Address & Perangkat</x-table.th>
                     <x-table.th align="center" class="w-28">Aksi</x-table.th>
                 </tr>
             </thead>
@@ -136,7 +136,7 @@
     <!-- Audit Log Detail Modal with Diff Inspector -->
     <x-floating-card 
         :show="($showDetailModal && $selectedLog) ? true : false"
-        title="Detail Audit Log &amp; Diff Inspector"
+        title="Detail Audit Log & Diff Inspector"
         :subtitle="'ID #' . ($selectedLog['id'] ?? '') . ' - Dicatat pada ' . (isset($selectedLog['created_at']) ? date('d F Y, H:i:s', strtotime($selectedLog['created_at'])) : '-')"
         badge="DIFF INSPECTOR"
         badgeVariant="emerald"
@@ -220,7 +220,7 @@
                         class="pb-2.5 px-3 text-xs font-bold transition border-b-2 flex items-center gap-1.5 cursor-pointer {{ $detailTab === 'properties' ? 'border-emerald-600 text-emerald-800' : 'border-transparent text-stone-500 hover:text-stone-800' }}"
                     >
                         <x-lucide-sliders class="w-3.5 h-3.5" />
-                        <span>Konteks Request &amp; Klien</span>
+                        <span>Konteks Request & Klien</span>
                     </button>
 
                     <button 
@@ -283,7 +283,7 @@
                     <div class="space-y-3">
                         <div class="grid grid-cols-1 gap-2.5">
                             <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-1">
-                                <span class="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">User Agent (Client Browser &amp; OS)</span>
+                                <span class="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">User Agent (Client Browser & OS)</span>
                                 <div class="font-mono text-xs text-stone-900 break-all leading-relaxed font-semibold">
                                     {{ $selectedLog['user_agent'] ?: 'Standard Web Browser' }}
                                 </div>

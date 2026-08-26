@@ -2,8 +2,8 @@
     <!-- Header Page -->
     <x-page-header 
         title="Manajemen Tabungan Siswa" 
-        subtitle="Kelola transaksi setoran &amp; penarikan tabungan siswa serta pantau saldo terkini secara akurat."
-        badge="TABUNGAN &amp; SIMPANAN SISWA"
+        subtitle="Kelola transaksi setoran & penarikan tabungan siswa serta pantau saldo terkini secara akurat."
+        badge="TABUNGAN & SIMPANAN SISWA"
         badgeVariant="emerald"
         icon="wallet"
     />
@@ -207,70 +207,6 @@
         </form>
     </x-floating-card>
 
-    <!-- Floating Card Form Edit Transaksi Tabungan (Founder & Finance) -->
-    <x-floating-card 
-        :show="$showEditTransactionModal" 
-        title="Edit Transaksi Tabungan" 
-        :subtitle="'Koreksi data mutasi untuk: ' . $edit_siswa_nama"
-        badge="EDIT MUTASI TABUNGAN"
-        badgeVariant="indigo"
-        icon="edit-3"
-        maxWidth="max-w-lg"
-        closeAction="closeEditTransactionModal"
-    >
-        <form wire:submit.prevent="saveEditTransaction" class="space-y-4">
-            <!-- Jenis Transaksi -->
-            <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Jenis Transaksi</label>
-                <div class="grid grid-cols-2 gap-3">
-                    <label class="flex items-center justify-center gap-2 p-3 border rounded-xl cursor-pointer text-xs font-bold select-none transition {{ $edit_jenis === 'setor' ? 'bg-emerald-50 border-emerald-500 text-emerald-900 ring-2 ring-emerald-500/20' : 'bg-stone-50 border-stone-300 text-stone-600' }}">
-                        <input type="radio" wire:model.live="edit_jenis" value="setor" class="hidden" />
-                        <x-lucide-arrow-down-left class="w-4 h-4 text-emerald-600" />
-                        <span>Setor Tabungan (+)</span>
-                    </label>
-                    <label class="flex items-center justify-center gap-2 p-3 border rounded-xl cursor-pointer text-xs font-bold select-none transition {{ $edit_jenis === 'tarik' ? 'bg-amber-50 border-amber-500 text-amber-900 ring-2 ring-amber-500/20' : 'bg-stone-50 border-stone-300 text-stone-600' }}">
-                        <input type="radio" wire:model.live="edit_jenis" value="tarik" class="hidden" />
-                        <x-lucide-arrow-up-right class="w-4 h-4 text-amber-600" />
-                        <span>Tarik Tabungan (-)</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Nominal -->
-            <x-input-currency 
-                label="Nominal Transaksi Baru (Rp)" 
-                name="edit_nominal" 
-                wire:model="edit_nominal" 
-                placeholder="Contoh: 50.000" 
-                required 
-            />
-
-            <!-- Tanggal Transaksi -->
-            <x-input 
-                type="date" 
-                label="Tanggal Transaksi" 
-                name="edit_tanggal" 
-                wire:model="edit_tanggal" 
-                required 
-            />
-
-            <!-- Keterangan -->
-            <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Catatan / Keterangan</label>
-                <textarea wire:model="edit_keterangan" rows="2" placeholder="Catatan transaksi tabungan (opsional)..." class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 shadow-2xs resize-none"></textarea>
-            </div>
-
-            <div class="flex items-center justify-end gap-2 pt-3 border-t border-stone-200">
-                <x-button variant="secondary" size="md" wire:click="closeEditTransactionModal">
-                    Batal
-                </x-button>
-                <x-button variant="primary" size="md" type="submit" loadingTarget="saveEditTransaction">
-                    Simpan Perubahan
-                </x-button>
-            </div>
-        </form>
-    </x-floating-card>
-
     <!-- Floating Card History Mutasi -->
     @if ($showHistoryModal && $selectedSiswaHistory)
         <x-floating-card 
@@ -282,6 +218,7 @@
             icon="list"
             maxWidth="max-w-3xl"
             closeAction="closeModals"
+            zIndex="z-[99990]"
         >
             <div class="max-h-96 overflow-y-auto border border-stone-200 rounded-2xl">
                 <x-table>
@@ -304,7 +241,7 @@
                                 </td>
                                 <td class="p-3 text-center border-r border-stone-200">
                                     @if ($tx->jenis === 'setor')
-                                        <x-badge variant="emerald" size="xs">Setor</x-badge>
+                                         <x-badge variant="emerald" size="xs">Setor</x-badge>
                                     @else
                                         <x-badge variant="amber" size="xs">Tarik</x-badge>
                                     @endif
@@ -368,4 +305,69 @@
             </div>
         </x-floating-card>
     @endif
+
+    <!-- Floating Card Form Edit Transaksi Tabungan (Founder & Finance) - Top-level Overlay -->
+    <x-floating-card 
+        :show="$showEditTransactionModal" 
+        title="Edit Transaksi Tabungan" 
+        :subtitle="'Koreksi data mutasi untuk: ' . $edit_siswa_nama"
+        badge="EDIT MUTASI TABUNGAN"
+        badgeVariant="indigo"
+        icon="edit-3"
+        maxWidth="max-w-lg"
+        closeAction="closeEditTransactionModal"
+        zIndex="z-[99998]"
+    >
+        <form wire:submit.prevent="saveEditTransaction" class="space-y-4">
+            <!-- Jenis Transaksi -->
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Jenis Transaksi</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="flex items-center justify-center gap-2 p-3 border rounded-xl cursor-pointer text-xs font-bold select-none transition {{ $edit_jenis === 'setor' ? 'bg-emerald-50 border-emerald-500 text-emerald-900 ring-2 ring-emerald-500/20' : 'bg-stone-50 border-stone-300 text-stone-600' }}">
+                        <input type="radio" wire:model.live="edit_jenis" value="setor" class="hidden" />
+                        <x-lucide-arrow-down-left class="w-4 h-4 text-emerald-600" />
+                        <span>Setor Tabungan (+)</span>
+                    </label>
+                    <label class="flex items-center justify-center gap-2 p-3 border rounded-xl cursor-pointer text-xs font-bold select-none transition {{ $edit_jenis === 'tarik' ? 'bg-amber-50 border-amber-500 text-amber-900 ring-2 ring-amber-500/20' : 'bg-stone-50 border-stone-300 text-stone-600' }}">
+                        <input type="radio" wire:model.live="edit_jenis" value="tarik" class="hidden" />
+                        <x-lucide-arrow-up-right class="w-4 h-4 text-amber-600" />
+                        <span>Tarik Tabungan (-)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Nominal -->
+            <x-input-currency 
+                label="Nominal Transaksi Baru (Rp)" 
+                name="edit_nominal" 
+                wire:model="edit_nominal" 
+                placeholder="Contoh: 50.000" 
+                required 
+            />
+
+            <!-- Tanggal Transaksi -->
+            <x-input 
+                type="date" 
+                label="Tanggal Transaksi" 
+                name="edit_tanggal" 
+                wire:model="edit_tanggal" 
+                required 
+            />
+
+            <!-- Keterangan -->
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Catatan / Keterangan</label>
+                <textarea wire:model="edit_keterangan" rows="2" placeholder="Catatan transaksi tabungan (opsional)..." class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 shadow-2xs resize-none"></textarea>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-stone-200">
+                <x-button variant="secondary" size="md" wire:click="closeEditTransactionModal">
+                    Batal
+                </x-button>
+                <x-button variant="primary" size="md" type="submit" loadingTarget="saveEditTransaction">
+                    Simpan Perubahan
+                </x-button>
+            </div>
+        </form>
+    </x-floating-card>
 </div>

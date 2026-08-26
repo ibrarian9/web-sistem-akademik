@@ -3,7 +3,7 @@
     <div class="flex items-center gap-2 bg-white border border-stone-200 p-2 rounded-2xl overflow-x-auto shadow-2xs">
         <a href="{{ auth()->user()->role?->nama === 'tata_usaha' ? route('tata-usaha.kelas') : route('super-admin.kelas') }}" class="px-4 py-2.5 rounded-xl text-xs font-bold text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition flex items-center gap-2 whitespace-nowrap">
             <x-lucide-layers class="w-4 h-4 text-emerald-600" />
-            <span>1. Buat &amp; Kelola Kelas (Umum &amp; Tahfizh)</span>
+            <span>1. Buat & Kelola Kelas (Umum & Tahfizh)</span>
         </a>
         <a href="{{ auth()->user()->role?->nama === 'tata_usaha' ? route('tata-usaha.siswa') : route('super-admin.siswa') }}" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-emerald-700 text-white shadow-2xs flex items-center gap-2 whitespace-nowrap">
             <x-lucide-users class="w-4 h-4 text-emerald-100" />
@@ -17,8 +17,8 @@
 
     <!-- Header Title Bar -->
     <x-page-header 
-        title="Kelola Data Siswa &amp; Penempatan 2 Kelas" 
-        subtitle="Pencatatan biodata siswa, penempatan Kelas Umum (1-6) &amp; Kelas Tahfizh, dan akses portal."
+        title="Kelola Data Siswa & Penempatan 2 Kelas" 
+        subtitle="Pencatatan biodata siswa, penempatan Kelas Umum (1-6) & Kelas Tahfizh, dan akses portal."
         badge="MANAJEMEN DATA SISWA"
         badgeVariant="emerald"
         icon="users"
@@ -372,7 +372,7 @@
 
                 <!-- Detail Information Grid -->
                 <div class="space-y-2">
-                    <div class="text-xs font-extrabold text-stone-800 uppercase tracking-wider">Informasi Identitas &amp; Akun Login</div>
+                    <div class="text-xs font-extrabold text-stone-800 uppercase tracking-wider">Informasi Identitas & Akun Login</div>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                         <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-0.5">
@@ -410,7 +410,7 @@
                         </div>
 
                         <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-0.5 sm:col-span-2">
-                            <div class="text-[10px] uppercase font-bold text-stone-500">Tempat &amp; Tanggal Lahir</div>
+                            <div class="text-[10px] uppercase font-bold text-stone-500">Tempat & Tanggal Lahir</div>
                             <div class="font-bold text-stone-900">
                                 {{ $selectedSiswaDetail->tempat_lahir ?: '-' }}, {{ $selectedSiswaDetail->tanggal_lahir ? $selectedSiswaDetail->tanggal_lahir->format('d F Y') : '-' }}
                             </div>
@@ -420,7 +420,7 @@
 
                 <!-- Data Wali Murid & Alamat -->
                 <div class="space-y-2">
-                    <div class="text-xs font-extrabold text-stone-800 uppercase tracking-wider">Data Orang Tua / Wali &amp; Alamat</div>
+                    <div class="text-xs font-extrabold text-stone-800 uppercase tracking-wider">Data Orang Tua / Wali & Alamat</div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                         <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-0.5">

@@ -43,7 +43,7 @@
 
     <!-- Invoices Table Card -->
     <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
-        <h3 class="text-xs font-black text-stone-900 uppercase tracking-wider">Daftar Tagihan SPP &amp; Administrasi</h3>
+        <h3 class="text-xs font-black text-stone-900 uppercase tracking-wider">Daftar Tagihan SPP & Administrasi</h3>
 
         <x-table>
             <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">

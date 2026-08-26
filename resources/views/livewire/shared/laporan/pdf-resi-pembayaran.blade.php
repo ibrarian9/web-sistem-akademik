@@ -11,37 +11,24 @@
             margin: 0;
             padding: 20px;
         }
-        .header {
-            text-align: center;
-            border-bottom: 2px solid #0f172a;
-            padding-bottom: 12px;
-            margin-bottom: 20px;
-        }
-        .header h1 {
-            font-size: 16pt;
-            margin: 0;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #0f172a;
-        }
-        .header p {
-            font-size: 9pt;
-            color: #64748b;
-            margin: 4px 0 0 0;
-        }
         .title-box {
             text-align: center;
             margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #0f172a;
         }
         .title-box h2 {
-            font-size: 13pt;
+            font-size: 14pt;
             margin: 0;
             text-transform: uppercase;
-            text-decoration: underline;
+            letter-spacing: 0.5px;
+            color: #0f172a;
         }
         .title-box span {
             font-size: 9pt;
             color: #64748b;
+            margin-top: 4px;
+            display: inline-block;
         }
         .info-table {
             width: 100%;
@@ -91,11 +78,6 @@
     </style>
 </head>
 <body>
-
-    <div class="header">
-        <h1>SISTEM INFORMASI AKADEMIK & KEUANGAN YAYASAN</h1>
-        <p>Kuitansi Resmi Bukti Pembayaran Administrasi Sekolah</p>
-    </div>
 
     <div class="title-box">
         <h2>BUKTI PEMBAYARAN RESMI</h2>

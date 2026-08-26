@@ -31,7 +31,7 @@
         :steps="[
             ['title' => 'Nilai Harian Per-TP', 'desc' => 'Menyajikan perolehan nilai formatif santri pada setiap Tujuan Pembelajaran (TP) dan Lingkup Materi.'],
             ['title' => 'Evaluasi Mid Semester (STS)', 'desc' => 'Menampilkan hasil nilai Sumatif Tengah Semester untuk mengukur pemahaman materi setengah semester.'],
-            ['title' => 'Evaluasi Tahfizh Dipisahkan', 'desc' => 'Untuk mengecek hafalan &amp; mutabaah Al-Qur\'an, silakan membuka menu Evaluasi Tahfizh di bilah navigasi.']
+            ['title' => 'Evaluasi Tahfizh Dipisahkan', 'desc' => 'Untuk mengecek hafalan & mutabaah Al-Qur\'an, silakan membuka menu Evaluasi Tahfizh di bilah navigasi.']
         ]"
         notes="Pencetakan / Penerbitan Dokumen Rapor PDF Resmi dikelola sepenuhnya oleh Pihak Sekolah (Wali Kelas / Guru / Tata Usaha)."
     />

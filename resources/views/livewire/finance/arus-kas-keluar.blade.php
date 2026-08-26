@@ -2,13 +2,13 @@
     <!-- Header Title Bar -->
     <x-page-header 
         title="Gabungan Arus Kas Keluar" 
-        subtitle="Pusat analitik &amp; rekapitulasi seluruh pengeluaran: Operasional Yayasan, Gaji Guru, serta Fasilitas Kasbon (Non-BOS)."
-        badge="MONITORING &amp; KAS KELUAR"
+        subtitle="Pusat analitik & rekapitulasi seluruh pengeluaran: Operasional Yayasan, Gaji Guru, serta Fasilitas Kasbon (Non-BOS)."
+        badge="MONITORING & KAS KELUAR"
         badgeVariant="rose"
         icon="trending-down"
     >
         <x-slot:actions>
-            <x-button variant="outline" size="sm" icon="file-text" wire:click="exportPdf">
+            <x-button variant="outline" size="sm" icon="file-text" wire:click="exportPdf" :disabled="$paginatedOutflows->total() === 0" title="{{ $paginatedOutflows->total() === 0 ? 'Tidak ada catatan pengeluaran untuk diekspor' : 'Ekspor Dokumen PDF' }}">
                 Ekspor PDF
             </x-button>
             <x-button variant="danger-solid" size="sm" icon="plus" wire:click="openCreateModal">
@@ -161,7 +161,7 @@
                     <div class="flex justify-between text-xs font-bold text-stone-700 mb-1">
                         <span class="flex items-center gap-1.5">
                             <span class="w-2 h-2 rounded-full bg-purple-500"></span>
-                            <span>Gaji &amp; Honor Guru</span>
+                            <span>Gaji & Honor Guru</span>
                         </span>
                         <span>{{ $gajiShare }}% (Rp {{ number_format($totalGaji, 0, ',', '.') }})</span>
                     </div>

@@ -2,13 +2,13 @@
     <!-- Header Title Bar -->
     <x-page-header 
         title="Gabungan Arus Kas Masuk" 
-        subtitle="Pusat analitik &amp; rekapitulasi seluruh penerimaan: Pembayaran SPP/Tagihan Siswa, Infaq &amp; Donasi Yayasan, serta Setoran Tabungan."
-        badge="MONITORING &amp; KAS MASUK"
+        subtitle="Pusat analitik & rekapitulasi seluruh penerimaan: Pembayaran SPP/Tagihan Siswa, Infaq & Donasi Yayasan, serta Setoran Tabungan."
+        badge="MONITORING & KAS MASUK"
         badgeVariant="emerald"
         icon="trending-up"
     >
         <x-slot:actions>
-            <x-button variant="outline" size="sm" icon="file-text" wire:click="exportPdf">
+            <x-button variant="outline" size="sm" icon="file-text" wire:click="exportPdf" :disabled="$paginatedInflows->total() === 0" title="{{ $paginatedInflows->total() === 0 ? 'Tidak ada catatan pemasukan untuk diekspor' : 'Ekspor Dokumen PDF' }}">
                 Ekspor PDF
             </x-button>
             <x-button variant="primary" size="sm" icon="plus" wire:click="openCreateModal">
@@ -41,14 +41,14 @@
             variant="emerald" 
         />
         <x-stat-card 
-            title="Setoran SPP &amp; Tagihan Siswa" 
+            title="Setoran SPP & Tagihan Siswa" 
             :value="'Rp ' . number_format($totalTagihanSpp, 0, ',', '.')" 
             subtitle="SPP bulanan, gedung, tahunan, seragam, dsb."
             icon="credit-card" 
             variant="white" 
         />
         <x-stat-card 
-            title="Kas Masuk Yayasan (Infaq &amp; Donasi)" 
+            title="Kas Masuk Yayasan (Infaq & Donasi)" 
             :value="'Rp ' . number_format($totalKasYayasan, 0, ',', '.')" 
             subtitle="Infaq, sedekah subuh, donatur, sponsor"
             icon="heart-handshake" 
@@ -78,7 +78,7 @@
                 <!-- Chart Legend -->
                 <div class="flex items-center gap-3 text-[11px] font-bold flex-wrap">
                     <span class="flex items-center gap-1.5 text-stone-700">
-                        <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span> SPP &amp; Tagihan
+                        <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span> SPP & Tagihan
                     </span>
                     <span class="flex items-center gap-1.5 text-stone-700">
                         <span class="w-2.5 h-2.5 rounded-sm bg-amber-500 inline-block"></span> Kas Yayasan (Infaq)
@@ -155,7 +155,7 @@
                     <div class="flex justify-between text-xs font-bold text-stone-700 mb-1">
                         <span class="flex items-center gap-1.5">
                             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            <span>SPP &amp; Tagihan Siswa</span>
+                            <span>SPP & Tagihan Siswa</span>
                         </span>
                         <span>{{ $sppShare }}% (Rp {{ number_format($totalTagihanSpp, 0, ',', '.') }})</span>
                     </div>
@@ -226,7 +226,7 @@
                     wire:click="selectStream('pembayaran_spp')" 
                     class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition shrink-0 flex items-center gap-1.5 {{ $stream === 'pembayaran_spp' ? 'bg-emerald-600 text-white shadow-2xs' : 'text-stone-600 hover:text-stone-900' }}">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-300"></span>
-                    <span>SPP &amp; Tagihan Siswa</span>
+                    <span>SPP & Tagihan Siswa</span>
                 </button>
                 <button type="button" 
                     wire:click="selectStream('kas_yayasan')" 

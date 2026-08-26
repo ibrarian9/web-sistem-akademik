@@ -1,7 +1,7 @@
 <div class="space-y-6 font-sans">
     <!-- Header Title Bar -->
     <x-page-header 
-        title="Evaluasi Capaian &amp; Pengembangan Diri Guru" 
+        title="Evaluasi Capaian & Pengembangan Diri Guru" 
         subtitle="Buka link Google Drive formulir/berkas bukti yang diunggah guru, berikan penilaian skor, predikat, dan catatan feedback."
         badge="EVALUASI CAPAIAN GURU"
         badgeVariant="emerald"
@@ -55,7 +55,7 @@
                 </div>
             </div>
             <div class="text-2xl font-black text-emerald-700">{{ number_format($sudahDinilai) }} <span class="text-xs font-bold text-stone-400">Berkas</span></div>
-            <div class="text-[11px] text-stone-500 font-medium">Telah memiliki nilai &amp; feedback</div>
+            <div class="text-[11px] text-stone-500 font-medium">Telah memiliki nilai & feedback</div>
         </div>
 
         <div class="bg-white border border-stone-200 rounded-2xl p-5 shadow-xs space-y-2">
@@ -107,9 +107,9 @@
             <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
                 <tr>
                     <x-table.th class="min-w-[180px]">Guru Pengampu</x-table.th>
-                    <x-table.th class="min-w-[220px]">Judul Capaian &amp; Kategori</x-table.th>
+                    <x-table.th class="min-w-[220px]">Judul Capaian & Kategori</x-table.th>
                     <x-table.th align="center" class="w-48">Berkas Form / GDrive</x-table.th>
-                    <x-table.th align="center" class="w-44">Status &amp; Penilaian</x-table.th>
+                    <x-table.th align="center" class="w-44">Status & Penilaian</x-table.th>
                     <x-table.th align="center" class="w-40">Aksi Evaluasi</x-table.th>
                 </tr>
             </thead>
@@ -186,7 +186,7 @@
     <!-- Floating Detail Modal -->
     <x-floating-card 
         :show="($showDetailModal && $detailCapaian) ? true : false"
-        title="Detail Capaian &amp; Portofolio Guru"
+        title="Detail Capaian & Portofolio Guru"
         :subtitle="$detailCapaian ? ('Informasi lengkap pengajuan oleh: ' . ($detailCapaian->guru?->user?->nama ?? 'Guru')) : ''"
         badge="DETAIL CAPAIAN"
         badgeVariant="emerald"
@@ -230,7 +230,7 @@
                     </div>
 
                     <div class="p-3.5 bg-white border border-stone-200 rounded-xl space-y-1">
-                        <span class="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Tahun Ajaran &amp; Semester</span>
+                        <span class="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Tahun Ajaran & Semester</span>
                         <div class="font-extrabold text-stone-800 text-xs">
                             {{ $detailCapaian->tahunAjaran?->tahun_ajaran ?? '-' }} (Semester {{ $detailCapaian->semester?->semester ?? '-' }})
                         </div>
@@ -274,7 +274,7 @@
                         <div class="flex items-center justify-between border-b border-emerald-200 pb-2.5">
                             <span class="text-xs font-black text-emerald-950 uppercase tracking-wider flex items-center gap-1.5">
                                 <x-lucide-award class="w-4 h-4 text-emerald-700" />
-                                Hasil Penilaian &amp; Validasi
+                                Hasil Penilaian & Validasi
                             </span>
                             <span class="text-[11px] text-emerald-800 font-semibold">
                                 Dinilai: {{ \Carbon\Carbon::parse($detailCapaian->tanggal_penilaian)->translatedFormat('d F Y') }}

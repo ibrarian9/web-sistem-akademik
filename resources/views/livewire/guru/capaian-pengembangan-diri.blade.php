@@ -1,7 +1,7 @@
 <div class="space-y-6 font-sans">
     <!-- Header Page -->
     <x-page-header 
-        title="Capaian &amp; Pengembangan Diri Saya" 
+        title="Capaian & Pengembangan Diri Saya" 
         subtitle="Unggah link Google Drive formulir/berkas bukti pengembangan diri dan pantau hasil evaluasi dari Super Admin / Kepala Sekolah."
         badge="PENGEMBANGAN DIRI GURU"
         badgeVariant="emerald"
@@ -33,7 +33,7 @@
                 </div>
             </div>
             <div class="text-2xl font-black text-stone-900">{{ number_format($summary['total']) }} <span class="text-xs font-bold text-stone-400">Berkas</span></div>
-            <div class="text-[11px] text-stone-500 font-medium">Capaian &amp; pengembangan diri</div>
+            <div class="text-[11px] text-stone-500 font-medium">Capaian & pengembangan diri</div>
         </div>
 
         <div class="bg-white border border-stone-200 rounded-2xl p-5 shadow-xs space-y-2">
@@ -161,7 +161,7 @@
     <!-- Floating Detail Modal for Guru -->
     <x-floating-card 
         :show="($showDetailModal && $detailCapaian) ? true : false"
-        title="Detail Pengajuan &amp; Hasil Evaluasi"
+        title="Detail Pengajuan & Hasil Evaluasi"
         subtitle="Rincian berkas portofolio pengembangan diri dan evaluasi validator."
         badge="DETAIL CAPAIAN"
         badgeVariant="emerald"
@@ -301,7 +301,7 @@
                     <option value="pengembangan_diri">Pengembangan Diri</option>
                     <option value="capaian_kinerja">Capaian Kinerja Pembelajaran</option>
                     <option value="pelatihan">Pelatihan / Workshop / Bintek</option>
-                    <option value="sertifikasi">Sertifikasi &amp; Kompetensi</option>
+                    <option value="sertifikasi">Sertifikasi & Kompetensi</option>
                 </select>
             </div>
 
@@ -324,7 +324,7 @@
                     Batal
                 </x-button>
                 <x-button type="submit" variant="primary" size="md" icon="check" loadingTarget="save">
-                    Simpan &amp; Ajukan
+                    Simpan & Ajukan
                 </x-button>
             </div>
         </form>

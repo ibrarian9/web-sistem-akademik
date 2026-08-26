@@ -141,7 +141,22 @@ test('finance can generate, edit, and pay salary drafts', function () {
 test('finance can view and export reports', function () {
     $this->actingAs($this->userFinance);
 
+    $ta = TahunAjaran::where('status_aktif', true)->first() ?? TahunAjaran::create(['nama' => '2026/2027', 'status_aktif' => true]);
+    $jt = JenisTagihan::first() ?? JenisTagihan::create(['nama' => 'SPP Bulanan', 'kategori' => 'rutin', 'default_nominal' => 200000, 'is_blocking' => true]);
+
     // 1. Laporan Tunggakan
+    $tagihan = Tagihan::create([
+        'siswa_id' => $this->siswa->id,
+        'tahun_ajaran_id' => $ta->id,
+        'jenis_tagihan_id' => $jt->id,
+        'nama_tagihan' => 'SPP Bulanan Test',
+        'bulan' => 'Januari',
+        'nominal' => 200000.00,
+        'total_dibayar' => 0.00,
+        'status' => 'belum_bayar',
+        'jatuh_tempo' => date('Y-m-d'),
+    ]);
+
     Livewire::test(LaporanTunggakan::class)
         ->assertStatus(200)
         ->call('exportCsv')
@@ -150,6 +165,14 @@ test('finance can view and export reports', function () {
         ->assertFileDownloaded();
 
     // 2. Laporan Pemasukan
+    Pembayaran::create([
+        'tagihan_id' => $tagihan->id,
+        'tanggal_bayar' => date('Y-m-d'),
+        'nominal_dibayar' => 200000.00,
+        'metode_bayar' => 'Tunai',
+        'petugas_id' => $this->userFinance->id,
+    ]);
+
     Livewire::test(LaporanPemasukan::class)
         ->assertStatus(200)
         ->call('exportCsv')
@@ -158,6 +181,15 @@ test('finance can view and export reports', function () {
         ->assertFileDownloaded();
 
     // 3. Laporan Pengeluaran
+    $kategori = KategoriPengeluaran::first() ?? KategoriPengeluaran::create(['nama' => 'Operasional', 'jenis' => 'operasional']);
+    Pengeluaran::create([
+        'kategori_pengeluaran_id' => $kategori->id,
+        'jumlah' => 250000.00,
+        'tanggal' => date('Y-m-d'),
+        'keterangan' => 'Belanja ATK Kantor',
+        'petugas_id' => $this->userFinance->id,
+    ]);
+
     Livewire::test(LaporanPengeluaran::class)
         ->assertStatus(200)
         ->call('exportCsv')

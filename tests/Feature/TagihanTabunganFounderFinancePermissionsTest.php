@@ -279,7 +279,7 @@ test('detail tagihan siswa page renders correctly with filters and metrics', fun
         ->assertSee('350.000')
         ->assertSee('Sisa Tunggakan')
         ->set('filterBulan', 'Agustus')
-        ->assertSee('20/10/2026') // Due date of Agustus
+        ->assertSee(date('d/m/Y', strtotime('+60 days'))) // Due date of Agustus
         ->set('filterBulan', '')
         ->set('filterStatus', 'lunas')
         ->assertSee('350.000');

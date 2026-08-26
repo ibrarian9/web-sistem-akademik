@@ -19,8 +19,12 @@ class FinanceExportController extends Controller
     {
         $kelasId = $request->query('kelas_id');
         $tahunAjaranId = $request->query('tahun_ajaran_id');
+        $bulan = $request->query('bulan');
+        $filterPeriode = $request->query('filter_periode');
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
 
-        $query = Tagihan::with(['siswa.user', 'siswa.kelas', 'tahunAjaran'])
+        $query = Tagihan::with(['siswa.user', 'siswa.kelas', 'tahunAjaran', 'jenisTagihan'])
             ->whereIn('status', ['belum_bayar', 'sebagian']);
 
         if ($kelasId) {
@@ -33,7 +37,33 @@ class FinanceExportController extends Controller
             $query->where('tahun_ajaran_id', $tahunAjaranId);
         }
 
+        if ($bulan) {
+            $query->where('bulan', $bulan);
+        }
+
+        if ($filterPeriode === 'hari_ini') {
+            $query->whereDate('jatuh_tempo', date('Y-m-d'));
+        } elseif ($filterPeriode === 'kemarin') {
+            $query->whereDate('jatuh_tempo', date('Y-m-d', strtotime('-1 day')));
+        } elseif ($filterPeriode === 'minggu_ini') {
+            $query->whereBetween('jatuh_tempo', [now()->startOfWeek()->format('Y-m-d'), now()->endOfWeek()->format('Y-m-d')]);
+        } elseif ($filterPeriode === 'bulan_ini') {
+            $query->whereBetween('jatuh_tempo', [now()->startOfMonth()->format('Y-m-d'), now()->endOfMonth()->format('Y-m-d')]);
+        } elseif ($filterPeriode === 'custom' || ($startDate && $endDate)) {
+            if ($startDate && $endDate) {
+                $query->whereBetween('jatuh_tempo', [$startDate, $endDate]);
+            } elseif ($startDate) {
+                $query->whereDate('jatuh_tempo', '>=', $startDate);
+            } elseif ($endDate) {
+                $query->whereDate('jatuh_tempo', '<=', $endDate);
+            }
+        }
+
         $records = $query->orderBy('created_at', 'desc')->get();
+
+        if ($records->isEmpty()) {
+            return redirect()->back()->with('error', 'Tidak ada data tunggakan untuk diekspor ke Excel.');
+        }
 
         $filename = 'laporan-tunggakan-' . date('Y-m-d') . '.csv';
 
@@ -57,25 +87,29 @@ class FinanceExportController extends Controller
                 'NIS',
                 'Kelas',
                 'Judul Tagihan',
+                'Bulan',
                 'Tahun Ajaran',
                 'Total Nominal (Rp)',
                 'Sudah Dibayar (Rp)',
                 'Sisa Tunggakan (Rp)',
+                'Jatuh Tempo',
                 'Status'
             ]);
 
             foreach ($records as $index => $item) {
-                $sisa = $item->nominal - $item->nominal_terbayar;
+                $sisa = $item->nominal - $item->total_dibayar;
                 fputcsv($file, [
                     $index + 1,
                     $item->siswa->user->nama ?? '-',
                     $item->siswa->nis ?? '-',
                     $item->siswa->kelas->nama_kelas ?? '-',
-                    $item->nama_tagihan,
+                    $item->jenisTagihan->nama ?? $item->nama_tagihan,
+                    $item->bulan ?? '-',
                     $item->tahunAjaran->nama ?? '-',
                     number_format($item->nominal, 0, ',', '.'),
-                    number_format($item->nominal_terbayar, 0, ',', '.'),
+                    number_format($item->total_dibayar, 0, ',', '.'),
                     number_format($sisa, 0, ',', '.'),
+                    $item->jatuh_tempo ? $item->jatuh_tempo->format('d/m/Y') : '-',
                     strtoupper(str_replace('_', ' ', $item->status))
                 ]);
             }
@@ -93,14 +127,69 @@ class FinanceExportController extends Controller
     {
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
+        $filterPeriode = $request->query('filter_periode');
+        $bulan = $request->query('bulan');
+        $metodeBayar = $request->query('metode_bayar');
+        $jenisTagihanId = $request->query('jenis_tagihan_id');
+        $search = $request->query('search');
 
-        $query = Pembayaran::with(['siswa.user', 'siswa.kelas', 'tagihan']);
+        $listBulan = [
+            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
 
-        if ($startDate && $endDate) {
-            $query->whereBetween('tanggal_bayar', [$startDate, $endDate]);
+        $query = Pembayaran::with(['tagihan.siswa.user', 'tagihan.siswa.kelas', 'tagihan.jenisTagihan', 'petugas']);
+
+        if (!empty($bulan)) {
+            $monthIndex = array_search($bulan, $listBulan);
+            if ($monthIndex !== false) {
+                $monthNum = $monthIndex + 1;
+                $query->where(function ($q) use ($monthNum, $bulan) {
+                    $q->whereMonth('tanggal_bayar', $monthNum)
+                      ->orWhereHas('tagihan', fn($tq) => $tq->where('bulan', $bulan));
+                });
+            }
+        }
+
+        if ($filterPeriode === 'hari_ini') {
+            $query->whereDate('tanggal_bayar', date('Y-m-d'));
+        } elseif ($filterPeriode === 'kemarin') {
+            $query->whereDate('tanggal_bayar', date('Y-m-d', strtotime('-1 day')));
+        } elseif ($filterPeriode === 'minggu_ini') {
+            $query->whereBetween('tanggal_bayar', [now()->startOfWeek()->format('Y-m-d'), now()->endOfWeek()->format('Y-m-d')]);
+        } elseif ($filterPeriode === 'bulan_ini') {
+            $query->whereBetween('tanggal_bayar', [now()->startOfMonth()->format('Y-m-d'), now()->endOfMonth()->format('Y-m-d')]);
+        } elseif ($filterPeriode === 'custom' || ($startDate && $endDate)) {
+            if ($startDate && $endDate) {
+                $query->whereBetween('tanggal_bayar', [$startDate, $endDate]);
+            } elseif ($startDate) {
+                $query->whereDate('tanggal_bayar', '>=', $startDate);
+            } elseif ($endDate) {
+                $query->whereDate('tanggal_bayar', '<=', $endDate);
+            }
+        }
+
+        if ($metodeBayar) {
+            $query->where('metode_bayar', $metodeBayar);
+        }
+
+        if ($jenisTagihanId) {
+            $query->whereHas('tagihan', function ($q) use ($jenisTagihanId) {
+                $q->where('jenis_tagihan_id', $jenisTagihanId);
+            });
+        }
+
+        if ($search) {
+            $query->whereHas('tagihan.siswa.user', function ($q) use ($search) {
+                $q->where('nama', 'like', '%' . $search . '%');
+            });
         }
 
         $records = $query->orderBy('tanggal_bayar', 'desc')->get();
+
+        if ($records->isEmpty()) {
+            return redirect()->back()->with('error', 'Tidak ada data pemasukan untuk diekspor ke Excel.');
+        }
 
         $filename = 'laporan-pemasukan-' . date('Y-m-d') . '.csv';
 
@@ -122,20 +211,20 @@ class FinanceExportController extends Controller
                 'Kategori / Tagihan',
                 'Metode Pembayaran',
                 'Nominal (Rp)',
-                'Catatan'
+                'Petugas'
             ]);
 
             foreach ($records as $index => $item) {
                 fputcsv($file, [
                     $index + 1,
-                    $item->kode_pembayaran ?? ('TRX-' . $item->id),
-                    $item->tanggal_bayar ? $item->tanggal_bayar->format('d/m/Y H:i') : '-',
-                    $item->siswa->user->nama ?? '-',
-                    $item->siswa->kelas->nama_kelas ?? '-',
-                    $item->tagihan->nama_tagihan ?? 'Infaq / Donasi',
-                    strtoupper($item->metode_pembayaran ?? 'TUNAI'),
-                    number_format($item->nominal, 0, ',', '.'),
-                    $item->keterangan ?? '-'
+                    $item->no_resi ?? ('TRX-' . $item->id),
+                    $item->tanggal_bayar ? $item->tanggal_bayar->format('d/m/Y') : '-',
+                    $item->tagihan->siswa->user->nama ?? '-',
+                    $item->tagihan->siswa->kelas->nama_kelas ?? '-',
+                    $item->tagihan->jenisTagihan->nama ?? ($item->tagihan->nama_tagihan ?? 'Infaq / Tagihan'),
+                    strtoupper($item->metode_bayar ?? 'TUNAI'),
+                    number_format($item->nominal_dibayar, 0, ',', '.'),
+                    $item->petugas->nama ?? '-'
                 ]);
             }
 
@@ -152,14 +241,56 @@ class FinanceExportController extends Controller
     {
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
+        $filterPeriode = $request->query('filter_periode');
+        $bulan = $request->query('bulan');
+        $kategoriId = $request->query('kategori_pengeluaran_id');
+        $search = $request->query('search');
 
-        $query = Pengeluaran::with(['user']);
+        $listBulan = [
+            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
 
-        if ($startDate && $endDate) {
-            $query->whereBetween('tanggal_pengeluaran', [$startDate, $endDate]);
+        $query = Pengeluaran::with(['kategori', 'petugas']);
+
+        if (!empty($bulan)) {
+            $monthIndex = array_search($bulan, $listBulan);
+            if ($monthIndex !== false) {
+                $query->whereMonth('tanggal', $monthIndex + 1);
+            }
         }
 
-        $records = $query->orderBy('tanggal_pengeluaran', 'desc')->get();
+        if ($filterPeriode === 'hari_ini') {
+            $query->whereDate('tanggal', date('Y-m-d'));
+        } elseif ($filterPeriode === 'kemarin') {
+            $query->whereDate('tanggal', date('Y-m-d', strtotime('-1 day')));
+        } elseif ($filterPeriode === 'minggu_ini') {
+            $query->whereBetween('tanggal', [now()->startOfWeek()->format('Y-m-d'), now()->endOfWeek()->format('Y-m-d')]);
+        } elseif ($filterPeriode === 'bulan_ini') {
+            $query->whereBetween('tanggal', [now()->startOfMonth()->format('Y-m-d'), now()->endOfMonth()->format('Y-m-d')]);
+        } elseif ($filterPeriode === 'custom' || ($startDate && $endDate)) {
+            if ($startDate && $endDate) {
+                $query->whereBetween('tanggal', [$startDate, $endDate]);
+            } elseif ($startDate) {
+                $query->whereDate('tanggal', '>=', $startDate);
+            } elseif ($endDate) {
+                $query->whereDate('tanggal', '<=', $endDate);
+            }
+        }
+
+        if ($kategoriId) {
+            $query->where('kategori_pengeluaran_id', $kategoriId);
+        }
+
+        if ($search) {
+            $query->where('keterangan', 'like', '%' . $search . '%');
+        }
+
+        $records = $query->orderBy('tanggal', 'desc')->get();
+
+        if ($records->isEmpty()) {
+            return redirect()->back()->with('error', 'Tidak ada data pengeluaran untuk diekspor ke Excel.');
+        }
 
         $filename = 'laporan-pengeluaran-' . date('Y-m-d') . '.csv';
 
@@ -175,22 +306,20 @@ class FinanceExportController extends Controller
             fputcsv($file, [
                 'No',
                 'Tanggal Pengeluaran',
-                'Judul Pengeluaran / Kebutuhan',
                 'Kategori',
-                'Nominal (Rp)',
-                'Petugas Input',
-                'Keterangan'
+                'Keterangan / Kebutuhan',
+                'Jumlah Pengeluaran (Rp)',
+                'Petugas Input'
             ]);
 
             foreach ($records as $index => $item) {
                 fputcsv($file, [
                     $index + 1,
-                    $item->tanggal_pengeluaran ? $item->tanggal_pengeluaran->format('d/m/Y') : '-',
-                    $item->judul_pengeluaran ?? $item->keterangan,
-                    strtoupper($item->kategori ?? 'UMUM'),
-                    number_format($item->nominal, 0, ',', '.'),
-                    $item->user->nama ?? '-',
-                    $item->keterangan ?? '-'
+                    $item->tanggal ? $item->tanggal->format('d/m/Y') : '-',
+                    $item->kategori->nama ?? 'Umum',
+                    $item->keterangan ?? '-',
+                    number_format($item->jumlah, 0, ',', '.'),
+                    $item->petugas->nama ?? '-'
                 ]);
             }
 

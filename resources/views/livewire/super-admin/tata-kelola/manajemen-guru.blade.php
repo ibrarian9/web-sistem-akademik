@@ -53,9 +53,9 @@
                 <tr>
                     <x-table.th class="w-36">NIY / NIK</x-table.th>
                     <x-table.th class="min-w-[180px]">Nama Guru</x-table.th>
-                    <x-table.th class="min-w-[150px]">Pendidikan &amp; Grade</x-table.th>
+                    <x-table.th class="min-w-[150px]">Pendidikan & Grade</x-table.th>
                     <x-table.th align="center" class="w-32">Status Nikah</x-table.th>
-                    <x-table.th class="min-w-[150px]">TTL &amp; Tgl Masuk</x-table.th>
+                    <x-table.th class="min-w-[150px]">TTL & Tgl Masuk</x-table.th>
                     <x-table.th class="w-32">Status Pegawai</x-table.th>
                     <x-table.th class="min-w-[120px]">No. HP</x-table.th>
                     <x-table.th align="center" class="w-28">Status Kerja</x-table.th>
@@ -263,9 +263,9 @@
                     <select wire:model="jenis_guru" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
                         <option value="umum">Guru Mata Pelajaran (Umum)</option>
                         <option value="tahfidz">Guru Halaqah Tahfizh (Ustadz/ah Tahfizh)</option>
-                        <option value="keduanya">Keduanya (Guru Mapel &amp; Pengampu Halaqah Tahfizh)</option>
+                        <option value="keduanya">Keduanya (Guru Mapel & Pengampu Halaqah Tahfizh)</option>
                     </select>
-                    <p class="text-[10px] font-medium text-emerald-800 mt-1">Pilih <b>Guru Halaqah Tahfizh</b> atau <b>Keduanya</b> agar nama guru ini dapat dipilih sebagai Pengampu Halaqah pada Manajemen Kelas &amp; Tahfizh.</p>
+                    <p class="text-[10px] font-medium text-emerald-800 mt-1">Pilih <b>Guru Halaqah Tahfizh</b> atau <b>Keduanya</b> agar nama guru ini dapat dipilih sebagai Pengampu Halaqah pada Manajemen Kelas & Tahfizh.</p>
                     @error('jenis_guru') <span class="text-rose-600 text-[10px] font-bold block mt-1">{{ $message }}</span> @enderror
                 </div>
 

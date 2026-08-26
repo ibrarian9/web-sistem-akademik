@@ -13,7 +13,7 @@
     <div class="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <span class="px-3 py-1 bg-emerald-100 border border-emerald-300 text-emerald-800 rounded-full text-xs font-bold uppercase tracking-wider inline-block mb-1">
-                AKADEMIK &amp; JADWAL
+                AKADEMIK & JADWAL
             </span>
             <h1 class="text-2xl font-extrabold text-stone-900 tracking-tight">Jadwal Mengajar Guru</h1>
             <p class="text-xs text-stone-600 font-semibold mt-1">Jadwal mengajar mingguan Anda pada tahun ajaran aktif.</p>

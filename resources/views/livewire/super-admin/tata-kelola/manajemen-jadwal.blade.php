@@ -239,9 +239,9 @@
         <form wire:submit.prevent="save" class="space-y-4 text-xs">
             <!-- Penugasan Mapel & Kelas (Disusun Per Kelas) -->
             <div class="space-y-1">
-                <label class="text-xs font-bold text-stone-700 uppercase">Mata Pelajaran &amp; Kelas <span class="text-rose-600">*</span></label>
+                <label class="text-xs font-bold text-stone-700 uppercase">Mata Pelajaran & Kelas <span class="text-rose-600">*</span></label>
                 <select wire:model.live="guru_mapel_kelas_id" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" required>
-                    <option value="">-- Pilih Penugasan Kelas &amp; Mapel --</option>
+                    <option value="">-- Pilih Penugasan Kelas & Mapel --</option>
                     @foreach ($assignmentsGrouped as $namaKelas => $group)
                         <optgroup label="KELAS {{ strtoupper($namaKelas) }}">
                             @foreach ($group as $asg)

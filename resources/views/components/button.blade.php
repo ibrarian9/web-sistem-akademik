@@ -43,11 +43,12 @@
     $sizeClass = $sizes[$size] ?? $sizes['sm'];
     $iconSizeClass = $iconSizes[$size] ?? $iconSizes['sm'];
     $hasSlot = !empty(trim((string)$slot));
+    $shouldWireNavigate = $wireNavigate && !$attributes->has('download') && $attributes->get('target') !== '_blank';
 @endphp
 
-@if ($href)
+@if ($href && !$disabled)
     <a href="{{ $href }}"
-       @if($wireNavigate) wire:navigate @endif
+       @if($shouldWireNavigate) wire:navigate @endif
        {{ $attributes->merge(['class' => "$baseClasses $variantClass $sizeClass"]) }}>
         @if ($icon)
             <x-dynamic-component :component="'lucide-' . $icon" class="{{ $iconSizeClass }} shrink-0" />
@@ -61,6 +62,23 @@
             <x-dynamic-component :component="'lucide-' . $iconRight" class="{{ $iconSizeClass }} shrink-0" />
         @endif
     </a>
+@elseif ($href && $disabled)
+    <button type="button"
+            disabled
+            {{ $attributes->merge(['class' => "$baseClasses $variantClass $sizeClass opacity-50 cursor-not-allowed select-none"]) }}
+            title="Tidak ada data untuk diekspor">
+        @if ($icon)
+            <x-dynamic-component :component="'lucide-' . $icon" class="{{ $iconSizeClass }} shrink-0" />
+        @endif
+
+        @if ($hasSlot)
+            <span>{{ $slot }}</span>
+        @endif
+
+        @if ($iconRight)
+            <x-dynamic-component :component="'lucide-' . $iconRight" class="{{ $iconSizeClass }} shrink-0" />
+        @endif
+    </button>
 @else
     <button type="{{ $type }}"
             @if($disabled) disabled @endif

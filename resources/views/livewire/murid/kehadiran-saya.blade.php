@@ -130,7 +130,7 @@
         <x-table loadingTarget="filterStatus, filterMonth, filterYear">
             <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
                 <tr>
-                    <x-table.th class="w-48">Hari &amp; Tanggal</x-table.th>
+                    <x-table.th class="w-48">Hari & Tanggal</x-table.th>
                     <x-table.th align="center" class="w-44">Status Absensi</x-table.th>
                     <x-table.th class="w-48">Pengisi Absensi</x-table.th>
                     <x-table.th>Catatan / Keterangan</x-table.th>

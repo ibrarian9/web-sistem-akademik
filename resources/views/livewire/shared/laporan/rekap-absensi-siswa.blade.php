@@ -87,7 +87,7 @@
                     | Wali Kelas: <span class="text-stone-900 font-bold">{{ $kelas->guruUmum->user->nama ?? '-' }}</span>
                 </div>
                 
-                <x-button type="button" variant="outline" size="sm" icon="file-text" wire:click="downloadPdf">
+                <x-button type="button" variant="outline" size="sm" icon="file-text" wire:click="downloadPdf" :disabled="empty($matrix)" title="{{ empty($matrix) ? 'Tidak ada data presensi untuk diekspor' : 'Ekspor Dokumen PDF' }}">
                     Ekspor PDF
                 </x-button>
             </div>

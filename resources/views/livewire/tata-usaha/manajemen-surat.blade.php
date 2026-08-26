@@ -1,9 +1,9 @@
 <div class="space-y-6 font-sans">
     <!-- Header Title Bar -->
     <x-page-header 
-        title="Layanan Generator &amp; PDF Surat Resmi" 
+        title="Layanan Generator & PDF Surat Resmi" 
         subtitle="Pembuatan, pengeditan langsung, pratinjau, dan unduh PDF resmi SD TAHFIZH F3 Pekanbaru."
-        badge="PERSURATAN &amp; ARSIP TATA USAHA"
+        badge="PERSURATAN & ARSIP TATA USAHA"
         badgeVariant="emerald"
         icon="file-text"
     >
@@ -64,7 +64,7 @@
                     </div>
                     <div>
                         <h4 class="font-extrabold text-stone-900 text-xs">Surat Pengalaman Kerja</h4>
-                        <p class="text-[11px] text-stone-500 font-medium mt-0.5">Keterangan masa kerja &amp; tugas guru / karyawan.</p>
+                        <p class="text-[11px] text-stone-500 font-medium mt-0.5">Keterangan masa kerja & tugas guru / karyawan.</p>
                     </div>
                 </button>
 
@@ -137,7 +137,7 @@
             <form wire:submit.prevent="simpanDanCetak" class="space-y-6 text-xs">
                 <!-- Section 1: Nomor & Tanggal Surat -->
                 <div class="p-4 bg-stone-50 border border-stone-200 rounded-2xl space-y-4">
-                    <span class="text-xs font-black text-stone-900 uppercase tracking-wider block">1. IDENTITAS SURAT &amp; NOMOR ARSIP</span>
+                    <span class="text-xs font-black text-stone-900 uppercase tracking-wider block">1. IDENTITAS SURAT & NOMOR ARSIP</span>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div class="space-y-1 sm:col-span-2">
                             <label class="text-xs font-bold text-stone-700 uppercase">Nomor Surat <span class="text-rose-600">*</span></label>
@@ -216,7 +216,7 @@
                 <!-- Section 3: Field Khusus Template -->
                 @if(in_array($jenis_surat, ['menerima_pindah', 'pindah_sekolah']))
                     <div class="p-4 bg-amber-50/70 border border-amber-200 rounded-2xl space-y-4">
-                        <span class="text-xs font-black text-amber-950 uppercase tracking-wider block">3. INFORMASI MUTASI &amp; ORANG TUA / WALI</span>
+                        <span class="text-xs font-black text-amber-950 uppercase tracking-wider block">3. INFORMASI MUTASI & ORANG TUA / WALI</span>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <!-- Nama Orang Tua -->
                             <div class="space-y-1">
@@ -247,7 +247,7 @@
                     </div>
                 @elseif($jenis_surat === 'pengalaman_kerja')
                     <div class="p-4 bg-emerald-50/70 border border-emerald-200 rounded-2xl space-y-4">
-                        <span class="text-xs font-black text-emerald-950 uppercase tracking-wider block">3. INFORMASI JABATAN &amp; PERIODE KERJA</span>
+                        <span class="text-xs font-black text-emerald-950 uppercase tracking-wider block">3. INFORMASI JABATAN & PERIODE KERJA</span>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <!-- Posisi Kerja -->
                             <div class="space-y-1">
@@ -286,7 +286,7 @@
                 <!-- Submit Action Button -->
                 <div class="flex items-center justify-end border-t border-stone-200 pt-4 gap-2">
                     <x-button type="submit" variant="primary" size="md" icon="save" loadingTarget="simpanDanCetak">
-                        Simpan &amp; Pratinjau PDF Surat (Live Editor)
+                        Simpan & Pratinjau PDF Surat (Live Editor)
                     </x-button>
                 </div>
             </form>
@@ -360,7 +360,7 @@
 
     <!-- MODAL PRATINJAU REAL-TIME & LIVE INTERACTIVE EDITOR (KOP YFI PRESISI DOCX) -->
     @if ($showPrintModal)
-        <div class="fixed inset-0 z-[99990] flex items-center justify-center bg-stone-950/65 backdrop-blur-xs p-4 overflow-y-auto print:p-0 print:bg-white print:static animate-fade-in">
+        <div class="fixed inset-0 z-[99990] flex items-center justify-center lg:pl-64 bg-stone-950/65 backdrop-blur-xs p-4 lg:p-8 overflow-y-auto print:p-0 print:bg-white print:static print:pl-0 animate-fade-in">
             <div class="bg-white rounded-3xl p-6 shadow-2xl max-w-6xl w-full space-y-4 max-h-[95vh] overflow-y-auto print:max-h-none print:shadow-none print:rounded-none print:p-0">
                 <!-- Header Controls Bar -->
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-stone-200 pb-3 print:hidden">
@@ -369,7 +369,7 @@
                             <span class="w-6 h-6 rounded-full bg-emerald-200 text-emerald-950 text-xs flex items-center justify-center font-black">
                                 <x-lucide-sparkles class="w-3.5 h-3.5 text-emerald-950" />
                             </span>
-                            <span>Pratinjau Surat Real-Time &amp; Live Editor</span>
+                            <span>Pratinjau Surat Real-Time & Live Editor</span>
                         </h3>
                         <p class="text-xs text-stone-500 font-medium mt-0.5">Setiap perubahan teks pada form akan langsung mengupdate tampilan pratinjau di bawah secara real-time.</p>
                     </div>
@@ -541,7 +541,7 @@
                             
                             <!-- Stempel / Signature Space -->
                             <div class="h-20 flex items-center justify-center">
-                                <span class="text-[10px] text-stone-300 italic">[Tanda Tangan &amp; Stempel Resmi]</span>
+                                <span class="text-[10px] text-stone-300 italic">[Tanda Tangan & Stempel Resmi]</span>
                             </div>
 
                             <p class="font-extrabold uppercase underline text-stone-900">{{ $penandatangan_nama }}</p>

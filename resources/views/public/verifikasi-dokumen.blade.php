@@ -181,7 +181,7 @@
             @if ($isValid && ($isFinancial ?? false))
             <div class="info-row" style="background: rgba(16, 185, 129, 0.12); padding: 12px; border-radius: 10px; margin-top: 8px;">
                 <span class="info-label" style="color: #34d399; font-weight: bold;">Status Pembayaran</span>
-                <span class="info-val" style="color: #34d399; font-weight: 800; letter-spacing: 0.5px;">✓ TELAH DIBAYAR &amp; LUNAS (RESMI)</span>
+                <span class="info-val" style="color: #34d399; font-weight: 800; letter-spacing: 0.5px;">✓ TELAH DIBAYAR & LUNAS (RESMI)</span>
             </div>
             @endif
         </div>

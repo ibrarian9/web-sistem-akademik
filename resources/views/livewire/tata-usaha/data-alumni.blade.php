@@ -82,7 +82,7 @@
                 @empty
                     <tr>
                         <td colspan="6" class="py-12 text-center text-stone-400">
-                            <x-table.empty title="Belum ada data alumni kelulusan terdaftar" subtitle="Data alumni akan otomatis terbentuk saat proses Kenaikan &amp; Kelulusan Kelas dijalankan." />
+                            <x-table.empty title="Belum ada data alumni kelulusan terdaftar" subtitle="Data alumni akan otomatis terbentuk saat proses Kenaikan & Kelulusan Kelas dijalankan." />
                         </td>
                     </tr>
                 @endforelse

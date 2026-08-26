@@ -143,6 +143,37 @@ class KenaikanKelasExportTest extends TestCase
             ]
         );
 
+        $roleMurid = Role::firstOrCreate(['nama' => 'murid'], ['deskripsi' => 'Murid']);
+        $ta = \App\Models\TahunAjaran::firstOrCreate(['nama' => '2026/2027'], ['status_aktif' => true]);
+        $semester = \App\Models\Semester::firstOrCreate(
+            ['semester' => 'Ganjil', 'tahun_ajaran_id' => $ta->id],
+            ['status_aktif' => true, 'tanggal_mulai' => '2026-07-01', 'tanggal_selesai' => '2026-12-31']
+        );
+        $kelas = Kelas::firstOrCreate(
+            ['nama_kelas' => '7A'],
+            ['tingkat' => 7, 'tahun_ajaran_id' => $ta->id, 'semester_id' => $semester->id]
+        );
+        $userSiswa = User::firstOrCreate(
+            ['username' => 'siswa_tunggakan_test_exp'],
+            ['nama' => 'Santri Tunggakan', 'email' => 'siswatunggakan@test.com', 'password' => bcrypt('password'), 'role_id' => $roleMurid->id]
+        );
+        $siswa = Siswa::firstOrCreate(
+            ['user_id' => $userSiswa->id],
+            ['nis' => '888777', 'nisn' => '00888777', 'kelas_id' => $kelas->id, 'status' => 'aktif', 'nama_wali' => 'Wali Siswa', 'no_hp_wali' => '0812345678', 'tanggal_masuk' => '2026-07-01']
+        );
+        $jt = \App\Models\JenisTagihan::firstOrCreate(['nama' => 'SPP'], ['kategori' => 'rutin', 'default_nominal' => 250000, 'is_blocking' => true]);
+        Tagihan::create([
+            'siswa_id' => $siswa->id,
+            'tahun_ajaran_id' => $ta->id,
+            'jenis_tagihan_id' => $jt->id,
+            'nama_tagihan' => 'SPP Bulanan',
+            'bulan' => 'Juli',
+            'nominal' => 250000.00,
+            'total_dibayar' => 0.00,
+            'status' => 'belum_bayar',
+            'jatuh_tempo' => date('Y-m-d'),
+        ]);
+
         $response = $this->actingAs($userFinance)
             ->get(route('finance.export.tunggakan'));
 

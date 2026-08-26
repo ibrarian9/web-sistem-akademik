@@ -96,7 +96,7 @@
         <div class="flex flex-col gap-4">
             <div class="flex items-center justify-between flex-wrap gap-2 border-b border-stone-100 pb-3">
                 <div>
-                    <h3 class="text-sm font-extrabold text-stone-900 uppercase tracking-tight">Daftar Tagihan &amp; SPP</h3>
+                    <h3 class="text-sm font-extrabold text-stone-900 uppercase tracking-tight">Daftar Tagihan & SPP</h3>
                     <p class="text-xs text-stone-500">Filter berdasarkan bulan, kategori, atau status pelunasan.</p>
                 </div>
                 @if ($filterBulan || $filterJenis || $filterStatus || $filterTahunAjaran || $search)
@@ -172,7 +172,7 @@
                     <x-table.th class="w-32 text-right">Dibayar</x-table.th>
                     <x-table.th class="w-32 text-right">Sisa</x-table.th>
                     <x-table.th class="w-28 text-center">Status</x-table.th>
-                    <x-table.th align="center" class="w-40">Aksi &amp; Resi</x-table.th>
+                    <x-table.th align="center" class="w-40">Aksi & Resi</x-table.th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-stone-200 bg-white">
@@ -274,7 +274,7 @@
     <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
         <div class="flex items-center justify-between border-b border-stone-100 pb-3">
             <div>
-                <h3 class="text-sm font-extrabold text-stone-900 uppercase tracking-tight">Riwayat Pembayaran &amp; Kwitansi Terakhir</h3>
+                <h3 class="text-sm font-extrabold text-stone-900 uppercase tracking-tight">Riwayat Pembayaran & Kwitansi Terakhir</h3>
                 <p class="text-xs text-stone-500">Daftar transaksi pembayaran yang pernah dicatat untuk siswa ini.</p>
             </div>
             <x-button variant="outline" size="xs" icon="credit-card" href="{{ route('finance.input-pembayaran', ['siswa_id' => $siswa->id]) }}">

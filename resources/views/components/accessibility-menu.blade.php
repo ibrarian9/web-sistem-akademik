@@ -133,7 +133,7 @@
                             class="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider transition-colors"
                             x-text="highContrast ? 'ON' : 'OFF'"></span>
                     </div>
-                    <p class="text-[10px] text-stone-500 mt-0.5">Tingkatkan kontras teks &amp; border</p>
+                    <p class="text-[10px] text-stone-500 mt-0.5">Tingkatkan kontras teks & border</p>
                 </div>
             </div>
             <button @click="toggleHighContrast()"

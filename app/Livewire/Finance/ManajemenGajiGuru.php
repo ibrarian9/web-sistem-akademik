@@ -36,6 +36,14 @@ class ManajemenGajiGuru extends Component
     public float $editPotonganLainnya = 0.00;
     public float $editTotalDiterima = 0.00;
     public ?string $editGuruNama = '';
+    // PDF Preview Modal
+    public bool $showPreviewModal = false;
+    public ?int $previewSalaryId = null;
+    public $previewSalary = null;
+
+    // Bulk Actions State
+    public array $selectedGajiIds = [];
+    public bool $selectAll = false;
 
     public array $listBulan = [
         'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -46,6 +54,30 @@ class ManajemenGajiGuru extends Component
     {
         $this->generateTahun = intval(date('Y'));
         $this->filterTahun = date('Y');
+    }
+
+    public function updatedSelectAll($value)
+    {
+        if ($value) {
+            $query = GajiGuru::query();
+            if ($this->search) {
+                $query->whereHas('guru.user', function ($q) {
+                    $q->where('nama', 'like', '%' . $this->search . '%');
+                });
+            }
+            if ($this->filterStatus) {
+                $query->where('status', $this->filterStatus);
+            }
+            if ($this->filterBulan) {
+                $query->where('bulan', $this->filterBulan);
+            }
+            if ($this->filterTahun) {
+                $query->where('tahun', $this->filterTahun);
+            }
+            $this->selectedGajiIds = $query->pluck('id')->map(fn($id) => (string)$id)->toArray();
+        } else {
+            $this->selectedGajiIds = [];
+        }
     }
 
     public function updatingSearch()
@@ -287,6 +319,21 @@ class ManajemenGajiGuru extends Component
 
         $gaji->delete();
         session()->flash('message', 'Draf gaji berhasil dihapus.');
+    }
+
+    public function openPreview(int $id)
+    {
+        $salary = GajiGuru::with('guru.user')->findOrFail($id);
+        $this->previewSalaryId = $salary->id;
+        $this->previewSalary = $salary;
+        $this->showPreviewModal = true;
+    }
+
+    public function closePreview()
+    {
+        $this->showPreviewModal = false;
+        $this->previewSalaryId = null;
+        $this->previewSalary = null;
     }
 
     public function render()

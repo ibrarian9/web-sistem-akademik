@@ -84,13 +84,14 @@ class AbsensiSiswa extends Component
 
         $this->attendance = [];
 
+        $existingRecords = AbsensiSiswaModel::where('kelas_id', $this->kelas_id)
+            ->where('tanggal', $this->tanggal)
+            ->whereIn('siswa_id', $students->pluck('id'))
+            ->get()
+            ->keyBy('siswa_id');
+
         foreach ($students as $student) {
-            // Find existing attendance (match by unique key: siswa_id, kelas_id, tanggal)
-            $existing = AbsensiSiswaModel::where([
-                'siswa_id' => $student->id,
-                'kelas_id' => $this->kelas_id,
-                'tanggal' => $this->tanggal,
-            ])->first();
+            $existing = $existingRecords->get($student->id);
 
             $status = 'hadir';
             $catatan = '';

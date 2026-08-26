@@ -40,7 +40,7 @@
         
         <!-- Status Keabsahan Dokumen -->
         <div style="font-size: 11px; font-weight: 800; color: #047857; text-transform: uppercase; letter-spacing: 0.6px; margin-top: 4px;">
-            ✓ DOKUMEN RESMI SAH &amp; TERVERIFIKASI
+            ✓ DOKUMEN RESMI SAH & TERVERIFIKASI
         </div>
 
         <div style="font-size: 10.5px; font-weight: bold; color: #0f172a; text-decoration: underline; margin-top: 4px;">
@@ -59,7 +59,7 @@
 
         <!-- Petunjuk Scan QR Code Publik -->
         <div style="font-size: 8px; color: #047857; font-weight: bold; line-height: 1.35; margin-top: 4px;">
-            Scan QR Code ini untuk memverifikasi keaslian &amp; keabsahan dokumen secara langsung di website tanpa perlu login.
+            Scan QR Code ini untuk memverifikasi keaslian & keabsahan dokumen secara langsung di website tanpa perlu login.
         </div>
     </div>
 </div>

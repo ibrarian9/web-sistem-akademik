@@ -233,6 +233,11 @@ class ArusKas extends Component
         $this->applyDateFilter($outflowQuery, 'tanggal');
         $outflows = $outflowQuery->get();
 
+        if ($outflows->isEmpty() && $inflows->isEmpty()) {
+            session()->flash('error', 'Tidak dapat mengunduh PDF karena tidak ada transaksi pada periode terpilih.');
+            return;
+        }
+
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('livewire.shared.laporan.pdf-laporan-kas-keluar', [
             'data' => $outflows,
             'kategori' => 'Laporan Arus Kas Terpadu',
@@ -240,7 +245,7 @@ class ArusKas extends Component
         ])->setPaper('a4', 'portrait');
 
         return response()->streamDownload(function () use ($pdf) {
-            echo $pdf->stream();
+            echo $pdf->output();
         }, 'laporan_arus_kas_' . date('Ymd_His') . '.pdf');
     }
 

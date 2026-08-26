@@ -11,7 +11,7 @@
 
     <!-- Page Header -->
     <x-page-header 
-        title="Rekap Absensi Guru &amp; Tenaga Pendidik" 
+        title="Rekap Absensi Guru & Tenaga Pendidik" 
         subtitle="Laporan rekapitulasi kehadiran dewan guru per bulan."
         badge="LAPORAN PRESENSI"
         badgeVariant="emerald"
@@ -68,7 +68,7 @@
                 Laporan Kehadiran Seluruh Guru Aktif
             </div>
             
-            <x-button type="button" variant="outline" size="sm" icon="file-text" wire:click="downloadPdf">
+            <x-button type="button" variant="outline" size="sm" icon="file-text" wire:click="downloadPdf" :disabled="empty($matrix)" title="{{ empty($matrix) ? 'Tidak ada data kehadiran guru untuk diekspor' : 'Ekspor Dokumen PDF' }}">
                 Ekspor PDF
             </x-button>
         </div>

@@ -2,12 +2,38 @@
     <!-- Header Title Bar -->
     <x-page-header 
         title="Manajemen Gaji Guru" 
-        subtitle="Kelola draf penggajian bulanan guru, insentif piket &amp; mengaji, potongan kasbon, serta cetak slip gaji ber-QR code."
-        badge="HONORARIUM &amp; PENGGAJIAN"
+        subtitle="Kelola draf penggajian bulanan guru, insentif piket & mengaji, potongan kasbon, serta cetak slip gaji ber-QR code."
+        badge="HONORARIUM & PENGGAJIAN"
         badgeVariant="emerald"
         icon="wallet"
     >
         <x-slot:actions>
+            @if (count($selectedGajiIds) > 0)
+                <x-button 
+                    variant="primary" 
+                    size="md" 
+                    icon="download" 
+                    href="{{ route('finance.gaji-guru.bulk-slip', ['ids' => implode(',', $selectedGajiIds)]) }}"
+                    :wireNavigate="false"
+                    target="_blank"
+                >
+                    Unduh ({{ count($selectedGajiIds) }}) Slip Terpilih
+                </x-button>
+            @else
+                <x-button 
+                    variant="secondary" 
+                    size="md" 
+                    icon="layers" 
+                    href="{{ route('finance.gaji-guru.bulk-slip', array_filter(['bulan' => $filterBulan, 'tahun' => $filterTahun, 'status' => $filterStatus])) }}"
+                    :wireNavigate="false"
+                    target="_blank"
+                    :disabled="$salaries->total() === 0"
+                    title="{{ $salaries->total() === 0 ? 'Tidak ada data slip gaji untuk diunduh' : 'Unduh seluruh slip PDF sesuai filter saat ini' }}"
+                >
+                    Bulk Unduh PDF
+                </x-button>
+            @endif
+
             <x-button variant="primary" size="md" icon="plus" wire:click="openGenerateModal">
                 Generate Draf Gaji
             </x-button>
@@ -65,6 +91,9 @@
         <x-table loadingTarget="search, filterStatus, filterBulan, filterTahun, page">
             <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
                 <tr>
+                    <th class="p-3.5 text-center w-10 border-r border-emerald-700/50">
+                        <input type="checkbox" wire:model.live="selectAll" class="rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer" title="Pilih Semua" />
+                    </th>
                     <x-table.th class="min-w-[180px]">Guru</x-table.th>
                     <x-table.th align="center" class="w-32">Periode</x-table.th>
                     <x-table.th align="right" class="w-36">Gaji Pokok</x-table.th>
@@ -77,7 +106,10 @@
             </thead>
             <tbody class="divide-y divide-stone-200 bg-white">
                 @forelse ($salaries as $sal)
-                    <tr class="hover:bg-emerald-50/40 transition">
+                    <tr class="hover:bg-emerald-50/40 transition {{ in_array((string)$sal->id, $selectedGajiIds) ? 'bg-emerald-50/70' : '' }}">
+                        <td class="p-3.5 text-center border-r border-stone-200">
+                            <input type="checkbox" wire:model.live="selectedGajiIds" value="{{ (string)$sal->id }}" class="rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer" />
+                        </td>
                         <td class="p-3.5 font-extrabold text-stone-900 text-xs border-r border-stone-200">{{ $sal->guru->user->nama ?? '-' }}</td>
                         <td class="p-3.5 text-xs text-stone-600 text-center font-bold border-r border-stone-200">{{ $sal->bulan }} {{ $sal->tahun }}</td>
                         <td class="p-3.5 text-xs text-stone-800 text-right font-bold border-r border-stone-200">Rp {{ number_format($sal->gaji_pokok, 0, ',', '.') }}</td>
@@ -110,15 +142,18 @@
                                         Hapus
                                     </x-button>
                                 @else
-                                    <x-button variant="outline" size="xs" icon="file-text" href="{{ route('finance.gaji-guru.slip', $sal->id) }}" target="_blank">
-                                        Slip PDF
+                                    <x-button variant="primary" size="xs" icon="eye" wire:click="openPreview({{ $sal->id }})" title="Pratinjau Slip Gaji PDF">
+                                        Pratinjau
+                                    </x-button>
+                                    <x-button variant="secondary" size="xs" icon="download" href="{{ route('finance.gaji-guru.slip', ['id' => $sal->id, 'download' => 1]) }}" :wireNavigate="false" target="_blank" title="Download File PDF">
+                                        Unduh
                                     </x-button>
                                 @endif
                             </div>
                         </td>
                     </tr>
                 @empty
-                    <x-table.empty :colspan="8" title="Belum ada draf gaji guru" message="Gunakan tombol Generate Draf Gaji di atas untuk memproses penggajian." />
+                    <x-table.empty :colspan="9" title="Belum ada draf gaji guru" message="Gunakan tombol Generate Draf Gaji di atas untuk memproses penggajian." />
                 @endforelse
             </tbody>
         </x-table>
@@ -140,8 +175,8 @@
         closeAction="closeGenerateModal"
     >
         <div class="space-y-4">
-            <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Bulan Penggajian</label>
+            <div>
+                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Pilih Bulan Penggajian <span class="text-rose-500">*</span></label>
                 <select wire:model="generateBulan" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
                     @foreach ($listBulan as $b)
                         <option value="{{ $b }}">{{ $b }}</option>
@@ -149,9 +184,13 @@
                 </select>
             </div>
 
-            <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Tahun</label>
-                <input wire:model="generateTahun" type="number" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 text-center shadow-2xs" />
+            <div>
+                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Tahun <span class="text-rose-500">*</span></label>
+                <input type="number" wire:model="generateTahun" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
+            </div>
+
+            <div class="p-3.5 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-900 leading-relaxed font-medium">
+                💡 Sistem akan mengambil data seluruh guru aktif, menghitung gaji pokok, tunjangan BPJS & maghrib mengaji, serta otomatis memotong cicilan pinjaman aktif bulan ini.
             </div>
         </div>
 
@@ -160,20 +199,20 @@
                 Batal
             </x-button>
             <x-button variant="primary" size="md" wire:click="generateDrafts" loadingTarget="generateDrafts">
-                Generate Gaji
+                Mulai Generate
             </x-button>
         </div>
     </x-floating-card>
 
-    <!-- Floating Card Edit Draft Modal -->
+    <!-- Floating Card Edit Salary Modal -->
     <x-floating-card 
         :show="$showEditModal" 
-        :title="$editGuruNama" 
-        subtitle="Penyesuaian nominal gaji pokok, insentif, atau potongan slip gaji."
-        badge="EDIT DRAF GAJI"
-        badgeVariant="emerald"
-        icon="edit"
-        maxWidth="max-w-lg"
+        :title="'Koreksi Draf Gaji: ' . $editGuruNama" 
+        subtitle="Sesuaikan tunjangan khusus atau potongan tambahan secara manual."
+        badge="KOREKSI PENGGAJIAN"
+        badgeVariant="indigo"
+        icon="edit-3"
+        maxWidth="max-w-xl"
         closeAction="closeEditModal"
     >
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -238,4 +277,58 @@
             </x-button>
         </div>
     </x-floating-card>
+
+    <!-- Floating Card Modal PDF Preview (Embedded Viewer) -->
+    @if ($showPreviewModal && $previewSalary)
+        <x-floating-card 
+            :show="true" 
+            :title="'Pratinjau Slip Gaji — ' . $previewSalary->bulan . ' ' . $previewSalary->tahun" 
+            :subtitle="'Dokumen Resmi Penggajian Guru: ' . ($previewSalary->guru->user->nama ?? '-')"
+            badge="SLIP GAJI RESMI"
+            badgeVariant="emerald"
+            icon="file-text"
+            maxWidth="max-w-4xl"
+            closeAction="closePreview"
+            zIndex="z-[99995]"
+        >
+            <div class="flex flex-wrap items-center justify-between gap-3 p-3 bg-stone-50 border border-stone-200 rounded-2xl">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-stone-700">Nominal Diterima:</span>
+                    <span class="text-sm font-black text-emerald-800">Rp {{ number_format($previewSalary->total_diterima, 0, ',', '.') }}</span>
+                    <span class="text-[10px] text-stone-500 font-mono">({{ $previewSalary->status === 'dibayar' ? 'LUNAS' : 'DRAF' }})</span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <a 
+                        href="{{ route('finance.gaji-guru.slip', ['id' => $previewSalary->id, 'download' => 1]) }}" 
+                        class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+                        <x-lucide-download class="w-3.5 h-3.5" />
+                        <span>Unduh PDF</span>
+                    </a>
+
+                    <a 
+                        href="{{ route('finance.gaji-guru.slip', $previewSalary->id) }}" 
+                        target="_blank" 
+                        class="px-3 py-1.5 bg-stone-800 hover:bg-stone-900 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+                        <x-lucide-printer class="w-3.5 h-3.5" />
+                        <span>Buka / Cetak</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="w-full h-[62vh] rounded-2xl overflow-hidden border border-stone-200 bg-stone-100 relative shadow-inner">
+                <iframe 
+                    src="{{ route('finance.gaji-guru.slip', $previewSalary->id) }}" 
+                    class="w-full h-full border-0"
+                    title="PDF Slip Gaji Preview">
+                </iframe>
+            </div>
+
+            <div class="flex items-center justify-end pt-2 border-t border-stone-200">
+                <x-button variant="secondary" size="md" wire:click="closePreview">
+                    Tutup Pratinjau
+                </x-button>
+            </div>
+        </x-floating-card>
+    @endif
 </div>

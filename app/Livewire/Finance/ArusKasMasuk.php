@@ -194,6 +194,11 @@ class ArusKasMasuk extends Component
 
         $data = $query->get();
 
+        if ($data->isEmpty()) {
+            session()->flash('error', 'Tidak dapat mengunduh PDF karena tidak ada catatan pemasukan pada periode terpilih.');
+            return;
+        }
+
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('livewire.shared.laporan.pdf-laporan-kas-masuk', [
             'data' => $data,
             'kategori' => $this->filterKategori ?: 'Semua Kategori',
@@ -201,7 +206,7 @@ class ArusKasMasuk extends Component
         ])->setPaper('a4', 'portrait');
 
         return response()->streamDownload(function () use ($pdf) {
-            echo $pdf->stream();
+            echo $pdf->output();
         }, 'laporan_kas_masuk_' . date('Ymd_His') . '.pdf');
     }
 

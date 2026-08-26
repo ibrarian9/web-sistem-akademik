@@ -102,7 +102,7 @@
                 <tr>
                     <x-table.th class="w-44">Waktu</x-table.th>
                     <x-table.th class="w-28 text-center">Level</x-table.th>
-                    <x-table.th class="min-w-[240px]">Pesan Error &amp; Trace Details</x-table.th>
+                    <x-table.th class="min-w-[240px]">Pesan Error & Trace Details</x-table.th>
                     <x-table.th align="center" class="w-28">Aksi</x-table.th>
                 </tr>
             </thead>

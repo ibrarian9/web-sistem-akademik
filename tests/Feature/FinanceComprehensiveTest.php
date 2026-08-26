@@ -316,12 +316,21 @@ test('it renders receipt interactive web preview and pdf download', function () 
         'petugas_id' => $this->userFinance->id,
     ]);
 
-    // 1. Default route renders interactive web preview (HTTP 200)
+    // 1. Default route renders interactive web preview (HTTP 200) without kop surat
     $response = $this->get(route('finance.pembayaran.resi', $pembayaran->id));
     $response->assertStatus(200);
     $response->assertSee('Pratinjau Kuitansi Pembayaran');
     $response->assertSee('REC-TEST-001');
-    $response->assertSee('Cetak Kuitansi');
+    $response->assertSee('KUITANSI PEMBAYARAN SISWA');
+    $response->assertDontSee('YAYASAN PENDIDIKAN ISLAM AL-IKHLAS');
+
+    // Verify PDF template does not contain kop surat header
+    $pdfHtml = view('livewire.shared.laporan.pdf-resi-pembayaran', [
+        'pembayaran' => $pembayaran,
+        'staffFinance' => $this->userFinance,
+    ])->render();
+    expect($pdfHtml)->not->toContain('SISTEM INFORMASI AKADEMIK & KEUANGAN YAYASAN');
+    expect($pdfHtml)->toContain('BUKTI PEMBAYARAN RESMI');
 
     // 2. Download query streams download file
     $responseDownload = $this->get(route('finance.pembayaran.resi', ['id' => $pembayaran->id, 'download' => '1']));

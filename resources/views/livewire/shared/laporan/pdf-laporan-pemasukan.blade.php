@@ -107,10 +107,10 @@
     <div class="meta-info">
         <table>
             <tr>
-                <td style="width: 15%; font-weight: bold;">Mulai Tanggal</td>
-                <td style="width: 35%;">: {{ date('d-m-Y', strtotime($startDate)) }}</td>
-                <td style="width: 15%; font-weight: bold;">Sampai Tanggal</td>
-                <td style="width: 35%;">: {{ date('d-m-Y', strtotime($endDate)) }}</td>
+                <td style="width: 15%; font-weight: bold;">Periode</td>
+                <td style="width: 35%;">: {{ $periodeText ?? ($startDate && $endDate ? date('d-m-Y', strtotime($startDate)) . ' s/d ' . date('d-m-Y', strtotime($endDate)) : 'Semua Periode') }}</td>
+                <td style="width: 15%; font-weight: bold;">Bulan</td>
+                <td style="width: 35%;">: {{ $bulan ?: 'Semua Bulan' }}</td>
             </tr>
             <tr>
                 <td style="font-weight: bold;">Jenis Tagihan</td>

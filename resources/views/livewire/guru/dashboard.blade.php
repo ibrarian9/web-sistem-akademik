@@ -13,7 +13,7 @@
     <div class="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <h2 class="text-2xl font-extrabold text-stone-900 tracking-tight">Selamat Datang, {{ auth()->user()->nama }}</h2>
-            <p class="text-xs text-stone-600 font-semibold mt-1">Panel pengajar &amp; wali kelas akademis sekolah.</p>
+            <p class="text-xs text-stone-600 font-semibold mt-1">Panel pengajar & wali kelas akademis sekolah.</p>
         </div>
         <div class="text-right bg-stone-50 border border-stone-200 p-3 rounded-xl">
             <p class="text-xs text-stone-800 font-bold">{{ \Carbon\Carbon::now()->isoFormat('D MMMM Y') }}</p>
@@ -86,7 +86,7 @@
                     </div>
                     <div>
                         <h4 class="text-xs font-bold text-stone-900">Setup Kurikulum Merdeka</h4>
-                        <p class="text-[10px] text-stone-500 font-medium">Kelola Bab, TP &amp; Auto-Narasi.</p>
+                        <p class="text-[10px] text-stone-500 font-medium">Kelola Bab, TP & Auto-Narasi.</p>
                     </div>
                 </a>
 
@@ -95,8 +95,8 @@
                         <x-lucide-edit-3 class="w-4 h-4" />
                     </div>
                     <div>
-                        <h4 class="text-xs font-bold text-stone-900">Input Nilai Sumatif TP &amp; SAS</h4>
-                        <p class="text-[10px] text-stone-500 font-medium">Form matriks nilai &amp; auto-narasi.</p>
+                        <h4 class="text-xs font-bold text-stone-900">Input Nilai Sumatif TP & SAS</h4>
+                        <p class="text-[10px] text-stone-500 font-medium">Form matriks nilai & auto-narasi.</p>
                     </div>
                 </a>
 
@@ -106,7 +106,7 @@
                     </div>
                     <div>
                         <h4 class="text-xs font-bold text-stone-900">Input Setoran Tahfizh</h4>
-                        <p class="text-[10px] text-stone-500 font-medium">Setoran hafalan surah &amp; tajwid.</p>
+                        <p class="text-[10px] text-stone-500 font-medium">Setoran hafalan surah & tajwid.</p>
                     </div>
                 </a>
 

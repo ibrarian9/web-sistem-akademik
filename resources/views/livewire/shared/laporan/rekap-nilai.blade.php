@@ -74,7 +74,7 @@
                     | Mapel: <span class="text-stone-600 font-semibold">{{ $mapel->nama_mapel }}</span>
                     | Semester: <span class="text-stone-600 font-semibold">{{ $semester->nama_semester }}</span>
                 </div>
-                <x-button type="button" variant="outline" size="sm" icon="file-text" wire:click="downloadPdf">
+                <x-button type="button" variant="outline" size="sm" icon="file-text" wire:click="downloadPdf" :disabled="empty($matrix)" title="{{ empty($matrix) ? 'Tidak ada data nilai untuk diekspor' : 'Ekspor Dokumen PDF' }}">
                     Ekspor PDF
                 </x-button>
             </div>

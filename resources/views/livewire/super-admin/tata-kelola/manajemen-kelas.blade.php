@@ -3,7 +3,7 @@
     <div class="flex items-center gap-2 bg-white border border-stone-200 p-2 rounded-2xl overflow-x-auto shadow-2xs">
         <a href="{{ auth()->user()->role?->nama === 'tata_usaha' ? route('tata-usaha.kelas') : route('super-admin.kelas') }}" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-emerald-700 text-white shadow-2xs flex items-center gap-2 whitespace-nowrap">
             <x-lucide-layers class="w-4 h-4 text-emerald-100" />
-            <span>1. Buat &amp; Kelola Kelas (Umum &amp; Tahfizh)</span>
+            <span>1. Buat & Kelola Kelas (Umum & Tahfizh)</span>
         </a>
         <a href="{{ auth()->user()->role?->nama === 'tata_usaha' ? route('tata-usaha.siswa') : route('super-admin.siswa') }}" class="px-4 py-2.5 rounded-xl text-xs font-bold text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition flex items-center gap-2 whitespace-nowrap">
             <x-lucide-users class="w-4 h-4 text-emerald-600" />
@@ -17,9 +17,9 @@
 
     <!-- Header Title Bar -->
     <x-page-header 
-        title="Kelola Kelas Umum &amp; Kelompok Tahfizh" 
+        title="Kelola Kelas Umum & Kelompok Tahfizh" 
         subtitle="Buat rombongan belajar Kelas Umum (1-6) dan kelompok Halaqah Guru Tahfizh."
-        badge="MANAJEMEN KELAS &amp; HALAQAH"
+        badge="MANAJEMEN KELAS & HALAQAH"
         badgeVariant="emerald"
         icon="layers"
     >
@@ -173,7 +173,7 @@
         :show="$isFormOpen ? true : false"
         :title="$kelasId ? 'Edit Data Kelas' : 'Tambah Kelas Baru'"
         subtitle="Atur rombongan belajar umum (1-6) atau halaqah tahfizh."
-        badge="KELAS &amp; HALAQAH"
+        badge="KELAS & HALAQAH"
         badgeVariant="emerald"
         icon="layers"
         maxWidth="max-w-md"

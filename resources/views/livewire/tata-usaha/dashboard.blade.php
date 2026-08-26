@@ -3,7 +3,7 @@
     <x-page-header 
         title="Pusat Kendali Tata Usaha" 
         subtitle="Selamat datang, {{ auth()->user()->nama }}. Berikut ringkasan data akademik dan administrasi sekolah hari ini."
-        badge="DASHBOARD ADMINISTRASI &amp; TU"
+        badge="DASHBOARD ADMINISTRASI & TU"
         badgeVariant="emerald"
         icon="layout-dashboard"
     />
@@ -36,20 +36,20 @@
                     <span class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 group-hover:scale-105 transition duration-200"><x-lucide-users class="w-5 h-5" /></span>
                     <div>
                         <h4 class="text-xs font-bold text-stone-900">Data Siswa</h4>
-                        <p class="text-[11px] text-stone-500 font-medium mt-0.5">Tambah &amp; kelola data siswa aktif.</p>
+                        <p class="text-[11px] text-stone-500 font-medium mt-0.5">Tambah & kelola data siswa aktif.</p>
                     </div>
                 </a>
                 <a href="{{ route('tata-usaha.guru') }}" class="p-4 bg-stone-50 border border-stone-200 hover:border-emerald-300 rounded-2xl flex items-start gap-3 group transition duration-200">
                     <span class="p-2.5 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 group-hover:scale-105 transition duration-200"><x-lucide-user-check class="w-5 h-5" /></span>
                     <div>
                         <h4 class="text-xs font-bold text-stone-900">Data Guru</h4>
-                        <p class="text-[11px] text-stone-500 font-medium mt-0.5">Kelola profil &amp; penugasan guru.</p>
+                        <p class="text-[11px] text-stone-500 font-medium mt-0.5">Kelola profil & penugasan guru.</p>
                     </div>
                 </a>
                 <a href="{{ route('tata-usaha.kelas') }}" class="p-4 bg-stone-50 border border-stone-200 hover:border-emerald-300 rounded-2xl flex items-start gap-3 group transition duration-200">
                     <span class="p-2.5 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 group-hover:scale-105 transition duration-200"><x-lucide-layers class="w-5 h-5" /></span>
                     <div>
-                        <h4 class="text-xs font-bold text-stone-900">Kelas &amp; Mata Pelajaran</h4>
+                        <h4 class="text-xs font-bold text-stone-900">Kelas & Mata Pelajaran</h4>
                         <p class="text-[11px] text-stone-500 font-medium mt-0.5">Atur kelas, wali, dan mapel.</p>
                     </div>
                 </a>

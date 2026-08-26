@@ -98,8 +98,8 @@
 </head>
 <body>
     <div class="header">
-        <h1>YAYASAN PENDIDIKAN ISLAM</h1>
-        <p>Jl. Kaliurang Km. 10, Sleman, D.I. Yogyakarta | Telp: (0274) 123456</p>
+        <h1>{{ $namaSekolah ?? 'PONDOK PESANTREN & SEKOLAH ISLAM TERPADU' }}</h1>
+        <p>{{ $alamatSekolah ?? 'Jl. Pendidikan Karakter Islami No. 123' }} | Telp/WA: {{ $noTelepon ?? '(0274) 123456' }}</p>
     </div>
 
     <div class="title">LAPORAN TUNGGAKAN PEMBAYARAN SISWA</div>
@@ -107,16 +107,20 @@
     <div class="meta-info">
         <table>
             <tr>
-                <td style="width: 12%; font-weight: bold;">Kelas</td>
-                <td style="width: 38%;">: {{ $kelas }}</td>
-                <td style="width: 15%; font-weight: bold;">Tahun Ajaran</td>
-                <td style="width: 35%;">: {{ $tahunAjaran }}</td>
+                <td style="width: 14%; font-weight: bold;">Kelas</td>
+                <td style="width: 36%;">: {{ $kelas }}</td>
+                <td style="width: 18%; font-weight: bold;">Tahun Ajaran</td>
+                <td style="width: 32%;">: {{ $tahunAjaran }}</td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold;">Bulan Tagihan</td>
+                <td>: {{ $bulan ?? 'Semua Bulan' }}</td>
+                <td style="font-weight: bold;">Periode Jatuh Tempo</td>
+                <td>: {{ $periodeText ?? 'Semua Periode' }}</td>
             </tr>
             <tr>
                 <td style="font-weight: bold;">Tanggal Cetak</td>
-                <td>: {{ date('d-m-Y H:i') }}</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
+                <td colspan="3">: {{ date('d-m-Y H:i') }} WIB</td>
             </tr>
         </table>
     </div>

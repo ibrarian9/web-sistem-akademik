@@ -10,7 +10,7 @@
     <div class="flex items-center gap-2 bg-white border border-stone-200 p-2 rounded-2xl overflow-x-auto shadow-2xs">
         <a href="{{ $routeKelas }}" class="px-4 py-2.5 rounded-xl text-xs font-bold text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition flex items-center gap-2 whitespace-nowrap">
             <x-lucide-layers class="w-4 h-4 text-emerald-600" />
-            <span>1. Buat &amp; Kelola Kelas (Umum &amp; Tahfizh)</span>
+            <span>1. Buat & Kelola Kelas (Umum & Tahfizh)</span>
         </a>
         <a href="{{ $routeSiswa }}" class="px-4 py-2.5 rounded-xl text-xs font-bold text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition flex items-center gap-2 whitespace-nowrap">
             <x-lucide-users class="w-4 h-4 text-emerald-600" />
@@ -24,9 +24,9 @@
 
     <!-- Header Title Bar -->
     <x-page-header 
-        title="Daftar Anggota Kelas &amp; Input Kolektif" 
+        title="Daftar Anggota Kelas & Input Kolektif" 
         subtitle="Pilih kelas di bawah ini untuk melihat murid terdaftar dan memasukkan murid secara kolektif."
-        badge="PLOTTING KELAS &amp; HALAQAH"
+        badge="PLOTTING KELAS & HALAQAH"
         badgeVariant="emerald"
         icon="users"
     >
@@ -217,7 +217,7 @@
                 <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900 sticky top-0 z-10">
                     <tr>
                         <x-table.th align="center" class="w-12">PILIH</x-table.th>
-                        <x-table.th>NISN &amp; NAMA SISWA</x-table.th>
+                        <x-table.th>NISN & NAMA SISWA</x-table.th>
                         <x-table.th class="w-48">KELAS SAAT INI</x-table.th>
                     </tr>
                 </thead>

@@ -24,7 +24,7 @@
     @endif
 
     <div @if($overflow) class="overflow-x-auto custom-scrollbar" @endif>
-        <table {{ $attributes->merge(['class' => 'w-full text-left border-collapse text-xs text-stone-800']) }}>
+        <table {{ $attributes->merge(['class' => 'w-full text-left border-separate border-spacing-0 text-xs text-stone-800']) }}>
             {{ $slot }}
         </table>
     </div>

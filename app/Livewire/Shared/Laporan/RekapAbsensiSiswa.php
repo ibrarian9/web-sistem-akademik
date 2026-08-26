@@ -72,7 +72,8 @@ class RekapAbsensiSiswa extends Component
 
         $kelas = Kelas::with(['guruUmum.user', 'guruTahfidz.user'])->find($this->kelasId);
         
-        $students = Siswa::where(function ($q) {
+        $students = Siswa::with('user')
+            ->where(function ($q) {
                 $q->where('siswa.kelas_id', $this->kelasId)
                   ->orWhere('siswa.kelas_tahfidz_id', $this->kelasId)
                   ->orWhereIn('siswa.id', function($sub) {
@@ -91,8 +92,11 @@ class RekapAbsensiSiswa extends Component
         $end = Carbon::create(intval($this->tahun), intval($this->bulan), 1)->endOfMonth();
         $daysInMonth = $start->daysInMonth;
 
+        $startDateStr = $start->format('Y-m-d');
+        $endDateStr = $end->format('Y-m-d');
+
         $absensiRecords = AbsensiSiswa::where('kelas_id', $this->kelasId)
-            ->whereBetween('tanggal', [$start->format('Y-m-d'), $end->format('Y-m-d')])
+            ->whereBetween('tanggal', [$startDateStr, $endDateStr])
             ->get();
 
         // Build a robust lookup map
@@ -100,6 +104,34 @@ class RekapAbsensiSiswa extends Component
         foreach ($absensiRecords as $record) {
             $recordDate = Carbon::parse($record->tanggal)->format('Y-m-d');
             $absensiMap[$record->siswa_id . '_' . $recordDate] = $record;
+        }
+
+        // Fetch all holiday calendar records for this month in ONE query
+        $holidays = KalenderAkademik::where('liburkan_presensi', true)
+            ->where(function ($q) use ($startDateStr, $endDateStr) {
+                $q->whereBetween('tanggal_mulai', [$startDateStr, $endDateStr])
+                  ->orWhereBetween('tanggal_selesai', [$startDateStr, $endDateStr])
+                  ->orWhere(function ($sub) use ($startDateStr, $endDateStr) {
+                      $sub->where('tanggal_mulai', '<=', $startDateStr)
+                          ->where('tanggal_selesai', '>=', $endDateStr);
+                  });
+            })
+            ->get(['tanggal_mulai', 'tanggal_selesai']);
+
+        // Precompute holiday dates in memory (0 queries inside loop)
+        $holidayDayMap = [];
+        for ($d = 1; $d <= $daysInMonth; $d++) {
+            $dStr = sprintf('%s-%02d-%02d', $this->tahun, intval($this->bulan), $d);
+            $isHoliday = false;
+            foreach ($holidays as $h) {
+                $hStart = $h->tanggal_mulai ? $h->tanggal_mulai->format('Y-m-d') : null;
+                $hEnd = $h->tanggal_selesai ? $h->tanggal_selesai->format('Y-m-d') : null;
+                if ($hStart && $hEnd && $hStart <= $dStr && $hEnd >= $dStr) {
+                    $isHoliday = true;
+                    break;
+                }
+            }
+            $holidayDayMap[$d] = $isHoliday;
         }
 
         $matrix = [];
@@ -124,8 +156,7 @@ class RekapAbsensiSiswa extends Component
                     }
                     $days[$day] = $status;
                 } else {
-                    $isHoliday = KalenderAkademik::isHolidayDate($dateStr);
-                    $days[$day] = $isHoliday ? 'libur' : null;
+                    $days[$day] = $holidayDayMap[$day] ? 'libur' : null;
                 }
             }
 
@@ -152,7 +183,8 @@ class RekapAbsensiSiswa extends Component
     public function downloadPdf()
     {
         $data = $this->getMatrixData();
-        if (!$data['kelas']) {
+        if (!$data['kelas'] || empty($data['matrix'])) {
+            session()->flash('error', 'Tidak ada data absensi untuk dicetak.');
             return;
         }
 

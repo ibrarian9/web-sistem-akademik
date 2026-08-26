@@ -7,6 +7,7 @@
     'icon' => null,
     'maxWidth' => 'max-w-lg',
     'closeAction' => null,
+    'zIndex' => 'z-[99990]',
 ])
 
 @php
@@ -23,12 +24,12 @@
 @endphp
 
 @if ($show)
-    <div class="fixed inset-0 z-[99990] flex items-center justify-center bg-stone-950/65 backdrop-blur-xs p-4 sm:p-6 overflow-y-auto animate-fade-in"
+    <div class="fixed inset-0 {{ $zIndex }} flex items-center justify-center lg:pl-64 bg-stone-950/65 backdrop-blur-xs p-4 sm:p-6 lg:p-8 overflow-y-auto animate-fade-in"
          x-data
          @keydown.escape.window="{{ $closeAction ? "\$wire.{$closeAction}()" : '' }}"
          @click.self="{{ $closeAction ? "\$wire.{$closeAction}()" : '' }}">
         
-        <div class="w-full {{ $maxWidthClass }} max-h-[92vh] flex flex-col bg-white border border-stone-200 rounded-3xl shadow-2xl p-6 sm:p-7 space-y-5 my-auto relative transform transition-all duration-200 ease-out scale-100 overflow-y-auto">
+        <div class="w-full {{ $maxWidthClass }} max-h-[92vh] flex flex-col bg-white border border-stone-200 rounded-3xl shadow-2xl p-5 sm:p-7 space-y-5 my-auto relative transform transition-all duration-200 ease-out scale-100 overflow-y-auto">
             
             <!-- Card Header Bar -->
             <div class="flex items-start justify-between gap-4 border-b border-stone-200/80 pb-4 shrink-0">

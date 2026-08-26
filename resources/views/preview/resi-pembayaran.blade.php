@@ -75,12 +75,7 @@
             LUNAS
         </div>
 
-        <!-- KOP SURAT YAYASAN -->
-        <div class="border-b-2 border-stone-900 pb-5 text-center space-y-1">
-            <h2 class="text-xl sm:text-2xl font-black uppercase tracking-wider text-stone-900">YAYASAN PENDIDIKAN ISLAM AL-IKHLAS</h2>
-            <p class="text-xs sm:text-sm font-bold text-emerald-800 uppercase tracking-tight">Sistem Informasi Administrasi &amp; Manajemen Keuangan Sekolah</p>
-            <p class="text-[11px] text-stone-500 font-medium">Jl. Pesantren No. 45, Kompleks Pendidikan Islam Terpadu | Telp: (021) 789-0123 | Email: keuangan@f3.sch.id</p>
-        </div>
+
 
         <!-- TITLE & RECEIPT NUMBER -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-200 pb-4">
@@ -195,7 +190,7 @@
             <div>
                 <span class="text-stone-500 font-semibold block mb-16">Bendahara / Petugas Kasir,</span>
                 <span class="font-bold text-stone-900 block underline uppercase">{{ $staffFinance->nama ?? 'Staf Keuangan' }}</span>
-                <span class="text-[10px] text-stone-400 font-medium">Tanda Tangan &amp; Cap Stempel Resmi</span>
+                <span class="text-[10px] text-stone-400 font-medium">Tanda Tangan & Cap Stempel Resmi</span>
             </div>
         </div>
 

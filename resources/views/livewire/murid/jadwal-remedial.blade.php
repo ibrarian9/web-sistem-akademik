@@ -6,7 +6,7 @@
                 SD Tahfizh F3 Digital System
             </span>
             <h2 class="text-xl font-extrabold text-stone-900 tracking-tight mt-1">Jadwal Remedial Saya</h2>
-            <p class="text-xs text-stone-500 font-medium">Informasi jadwal sesi remedial per-TP &amp; Mid Semester yang diberikan oleh Ustadz/Ustadzah pengampu.</p>
+            <p class="text-xs text-stone-500 font-medium">Informasi jadwal sesi remedial per-TP & Mid Semester yang diberikan oleh Ustadz/Ustadzah pengampu.</p>
         </div>
     </div>
 
@@ -14,7 +14,7 @@
     <x-info-tutorial-box 
         title="Petunjuk Pelaksanaan Remedial Belajar Santri"
         :steps="[
-            ['title' => 'Cek Jadwal &amp; Topik', 'desc' => 'Periksa tanggal, jam pelaksanaan, dan materi/TP remedial yang ditentukan oleh guru pengampu.'],
+            ['title' => 'Cek Jadwal & Topik', 'desc' => 'Periksa tanggal, jam pelaksanaan, dan materi/TP remedial yang ditentukan oleh guru pengampu.'],
             ['title' => 'Persiapan Modul', 'desc' => 'Membawa buku latihan, modul pembelajaran, dan alat tulis saat sesi remedial berlangsung.'],
             ['title' => 'Kehadiran Tepat Waktu', 'desc' => 'Harap hadir di ruangan remedial 10 menit sebelum sesi dimulai.']
         ]"

@@ -25,6 +25,7 @@
 
             ['title' => 'Presensi Saya & Info', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Presensi Guru Mandiri', 'route' => 'guru.absensi-diri', 'icon' => 'clock'],
+            ['title' => 'Slip Gaji Saya', 'route' => 'guru.slip-gaji', 'icon' => 'banknote'],
             ['title' => 'Kalender Akademik', 'route' => 'guru.kalender-akademik', 'icon' => 'calendar'],
 
             ['title' => 'Laporan', 'route' => null, 'icon' => null, 'section' => true],
@@ -56,6 +57,7 @@
 
             ['title' => 'Presensi Saya & Info', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Presensi Guru Mandiri', 'route' => 'guru.absensi-diri', 'icon' => 'clock'],
+            ['title' => 'Slip Gaji Saya', 'route' => 'guru.slip-gaji', 'icon' => 'banknote'],
             ['title' => 'Kalender Akademik', 'route' => 'guru.kalender-akademik', 'icon' => 'calendar'],
 
             ['title' => 'Laporan & Rekap', 'route' => null, 'icon' => null, 'section' => true],
@@ -88,6 +90,7 @@
 
             ['title' => 'Presensi Saya & Info', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Presensi Guru Mandiri', 'route' => 'guru.absensi-diri', 'icon' => 'clock'],
+            ['title' => 'Slip Gaji Saya', 'route' => 'guru.slip-gaji', 'icon' => 'banknote'],
             ['title' => 'Kalender Akademik', 'route' => 'guru.kalender-akademik', 'icon' => 'calendar'],
 
             ['title' => 'Laporan & Rekap', 'route' => null, 'icon' => null, 'section' => true],

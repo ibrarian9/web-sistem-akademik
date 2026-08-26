@@ -9,10 +9,10 @@
             <div class="space-y-2 max-w-2xl">
                 <div class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-950/80 border border-emerald-500/40 rounded-full text-emerald-300 text-[11px] font-extrabold uppercase tracking-wider shadow-inner">
                     <x-lucide-help-circle class="w-3.5 h-3.5 text-emerald-400" />
-                    <span>PUSAT PANDUAN AKADEMIK &amp; FAQ</span>
+                    <span>PUSAT PANDUAN AKADEMIK & FAQ</span>
                 </div>
                 <h1 class="text-2xl md:text-3xl font-black !text-white tracking-tight leading-tight">
-                    Tutorial Sistem &amp; Pusat Bantuan FAQ
+                    Tutorial Sistem & Pusat Bantuan FAQ
                 </h1>
                 <p class="text-emerald-100 text-xs md:text-sm font-medium leading-relaxed">
                     Panduan lengkap alur kerja sistem akademik, tata cara pembuatan Mata Pelajaran, Setup Kurikulum Merdeka, Tahfizh, Keuangan, serta solusi kendala operasional.
@@ -44,25 +44,25 @@
         <button wire:click="selectCategory('tata_usaha')"
             class="px-4 py-2.5 rounded-2xl text-xs font-bold transition whitespace-nowrap border flex items-center gap-2 {{ $selectedCategory === 'tata_usaha' ? 'bg-emerald-700 text-white border-emerald-700 shadow-md' : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50' }}">
             <x-lucide-layers class="w-4 h-4 text-emerald-600" />
-            <span>Tata Usaha &amp; Admin</span>
+            <span>Tata Usaha & Admin</span>
         </button>
 
         <button wire:click="selectCategory('guru')"
             class="px-4 py-2.5 rounded-2xl text-xs font-bold transition whitespace-nowrap border flex items-center gap-2 {{ $selectedCategory === 'guru' ? 'bg-emerald-700 text-white border-emerald-700 shadow-md' : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50' }}">
             <x-lucide-book-open class="w-4 h-4 text-amber-600" />
-            <span>Guru &amp; Pengajar</span>
+            <span>Guru & Pengajar</span>
         </button>
 
         <button wire:click="selectCategory('finance')"
             class="px-4 py-2.5 rounded-2xl text-xs font-bold transition whitespace-nowrap border flex items-center gap-2 {{ $selectedCategory === 'finance' ? 'bg-emerald-700 text-white border-emerald-700 shadow-md' : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50' }}">
             <x-lucide-wallet class="w-4 h-4 text-blue-600" />
-            <span>Finance &amp; Bendahara</span>
+            <span>Finance & Bendahara</span>
         </button>
 
         <button wire:click="selectCategory('murid')"
             class="px-4 py-2.5 rounded-2xl text-xs font-bold transition whitespace-nowrap border flex items-center gap-2 {{ $selectedCategory === 'murid' ? 'bg-emerald-700 text-white border-emerald-700 shadow-md' : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50' }}">
             <x-lucide-user-check class="w-4 h-4 text-purple-600" />
-            <span>Murid &amp; Orang Tua</span>
+            <span>Murid & Orang Tua</span>
         </button>
     </div>
 
@@ -71,7 +71,7 @@
         <div class="flex items-center justify-between border-b border-stone-200 pb-3">
             <div class="flex items-center gap-2.5">
                 <span class="w-2.5 h-6 bg-emerald-700 rounded-full"></span>
-                <h2 class="text-lg font-extrabold text-stone-900 tracking-tight">Panduan Utama &amp; Alur Operasional</h2>
+                <h2 class="text-lg font-extrabold text-stone-900 tracking-tight">Panduan Utama & Alur Operasional</h2>
             </div>
             <span class="text-xs text-stone-500 font-semibold">Ditemukan {{ count($tutorials) }} Panduan Praktis</span>
         </div>

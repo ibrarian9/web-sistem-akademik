@@ -15,7 +15,7 @@
             <span class="px-3 py-1 bg-emerald-100 border border-emerald-300 text-emerald-800 rounded-full text-xs font-bold uppercase tracking-wider inline-block mb-1">
                 KEPEGAWAIAN GURU
             </span>
-            <h1 class="text-2xl font-extrabold text-stone-900 tracking-tight">Presensi &amp; Kehadiran Guru</h1>
+            <h1 class="text-2xl font-extrabold text-stone-900 tracking-tight">Presensi & Kehadiran Guru</h1>
             <p class="text-xs text-stone-600 font-semibold mt-1">Pantau status kehadiran harian Anda yang tercatat secara resmi oleh Tata Usaha.</p>
         </div>
         <div class="text-right bg-stone-50 border border-stone-200 px-4 py-3 rounded-xl space-y-0.5">
@@ -79,7 +79,7 @@
                         <x-lucide-shield-check class="w-4 h-4 text-emerald-700" />
                         <span>Pencatatan Terpusat oleh TU</span>
                     </span>
-                    <p class="text-[11px] text-emerald-800 font-medium leading-relaxed">Presensi kehadiran dikelola &amp; diinput oleh Tata Usaha. Data kehadiran tersinkronisasi otomatis dengan sistem penggajian.</p>
+                    <p class="text-[11px] text-emerald-800 font-medium leading-relaxed">Presensi kehadiran dikelola & diinput oleh Tata Usaha. Data kehadiran tersinkronisasi otomatis dengan sistem penggajian.</p>
                 </div>
             </div>
         </div>

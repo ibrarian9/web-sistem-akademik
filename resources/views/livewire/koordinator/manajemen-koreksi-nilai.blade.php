@@ -33,8 +33,8 @@
                 <tr>
                     <x-table.th class="w-40">Tanggal Pengajuan</x-table.th>
                     <x-table.th class="w-48">Guru Pemohon</x-table.th>
-                    <x-table.th class="w-48">Siswa &amp; Kelas</x-table.th>
-                    <x-table.th class="min-w-[160px]">Mata Pelajaran &amp; Komponen</x-table.th>
+                    <x-table.th class="w-48">Siswa & Kelas</x-table.th>
+                    <x-table.th class="min-w-[160px]">Mata Pelajaran & Komponen</x-table.th>
                     <x-table.th align="center" class="w-36">Nilai Lama &rarr; Baru</x-table.th>
                     <x-table.th class="min-w-[180px]">Alasan Koreksi</x-table.th>
                     <x-table.th align="center" class="w-32">Status</x-table.th>

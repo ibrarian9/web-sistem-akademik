@@ -9,7 +9,7 @@
     >
         <x-slot:actions>
             <x-button variant="secondary" size="md" icon="file-text" href="{{ route('finance.tagihan') }}">
-                Manajemen &amp; Rilis Tagihan
+                Manajemen & Rilis Tagihan
             </x-button>
         </x-slot:actions>
     </x-page-header>
@@ -69,7 +69,7 @@
         <x-table loadingTarget="search, filterKelas, page">
             <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
                 <tr>
-                    <x-table.th class="min-w-[180px]">Siswa &amp; Kelas</x-table.th>
+                    <x-table.th class="min-w-[180px]">Siswa & Kelas</x-table.th>
                     <x-table.th class="w-44">Jenis Tagihan</x-table.th>
                     <x-table.th align="center" class="w-32">Periode</x-table.th>
                     <x-table.th align="right" class="w-40">Nominal Tagihan</x-table.th>

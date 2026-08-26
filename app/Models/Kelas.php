@@ -52,6 +52,11 @@ class Kelas extends Model
         return $this->hasMany(Siswa::class, 'kelas_id');
     }
 
+    public function siswa()
+    {
+        return $this->hasMany(Siswa::class, 'kelas_id');
+    }
+
     public function siswasTahfidz()
     {
         return $this->hasMany(Siswa::class, 'kelas_tahfidz_id');

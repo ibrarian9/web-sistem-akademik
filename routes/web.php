@@ -59,8 +59,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/cetak-resi/{id}', [\App\Http\Controllers\FinanceReportController::class, 'cetakResi'])->name('cetak-resi');
     Route::get('/finance/cetak-resi/{id}', [\App\Http\Controllers\FinanceReportController::class, 'cetakResi'])->name('finance.cetak-resi');
     Route::get('/finance/pembayaran/resi/{id}', [\App\Http\Controllers\FinanceReportController::class, 'cetakResi'])->name('finance.pembayaran.resi');
+    Route::get('/finance/resi/print/{id}', [\App\Http\Controllers\FinanceReportController::class, 'cetakResi'])->name('finance.resi.print');
     Route::get('/gaji-guru/slip/{id}', [\App\Http\Controllers\FinanceReportController::class, 'slipGaji'])->name('gaji-guru.slip');
     Route::get('/finance/gaji-guru/slip/{id}', [\App\Http\Controllers\FinanceReportController::class, 'slipGaji'])->name('finance.gaji-guru.slip');
+    Route::get('/gaji-guru/bulk-slip', [\App\Http\Controllers\FinanceReportController::class, 'bulkSlipGaji'])->name('gaji-guru.bulk-slip');
+    Route::get('/finance/gaji-guru/bulk-slip', [\App\Http\Controllers\FinanceReportController::class, 'bulkSlipGaji'])->name('finance.gaji-guru.bulk-slip');
 
     // Pengajuan Dana Route — Accessible strictly by Finance only
     Route::middleware(['role:finance'])
@@ -158,6 +161,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/bobot-nilai', \App\Livewire\Guru\PengaturanBobotNilai::class)->name('bobot-nilai');
         Route::get('/absensi-siswa', \App\Livewire\Guru\AbsensiSiswa::class)->name('absensi-siswa');
         Route::get('/absensi-diri', \App\Livewire\Guru\AbsensiDiri::class)->name('absensi-diri');
+        Route::get('/slip-gaji', \App\Livewire\Guru\SlipGajiSaya::class)->name('slip-gaji');
         Route::get('/jadwal-mengajar', \App\Livewire\Guru\JadwalMengajar::class)->name('jadwal-mengajar');
         Route::get('/piket', \App\Livewire\TataUsaha\ManajemenPiketGuru::class)->name('piket');
         Route::get('/kelola-rapor', \App\Livewire\Guru\KelolaRapor::class)->name('kelola-rapor');
@@ -213,6 +217,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/export/tunggakan', [\App\Http\Controllers\FinanceExportController::class, 'exportTunggakan'])->name('export.tunggakan');
         Route::get('/export/pemasukan', [\App\Http\Controllers\FinanceExportController::class, 'exportPemasukan'])->name('export.pemasukan');
         Route::get('/export/pengeluaran', [\App\Http\Controllers\FinanceExportController::class, 'exportPengeluaran'])->name('export.pengeluaran');
+
+        // PDF Previews & Direct Downloads
+        Route::get('/laporan/pengeluaran/pdf', [\App\Http\Controllers\FinanceReportController::class, 'laporanPengeluaranPdf'])->name('laporan.pengeluaran.pdf');
+        Route::get('/laporan/pemasukan/pdf', [\App\Http\Controllers\FinanceReportController::class, 'laporanPemasukanPdf'])->name('laporan.pemasukan.pdf');
+        Route::get('/laporan/tunggakan/pdf', [\App\Http\Controllers\FinanceReportController::class, 'laporanTunggakanPdf'])->name('laporan.tunggakan.pdf');
     });
 
 });

@@ -1,16 +1,16 @@
 <div class="space-y-6 font-sans">
     <!-- Header Title Bar -->
     <x-page-header 
-        title="Kalender Akademik &amp; Hari Libur" 
+        title="Kalender Akademik & Hari Libur" 
         subtitle="Pengelolaan jadwal libur semester, libur keagamaan, dan kegiatan akademik yayasan."
-        badge="KALENDER AKADEMIK &amp; LIBUR"
+        badge="KALENDER AKADEMIK & LIBUR"
         badgeVariant="emerald"
         icon="calendar"
     >
         @if ($canManage)
             <x-slot:actions>
                 <x-button variant="secondary" size="md" icon="settings" wire:click="openTahunAjaranModal">
-                    Kelola Tahun Ajaran &amp; Semester
+                    Kelola Tahun Ajaran & Semester
                 </x-button>
                 <x-button variant="primary" size="md" icon="plus" wire:click="openCreateModal">
                     Tambah Agenda / Hari Libur
@@ -226,7 +226,7 @@
     <!-- Floating Modal: Kelola & Hapus / Buat Tahun Ajaran -->
     <x-floating-card 
         :show="$showTahunAjaranModal ? true : false"
-        title="Kelola Tahun Ajaran &amp; Aktivasi Semester"
+        title="Kelola Tahun Ajaran & Aktivasi Semester"
         subtitle="Tambah tahun ajaran baru, atur status aktif 1-click, atau hapus periode kosong."
         badge="PENGATURAN PERIODE"
         badgeVariant="emerald"
@@ -237,7 +237,7 @@
         <div class="space-y-4">
             <!-- Form Buat Tahun Ajaran Baru -->
             <div class="p-4 bg-stone-50 border border-stone-200 rounded-2xl space-y-3">
-                <h4 class="text-xs font-bold text-stone-800 uppercase tracking-wider">Buat Tahun Ajaran &amp; Tentukan Tanggal Semester</h4>
+                <h4 class="text-xs font-bold text-stone-800 uppercase tracking-wider">Buat Tahun Ajaran & Tentukan Tanggal Semester</h4>
                 <form wire:submit.prevent="createTahunAjaran" class="space-y-3">
                     <div class="space-y-1">
                         <label class="text-xs font-bold text-stone-700 uppercase">Nama Tahun Ajaran <span class="text-rose-600">*</span></label>
@@ -285,7 +285,7 @@
 
                     <div class="flex justify-end pt-1">
                         <x-button type="submit" variant="primary" size="sm" icon="plus" loadingTarget="createTahunAjaran">
-                            Simpan Tahun Ajaran &amp; Tanggal Semester
+                            Simpan Tahun Ajaran & Tanggal Semester
                         </x-button>
                     </div>
                 </form>
@@ -295,7 +295,7 @@
             @if ($editingSemesterId)
                 <div class="p-4 bg-amber-50 border border-amber-300 rounded-2xl space-y-3">
                     <div class="flex justify-between items-center">
-                        <h4 class="text-xs font-extrabold text-amber-900 uppercase tracking-wider">Edit Tanggal Awal &amp; Akhir Semester</h4>
+                        <h4 class="text-xs font-extrabold text-amber-900 uppercase tracking-wider">Edit Tanggal Awal & Akhir Semester</h4>
                         <button type="button" wire:click="$set('editingSemesterId', null)" class="text-amber-700 hover:text-amber-950 font-bold text-xs flex items-center gap-1 cursor-pointer">
                             <span>Batal Edit</span>
                             <x-lucide-x class="w-3.5 h-3.5" />
@@ -323,7 +323,7 @@
 
             <!-- Tabel Daftar Tahun Ajaran & Semester -->
             <div class="space-y-3">
-                <h4 class="text-xs font-bold text-stone-800 uppercase tracking-wider">Daftar Periode Tahun Ajaran &amp; Tanggal Semester</h4>
+                <h4 class="text-xs font-bold text-stone-800 uppercase tracking-wider">Daftar Periode Tahun Ajaran & Tanggal Semester</h4>
                 <div class="space-y-2.5 max-h-[320px] overflow-y-auto pr-1">
                     @forelse ($tahunAjarans as $ta)
                         <div class="p-3.5 border {{ $ta->status_aktif ? 'border-emerald-500 bg-emerald-50/50' : 'border-stone-200 bg-white' }} rounded-2xl flex flex-col justify-between gap-3 shadow-xs">

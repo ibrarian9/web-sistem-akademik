@@ -2,13 +2,13 @@
     <!-- Header Title Bar -->
     <x-page-header 
         title="Arus Kas (Cash Flow)" 
-        subtitle="Buku kas &amp; jurnal terpadu arus masuk (SPP, Infaq, Tabungan) serta arus keluar (Operasional, Gaji, Kasbon)."
+        subtitle="Buku kas & jurnal terpadu arus masuk (SPP, Infaq, Tabungan) serta arus keluar (Operasional, Gaji, Kasbon)."
         badge="BUKU KAS UTAMA"
         badgeVariant="emerald"
         icon="layers"
     >
         <x-slot:actions>
-            <x-button variant="outline" size="sm" icon="file-text" wire:click="exportPdf">
+            <x-button variant="outline" size="sm" icon="file-text" wire:click="exportPdf" :disabled="$paginatedTransactions->total() === 0" title="{{ $paginatedTransactions->total() === 0 ? 'Tidak ada transaksi untuk diekspor' : 'Ekspor Dokumen PDF' }}">
                 Ekspor PDF
             </x-button>
             <x-button variant="primary" size="sm" icon="plus" wire:click="openIncomeModal">
@@ -125,7 +125,7 @@
         <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
             <h3 class="text-sm font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-2 border-b border-stone-100 pb-3">
                 <x-lucide-pie-chart class="w-4 h-4 text-emerald-700" />
-                <span>Rincian Sumber &amp; Beban</span>
+                <span>Rincian Sumber & Beban</span>
             </h3>
 
             <!-- Kas Masuk Breakdown -->
@@ -133,11 +133,11 @@
                 <h4 class="text-[11px] font-extrabold text-emerald-700 uppercase tracking-wider">Sumber Penerimaan (Kas Masuk):</h4>
                 <div class="space-y-1.5 text-xs">
                     <div class="flex justify-between items-center bg-emerald-50/50 p-2 rounded-xl border border-emerald-100">
-                        <span class="font-bold text-stone-700">SPP &amp; Tagihan Siswa</span>
+                        <span class="font-bold text-stone-700">SPP & Tagihan Siswa</span>
                         <span class="font-black text-emerald-800">Rp {{ number_format($totalTagihanSpp, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between items-center bg-emerald-50/50 p-2 rounded-xl border border-emerald-100">
-                        <span class="font-bold text-stone-700">Kas Infaq &amp; Donasi</span>
+                        <span class="font-bold text-stone-700">Kas Infaq & Donasi</span>
                         <span class="font-black text-emerald-800">Rp {{ number_format($totalKasYayasan, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between items-center bg-emerald-50/50 p-2 rounded-xl border border-emerald-100">
@@ -156,7 +156,7 @@
                         <span class="font-black text-rose-700">Rp {{ number_format($totalOperasional, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between items-center bg-rose-50/50 p-2 rounded-xl border border-rose-100">
-                        <span class="font-bold text-stone-700">Gaji &amp; Honor Guru</span>
+                        <span class="font-bold text-stone-700">Gaji & Honor Guru</span>
                         <span class="font-black text-rose-700">Rp {{ number_format($totalGaji, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between items-center bg-rose-50/50 p-2 rounded-xl border border-rose-100">
@@ -209,7 +209,7 @@
 
             @if ($tab === 'semua' || $tab === 'masuk')
                 <button type="button" wire:click="selectStream('spp')" class="px-2.5 py-1 rounded-lg text-xs font-bold border {{ $stream === 'spp' ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100' }}">
-                    SPP &amp; Tagihan Siswa
+                    SPP & Tagihan Siswa
                 </button>
                 <button type="button" wire:click="selectStream('infaq')" class="px-2.5 py-1 rounded-lg text-xs font-bold border {{ $stream === 'infaq' ? 'bg-amber-600 text-white border-amber-600' : 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100' }}">
                     Kas Masuk Yayasan (Infaq)

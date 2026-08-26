@@ -1,4 +1,89 @@
-<div class="space-y-6 font-sans">
+<div class="space-y-6 font-sans"
+    x-data="{
+        classChart: null,
+        roleChart: null,
+        initCharts() {
+            if (typeof window.Chart === 'undefined') return;
+
+            // 1. Class Distribution Bar Chart
+            const classCtx = document.getElementById('adminClassDistributionChart');
+            if (classCtx) {
+                if (this.classChart) this.classChart.destroy();
+                this.classChart = new window.Chart(classCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: @js($classLabels),
+                        datasets: [{
+                            label: 'Jumlah Santri',
+                            data: @js($classStudentCounts),
+                            backgroundColor: '#059669',
+                            borderRadius: 8,
+                            hoverBackgroundColor: '#047857'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => `${ctx.raw} Santri Aktif`
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#f5f5f4' },
+                                ticks: { stepSize: 5, font: { size: 10 } }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { size: 11, weight: 'bold' } }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 2. User Role Distribution Doughnut Chart
+            const roleCtx = document.getElementById('adminRoleDistributionChart');
+            if (roleCtx) {
+                if (this.roleChart) this.roleChart.destroy();
+                this.roleChart = new window.Chart(roleCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: @js($roleLabels),
+                        datasets: [{
+                            data: @js($roleUserCounts),
+                            backgroundColor: ['#059669', '#3b82f6', '#f59e0b', '#8b5cf6', '#64748b'],
+                            borderWidth: 2,
+                            borderColor: '#ffffff',
+                            hoverOffset: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '65%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    boxWidth: 10,
+                                    usePointStyle: true,
+                                    font: { family: 'inherit', size: 10, weight: 'bold' }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    }"
+    x-init="initCharts()"
+>
     <!-- Header Title Bar -->
     <x-page-header 
         title="Selamat Datang, {{ auth()->user()->nama }}" 
@@ -24,6 +109,35 @@
         <x-stat-card title="Total Guru & Staf" :value="$totalGuru" icon="user-check" color="blue" />
         <x-stat-card title="Total Kelas" :value="$totalKelas" icon="calendar" color="amber" />
         <x-stat-card title="Tunggakan SPP" :value="$totalTunggakan" icon="wallet" color="red" />
+    </div>
+
+    <!-- Visual Interactive Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Class Student Count Bar Chart -->
+        <div class="lg:col-span-2">
+            <x-chart-card 
+                title="Sebaran Santri per Rombel Kelas" 
+                subtitle="Populasi siswa aktif yang terdaftar di masing-masing kelas."
+                icon="bar-chart-2"
+                badge="SEBARAN ROMBEL"
+                badgeVariant="emerald"
+                canvasId="adminClassDistributionChart"
+                height="260px"
+            />
+        </div>
+
+        <!-- Role User Distribution Doughnut Chart -->
+        <div>
+            <x-chart-card 
+                title="Distribusi Akun & Hak Akses" 
+                subtitle="Komposisi pengguna terdaftar berdasarkan peran."
+                icon="pie-chart"
+                badge="ROLE PENGGUNA"
+                badgeVariant="stone"
+                canvasId="adminRoleDistributionChart"
+                height="260px"
+            />
+        </div>
     </div>
 
     <!-- Action Items / Quick Links -->
@@ -76,7 +190,7 @@
 
         <!-- System Alerts / Status -->
         <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
-            <h3 class="text-xs font-extrabold text-stone-800 uppercase tracking-wider">Status Sistem &amp; Server</h3>
+            <h3 class="text-xs font-extrabold text-stone-800 uppercase tracking-wider">Status Sistem & Server</h3>
             <div class="space-y-3 text-xs">
                 <div class="p-3 bg-stone-50 rounded-xl flex items-center justify-between border border-stone-200">
                     <div class="flex items-center gap-2.5">
@@ -102,9 +216,9 @@
                 <div class="p-3 bg-stone-50 rounded-xl flex items-center justify-between border border-stone-200">
                     <div class="flex items-center gap-2.5">
                         <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full"></span>
-                        <span class="font-bold text-stone-800">Waktu Server</span>
+                        <span class="font-bold text-stone-800">Zona Waktu</span>
                     </div>
-                    <span class="font-mono text-stone-600 font-bold">{{ date('H:i') }} WIB</span>
+                    <span class="font-mono text-stone-600 font-bold">{{ config('app.timezone') }}</span>
                 </div>
             </div>
         </div>

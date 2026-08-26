@@ -7,6 +7,9 @@ use chillerlan\QRCode\QROptions;
 use App\Models\Pengaturan;
 use App\Models\User;
 
+use chillerlan\QRCode\Output\QRGdImagePNG;
+use Illuminate\Support\Facades\Cache;
+
 class ESignatureService
 {
     /**
@@ -29,25 +32,30 @@ class ESignatureService
     }
 
     /**
-     * Generate high-resolution SVG Base64 Data URI for QR Code.
+     * Generate high-resolution PNG Base64 Data URI for QR Code.
      */
     public static function generateQrCode(string $content): string
     {
-        try {
-            $options = new QROptions([
-                'version'          => 5,
-                'outputBase64'     => true,
-                'scale'            => 10,
-                'margin'           => 1,
-                'imageTransparent' => false,
-            ]);
+        $cacheKey = 'qr_code_' . md5($content);
 
-            return (new QRCode($options))->render($content);
-        } catch (\Throwable $e) {
-            // Fallback SVG representation if anything fails
-            $encodedUrl = rawurlencode($content);
-            return "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><rect width='140' height='140' fill='%23f1f5f9'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='11' font-weight='bold' fill='%23059669'>VERIFIED QR</text></svg>";
-        }
+        return Cache::remember($cacheKey, 86400, function () use ($content) {
+            try {
+                $options = new QROptions([
+                    'version'          => 5,
+                    'outputBase64'     => true,
+                    'outputInterface'  => QRGdImagePNG::class,
+                    'scale'            => 4,
+                    'margin'           => 1,
+                    'imageTransparent' => false,
+                ]);
+
+                return (new QRCode($options))->render($content);
+            } catch (\Throwable $e) {
+                // Fallback SVG representation if anything fails
+                $encodedUrl = rawurlencode($content);
+                return "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><rect width='140' height='140' fill='%23f1f5f9'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='11' font-weight='bold' fill='%23059669'>VERIFIED QR</text></svg>";
+            }
+        });
     }
 
     /**

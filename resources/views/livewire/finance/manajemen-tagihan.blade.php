@@ -3,7 +3,7 @@
     <x-page-header 
         title="Manajemen Tagihan Siswa" 
         subtitle="Buat, filter, edit, dan pantau status tagihan operasional/SPP siswa sesuai nominal masing-masing anak."
-        badge="MANAJEMEN TAGIHAN &amp; SPP"
+        badge="MANAJEMEN TAGIHAN & SPP"
         badgeVariant="emerald"
         icon="file-text"
     >
@@ -527,7 +527,7 @@
                         <div class="flex items-center justify-between gap-2">
                             <span class="text-xs font-extrabold text-stone-900 flex items-center gap-1.5">
                                 <x-lucide-user-plus class="w-4 h-4 text-indigo-600" />
-                                <span>Cari &amp; Tambah Siswa Lintas Kelas</span>
+                                <span>Cari & Tambah Siswa Lintas Kelas</span>
                             </span>
                             @if (count($bulkSelectedSiswaIds) > 0)
                                 <button 

@@ -113,7 +113,8 @@ class RekapNilai extends Component
         $mapel = MataPelajaran::find($this->mapelId);
         $semester = Semester::with('tahunAjaran')->find($this->semesterId);
 
-        $students = Siswa::where('kelas_id', $this->kelasId)
+        $students = Siswa::with('user')
+            ->where('kelas_id', $this->kelasId)
             ->where('siswa.status', 'aktif')
             ->join('users', 'siswa.user_id', '=', 'users.id')
             ->orderBy('users.nama', 'asc')
@@ -198,7 +199,8 @@ class RekapNilai extends Component
     public function downloadPdf()
     {
         $data = $this->getMatrixData();
-        if (!$data['kelas'] || !$data['mapel'] || !$data['semester']) {
+        if (!$data['kelas'] || !$data['mapel'] || !$data['semester'] || empty($data['matrix'])) {
+            session()->flash('error', 'Tidak ada data nilai siswa untuk dicetak.');
             return;
         }
 

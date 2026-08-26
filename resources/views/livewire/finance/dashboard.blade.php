@@ -1,9 +1,141 @@
-<div class="space-y-6 font-sans">
+<div class="space-y-6 font-sans" 
+    x-data="{
+        cashflowChart: null,
+        billStatusChart: null,
+        initCharts() {
+            if (typeof window.Chart === 'undefined') return;
+
+            // 1. Arus Kas Trend Chart
+            const cashflowCtx = document.getElementById('financeCashflowChart');
+            if (cashflowCtx) {
+                if (this.cashflowChart) this.cashflowChart.destroy();
+                this.cashflowChart = new window.Chart(cashflowCtx, {
+                    type: 'line',
+                    data: {
+                        labels: @js($cashflowLabels),
+                        datasets: [
+                            {
+                                label: 'Pemasukan (Rp)',
+                                data: @js($cashflowIncomes),
+                                borderColor: '#059669',
+                                backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                                fill: true,
+                                tension: 0.35,
+                                borderWidth: 2.5,
+                                pointBackgroundColor: '#059669',
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                            },
+                            {
+                                label: 'Pengeluaran (Rp)',
+                                data: @js($cashflowExpenses),
+                                borderColor: '#e11d48',
+                                backgroundColor: 'rgba(244, 63, 94, 0.08)',
+                                fill: true,
+                                tension: 0.35,
+                                borderWidth: 2.5,
+                                pointBackgroundColor: '#e11d48',
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index',
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    boxWidth: 12,
+                                    usePointStyle: true,
+                                    font: { family: 'inherit', size: 11, weight: 'bold' }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label + ': Rp ' + new Intl.NumberFormat('id-ID').format(context.raw);
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#f5f5f4' },
+                                ticks: {
+                                    font: { size: 10 },
+                                    callback: function(value) {
+                                        if (value >= 1000000) return (value / 1000000) + ' Jt';
+                                        if (value >= 1000) return (value / 1000) + ' Rb';
+                                        return value;
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { size: 11, weight: '600' } }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 2. Status Tagihan SPP Doughnut Chart
+            const billStatusCtx = document.getElementById('financeBillStatusChart');
+            if (billStatusCtx) {
+                if (this.billStatusChart) this.billStatusChart.destroy();
+                this.billStatusChart = new window.Chart(billStatusCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Lunas', 'Belum Bayar', 'Sebagian'],
+                        datasets: [{
+                            data: @js($billStatusCounts),
+                            backgroundColor: ['#10b981', '#f43f5e', '#f59e0b'],
+                            borderWidth: 2,
+                            borderColor: '#ffffff',
+                            hoverOffset: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    boxWidth: 10,
+                                    usePointStyle: true,
+                                    font: { family: 'inherit', size: 11, weight: 'bold' }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const count = context.raw;
+                                        return `${context.label}: ${count} Tagihan`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    }"
+    x-init="initCharts()"
+>
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
         title="Panduan Pusat Kendali Keuangan Sekolah (Finance)"
         :steps="[
-            ['title' => 'Ringkasan Kas', 'desc' => 'Pantau saldo total kas, pemasukan bulan berjalan, dan pengeluaran operasional secara realtime.'],
+            ['title' => 'Ringkasan Kas & Tren', 'desc' => 'Pantau saldo kas dan perbandingan grafik arus kas masuk versus pengeluaran operasional 6 bulan.'],
             ['title' => 'Cek Tagihan & SPP', 'desc' => 'Kelola pembayaran SPP siswa, beri persetujuan keringanan, dan buat tagihan rutin bulanan.'],
             ['title' => 'Pengajuan Dana', 'desc' => 'Tinjau proposal pengajuan anggaran belanja dari unit dan beri persetujuan pencairan dana.']
         ]"
@@ -67,6 +199,35 @@
         </div>
     </div>
 
+    <!-- Visual Interactive Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- 6-Month Cashflow Line/Area Chart -->
+        <div class="lg:col-span-2">
+            <x-chart-card 
+                title="Tren Arus Kas 6 Bulan Terakhir" 
+                subtitle="Perbandingan grafik pemasukan kas vs pengeluaran operasional per bulan."
+                icon="line-chart"
+                badge="TREN REAL-TIME"
+                badgeVariant="emerald"
+                canvasId="financeCashflowChart"
+                height="270px"
+            />
+        </div>
+
+        <!-- Tagihan SPP Status Distribution Doughnut Chart -->
+        <div>
+            <x-chart-card 
+                title="Rasio Status Tagihan SPP" 
+                subtitle="Komposisi tagihan lunas, tertunggak, dan dibayar sebagian."
+                icon="pie-chart"
+                badge="STATUS SPP"
+                badgeVariant="amber"
+                canvasId="financeBillStatusChart"
+                height="270px"
+            />
+        </div>
+    </div>
+
     <!-- Content Sections -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Recent Payment Logs -->
@@ -98,76 +259,81 @@
                             <td class="p-3 font-mono font-bold text-xs text-stone-900 border-r border-stone-200">{{ $pay['no_resi'] }}</td>
                             <td class="p-3 text-xs font-bold text-stone-900 border-r border-stone-200">{{ $pay['siswa'] }}</td>
                             <td class="p-3 text-xs font-semibold text-stone-700 border-r border-stone-200">{{ $pay['jenis'] }}</td>
-                            <td class="p-3 text-xs font-black text-emerald-800 text-right border-r border-stone-200">Rp {{ number_format($pay['nominal'], 0, ',', '.') }}</td>
+                            <td class="p-3 text-xs font-black text-emerald-700 text-right border-r border-stone-200">
+                                Rp {{ number_format($pay['nominal'], 0, ',', '.') }}
+                            </td>
                             <td class="p-3 text-xs font-semibold text-stone-600 text-center border-r border-stone-200">{{ $pay['tanggal'] }}</td>
                             <td class="p-3 text-center">
-                                <a href="{{ route('pembayaran.resi', $pay['id']) }}" target="_blank" class="p-1.5 bg-stone-100 hover:bg-emerald-100 text-stone-700 hover:text-emerald-900 rounded-lg inline-flex items-center justify-center border border-stone-300 transition" title="Cetak Resi">
-                                    <x-lucide-printer class="w-3.5 h-3.5" />
+                                <a href="{{ route('finance.resi.print', $pay['id']) }}" target="_blank" class="inline-flex items-center justify-center p-1.5 bg-stone-100 hover:bg-emerald-100 text-stone-600 hover:text-emerald-800 rounded-lg transition" title="Cetak Kuitansi Resi">
+                                    <x-lucide-printer class="w-4 h-4" />
                                 </a>
                             </td>
                         </tr>
                     @empty
-                        <x-table.empty :colspan="6" title="Belum ada transaksi pembayaran masuk" message="Transaksi kasir pembayaran siswa akan tampil di sini." />
+                        <x-table.empty :colspan="6" title="Belum Ada Pembayaran" message="Belum ada transaksi pembayaran masuk yang tercatat." />
                     @endforelse
                 </tbody>
             </x-table>
         </div>
 
-        <!-- Quick Access panel -->
-        <div class="lg:col-span-1 bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
-            <h3 class="text-sm font-extrabold text-stone-900 uppercase tracking-wider border-b border-stone-200 pb-3">
-                Menu Cepat Keuangan
+        <!-- Quick Access Shortcuts -->
+        <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
+            <h3 class="text-sm font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-2 border-b border-stone-200 pb-3">
+                <x-lucide-zap class="w-4 h-4 text-emerald-600" />
+                <span>Aksi Cepat Keuangan</span>
             </h3>
-            
-            <div class="grid grid-cols-1 gap-2.5">
-                <a href="{{ route('finance.input-pembayaran') }}" class="p-3.5 bg-stone-50 border border-stone-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-2xl flex items-center gap-3.5 group transition duration-150">
-                    <div class="p-2.5 bg-emerald-100 text-emerald-700 rounded-xl border border-emerald-300 group-hover:bg-emerald-700 group-hover:text-white transition duration-150 shrink-0">
-                        <x-lucide-plus-circle class="w-4 h-4" />
+
+            <div class="space-y-2.5">
+                <a href="{{ route('finance.input-pembayaran') }}" class="group flex items-center justify-between p-3.5 bg-stone-50 hover:bg-emerald-50/80 border border-stone-200 hover:border-emerald-300 rounded-2xl transition shadow-2xs">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-white border border-stone-200 group-hover:border-emerald-400 group-hover:bg-emerald-600 flex items-center justify-center text-stone-700 group-hover:text-white transition">
+                            <x-lucide-receipt class="w-4 h-4" />
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-black text-stone-900">Input Pembayaran</h4>
+                            <p class="text-[11px] text-stone-500 font-medium">Kasir setoran SPP siswa</p>
+                        </div>
                     </div>
-                    <div>
-                        <h4 class="text-xs font-bold text-stone-900">Input Pembayaran</h4>
-                        <span class="text-[11px] text-stone-500 font-medium block">Catat setoran SPP siswa</span>
-                    </div>
+                    <x-lucide-chevron-right class="w-4 h-4 text-stone-400 group-hover:text-emerald-600 transition" />
                 </a>
 
-                <a href="{{ route('finance.tagihan') }}" class="p-3.5 bg-stone-50 border border-stone-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-2xl flex items-center gap-3.5 group transition duration-150">
-                    <div class="p-2.5 bg-sky-100 text-sky-700 rounded-xl border border-sky-300 group-hover:bg-sky-700 group-hover:text-white transition duration-150 shrink-0">
-                        <x-lucide-file-text class="w-4 h-4" />
+                <a href="{{ route('finance.tagihan') }}" class="group flex items-center justify-between p-3.5 bg-stone-50 hover:bg-emerald-50/80 border border-stone-200 hover:border-emerald-300 rounded-2xl transition shadow-2xs">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-white border border-stone-200 group-hover:border-emerald-400 group-hover:bg-emerald-600 flex items-center justify-center text-stone-700 group-hover:text-white transition">
+                            <x-lucide-file-spreadsheet class="w-4 h-4" />
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-black text-stone-900">Rilis Tagihan Massal</h4>
+                            <p class="text-[11px] text-stone-500 font-medium">Generate SPP bulanan kelas</p>
+                        </div>
                     </div>
-                    <div>
-                        <h4 class="text-xs font-bold text-stone-900">Kelola Tagihan</h4>
-                        <span class="text-[11px] text-stone-500 font-medium block">Buat tagihan SPP bulanan</span>
-                    </div>
+                    <x-lucide-chevron-right class="w-4 h-4 text-stone-400 group-hover:text-emerald-600 transition" />
                 </a>
 
-                <a href="{{ route('finance.tabungan') }}" class="p-3.5 bg-stone-50 border border-stone-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-2xl flex items-center gap-3.5 group transition duration-150">
-                    <div class="p-2.5 bg-purple-100 text-purple-700 rounded-xl border border-purple-300 group-hover:bg-purple-700 group-hover:text-white transition duration-150 shrink-0">
-                        <x-lucide-wallet class="w-4 h-4" />
+                <a href="{{ route('finance.laporan.tunggakan') }}" class="group flex items-center justify-between p-3.5 bg-stone-50 hover:bg-emerald-50/80 border border-stone-200 hover:border-emerald-300 rounded-2xl transition shadow-2xs">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-white border border-stone-200 group-hover:border-emerald-400 group-hover:bg-emerald-600 flex items-center justify-center text-stone-700 group-hover:text-white transition">
+                            <x-lucide-alert-circle class="w-4 h-4" />
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-black text-stone-900">Rekap Tunggakan</h4>
+                            <p class="text-[11px] text-stone-500 font-medium">Monitoring tagihan jatuh tempo</p>
+                        </div>
                     </div>
-                    <div>
-                        <h4 class="text-xs font-bold text-stone-900">Tabungan Siswa</h4>
-                        <span class="text-[11px] text-stone-500 font-medium block">Setor & tarik tabungan</span>
-                    </div>
+                    <x-lucide-chevron-right class="w-4 h-4 text-stone-400 group-hover:text-emerald-600 transition" />
                 </a>
 
-                <a href="{{ route('finance.dana-bos') }}" class="p-3.5 bg-stone-50 border border-stone-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-2xl flex items-center gap-3.5 group transition duration-150">
-                    <div class="p-2.5 bg-amber-100 text-amber-700 rounded-xl border border-amber-300 group-hover:bg-amber-700 group-hover:text-white transition duration-150 shrink-0">
-                        <x-lucide-box class="w-4 h-4" />
+                <a href="{{ route('finance.arus-kas') }}" class="group flex items-center justify-between p-3.5 bg-stone-50 hover:bg-emerald-50/80 border border-stone-200 hover:border-emerald-300 rounded-2xl transition shadow-2xs">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-white border border-stone-200 group-hover:border-emerald-400 group-hover:bg-emerald-600 flex items-center justify-center text-stone-700 group-hover:text-white transition">
+                            <x-lucide-book-open-check class="w-4 h-4" />
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-black text-stone-900">Buku Kas Umum (BKU)</h4>
+                            <p class="text-[11px] text-stone-500 font-medium">Buku kas & saldo riil yayasan</p>
+                        </div>
                     </div>
-                    <div>
-                        <h4 class="text-xs font-bold text-stone-900">Dana BOS (Masuk & Keluar)</h4>
-                        <span class="text-[11px] text-stone-500 font-medium block">Realisasi belanja RKAS BOS</span>
-                    </div>
-                </a>
-
-                <a href="{{ route('finance.arus-kas') }}" class="p-3.5 bg-stone-50 border border-stone-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-2xl flex items-center gap-3.5 group transition duration-150 sm:col-span-2">
-                    <div class="p-2.5 bg-emerald-100 text-emerald-700 rounded-xl border border-emerald-300 group-hover:bg-emerald-700 group-hover:text-white transition duration-150 shrink-0">
-                        <x-lucide-layers class="w-4 h-4" />
-                    </div>
-                    <div>
-                        <h4 class="text-xs font-bold text-stone-900">Arus Kas (Cash Flow)</h4>
-                        <span class="text-[11px] text-stone-500 font-medium block">Pusat jurnal pembukuan, komparasi masuk vs keluar &amp; saldo kas</span>
-                    </div>
+                    <x-lucide-chevron-right class="w-4 h-4 text-stone-400 group-hover:text-emerald-600 transition" />
                 </a>
             </div>
         </div>

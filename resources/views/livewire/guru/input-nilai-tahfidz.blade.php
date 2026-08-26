@@ -1,41 +1,6 @@
 <div class="space-y-6 font-sans">
-    @php
-        $jGuru = strtolower(auth()->user()->guru?->jenis_guru ?? 'umum');
-        if ($jGuru === 'tahfidz') $jGuru = 'tahfizh';
-        $isTahfizh = $jGuru === 'tahfizh';
-        $isUmum = $jGuru === 'umum';
-        $isKeduanya = $jGuru === 'keduanya' || auth()->user()->role?->nama !== 'guru';
-    @endphp
-
-    <!-- Quick Module Switcher Header (Light Theme) -->
-    <div class="flex items-center gap-2 bg-white border border-stone-200 p-2 rounded-2xl overflow-x-auto shadow-xs">
-        @if($isUmum || $isKeduanya)
-            <a href="{{ route('guru.kurikulum-merdeka') }}" wire:navigate class="px-4 py-2.5 rounded-xl text-xs font-bold text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition flex items-center gap-2.5 whitespace-nowrap">
-                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 01-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                <span>Setup Bab &amp; TP</span>
-            </a>
-            <a href="{{ route('guru.input-sumatif') }}" wire:navigate class="px-4 py-2.5 rounded-xl text-xs font-bold text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition flex items-center gap-2.5 whitespace-nowrap">
-                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                <span>Nilai Sumatif</span>
-            </a>
-        @endif
-        @if($isTahfizh || $isKeduanya)
-            <a href="{{ route('guru.input-tahfidz') }}" wire:navigate class="px-4 py-2.5 rounded-xl text-xs font-bold bg-emerald-700 text-white shadow-sm flex items-center gap-2.5 whitespace-nowrap">
-                <svg class="w-4 h-4 text-emerald-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                <span>Setoran Tahfizh</span>
-            </a>
-        @endif
-        @if($isUmum || $isKeduanya)
-            <a href="{{ route('guru.penilaian-p5') }}" wire:navigate class="px-4 py-2.5 rounded-xl text-xs font-bold text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition flex items-center gap-2.5 whitespace-nowrap">
-                <svg class="w-4 h-4 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
-                <span>Penilaian P5</span>
-            </a>
-        @endif
-        <a href="{{ route('guru.kelola-rapor') }}" wire:navigate class="px-4 py-2.5 rounded-xl text-xs font-bold text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition flex items-center gap-2.5 whitespace-nowrap">
-            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-            <span>Lihat Rapor Murid</span>
-        </a>
-    </div>
+    <!-- Quick Module Switcher Navigation -->
+    <x-guru-module-switcher active="tahfidz" />
 
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
@@ -55,7 +20,7 @@
                 <span class="px-3 py-1 bg-emerald-100 border border-emerald-300 text-emerald-900 rounded-full text-xs font-bold uppercase tracking-wider inline-block mb-1">
                     MUTABA'AH HARIAN GURU TAHFIZH
                 </span>
-                <h1 class="text-2xl font-extrabold text-stone-900 tracking-tight">Lembar Mutaba'ah &amp; Setoran Hafalan Santri</h1>
+                <h1 class="text-2xl font-extrabold text-stone-900 tracking-tight">Lembar Mutaba'ah & Setoran Hafalan Santri</h1>
                 <p class="text-stone-600 text-xs font-semibold mt-1">Pencatatan setoran harian per tanggal sekolah: Tahsin, Muraja'ah, Kitabah, dan Ziyadah.</p>
             </div>
             <x-button variant="primary" size="md" icon="plus" wire:click.prevent="openScoreModal" class="self-start lg:self-auto">
@@ -74,7 +39,7 @@
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">Semester &amp; Tahun Ajaran</label>
+                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">Semester & Tahun Ajaran</label>
                 <select wire:model.live="semester_id" class="w-full bg-white border border-stone-300 rounded-xl text-stone-900 px-4 py-2 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-xs">
                     @foreach($semesters as $sem)
                         <option value="{{ $sem->id }}">{{ $sem->tahunAjaran->nama ?? '' }} - {{ ucfirst($sem->semester) }}</option>
@@ -175,41 +140,41 @@
                 </div>
             </div>
 
-            <div class="overflow-x-auto relative">
-                <table class="w-full text-left border-collapse text-xs text-stone-800">
-                    <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+            <div class="overflow-x-auto relative custom-scrollbar">
+                <table class="w-full text-left border-separate border-spacing-0 text-xs text-stone-800">
+                    <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider select-none">
                         <tr>
-                            <th rowspan="2" class="p-3 text-center border-r border-emerald-700 w-10 sticky left-0 bg-emerald-800 text-white z-20">NO</th>
-                            <th rowspan="2" class="p-3 border-r border-emerald-700 min-w-[220px] sticky left-10 bg-emerald-800 text-white z-20">NISN &amp; NAMA SANTRI</th>
-                            <th rowspan="2" class="p-3 text-center border-r border-emerald-700 w-12 text-white">L/P</th>
-                            <th colspan="2" class="p-2 text-center border-r border-emerald-700 bg-emerald-900/60 text-white">TAHSIN</th>
-                            <th colspan="3" class="p-2 text-center border-r border-emerald-700 bg-emerald-900/80 text-white">MURAJA'AH</th>
-                            <th colspan="2" class="p-2 text-center border-r border-emerald-700 bg-emerald-900/60 text-white">KITABAH</th>
-                            <th colspan="2" class="p-2 text-center border-r border-emerald-700 bg-emerald-900/80 text-white">ZIYADAH</th>
-                            <th rowspan="2" class="p-3 text-center border-r border-emerald-700 min-w-[200px] bg-emerald-900/60 text-white font-extrabold">TANGGAPAN ORANG TUA / WALI</th>
-                            <th rowspan="2" class="p-3 text-center min-w-[130px] text-white">AKSI</th>
+                            <th rowspan="2" class="hidden md:table-cell p-3 text-center border-b border-r border-emerald-700 w-12 min-w-[48px] sticky left-0 bg-emerald-800 text-white z-20">NO</th>
+                            <th rowspan="2" class="p-2.5 md:p-3 border-b border-r border-emerald-700 min-w-[130px] max-w-[145px] md:min-w-[220px] md:max-w-none sticky left-0 md:left-12 bg-emerald-800 text-white z-20 shadow-[3px_0_5px_-2px_rgba(0,0,0,0.25)] md:shadow-none">NISN & NAMA SANTRI</th>
+                            <th rowspan="2" class="p-2.5 md:p-3 text-center border-b border-r border-emerald-700 w-12 text-white">L/P</th>
+                            <th colspan="2" class="p-2 text-center border-b border-r border-emerald-700 bg-emerald-900/60 text-white">TAHSIN</th>
+                            <th colspan="3" class="p-2 text-center border-b border-r border-emerald-700 bg-emerald-900/80 text-white">MURAJA'AH</th>
+                            <th colspan="2" class="p-2 text-center border-b border-r border-emerald-700 bg-emerald-900/60 text-white">KITABAH</th>
+                            <th colspan="2" class="p-2 text-center border-b border-r border-emerald-700 bg-emerald-900/80 text-white">ZIYADAH</th>
+                            <th rowspan="2" class="p-3 text-center border-b border-r border-emerald-700 min-w-[200px] bg-emerald-900/60 text-white font-extrabold">TANGGAPAN ORANG TUA / WALI</th>
+                            <th rowspan="2" class="p-3 text-center border-b min-w-[130px] text-white">AKSI</th>
                         </tr>
 
                         <tr>
                             <!-- Tahsin subheaders -->
-                            <th class="p-2 text-center border-r border-emerald-700 min-w-[120px] font-bold text-white">Materi/Ayat</th>
-                            <th class="p-2 text-center border-r border-emerald-700 w-16 bg-emerald-900 font-extrabold text-white">Nilai</th>
+                            <th class="p-2 text-center border-b border-r border-emerald-700 min-w-[120px] font-bold text-white">Materi/Ayat</th>
+                            <th class="p-2 text-center border-b border-r border-emerald-700 w-16 bg-emerald-900 font-extrabold text-white">Nilai</th>
                             
                             <!-- Muraja'ah subheaders -->
-                            <th class="p-2 text-center border-r border-emerald-700 min-w-[90px] font-bold text-white">Bersama</th>
-                            <th class="p-2 text-center border-r border-emerald-700 min-w-[120px] font-bold text-white">Mandiri</th>
-                            <th class="p-2 text-center border-r border-emerald-700 w-16 bg-emerald-900 font-extrabold text-white">Nilai</th>
+                            <th class="p-2 text-center border-b border-r border-emerald-700 min-w-[90px] font-bold text-white">Bersama</th>
+                            <th class="p-2 text-center border-b border-r border-emerald-700 min-w-[120px] font-bold text-white">Mandiri</th>
+                            <th class="p-2 text-center border-b border-r border-emerald-700 w-16 bg-emerald-900 font-extrabold text-white">Nilai</th>
 
                             <!-- Kitabah subheaders -->
-                            <th class="p-2 text-center border-r border-emerald-700 min-w-[120px] font-bold text-white">Materi</th>
-                            <th class="p-2 text-center border-r border-emerald-700 w-16 bg-emerald-900 font-extrabold text-white">Nilai</th>
+                            <th class="p-2 text-center border-b border-r border-emerald-700 min-w-[120px] font-bold text-white">Materi</th>
+                            <th class="p-2 text-center border-b border-r border-emerald-700 w-16 bg-emerald-900 font-extrabold text-white">Nilai</th>
 
                             <!-- Ziyadah subheaders -->
-                            <th class="p-2 text-center border-r border-emerald-700 min-w-[120px] font-bold text-white">Materi</th>
-                            <th class="p-2 text-center border-r border-emerald-700 w-16 bg-emerald-900 font-extrabold text-white">Nilai</th>
+                            <th class="p-2 text-center border-b border-r border-emerald-700 min-w-[120px] font-bold text-white">Materi</th>
+                            <th class="p-2 text-center border-b border-r border-emerald-700 w-16 bg-emerald-900 font-extrabold text-white">Nilai</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-stone-200">
+                    <tbody class="bg-white">
                         @forelse($siswas as $index => $s)
                             @php
                                 $rec = $dailyScores->get($s->id);
@@ -222,20 +187,20 @@
                                 class="hover:bg-emerald-50/70 cursor-pointer transition group"
                                 title="Klik untuk mengedit/mengisi mutaba'ah tanggal {{ \Carbon\Carbon::parse($tanggal)->format('d/m/Y') }} untuk {{ $s->user->nama ?? $s->nama_panggilan }}"
                             >
-                                <!-- No (Sticky Left) -->
-                                <td class="p-3 text-center font-bold text-stone-500 border-r border-stone-200 text-xs sticky left-0 bg-white group-hover:bg-emerald-50/90 z-10">
+                                <!-- No (Desktop Only) -->
+                                <td class="hidden md:table-cell p-3 text-center font-bold text-stone-500 border-b border-r border-stone-200 text-xs sticky left-0 bg-white group-hover:bg-emerald-50/90 z-10">
                                     {{ $index + 1 }}
                                 </td>
 
                                 <!-- NISN & Nama Santri (Sticky Left with Status Pill + Kelas Badge) -->
-                                <td class="p-3 border-r border-stone-200 sticky left-10 bg-white group-hover:bg-emerald-50/90 z-10">
-                                    <div class="font-extrabold text-stone-900 text-xs flex items-center justify-between gap-1">
-                                        <span>{{ strtoupper($s->user->nama ?? $s->nama_panggilan) }}</span>
-                                        <span class="px-2 py-0.5 bg-emerald-100 border border-emerald-300 text-emerald-900 text-[10px] rounded-md font-bold shrink-0">
+                                <td class="p-2.5 md:p-3 border-b border-r-2 md:border-r border-stone-200 sticky left-0 md:left-12 bg-white group-hover:bg-emerald-50/90 z-10 shadow-[3px_0_6px_-2px_rgba(0,0,0,0.12)] md:shadow-none min-w-[130px] max-w-[145px] md:min-w-[220px] md:max-w-none">
+                                    <div class="font-extrabold text-stone-900 text-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                                        <span class="truncate">{{ strtoupper($s->user->nama ?? $s->nama_panggilan) }}</span>
+                                        <span class="px-1.5 py-0.5 bg-emerald-100 border border-emerald-300 text-emerald-900 text-[9px] sm:text-[10px] rounded-md font-bold shrink-0 self-start sm:self-auto">
                                             {{ $s->kelas->nama_kelas ?? 'Kelas -' }}
                                         </span>
                                     </div>
-                                    <div class="flex items-center gap-2 mt-1">
+                                    <div class="flex items-center gap-1.5 mt-1">
                                         <span class="text-[10px] text-stone-500 font-medium">NISN: {{ $s->nisn }}</span>
                                         @if($isFilled)
                                             <span class="px-1.5 py-0.5 bg-emerald-100 border border-emerald-300 text-emerald-800 rounded text-[9px] font-bold inline-flex items-center gap-1">
@@ -250,45 +215,45 @@
                                     </div>
                                 </td>
 
-                                <td class="p-3 text-center font-bold text-stone-600 border-r border-stone-200">{{ $gender }}</td>
+                                <td class="p-3 text-center font-bold text-stone-600 border-b border-r border-stone-200">{{ $gender }}</td>
                                 
                                 <!-- Tahsin -->
-                                <td class="p-2 border-r border-stone-200 text-stone-700 font-medium text-center">
+                                <td class="p-2 border-b border-r border-stone-200 text-stone-700 font-medium text-center">
                                     {{ $rec?->materi_tahsin ?? '-' }}
                                 </td>
-                                <td class="p-2 text-center border-r border-stone-200 bg-emerald-50/40 font-black text-emerald-950">
+                                <td class="p-2 text-center border-b border-r border-stone-200 bg-emerald-50/40 font-black text-emerald-950">
                                     {{ ($rec && $rec->nilai_tahsin !== null) ? round($rec->nilai_tahsin) : '-' }}
                                 </td>
 
                                 <!-- Muraja'ah -->
-                                <td class="p-2 border-r border-stone-200 text-stone-700 font-medium text-center">
+                                <td class="p-2 border-b border-r border-stone-200 text-stone-700 font-medium text-center">
                                     {{ $rec?->murajaah_bersama ?? '-' }}
                                 </td>
-                                <td class="p-2 border-r border-stone-200 text-stone-700 font-medium text-center">
+                                <td class="p-2 border-b border-r border-stone-200 text-stone-700 font-medium text-center">
                                     {{ $rec?->murajaah_mandiri ?? '-' }}
                                 </td>
-                                <td class="p-2 text-center border-r border-stone-200 bg-emerald-50/40 font-black text-emerald-950">
+                                <td class="p-2 text-center border-b border-r border-stone-200 bg-emerald-50/40 font-black text-emerald-950">
                                     {{ ($rec && $rec->nilai_murajaah !== null) ? round($rec->nilai_murajaah) : '-' }}
                                 </td>
 
                                 <!-- Kitabah -->
-                                <td class="p-2 border-r border-stone-200 text-stone-700 font-medium text-center">
+                                <td class="p-2 border-b border-r border-stone-200 text-stone-700 font-medium text-center">
                                     {{ $rec?->materi_kitabah ?? '-' }}
                                 </td>
-                                <td class="p-2 text-center border-r border-stone-200 bg-emerald-50/40 font-black text-emerald-950">
+                                <td class="p-2 text-center border-b border-r border-stone-200 bg-emerald-50/40 font-black text-emerald-950">
                                     {{ ($rec && $rec->nilai_kitabah !== null) ? round($rec->nilai_kitabah) : '-' }}
                                 </td>
 
                                 <!-- Ziyadah -->
-                                <td class="p-2 border-r border-stone-200 text-stone-700 font-medium text-center">
+                                <td class="p-2 border-b border-r border-stone-200 text-stone-700 font-medium text-center">
                                     {{ $rec?->materi_ziyadah ?? '-' }}
                                 </td>
-                                <td class="p-2 text-center border-r border-stone-200 bg-emerald-50/40 font-black text-emerald-950">
+                                <td class="p-2 text-center border-b border-r border-stone-200 bg-emerald-50/40 font-black text-emerald-950">
                                     {{ ($rec && $rec->nilai_ziyadah !== null) ? round($rec->nilai_ziyadah) : '-' }}
                                 </td>
 
                                 <!-- Tanggapan Orang Tua -->
-                                <td class="p-2 border-r border-stone-200 text-stone-700 text-[11px]">
+                                <td class="p-2 border-b border-r border-stone-200 text-stone-700 text-[11px]">
                                     @if($rec && $rec->tanggapan_orang_tua)
                                         <div class="bg-emerald-50 p-2 rounded-lg border border-emerald-200 text-emerald-950 shadow-xs">
                                             <div class="font-medium italic text-[11px]">"{{ $rec->tanggapan_orang_tua }}"</div>
@@ -300,7 +265,7 @@
                                 </td>
 
                                 <!-- AKSI / Edit & Delete -->
-                                <td class="p-2 text-center" @click.stop>
+                                <td class="p-2 border-b text-center" @click.stop>
                                     @if($rec)
                                         <div class="flex items-center justify-center gap-1.5">
                                             <x-button type="button" variant="secondary" size="xs" icon="edit-3" wire:click.prevent="editScore({{ $rec->id }})" title="Edit Mutaba'ah">
@@ -497,7 +462,7 @@
 
     <!-- MODAL FORM MUTABA'AH GURU TAHFIZH -->
     @if($showScoreModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs">
+        <div class="fixed inset-0 z-50 flex items-center justify-center lg:pl-64 p-4 lg:p-8 bg-stone-900/60 backdrop-blur-xs">
             <div class="bg-white border border-stone-200 rounded-3xl p-6 shadow-2xl max-w-2xl w-full space-y-4">
                 <div class="flex items-center justify-between border-b border-stone-200 pb-3">
                     <h3 class="text-sm font-extrabold text-emerald-950 uppercase tracking-wider flex items-center gap-2">

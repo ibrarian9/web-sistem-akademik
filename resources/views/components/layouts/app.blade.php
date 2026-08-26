@@ -97,6 +97,18 @@
                 </div>
 
                 <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+                    <!-- Command Palette Search Button -->
+                    <button 
+                        type="button" 
+                        @click="$dispatch('open-command-palette')" 
+                        class="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-stone-100 hover:bg-stone-200/80 text-stone-500 rounded-xl text-xs font-semibold border border-stone-200 transition cursor-pointer shadow-2xs"
+                        title="Pencarian Cepat Menu dan Fitur (Ctrl + K)"
+                    >
+                        <x-lucide-search class="w-3.5 h-3.5 text-stone-400" />
+                        <span>Cari menu...</span>
+                        <kbd class="text-[10px] bg-white border border-stone-300 px-1.5 py-0.5 rounded shadow-2xs font-mono font-bold text-stone-500">Ctrl K</kbd>
+                    </button>
+
                     <!-- Notification Bell Dropdown -->
                     @livewire('shared.notification-dropdown')
 
@@ -124,15 +136,18 @@
         </div>
     </div>
 
+    <!-- Command Palette (Ctrl+K) -->
+    <x-command-palette />
+
+    <!-- Global Floating Toast Notification -->
+    <x-toast-notification />
+
     <!-- MicroModal Alert / Confirm Component -->
-    <x-micromodal-notification />
+    <x-micromodal-notification rounded="rounded-2xl" badgeRounded="rounded-xl" categoryRounded="rounded-lg" />
 
     <!-- Accessibility Menu -->
     <x-accessibility-menu />
 
     @livewireScripts
-
-    <!-- Global MicroModal Alert, Confirm Dialog & Toast Notification Component -->
-    <x-micromodal-notification rounded="rounded-2xl" badgeRounded="rounded-xl" categoryRounded="rounded-lg" />
 </body>
 </html>

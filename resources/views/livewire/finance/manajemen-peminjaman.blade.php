@@ -3,7 +3,7 @@
     <x-page-header 
         title="Manajemen Peminjaman / Kasbon Guru" 
         subtitle="Kelola pinjaman kasbon guru beserta riwayat cicilan bulanan yang terintegrasi dengan pemotongan slip gaji."
-        badge="FASILITAS KASBON &amp; PINJAMAN"
+        badge="FASILITAS KASBON & PINJAMAN"
         badgeVariant="emerald"
         icon="link"
     >

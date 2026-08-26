@@ -1,7 +1,9 @@
 import MicroModal from 'micromodal';
+import Chart from 'chart.js/auto';
 
-// Expose MicroModal globally
+// Expose globally
 window.MicroModal = MicroModal;
+window.Chart = Chart;
 
 // Initialize MicroModal
 document.addEventListener('DOMContentLoaded', () => {

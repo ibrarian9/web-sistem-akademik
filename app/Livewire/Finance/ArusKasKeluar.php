@@ -187,6 +187,11 @@ class ArusKasKeluar extends Component
 
         $data = $query->get();
 
+        if ($data->isEmpty()) {
+            session()->flash('error', 'Tidak dapat mengunduh PDF karena tidak ada catatan pengeluaran pada periode terpilih.');
+            return;
+        }
+
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('livewire.shared.laporan.pdf-laporan-kas-keluar', [
             'data' => $data,
             'kategori' => $this->filterKategori ? (\App\Models\KategoriPengeluaran::find($this->filterKategori)?->nama ?? 'Semua') : 'Semua Kategori',
@@ -194,7 +199,7 @@ class ArusKasKeluar extends Component
         ])->setPaper('a4', 'portrait');
 
         return response()->streamDownload(function () use ($pdf) {
-            echo $pdf->stream();
+            echo $pdf->output();
         }, 'laporan_kas_keluar_' . date('Ymd_His') . '.pdf');
     }
 

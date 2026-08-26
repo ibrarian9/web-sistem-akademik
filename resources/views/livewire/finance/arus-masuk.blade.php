@@ -2,7 +2,7 @@
     <!-- Header Title Bar -->
     <x-page-header 
         title="Buku Rekapitulasi Arus Masuk" 
-        subtitle="Rekapitulasi seluruh pemasukan dana sekolah: SPP, Uang Tahunan, Pembangunan, Dana BOS, &amp; Infaq Kas Yayasan."
+        subtitle="Rekapitulasi seluruh pemasukan dana sekolah: SPP, Uang Tahunan, Pembangunan, Dana BOS, & Infaq Kas Yayasan."
         badge="BUKU KAS MASUK"
         badgeVariant="emerald"
         icon="book-open"

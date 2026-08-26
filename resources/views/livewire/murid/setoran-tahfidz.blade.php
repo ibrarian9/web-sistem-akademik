@@ -97,7 +97,7 @@
                 <tr>
                     <x-table.th align="center" class="w-12">No</x-table.th>
                     <x-table.th class="min-w-[160px]">Tahsin Al-Qur'an</x-table.th>
-                    <x-table.th class="min-w-[180px]">Muraja'ah (Bersama &amp; Mandiri)</x-table.th>
+                    <x-table.th class="min-w-[180px]">Muraja'ah (Bersama & Mandiri)</x-table.th>
                     <x-table.th class="min-w-[150px]">Kitabah (Menulis)</x-table.th>
                     <x-table.th class="min-w-[160px]">Ziyadah (Hafalan Baru)</x-table.th>
                     <x-table.th class="min-w-[200px]">Catatan Ustadz</x-table.th>

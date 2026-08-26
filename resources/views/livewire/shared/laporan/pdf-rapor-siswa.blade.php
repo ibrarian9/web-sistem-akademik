@@ -132,7 +132,7 @@
                 <th width="5%">No</th>
                 <th width="25%">Mata Pelajaran</th>
                 <th width="12%">Nilai Akhir</th>
-                <th width="58%">Capaian Kompetensi &amp; Deskripsi</th>
+                <th width="58%">Capaian Kompetensi & Deskripsi</th>
             </tr>
         </thead>
         <tbody>
@@ -183,7 +183,7 @@
                 <tr>
                     <th width="5%">No</th>
                     <th width="30%">Ekstrakurikuler</th>
-                    <th width="65%">Keterangan &amp; Capaian</th>
+                    <th width="65%">Keterangan & Capaian</th>
                 </tr>
             </thead>
             <tbody>
@@ -246,7 +246,7 @@
             <td width="65%" style="padding-left: 6px;">
                 <div class="bg-green-header">Keputusan Kenaikan Kelas :</div>
                 <div class="box-border" style="font-size: 8.5pt; min-height: 50px;">
-                    <p style="margin: 0 0 4px 0;">Berdasarkan pencapaian seluruh kompetensi akademik &amp; target Tahfizh, dinyatakan :</p>
+                    <p style="margin: 0 0 4px 0;">Berdasarkan pencapaian seluruh kompetensi akademik & target Tahfizh, dinyatakan :</p>
                     <p style="margin: 0; font-size: 9.5pt;" class="font-bold">
                         <span style="display: inline-block; width: 140px;">Naik / <span class="strike">Tinggal</span> *) kelas</span>
                         <span style="font-size: 10pt; float: right; margin-right: 15px;">VI (ENAM)</span>

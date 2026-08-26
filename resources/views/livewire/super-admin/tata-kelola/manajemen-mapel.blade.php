@@ -3,7 +3,7 @@
     <x-page-header 
         title="Manajemen Mata Pelajaran" 
         subtitle="Kelola daftar kurikulum mata pelajaran umum, keagamaan, tahfizh, dan muatan lokal."
-        badge="KURIKULUM &amp; MAPEL"
+        badge="KURIKULUM & MAPEL"
         badgeVariant="emerald"
         icon="book-open"
     >

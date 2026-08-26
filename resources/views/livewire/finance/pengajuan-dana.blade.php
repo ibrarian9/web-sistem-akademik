@@ -3,7 +3,7 @@
     <x-page-header 
         title="Pengajuan Penggunaan Dana" 
         subtitle="Menu pengajuan anggaran belanja operasional (buku, seragam, sarpras) dengan persetujuan bertingkat."
-        badge="ANGGARAN &amp; PENGAJUAN DANA"
+        badge="ANGGARAN & PENGAJUAN DANA"
         badgeVariant="emerald"
         icon="banknote"
     >
@@ -60,7 +60,7 @@
             <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
                 <tr>
                     <x-table.th class="w-36">No. Pengajuan</x-table.th>
-                    <x-table.th class="min-w-[200px]">Judul &amp; Kategori</x-table.th>
+                    <x-table.th class="min-w-[200px]">Judul & Kategori</x-table.th>
                     <x-table.th align="right" class="w-44">Jumlah Anggaran</x-table.th>
                     <x-table.th align="center" class="w-36">Pemohon</x-table.th>
                     <x-table.th align="center" class="w-48">Status Approval</x-table.th>
