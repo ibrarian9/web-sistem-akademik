@@ -100,8 +100,8 @@
     "semantic_hash": ""
   },
   "app/Livewire/Finance/ManajemenGajiGuru.php": {
-    "mtime": 1787920664.9185636,
-    "ast_hash": "f69f7daa31fab1abf18c832e3ca4f868",
+    "mtime": 1787926726.5702214,
+    "ast_hash": "200f8957747b020f09642be3ea3bd45f",
     "semantic_hash": ""
   },
   "app/Livewire/Finance/ManajemenPeminjaman.php": {
@@ -370,9 +370,9 @@
     "semantic_hash": ""
   },
   "app/Models/BobotNilaiGuru.php": {
-    "mtime": 1784291657.6838617,
-    "ast_hash": "f58fbb39768bfbb620184bda47b42bc8",
-    "semantic_hash": "f58fbb39768bfbb620184bda47b42bc8"
+    "mtime": 1787922282.4005916,
+    "ast_hash": "8ebc0edb4e2a3cea98e1cee886564b81",
+    "semantic_hash": ""
   },
   "app/Models/DanaBos.php": {
     "mtime": 1787258593.1647336,
@@ -405,14 +405,14 @@
     "semantic_hash": "ae963c871991a157720ea389426dc530"
   },
   "app/Models/JadwalPelajaran.php": {
-    "mtime": 1784158426.2255597,
-    "ast_hash": "8b20fa5a761af8cedb03a5928335d484",
-    "semantic_hash": "8b20fa5a761af8cedb03a5928335d484"
+    "mtime": 1787922237.1442268,
+    "ast_hash": "d98fe4fbfee717ba99b5895f36cefb59",
+    "semantic_hash": ""
   },
   "app/Models/JadwalPiketGuru.php": {
-    "mtime": 1784291649.8138204,
-    "ast_hash": "32d5114ea175f87dcd0e05db704471db",
-    "semantic_hash": "32d5114ea175f87dcd0e05db704471db"
+    "mtime": 1787922244.3912852,
+    "ast_hash": "d7a6a649eb3d55787120d786f0f7816b",
+    "semantic_hash": ""
   },
   "app/Models/JenisTagihan.php": {
     "mtime": 1787258621.6343143,
@@ -420,9 +420,9 @@
     "semantic_hash": ""
   },
   "app/Models/KalenderAkademik.php": {
-    "mtime": 1784625050.4825747,
-    "ast_hash": "003dcc0793a13af83ccbe3e82650389a",
-    "semantic_hash": "003dcc0793a13af83ccbe3e82650389a"
+    "mtime": 1787922211.39602,
+    "ast_hash": "2617562d1e1cbde274d3c5febaf32e1b",
+    "semantic_hash": ""
   },
   "app/Models/KategoriPengeluaran.php": {
     "mtime": 1787258628.3004482,
@@ -435,14 +435,14 @@
     "semantic_hash": ""
   },
   "app/Models/KomponenNilai.php": {
-    "mtime": 1784158427.2415395,
-    "ast_hash": "e544c33971bfb8527c14730acaa0a8eb",
-    "semantic_hash": "e544c33971bfb8527c14730acaa0a8eb"
+    "mtime": 1787922251.9813461,
+    "ast_hash": "11cde5659bc56214f4d94c41ea28230f",
+    "semantic_hash": ""
   },
   "app/Models/LingkupMateri.php": {
-    "mtime": 1785734258.479532,
-    "ast_hash": "8f041a78bc8796e81b5293eacb589f02",
-    "semantic_hash": "8f041a78bc8796e81b5293eacb589f02"
+    "mtime": 1787922220.2530909,
+    "ast_hash": "ff49a8e553823c6d875e03bb8d742181",
+    "semantic_hash": ""
   },
   "app/Models/MataPelajaran.php": {
     "mtime": 1787258676.8804011,
@@ -455,19 +455,19 @@
     "semantic_hash": ""
   },
   "app/Models/NilaiP5.php": {
-    "mtime": 1785736276.468921,
-    "ast_hash": "91b29f674b55fa2431d9987bf00651a7",
-    "semantic_hash": "91b29f674b55fa2431d9987bf00651a7"
+    "mtime": 1787922193.343875,
+    "ast_hash": "4319217c4b7c8e9167c6155b6df6535f",
+    "semantic_hash": ""
   },
   "app/Models/NilaiSas.php": {
-    "mtime": 1785734271.969811,
-    "ast_hash": "cbf4020b52877fb1e6d12833ffa6f28a",
-    "semantic_hash": "cbf4020b52877fb1e6d12833ffa6f28a"
+    "mtime": 1787922184.1988018,
+    "ast_hash": "6b1e76bf362a3e67d1fc9f635bfd173c",
+    "semantic_hash": ""
   },
   "app/Models/NilaiSumatifTp.php": {
-    "mtime": 1785734268.0847297,
-    "ast_hash": "3f2bac1e55af2c2b0940a54f0d5c46f5",
-    "semantic_hash": "3f2bac1e55af2c2b0940a54f0d5c46f5"
+    "mtime": 1787922175.4667318,
+    "ast_hash": "21e490f542118baf6f7813accbb006f2",
+    "semantic_hash": ""
   },
   "app/Models/NilaiTahfidz.php": {
     "mtime": 1787258670.7212825,
@@ -535,9 +535,9 @@
     "semantic_hash": "a62881af918ab656c0dbf58491a44867"
   },
   "app/Models/RiwayatSurat.php": {
-    "mtime": 1785833021.8463745,
-    "ast_hash": "37fa8c7a424e01b196662e445fefcfd7",
-    "semantic_hash": "37fa8c7a424e01b196662e445fefcfd7"
+    "mtime": 1787922202.5949492,
+    "ast_hash": "f29b80e533525627ebac0e8afb63541c",
+    "semantic_hash": ""
   },
   "app/Models/Role.php": {
     "mtime": 1784158413.2038252,
@@ -560,9 +560,9 @@
     "semantic_hash": "c59b80fa7e3b2e5e9f10b59c5813de27"
   },
   "app/Models/SiswaKelas.php": {
-    "mtime": 1784158422.6176317,
-    "ast_hash": "79376ecdacb99d4640cc14d42e24ebca",
-    "semantic_hash": "79376ecdacb99d4640cc14d42e24ebca"
+    "mtime": 1787922262.2234287,
+    "ast_hash": "7f7663e1898f1a636e73751a71fa4f53",
+    "semantic_hash": ""
   },
   "app/Models/SubdimensiP5.php": {
     "mtime": 1785736266.6906695,
@@ -590,9 +590,9 @@
     "semantic_hash": "a123e0fb240d5b376be3a9e45be58817"
   },
   "app/Models/TujuanPembelajaran.php": {
-    "mtime": 1785734261.0615847,
-    "ast_hash": "67808f6f40c6da1c1261b14f8169f2af",
-    "semantic_hash": "67808f6f40c6da1c1261b14f8169f2af"
+    "mtime": 1787922228.6741586,
+    "ast_hash": "f40640a79a42639153d5dd1aa976632c",
+    "semantic_hash": ""
   },
   "app/Models/User.php": {
     "mtime": 1786557228.2818499,
@@ -890,9 +890,9 @@
     "semantic_hash": "729f02a45c539693fc0fc8fbe9cd3ba0"
   },
   "database/seeders/ProductionDataSeeder.php": {
-    "mtime": 1785736217.748697,
-    "ast_hash": "e36716dce56149871180f0be397ce0b5",
-    "semantic_hash": "e36716dce56149871180f0be397ce0b5"
+    "mtime": 1787923665.4799473,
+    "ast_hash": "3d613ea340f7cf84072d2e74d0a939bb",
+    "semantic_hash": ""
   },
   "database/seeders/RaporOrangTuaSeeder.php": {
     "mtime": 1784882519.5333135,
@@ -1050,8 +1050,8 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/manajemen-gaji-guru.blade.php": {
-    "mtime": 1787920706.3556242,
-    "ast_hash": "b3c8bd8e85d30e92eccc93e75125cf37",
+    "mtime": 1787926802.0119758,
+    "ast_hash": "85927c8b176c0c24c13d358e32b8ace9",
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/manajemen-peminjaman.blade.php": {
@@ -1275,8 +1275,8 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/super-admin/tata-kelola/audit-log.blade.php": {
-    "mtime": 1787731094.283543,
-    "ast_hash": "32b6a1472db6950a06281797786b58b2",
+    "mtime": 1787923104.9556653,
+    "ast_hash": "9221609fa03d4126ea551e26f43d59c9",
     "semantic_hash": ""
   },
   "resources/views/livewire/super-admin/tata-kelola/manajemen-guru.blade.php": {
@@ -1895,8 +1895,8 @@
     "semantic_hash": ""
   },
   "app/Traits/Auditable.php": {
-    "mtime": 1787258556.037954,
-    "ast_hash": "a56f15c4128a68603f6a8e621b4ee3c9",
+    "mtime": 1787922169.2936823,
+    "ast_hash": "9cdd0ee98c67e24be4c9e90f031876fe",
     "semantic_hash": ""
   },
   "database/migrations/2026_08_13_000001_add_user_agent_to_activity_log_table.php": {
@@ -2030,8 +2030,8 @@
     "semantic_hash": ""
   },
   "resources/views/components/input-currency.blade.php": {
-    "mtime": 1787250961.9498134,
-    "ast_hash": "b2727b6eebaf51b85f760fabd3ff9235",
+    "mtime": 1787926793.3078885,
+    "ast_hash": "903d12d68a6b7c40837d3c3cc11bc4fc",
     "semantic_hash": ""
   },
   "resources/views/components/input.blade.php": {
@@ -2247,6 +2247,11 @@
   "resources/views/livewire/finance/detail-gaji-guru.blade.php": {
     "mtime": 1787920734.324678,
     "ast_hash": "7e8a5bb1df38d040d9edfc300a6463a5",
+    "semantic_hash": ""
+  },
+  "tests/Feature/AuditLogCoverageTest.php": {
+    "mtime": 1787922354.7791774,
+    "ast_hash": "79268d51c08f3074d6df1f2a24f8c396",
     "semantic_hash": ""
   }
 }

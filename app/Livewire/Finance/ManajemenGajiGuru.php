@@ -225,11 +225,11 @@ class ManajemenGajiGuru extends Component
 
             $potonganPeminjaman = 0.00;
             if ($activeLoan) {
-                $potonganPeminjaman = min($activeLoan->cicilan_per_bulan, $activeLoan->sisa_pinjaman);
+                $potonganPeminjaman = min(floatval($activeLoan->cicilan_per_bulan), floatval($activeLoan->sisa_pinjaman));
             }
 
-            $totalBruto = $gajiPokok + $gajiBerkala + $honorEkskul + $insentif + $insentifBpjs + $insentifMaghrib;
-            $totalPotongan = $potonganSosial + $potonganPeminjaman + $potonganBpjstk + $potonganLainnya;
+            $totalBruto = floatval($gajiPokok) + floatval($gajiBerkala) + floatval($honorEkskul) + floatval($insentif) + floatval($insentifBpjs) + floatval($insentifMaghrib);
+            $totalPotongan = floatval($potonganSosial) + floatval($potonganPeminjaman) + floatval($potonganBpjstk) + floatval($potonganLainnya);
             $totalDiterima = max(0, $totalBruto - $totalPotongan);
 
             $jabatan = $guru->jabatan ?: ($guru->jenis_guru === 'tahfidz' ? 'Wali Tahfizh' : 'Guru Pengajar');
@@ -243,19 +243,19 @@ class ManajemenGajiGuru extends Component
                 'jabatan' => $jabatan,
                 'jam_kerja' => $jamKerja,
                 'sumber_dana' => 'Yayasan',
-                'gaji_pokok' => $gajiPokok,
-                'gaji_berkala' => $gajiBerkala,
-                'jumlah_ekskul' => $jumlahEkskul,
-                'honor_ekskul' => $honorEkskul,
-                'insentif' => $insentif,
-                'insentif_bpjs' => $insentifBpjs,
-                'insentif_maghrib_mengaji' => $insentifMaghrib,
-                'potongan_sosial' => $potonganSosial,
-                'potongan_peminjaman' => $potonganPeminjaman,
-                'potongan_bpjstk' => $potonganBpjstk,
-                'potongan_lainnya' => $potonganLainnya,
-                'total_bruto' => $totalBruto,
-                'total_diterima' => $totalDiterima,
+                'gaji_pokok' => floatval($gajiPokok),
+                'gaji_berkala' => floatval($gajiBerkala),
+                'jumlah_ekskul' => intval($jumlahEkskul),
+                'honor_ekskul' => floatval($honorEkskul),
+                'insentif' => floatval($insentif),
+                'insentif_bpjs' => floatval($insentifBpjs),
+                'insentif_maghrib_mengaji' => floatval($insentifMaghrib),
+                'potongan_sosial' => floatval($potonganSosial),
+                'potongan_peminjaman' => floatval($potonganPeminjaman),
+                'potongan_bpjstk' => floatval($potonganBpjstk),
+                'potongan_lainnya' => floatval($potonganLainnya),
+                'total_bruto' => floatval($totalBruto),
+                'total_diterima' => floatval($totalDiterima),
             ];
         }
 
@@ -414,7 +414,7 @@ class ManajemenGajiGuru extends Component
             ->where('sisa_pinjaman', '>', 0)
             ->first();
 
-        $this->createPotonganPinjaman = $activeLoan ? min($activeLoan->cicilan_per_bulan, $activeLoan->sisa_pinjaman) : 0.00;
+        $this->createPotonganPinjaman = $activeLoan ? min(floatval($activeLoan->cicilan_per_bulan), floatval($activeLoan->sisa_pinjaman)) : 0.00;
 
         $this->calculateCreateTotal();
     }

@@ -430,7 +430,14 @@
                                         <div x-data="{
                                             val: @entangle('generateItems.' . $gId . '.gaji_pokok'),
                                             fmt: '',
-                                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                                            format(v) {
+                                                if (v === null || v === undefined || v === '') return '0';
+                                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                                let s = v.toString().trim();
+                                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                                let clean = s.replace(/[^0-9]/g, '');
+                                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                                            },
                                             onInput(e) {
                                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                                 this.val = c ? parseInt(c, 10) : 0;
@@ -458,7 +465,14 @@
                                         <div x-data="{
                                             val: @entangle('generateItems.' . $gId . '.gaji_berkala'),
                                             fmt: '',
-                                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                                            format(v) {
+                                                if (v === null || v === undefined || v === '') return '0';
+                                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                                let s = v.toString().trim();
+                                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                                let clean = s.replace(/[^0-9]/g, '');
+                                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                                            },
                                             onInput(e) {
                                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                                 this.val = c ? parseInt(c, 10) : 0;
@@ -486,7 +500,14 @@
                                         <div x-data="{
                                             val: @entangle('generateItems.' . $gId . '.insentif'),
                                             fmt: '',
-                                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                                            format(v) {
+                                                if (v === null || v === undefined || v === '') return '0';
+                                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                                let s = v.toString().trim();
+                                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                                let clean = s.replace(/[^0-9]/g, '');
+                                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                                            },
                                             onInput(e) {
                                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                                 this.val = c ? parseInt(c, 10) : 0;
@@ -514,7 +535,14 @@
                                         <div x-data="{
                                             val: @entangle('generateItems.' . $gId . '.honor_ekskul'),
                                             fmt: '',
-                                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                                            format(v) {
+                                                if (v === null || v === undefined || v === '') return '0';
+                                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                                let s = v.toString().trim();
+                                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                                let clean = s.replace(/[^0-9]/g, '');
+                                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                                            },
                                             onInput(e) {
                                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                                 this.val = c ? parseInt(c, 10) : 0;
@@ -542,7 +570,14 @@
                                         <div x-data="{
                                             val: @entangle('generateItems.' . $gId . '.potongan_sosial'),
                                             fmt: '',
-                                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                                            format(v) {
+                                                if (v === null || v === undefined || v === '') return '0';
+                                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                                let s = v.toString().trim();
+                                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                                let clean = s.replace(/[^0-9]/g, '');
+                                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                                            },
                                             onInput(e) {
                                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                                 this.val = c ? parseInt(c, 10) : 0;
@@ -570,7 +605,14 @@
                                         <div x-data="{
                                             val: @entangle('generateItems.' . $gId . '.potongan_peminjaman'),
                                             fmt: '',
-                                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                                            format(v) {
+                                                if (v === null || v === undefined || v === '') return '0';
+                                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                                let s = v.toString().trim();
+                                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                                let clean = s.replace(/[^0-9]/g, '');
+                                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                                            },
                                             onInput(e) {
                                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                                 this.val = c ? parseInt(c, 10) : 0;
@@ -720,7 +762,14 @@
                         <div x-data="{
                             val: @entangle('createGajiPokok'),
                             fmt: '',
-                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                            format(v) {
+                                if (v === null || v === undefined || v === '') return '0';
+                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                let s = v.toString().trim();
+                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                let clean = s.replace(/[^0-9]/g, '');
+                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                            },
                             onInput(e) {
                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                 this.val = c ? parseInt(c, 10) : 0;
@@ -740,7 +789,14 @@
                         <div x-data="{
                             val: @entangle('createGajiBerkala'),
                             fmt: '',
-                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                            format(v) {
+                                if (v === null || v === undefined || v === '') return '0';
+                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                let s = v.toString().trim();
+                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                let clean = s.replace(/[^0-9]/g, '');
+                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                            },
                             onInput(e) {
                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                 this.val = c ? parseInt(c, 10) : 0;
@@ -765,7 +821,14 @@
                             <div x-data="{
                                 val: @entangle('createHonorEkskul'),
                                 fmt: '',
-                                format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                                format(v) {
+                                    if (v === null || v === undefined || v === '') return '0';
+                                    if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                    let s = v.toString().trim();
+                                    if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                    let clean = s.replace(/[^0-9]/g, '');
+                                    return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                                },
                                 onInput(e) {
                                     let c = e.target.value.replace(/[^0-9]/g, '');
                                     this.val = c ? parseInt(c, 10) : 0;
@@ -786,7 +849,14 @@
                         <div x-data="{
                             val: @entangle('createInsentif'),
                             fmt: '',
-                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                            format(v) {
+                                if (v === null || v === undefined || v === '') return '0';
+                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                let s = v.toString().trim();
+                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                let clean = s.replace(/[^0-9]/g, '');
+                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                            },
                             onInput(e) {
                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                 this.val = c ? parseInt(c, 10) : 0;
@@ -806,7 +876,14 @@
                         <div x-data="{
                             val: @entangle('createInsentifBpjs'),
                             fmt: '',
-                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                            format(v) {
+                                if (v === null || v === undefined || v === '') return '0';
+                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                let s = v.toString().trim();
+                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                let clean = s.replace(/[^0-9]/g, '');
+                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                            },
                             onInput(e) {
                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                 this.val = c ? parseInt(c, 10) : 0;
@@ -836,7 +913,14 @@
                         <div x-data="{
                             val: @entangle('createPotonganSosial'),
                             fmt: '',
-                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                            format(v) {
+                                if (v === null || v === undefined || v === '') return '0';
+                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                let s = v.toString().trim();
+                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                let clean = s.replace(/[^0-9]/g, '');
+                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                            },
                             onInput(e) {
                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                 this.val = c ? parseInt(c, 10) : 0;
@@ -856,7 +940,14 @@
                         <div x-data="{
                             val: @entangle('createPotonganPinjaman'),
                             fmt: '',
-                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                            format(v) {
+                                if (v === null || v === undefined || v === '') return '0';
+                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                let s = v.toString().trim();
+                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                let clean = s.replace(/[^0-9]/g, '');
+                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                            },
                             onInput(e) {
                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                 this.val = c ? parseInt(c, 10) : 0;
@@ -876,7 +967,14 @@
                         <div x-data="{
                             val: @entangle('createPotonganBpjstk'),
                             fmt: '',
-                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                            format(v) {
+                                if (v === null || v === undefined || v === '') return '0';
+                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                let s = v.toString().trim();
+                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                let clean = s.replace(/[^0-9]/g, '');
+                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                            },
                             onInput(e) {
                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                 this.val = c ? parseInt(c, 10) : 0;
@@ -896,7 +994,14 @@
                         <div x-data="{
                             val: @entangle('createPotonganLainnya'),
                             fmt: '',
-                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                            format(v) {
+                                if (v === null || v === undefined || v === '') return '0';
+                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                let s = v.toString().trim();
+                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                let clean = s.replace(/[^0-9]/g, '');
+                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                            },
                             onInput(e) {
                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                 this.val = c ? parseInt(c, 10) : 0;
@@ -987,7 +1092,14 @@
                         <div x-data="{
                             val: @entangle('editGajiPokok'),
                             fmt: '',
-                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                            format(v) {
+                                if (v === null || v === undefined || v === '') return '0';
+                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                let s = v.toString().trim();
+                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                let clean = s.replace(/[^0-9]/g, '');
+                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                            },
                             onInput(e) {
                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                 this.val = c ? parseInt(c, 10) : 0;
@@ -1007,7 +1119,14 @@
                         <div x-data="{
                             val: @entangle('editGajiBerkala'),
                             fmt: '',
-                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                            format(v) {
+                                if (v === null || v === undefined || v === '') return '0';
+                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                let s = v.toString().trim();
+                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                let clean = s.replace(/[^0-9]/g, '');
+                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                            },
                             onInput(e) {
                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                 this.val = c ? parseInt(c, 10) : 0;
@@ -1032,7 +1151,14 @@
                             <div x-data="{
                                 val: @entangle('editHonorEkskul'),
                                 fmt: '',
-                                format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                                format(v) {
+                                    if (v === null || v === undefined || v === '') return '0';
+                                    if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                    let s = v.toString().trim();
+                                    if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                    let clean = s.replace(/[^0-9]/g, '');
+                                    return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                                },
                                 onInput(e) {
                                     let c = e.target.value.replace(/[^0-9]/g, '');
                                     this.val = c ? parseInt(c, 10) : 0;
@@ -1053,7 +1179,14 @@
                         <div x-data="{
                             val: @entangle('editInsentif'),
                             fmt: '',
-                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                            format(v) {
+                                if (v === null || v === undefined || v === '') return '0';
+                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                let s = v.toString().trim();
+                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                let clean = s.replace(/[^0-9]/g, '');
+                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                            },
                             onInput(e) {
                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                 this.val = c ? parseInt(c, 10) : 0;
@@ -1073,7 +1206,14 @@
                         <div x-data="{
                             val: @entangle('editInsentifBpjs'),
                             fmt: '',
-                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                            format(v) {
+                                if (v === null || v === undefined || v === '') return '0';
+                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                let s = v.toString().trim();
+                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                let clean = s.replace(/[^0-9]/g, '');
+                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                            },
                             onInput(e) {
                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                 this.val = c ? parseInt(c, 10) : 0;
@@ -1103,7 +1243,14 @@
                         <div x-data="{
                             val: @entangle('editPotonganSosial'),
                             fmt: '',
-                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                            format(v) {
+                                if (v === null || v === undefined || v === '') return '0';
+                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                let s = v.toString().trim();
+                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                let clean = s.replace(/[^0-9]/g, '');
+                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                            },
                             onInput(e) {
                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                 this.val = c ? parseInt(c, 10) : 0;
@@ -1123,7 +1270,14 @@
                         <div x-data="{
                             val: @entangle('editPotonganPinjaman'),
                             fmt: '',
-                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                            format(v) {
+                                if (v === null || v === undefined || v === '') return '0';
+                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                let s = v.toString().trim();
+                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                let clean = s.replace(/[^0-9]/g, '');
+                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                            },
                             onInput(e) {
                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                 this.val = c ? parseInt(c, 10) : 0;
@@ -1143,7 +1297,14 @@
                         <div x-data="{
                             val: @entangle('editPotonganBpjstk'),
                             fmt: '',
-                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                            format(v) {
+                                if (v === null || v === undefined || v === '') return '0';
+                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                let s = v.toString().trim();
+                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                let clean = s.replace(/[^0-9]/g, '');
+                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                            },
                             onInput(e) {
                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                 this.val = c ? parseInt(c, 10) : 0;
@@ -1163,7 +1324,14 @@
                         <div x-data="{
                             val: @entangle('editPotonganLainnya'),
                             fmt: '',
-                            format(v) { return v ? Number(v.toString().replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID') : '0'; },
+                            format(v) {
+                                if (v === null || v === undefined || v === '') return '0';
+                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                let s = v.toString().trim();
+                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                let clean = s.replace(/[^0-9]/g, '');
+                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                            },
                             onInput(e) {
                                 let c = e.target.value.replace(/[^0-9]/g, '');
                                 this.val = c ? parseInt(c, 10) : 0;
@@ -1477,4 +1645,15 @@
             </div>
         </x-floating-card>
     @endif
+
+    <script>
+        window.formatRupiahInput = window.formatRupiahInput || function(v) {
+            if (v === null || v === undefined || v === '') return '0';
+            if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+            let s = v.toString().trim();
+            if (/^-?\d+\.\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+            let clean = s.replace(/[^0-9]/g, '');
+            return clean ? Number(clean).toLocaleString('id-ID') : '0';
+        };
+    </script>
 </div>

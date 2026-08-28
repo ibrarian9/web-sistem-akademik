@@ -71,7 +71,7 @@
         <x-table loadingTarget="filterEvent, filterPeriode, perPage, search">
             <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
                 <tr>
-                    <x-table.th class="w-44">Waktu</x-table.th>
+                    <x-table.th class="w-52">Hari & Waktu</x-table.th>
                     <x-table.th class="min-w-[180px]">Nama User (Pelaku)</x-table.th>
                     <x-table.th class="w-28 text-center">Event</x-table.th>
                     <x-table.th class="min-w-[220px]">Deskripsi Aktivitas</x-table.th>
@@ -82,8 +82,17 @@
             <tbody class="divide-y divide-stone-200 bg-white">
                 @forelse ($logs as $log)
                     <tr class="hover:bg-stone-50 transition cursor-pointer" wire:click="openDetail({{ $log->id }})">
-                        <td class="p-3.5 text-xs font-mono font-bold text-stone-600 border-r border-stone-200">
-                            {{ date('d-m-Y H:i:s', strtotime($log->created_at)) }}
+                        <td class="p-3.5 border-r border-stone-200">
+                            <div class="font-extrabold text-stone-900 text-xs flex items-center gap-1.5">
+                                <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-black uppercase bg-emerald-100/80 text-emerald-800 border border-emerald-200">
+                                    {{ \Carbon\Carbon::parse($log->created_at)->translatedFormat('l') }}
+                                </span>
+                                <span>{{ \Carbon\Carbon::parse($log->created_at)->translatedFormat('d M Y') }}</span>
+                            </div>
+                            <div class="text-[11px] text-stone-500 font-mono flex items-center gap-1 mt-1 font-semibold">
+                                <x-lucide-clock class="w-3.5 h-3.5 text-stone-400 inline" />
+                                {{ \Carbon\Carbon::parse($log->created_at)->format('H:i:s') }} <span class="text-[10px] text-stone-400 font-bold">WIB</span>
+                            </div>
                         </td>
                         <td class="p-3.5 border-r border-stone-200">
                             <div class="font-extrabold text-stone-900 text-xs">{{ $log->causer_name ?? 'Sistem / Guest' }}</div>
@@ -137,7 +146,7 @@
     <x-floating-card 
         :show="($showDetailModal && $selectedLog) ? true : false"
         title="Detail Audit Log & Diff Inspector"
-        :subtitle="'ID #' . ($selectedLog['id'] ?? '') . ' - Dicatat pada ' . (isset($selectedLog['created_at']) ? date('d F Y, H:i:s', strtotime($selectedLog['created_at'])) : '-')"
+        :subtitle="'ID #' . ($selectedLog['id'] ?? '') . ' - Dicatat pada ' . (isset($selectedLog['created_at']) ? \Carbon\Carbon::parse($selectedLog['created_at'])->translatedFormat('l, d F Y - H:i:s') . ' WIB' : '-')"
         badge="DIFF INSPECTOR"
         badgeVariant="emerald"
         icon="activity"
@@ -182,8 +191,13 @@
                     </div>
 
                     <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-1">
-                        <div class="text-[10px] uppercase font-bold text-stone-500">IP Address</div>
-                        <div class="font-mono font-bold text-stone-900 text-[11px]">{{ $selectedLog['ip_address'] ?: '127.0.0.1' }}</div>
+                        <div class="text-[10px] uppercase font-bold text-stone-500">Waktu & Hari (WIB)</div>
+                        <div class="font-bold text-stone-900 text-xs truncate">
+                            {{ isset($selectedLog['created_at']) ? \Carbon\Carbon::parse($selectedLog['created_at'])->translatedFormat('l, d/m/Y') : '-' }}
+                        </div>
+                        <div class="font-mono text-[11px] text-stone-500 font-semibold">
+                            {{ isset($selectedLog['created_at']) ? \Carbon\Carbon::parse($selectedLog['created_at'])->format('H:i:s') . ' WIB' : '-' }}
+                        </div>
                     </div>
                 </div>
 
@@ -281,11 +295,11 @@
                 <!-- Tab 2: Context & Request Properties -->
                 @elseif ($detailTab === 'properties')
                     <div class="space-y-3">
-                        <div class="grid grid-cols-1 gap-2.5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                             <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-1">
-                                <span class="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">User Agent (Client Browser & OS)</span>
-                                <div class="font-mono text-xs text-stone-900 break-all leading-relaxed font-semibold">
-                                    {{ $selectedLog['user_agent'] ?: 'Standard Web Browser' }}
+                                <span class="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">IP Address Klien</span>
+                                <div class="font-mono text-xs text-stone-900 font-bold">
+                                    {{ $selectedLog['ip_address'] ?: '127.0.0.1' }}
                                 </div>
                             </div>
 
@@ -294,6 +308,13 @@
                                 <div class="font-mono text-xs text-stone-900 font-bold">
                                     {{ $selectedLog['log_name'] ?: 'default' }}
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-1">
+                            <span class="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">User Agent (Client Browser & OS)</span>
+                            <div class="font-mono text-xs text-stone-900 break-all leading-relaxed font-semibold">
+                                {{ $selectedLog['user_agent'] ?: 'Standard Web Browser' }}
                             </div>
                         </div>
 

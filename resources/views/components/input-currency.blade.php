@@ -22,9 +22,11 @@
         displayValue: '',
         formatCurrency(val) {
             if (val === null || val === undefined || val === '') return '';
-            let clean = val.toString().replace(/[^0-9]/g, '');
-            if (!clean) return '';
-            return Number(clean).toLocaleString('id-ID');
+            if (typeof val === 'number') return Math.round(val).toLocaleString('id-ID');
+            let s = val.toString().trim();
+            if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+            let clean = s.replace(/[^0-9]/g, '');
+            return clean ? Number(clean).toLocaleString('id-ID') : '';
         },
         onInput(e) {
             let inputStr = e.target.value;
@@ -36,7 +38,7 @@
             e.target.value = this.displayValue;
         },
         init() {
-            if (this.rawValue) {
+            if (this.rawValue !== null && this.rawValue !== undefined && this.rawValue !== '') {
                 this.displayValue = this.formatCurrency(this.rawValue);
             }
             this.$watch('rawValue', (newVal) => {
@@ -46,7 +48,8 @@
                 }
                 let cleanCurrent = this.displayValue.replace(/[^0-9]/g, '');
                 let numCurrent = cleanCurrent ? parseInt(cleanCurrent, 10) : 0;
-                let numNew = parseInt(newVal, 10) || 0;
+                let s = newVal.toString().trim();
+                let numNew = /^-?\\d+\\.\\d{1,2}$/.test(s) ? Math.round(parseFloat(s)) : (parseInt(s.replace(/[^0-9]/g, ''), 10) || 0);
                 
                 if (numCurrent !== numNew) {
                     this.displayValue = this.formatCurrency(newVal);

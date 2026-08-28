@@ -72,6 +72,8 @@ class ProductionDataSeeder extends Seeder
             ]);
         }
 
+        $adminUser = User::where('username', 'admin')->first() ?? User::where('role_id', $roleAdmin->id)->first() ?? User::first();
+
         // Ensure JenisTagihan & KategoriPengeluaran seeded
         $this->call(JenisTagihanSeeder::class);
         $this->call(KategoriPengeluaranSeeder::class);
@@ -929,7 +931,7 @@ class ProductionDataSeeder extends Seeder
                     'subject_id' => 1,
                     'event' => 'created',
                     'causer_type' => 'App\Models\User',
-                    'causer_id' => 1,
+                    'causer_id' => $adminUser?->id ?? $causerFinance->id,
                     'created_at' => Carbon::now()->subMonths(6)->toDateString() . ' 08:30:00',
                 ],
                 [
@@ -1116,7 +1118,7 @@ class ProductionDataSeeder extends Seeder
                     'nilai_baru' => min(100, floatval($n->nilai) + 10),
                     'alasan' => $reasons[$nIdx % count($reasons)],
                     'status' => $status,
-                    'disetujui_oleh_user_id' => $status !== 'pending' ? ($userKoordinator->id ?? 1) : null,
+                    'disetujui_oleh_user_id' => $status !== 'pending' ? ($userKoordinator->id ?? $adminUser?->id ?? $userFinance->id) : null,
                 ]);
             }
         }

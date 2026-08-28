@@ -1,0 +1,834 @@
+- generic [ref=f2e1]:
+  - generic [ref=f2e2]:
+    - complementary [ref=f2e3]:
+      - generic [ref=f2e9]:
+        - heading "SIAKAD" [level=2] [ref=f2e10]
+        - paragraph [ref=f2e11]: Bendahara
+      - navigation [ref=f2e16]:
+        - link "Dashboard" [ref=f2e17] [cursor=pointer]:
+          - /url: http://127.0.0.1:8001/finance/dashboard
+        - link "Panduan & FAQ" [ref=f2e22] [cursor=pointer]:
+          - /url: http://127.0.0.1:8001/tutorial-faq
+        - generic [ref=f2e27]: Manajemen Arus Kas & Tagihan
+        - link "Overview Pembayaran" [ref=f2e28] [cursor=pointer]:
+          - /url: http://127.0.0.1:8001/finance/overview-pembayaran
+        - link "Arus Kas (Cash Flow)" [ref=f2e33] [cursor=pointer]:
+          - /url: http://127.0.0.1:8001/finance/arus-kas
+        - link "Manajemen Tagihan" [ref=f2e39] [cursor=pointer]:
+          - /url: http://127.0.0.1:8001/finance/tagihan
+        - link "Kasir Pembayaran" [ref=f2e44] [cursor=pointer]:
+          - /url: http://127.0.0.1:8001/finance/input-pembayaran
+        - link "Tabungan Siswa" [ref=f2e48] [cursor=pointer]:
+          - /url: http://127.0.0.1:8001/finance/tabungan
+        - generic [ref=f2e53]: Pengeluaran & Anggaran Yayasan
+        - link "Pengajuan Dana" [ref=f2e54] [cursor=pointer]:
+          - /url: http://127.0.0.1:8001/finance/pengajuan-dana
+        - link "Gaji Guru" [ref=f2e59] [cursor=pointer]:
+          - /url: http://127.0.0.1:8001/finance/gaji-guru
+        - link "Kasbon Guru" [ref=f2e64] [cursor=pointer]:
+          - /url: http://127.0.0.1:8001/finance/peminjaman
+        - generic [ref=f2e69]: Dana BOS (Bantuan Pemerintah)
+        - link "Dana BOS (Masuk & Keluar)" [ref=f2e70] [cursor=pointer]:
+          - /url: http://127.0.0.1:8001/finance/dana-bos
+        - generic [ref=f2e75]: Laporan Keuangan
+        - link "Laporan Tunggakan" [ref=f2e76] [cursor=pointer]:
+          - /url: http://127.0.0.1:8001/finance/laporan/tunggakan
+        - link "Laporan Pemasukan" [ref=f2e81] [cursor=pointer]:
+          - /url: http://127.0.0.1:8001/finance/laporan/pemasukan
+        - link "Laporan Pengeluaran" [ref=f2e85] [cursor=pointer]:
+          - /url: http://127.0.0.1:8001/finance/laporan/pengeluaran
+        - generic [ref=f2e90]: Lainnya
+        - link "Kalender Akademik" [ref=f2e91] [cursor=pointer]:
+          - /url: http://127.0.0.1:8001/kalender-akademik
+        - link "Notifikasi" [ref=f2e95] [cursor=pointer]:
+          - /url: http://127.0.0.1:8001/notifikasi
+      - generic [ref=f2e100]:
+        - generic [ref=f2e101]:
+          - generic [ref=f2e102]: SI
+          - generic [ref=f2e103]:
+            - paragraph [ref=f2e104]: Siti Aminah, S.E.
+            - paragraph [ref=f2e105]: Bendahara
+        - button "Keluar" [ref=f2e107]
+    - generic [ref=f2e112]:
+      - banner [ref=f2e113]:
+        - heading "Manajemen Gaji Guru - Yayasan F3" [level=1] [ref=f2e117]
+        - generic [ref=f2e118]:
+          - button "Cari menu... Ctrl K" [ref=f2e119] [cursor=pointer]:
+            - generic [ref=f2e123]: Cari menu...
+            - generic [ref=f2e124]: Ctrl K
+          - button [ref=f2e126]
+          - generic [ref=f2e131]:
+            - generic [ref=f2e132]: SI
+            - generic [ref=f2e133]:
+              - paragraph [ref=f2e134]: Siti Aminah, S.E.
+              - paragraph [ref=f2e135]: finance
+      - main [ref=f2e136]:
+        - generic [ref=f2e138]:
+          - generic [ref=f2e139]:
+            - generic [ref=f2e140]:
+              - generic [ref=f2e141]: PAYROLL YAYASAN
+              - heading "Honorarium & Gaji Pegawai" [level=1] [ref=f2e144]
+              - paragraph [ref=f2e149]: Kelola honorarium bulanan pegawai Yayasan F3, gaji pokok, berkala, insentif, ekskul, potongan sosial, kasbon, dan slip gaji digital.
+            - generic [ref=f2e150]:
+              - button "Buat Gaji Manual" [ref=f2e151] [cursor=pointer]
+              - button "Generate Draf Gaji" [active] [ref=f2e157] [cursor=pointer]
+          - generic [ref=f2e162]:
+            - generic [ref=f2e164]:
+              - generic [ref=f2e165]: Total Beban Anggaran
+              - generic [ref=f2e166]: Rp 114.200.000
+              - text: Data terfilter saat ini
+            - generic [ref=f2e171]:
+              - generic [ref=f2e172]: Gaji Sudah Dibayar
+              - generic [ref=f2e173]: Rp 114.200.000
+              - text: 42 Pegawai Selesai
+            - generic [ref=f2e179]:
+              - generic [ref=f2e180]: Gaji Masih Draf
+              - generic [ref=f2e181]: Rp 0
+              - text: 0 Pegawai Menunggu
+            - generic [ref=f2e187]:
+              - generic [ref=f2e188]: Potongan Kasbon
+              - generic [ref=f2e189]: Rp 5.200.000
+              - text: Cicilan terpotong
+          - generic [ref=f2e194]:
+            - generic [ref=f2e195]:
+              - textbox "Cari nama pegawai / jabatan..." [ref=f2e198]
+              - combobox [ref=f2e200]:
+                - option "Semua Status" [selected]
+                - option "Draft"
+                - option "Dibayar"
+              - combobox [ref=f2e202]:
+                - option "Semua Bulan" [selected]
+                - option "Januari"
+                - option "Februari"
+                - option "Maret"
+                - option "April"
+                - option "Mei"
+                - option "Juni"
+                - option "Juli"
+                - option "Agustus"
+                - option "September"
+                - option "Oktober"
+                - option "November"
+                - option "Desember"
+              - spinbutton "Tahun" [ref=f2e204]: "2026"
+            - table [ref=f2e207]:
+              - rowgroup [ref=f2e208]:
+                - row [ref=f2e209]:
+                  - columnheader [ref=f2e210]:
+                    - checkbox "Pilih Semua" [ref=f2e211] [cursor=pointer]
+                  - columnheader "Pegawai & Jabatan" [ref=f2e212]
+                  - columnheader "Periode" [ref=f2e213]
+                  - columnheader "Gaji Pokok" [ref=f2e214]
+                  - columnheader "Tunjangan / Insentif" [ref=f2e215]
+                  - columnheader "Potongan" [ref=f2e216]
+                  - columnheader "Take Home Pay" [ref=f2e217]
+                  - columnheader "Status" [ref=f2e218]
+                  - columnheader "Aksi" [ref=f2e219]
+              - rowgroup [ref=f2e220]:
+                - row [ref=f2e221]:
+                  - cell [ref=f2e222]:
+                    - checkbox [ref=f2e223] [cursor=pointer]
+                  - 'cell "GU Guru Teladan, S.Pd. Guru / Pegawai • NIY: 1234567890 • Riwayat Gaji" [ref=f2e224]':
+                    - generic [ref=f2e225]:
+                      - generic [ref=f2e226]: GU
+                      - generic [ref=f2e227]:
+                        - button "Guru Teladan, S.Pd." [ref=f2e228] [cursor=pointer]
+                        - generic [ref=f2e229]:
+                          - generic [ref=f2e230]: Guru / Pegawai
+                          - generic [ref=f2e231]: •
+                          - generic [ref=f2e232]: "NIY: 1234567890"
+                          - generic [ref=f2e233]: •
+                          - link "Riwayat Gaji" [ref=f2e234] [cursor=pointer]:
+                            - /url: http://127.0.0.1:8001/finance/gaji-guru/540
+                  - cell "Juli 2026" [ref=f2e240]
+                  - cell "Rp 2.500.000" [ref=f2e242]
+                  - 'cell "+Rp 300.000 BPJSTK: Rp 100.000 Maghrib: Rp 200.000" [ref=f2e244]':
+                    - generic [ref=f2e245]: +Rp 300.000
+                    - generic [ref=f2e246]:
+                      - generic [ref=f2e247]: "BPJSTK: Rp 100.000"
+                      - generic [ref=f2e248]: "Maghrib: Rp 200.000"
+                  - 'cell "-Rp 410.000 Kasbon: Rp 400.000" [ref=f2e249]':
+                    - generic [ref=f2e250]: "-Rp 410.000"
+                    - generic [ref=f2e251]: "Kasbon: Rp 400.000"
+                  - cell "Rp 2.400.000" [ref=f2e252]
+                  - cell "Dibayar" [ref=f2e254]
+                  - cell [ref=f2e258]:
+                    - generic [ref=f2e259]:
+                      - button "Slip" [ref=f2e260]
+                      - link "Unduh File PDF" [ref=f2e265] [cursor=pointer]:
+                        - /url: http://127.0.0.1:8001/finance/gaji-guru/slip/86?download=1
+                      - button "Lihat Detail Rincian Gaji" [ref=f2e269]
+                      - button "Ubah Rincian Gaji" [ref=f2e273]
+                      - button "Batalkan Pembayaran (Kembalikan ke Draf)" [ref=f2e277]
+                - row [ref=f2e281]:
+                  - cell [ref=f2e282]:
+                    - checkbox [ref=f2e283] [cursor=pointer]
+                  - 'cell "DE Dewi Lestari, S.S.Q. Guru / Pegawai • NIY: 199205052018022005 • Riwayat Gaji" [ref=f2e284]':
+                    - generic [ref=f2e285]:
+                      - generic [ref=f2e286]: DE
+                      - generic [ref=f2e287]:
+                        - button "Dewi Lestari, S.S.Q." [ref=f2e288] [cursor=pointer]
+                        - generic [ref=f2e289]:
+                          - generic [ref=f2e290]: Guru / Pegawai
+                          - generic [ref=f2e291]: •
+                          - generic [ref=f2e292]: "NIY: 199205052018022005"
+                          - generic [ref=f2e293]: •
+                          - link "Riwayat Gaji" [ref=f2e294] [cursor=pointer]:
+                            - /url: http://127.0.0.1:8001/finance/gaji-guru/545
+                  - cell "Juli 2026" [ref=f2e300]
+                  - cell "Rp 2.500.000" [ref=f2e302]
+                  - 'cell "+Rp 300.000 BPJSTK: Rp 100.000 Maghrib: Rp 200.000" [ref=f2e304]':
+                    - generic [ref=f2e305]: +Rp 300.000
+                    - generic [ref=f2e306]:
+                      - generic [ref=f2e307]: "BPJSTK: Rp 100.000"
+                      - generic [ref=f2e308]: "Maghrib: Rp 200.000"
+                  - cell "-Rp 10.000" [ref=f2e309]
+                  - cell "Rp 2.800.000" [ref=f2e311]
+                  - cell "Dibayar" [ref=f2e313]
+                  - cell [ref=f2e317]:
+                    - generic [ref=f2e318]:
+                      - button "Slip" [ref=f2e319]
+                      - link "Unduh File PDF" [ref=f2e324] [cursor=pointer]:
+                        - /url: http://127.0.0.1:8001/finance/gaji-guru/slip/85?download=1
+                      - button "Lihat Detail Rincian Gaji" [ref=f2e328]
+                      - button "Ubah Rincian Gaji" [ref=f2e332]
+                      - button "Batalkan Pembayaran (Kembalikan ke Draf)" [ref=f2e336]
+                - row [ref=f2e340]:
+                  - cell [ref=f2e341]:
+                    - checkbox [ref=f2e342] [cursor=pointer]
+                  - 'cell "FA Fatmawati, S.Pd. Guru / Pegawai • NIY: 198904042013022004 • Riwayat Gaji" [ref=f2e343]':
+                    - generic [ref=f2e344]:
+                      - generic [ref=f2e345]: FA
+                      - generic [ref=f2e346]:
+                        - button "Fatmawati, S.Pd." [ref=f2e347] [cursor=pointer]
+                        - generic [ref=f2e348]:
+                          - generic [ref=f2e349]: Guru / Pegawai
+                          - generic [ref=f2e350]: •
+                          - generic [ref=f2e351]: "NIY: 198904042013022004"
+                          - generic [ref=f2e352]: •
+                          - link "Riwayat Gaji" [ref=f2e353] [cursor=pointer]:
+                            - /url: http://127.0.0.1:8001/finance/gaji-guru/544
+                  - cell "Juli 2026" [ref=f2e359]
+                  - cell "Rp 2.500.000" [ref=f2e361]
+                  - 'cell "+Rp 300.000 BPJSTK: Rp 100.000 Maghrib: Rp 200.000" [ref=f2e363]':
+                    - generic [ref=f2e364]: +Rp 300.000
+                    - generic [ref=f2e365]:
+                      - generic [ref=f2e366]: "BPJSTK: Rp 100.000"
+                      - generic [ref=f2e367]: "Maghrib: Rp 200.000"
+                  - cell "-Rp 10.000" [ref=f2e368]
+                  - cell "Rp 2.800.000" [ref=f2e370]
+                  - cell "Dibayar" [ref=f2e372]
+                  - cell [ref=f2e376]:
+                    - generic [ref=f2e377]:
+                      - button "Slip" [ref=f2e378]
+                      - link "Unduh File PDF" [ref=f2e383] [cursor=pointer]:
+                        - /url: http://127.0.0.1:8001/finance/gaji-guru/slip/84?download=1
+                      - button "Lihat Detail Rincian Gaji" [ref=f2e387]
+                      - button "Ubah Rincian Gaji" [ref=f2e391]
+                      - button "Batalkan Pembayaran (Kembalikan ke Draf)" [ref=f2e395]
+                - row [ref=f2e399]:
+                  - cell [ref=f2e400]:
+                    - checkbox [ref=f2e401] [cursor=pointer]
+                  - 'cell "HA Hasan Basri, S.Pd.I. Guru / Pegawai • NIY: 199003032015011003 • Riwayat Gaji" [ref=f2e402]':
+                    - generic [ref=f2e403]:
+                      - generic [ref=f2e404]: HA
+                      - generic [ref=f2e405]:
+                        - button "Hasan Basri, S.Pd.I." [ref=f2e406] [cursor=pointer]
+                        - generic [ref=f2e407]:
+                          - generic [ref=f2e408]: Guru / Pegawai
+                          - generic [ref=f2e409]: •
+                          - generic [ref=f2e410]: "NIY: 199003032015011003"
+                          - generic [ref=f2e411]: •
+                          - link "Riwayat Gaji" [ref=f2e412] [cursor=pointer]:
+                            - /url: http://127.0.0.1:8001/finance/gaji-guru/543
+                  - cell "Juli 2026" [ref=f2e418]
+                  - cell "Rp 2.500.000" [ref=f2e420]
+                  - 'cell "+Rp 300.000 BPJSTK: Rp 100.000 Maghrib: Rp 200.000" [ref=f2e422]':
+                    - generic [ref=f2e423]: +Rp 300.000
+                    - generic [ref=f2e424]:
+                      - generic [ref=f2e425]: "BPJSTK: Rp 100.000"
+                      - generic [ref=f2e426]: "Maghrib: Rp 200.000"
+                  - cell "-Rp 10.000" [ref=f2e427]
+                  - cell "Rp 2.800.000" [ref=f2e429]
+                  - cell "Dibayar" [ref=f2e431]
+                  - cell [ref=f2e435]:
+                    - generic [ref=f2e436]:
+                      - button "Slip" [ref=f2e437]
+                      - link "Unduh File PDF" [ref=f2e442] [cursor=pointer]:
+                        - /url: http://127.0.0.1:8001/finance/gaji-guru/slip/83?download=1
+                      - button "Lihat Detail Rincian Gaji" [ref=f2e446]
+                      - button "Ubah Rincian Gaji" [ref=f2e450]
+                      - button "Batalkan Pembayaran (Kembalikan ke Draf)" [ref=f2e454]
+                - row [ref=f2e458]:
+                  - cell [ref=f2e459]:
+                    - checkbox [ref=f2e460] [cursor=pointer]
+                  - 'cell "LU Lutfi Hakim, S.Pd. Guru / Pegawai • NIY: 198702022012011002 • Riwayat Gaji" [ref=f2e461]':
+                    - generic [ref=f2e462]:
+                      - generic [ref=f2e463]: LU
+                      - generic [ref=f2e464]:
+                        - button "Lutfi Hakim, S.Pd." [ref=f2e465] [cursor=pointer]
+                        - generic [ref=f2e466]:
+                          - generic [ref=f2e467]: Guru / Pegawai
+                          - generic [ref=f2e468]: •
+                          - generic [ref=f2e469]: "NIY: 198702022012011002"
+                          - generic [ref=f2e470]: •
+                          - link "Riwayat Gaji" [ref=f2e471] [cursor=pointer]:
+                            - /url: http://127.0.0.1:8001/finance/gaji-guru/542
+                  - cell "Juli 2026" [ref=f2e477]
+                  - cell "Rp 2.500.000" [ref=f2e479]
+                  - 'cell "+Rp 300.000 BPJSTK: Rp 100.000 Maghrib: Rp 200.000" [ref=f2e481]':
+                    - generic [ref=f2e482]: +Rp 300.000
+                    - generic [ref=f2e483]:
+                      - generic [ref=f2e484]: "BPJSTK: Rp 100.000"
+                      - generic [ref=f2e485]: "Maghrib: Rp 200.000"
+                  - cell "-Rp 10.000" [ref=f2e486]
+                  - cell "Rp 2.800.000" [ref=f2e488]
+                  - cell "Dibayar" [ref=f2e490]
+                  - cell [ref=f2e494]:
+                    - generic [ref=f2e495]:
+                      - button "Slip" [ref=f2e496]
+                      - link "Unduh File PDF" [ref=f2e501] [cursor=pointer]:
+                        - /url: http://127.0.0.1:8001/finance/gaji-guru/slip/82?download=1
+                      - button "Lihat Detail Rincian Gaji" [ref=f2e505]
+                      - button "Ubah Rincian Gaji" [ref=f2e509]
+                      - button "Batalkan Pembayaran (Kembalikan ke Draf)" [ref=f2e513]
+                - row [ref=f2e517]:
+                  - cell [ref=f2e518]:
+                    - checkbox [ref=f2e519] [cursor=pointer]
+                  - 'cell "BU Budi Santoso, S.Pd. Guru / Pegawai • NIY: 198501012010011001 • Riwayat Gaji" [ref=f2e520]':
+                    - generic [ref=f2e521]:
+                      - generic [ref=f2e522]: BU
+                      - generic [ref=f2e523]:
+                        - button "Budi Santoso, S.Pd." [ref=f2e524] [cursor=pointer]
+                        - generic [ref=f2e525]:
+                          - generic [ref=f2e526]: Guru / Pegawai
+                          - generic [ref=f2e527]: •
+                          - generic [ref=f2e528]: "NIY: 198501012010011001"
+                          - generic [ref=f2e529]: •
+                          - link "Riwayat Gaji" [ref=f2e530] [cursor=pointer]:
+                            - /url: http://127.0.0.1:8001/finance/gaji-guru/541
+                  - cell "Juli 2026" [ref=f2e536]
+                  - cell "Rp 2.500.000" [ref=f2e538]
+                  - 'cell "+Rp 300.000 BPJSTK: Rp 100.000 Maghrib: Rp 200.000" [ref=f2e540]':
+                    - generic [ref=f2e541]: +Rp 300.000
+                    - generic [ref=f2e542]:
+                      - generic [ref=f2e543]: "BPJSTK: Rp 100.000"
+                      - generic [ref=f2e544]: "Maghrib: Rp 200.000"
+                  - cell "-Rp 10.000" [ref=f2e545]
+                  - cell "Rp 2.800.000" [ref=f2e547]
+                  - cell "Dibayar" [ref=f2e549]
+                  - cell [ref=f2e553]:
+                    - generic [ref=f2e554]:
+                      - button "Slip" [ref=f2e555]
+                      - link "Unduh File PDF" [ref=f2e560] [cursor=pointer]:
+                        - /url: http://127.0.0.1:8001/finance/gaji-guru/slip/81?download=1
+                      - button "Lihat Detail Rincian Gaji" [ref=f2e564]
+                      - button "Ubah Rincian Gaji" [ref=f2e568]
+                      - button "Batalkan Pembayaran (Kembalikan ke Draf)" [ref=f2e572]
+                - row [ref=f2e576]:
+                  - cell [ref=f2e577]:
+                    - checkbox [ref=f2e578] [cursor=pointer]
+                  - 'cell "GU Guru Teladan, S.Pd. Guru / Pegawai • NIY: 1234567890 • Riwayat Gaji" [ref=f2e579]':
+                    - generic [ref=f2e580]:
+                      - generic [ref=f2e581]: GU
+                      - generic [ref=f2e582]:
+                        - button "Guru Teladan, S.Pd." [ref=f2e583] [cursor=pointer]
+                        - generic [ref=f2e584]:
+                          - generic [ref=f2e585]: Guru / Pegawai
+                          - generic [ref=f2e586]: •
+                          - generic [ref=f2e587]: "NIY: 1234567890"
+                          - generic [ref=f2e588]: •
+                          - link "Riwayat Gaji" [ref=f2e589] [cursor=pointer]:
+                            - /url: http://127.0.0.1:8001/finance/gaji-guru/540
+                  - cell "Juni 2026" [ref=f2e595]
+                  - cell "Rp 2.500.000" [ref=f2e597]
+                  - 'cell "+Rp 350.000 BPJSTK: Rp 150.000 Maghrib: Rp 200.000" [ref=f2e599]':
+                    - generic [ref=f2e600]: +Rp 350.000
+                    - generic [ref=f2e601]:
+                      - generic [ref=f2e602]: "BPJSTK: Rp 150.000"
+                      - generic [ref=f2e603]: "Maghrib: Rp 200.000"
+                  - cell "-Rp 10.000" [ref=f2e604]
+                  - cell "Rp 2.850.000" [ref=f2e606]
+                  - cell "Dibayar" [ref=f2e608]
+                  - cell [ref=f2e612]:
+                    - generic [ref=f2e613]:
+                      - button "Slip" [ref=f2e614]
+                      - link "Unduh File PDF" [ref=f2e619] [cursor=pointer]:
+                        - /url: http://127.0.0.1:8001/finance/gaji-guru/slip/80?download=1
+                      - button "Lihat Detail Rincian Gaji" [ref=f2e623]
+                      - button "Ubah Rincian Gaji" [ref=f2e627]
+                      - button "Batalkan Pembayaran (Kembalikan ke Draf)" [ref=f2e631]
+                - row [ref=f2e635]:
+                  - cell [ref=f2e636]:
+                    - checkbox [ref=f2e637] [cursor=pointer]
+                  - 'cell "DE Dewi Lestari, S.S.Q. Guru / Pegawai • NIY: 199205052018022005 • Riwayat Gaji" [ref=f2e638]':
+                    - generic [ref=f2e639]:
+                      - generic [ref=f2e640]: DE
+                      - generic [ref=f2e641]:
+                        - button "Dewi Lestari, S.S.Q." [ref=f2e642] [cursor=pointer]
+                        - generic [ref=f2e643]:
+                          - generic [ref=f2e644]: Guru / Pegawai
+                          - generic [ref=f2e645]: •
+                          - generic [ref=f2e646]: "NIY: 199205052018022005"
+                          - generic [ref=f2e647]: •
+                          - link "Riwayat Gaji" [ref=f2e648] [cursor=pointer]:
+                            - /url: http://127.0.0.1:8001/finance/gaji-guru/545
+                  - cell "Juni 2026" [ref=f2e654]
+                  - cell "Rp 2.500.000" [ref=f2e656]
+                  - 'cell "+Rp 350.000 BPJSTK: Rp 150.000 Maghrib: Rp 200.000" [ref=f2e658]':
+                    - generic [ref=f2e659]: +Rp 350.000
+                    - generic [ref=f2e660]:
+                      - generic [ref=f2e661]: "BPJSTK: Rp 150.000"
+                      - generic [ref=f2e662]: "Maghrib: Rp 200.000"
+                  - cell "-Rp 10.000" [ref=f2e663]
+                  - cell "Rp 2.850.000" [ref=f2e665]
+                  - cell "Dibayar" [ref=f2e667]
+                  - cell [ref=f2e671]:
+                    - generic [ref=f2e672]:
+                      - button "Slip" [ref=f2e673]
+                      - link "Unduh File PDF" [ref=f2e678] [cursor=pointer]:
+                        - /url: http://127.0.0.1:8001/finance/gaji-guru/slip/79?download=1
+                      - button "Lihat Detail Rincian Gaji" [ref=f2e682]
+                      - button "Ubah Rincian Gaji" [ref=f2e686]
+                      - button "Batalkan Pembayaran (Kembalikan ke Draf)" [ref=f2e690]
+                - row [ref=f2e694]:
+                  - cell [ref=f2e695]:
+                    - checkbox [ref=f2e696] [cursor=pointer]
+                  - 'cell "FA Fatmawati, S.Pd. Guru / Pegawai • NIY: 198904042013022004 • Riwayat Gaji" [ref=f2e697]':
+                    - generic [ref=f2e698]:
+                      - generic [ref=f2e699]: FA
+                      - generic [ref=f2e700]:
+                        - button "Fatmawati, S.Pd." [ref=f2e701] [cursor=pointer]
+                        - generic [ref=f2e702]:
+                          - generic [ref=f2e703]: Guru / Pegawai
+                          - generic [ref=f2e704]: •
+                          - generic [ref=f2e705]: "NIY: 198904042013022004"
+                          - generic [ref=f2e706]: •
+                          - link "Riwayat Gaji" [ref=f2e707] [cursor=pointer]:
+                            - /url: http://127.0.0.1:8001/finance/gaji-guru/544
+                  - cell "Juni 2026" [ref=f2e713]
+                  - cell "Rp 2.500.000" [ref=f2e715]
+                  - 'cell "+Rp 350.000 BPJSTK: Rp 150.000 Maghrib: Rp 200.000" [ref=f2e717]':
+                    - generic [ref=f2e718]: +Rp 350.000
+                    - generic [ref=f2e719]:
+                      - generic [ref=f2e720]: "BPJSTK: Rp 150.000"
+                      - generic [ref=f2e721]: "Maghrib: Rp 200.000"
+                  - cell "-Rp 10.000" [ref=f2e722]
+                  - cell "Rp 2.850.000" [ref=f2e724]
+                  - cell "Dibayar" [ref=f2e726]
+                  - cell [ref=f2e730]:
+                    - generic [ref=f2e731]:
+                      - button "Slip" [ref=f2e732]
+                      - link "Unduh File PDF" [ref=f2e737] [cursor=pointer]:
+                        - /url: http://127.0.0.1:8001/finance/gaji-guru/slip/78?download=1
+                      - button "Lihat Detail Rincian Gaji" [ref=f2e741]
+                      - button "Ubah Rincian Gaji" [ref=f2e745]
+                      - button "Batalkan Pembayaran (Kembalikan ke Draf)" [ref=f2e749]
+                - row [ref=f2e753]:
+                  - cell [ref=f2e754]:
+                    - checkbox [ref=f2e755] [cursor=pointer]
+                  - 'cell "HA Hasan Basri, S.Pd.I. Guru / Pegawai • NIY: 199003032015011003 • Riwayat Gaji" [ref=f2e756]':
+                    - generic [ref=f2e757]:
+                      - generic [ref=f2e758]: HA
+                      - generic [ref=f2e759]:
+                        - button "Hasan Basri, S.Pd.I." [ref=f2e760] [cursor=pointer]
+                        - generic [ref=f2e761]:
+                          - generic [ref=f2e762]: Guru / Pegawai
+                          - generic [ref=f2e763]: •
+                          - generic [ref=f2e764]: "NIY: 199003032015011003"
+                          - generic [ref=f2e765]: •
+                          - link "Riwayat Gaji" [ref=f2e766] [cursor=pointer]:
+                            - /url: http://127.0.0.1:8001/finance/gaji-guru/543
+                  - cell "Juni 2026" [ref=f2e772]
+                  - cell "Rp 2.500.000" [ref=f2e774]
+                  - 'cell "+Rp 350.000 BPJSTK: Rp 150.000 Maghrib: Rp 200.000" [ref=f2e776]':
+                    - generic [ref=f2e777]: +Rp 350.000
+                    - generic [ref=f2e778]:
+                      - generic [ref=f2e779]: "BPJSTK: Rp 150.000"
+                      - generic [ref=f2e780]: "Maghrib: Rp 200.000"
+                  - 'cell "-Rp 510.000 Kasbon: Rp 500.000" [ref=f2e781]':
+                    - generic [ref=f2e782]: "-Rp 510.000"
+                    - generic [ref=f2e783]: "Kasbon: Rp 500.000"
+                  - cell "Rp 2.350.000" [ref=f2e784]
+                  - cell "Dibayar" [ref=f2e786]
+                  - cell [ref=f2e790]:
+                    - generic [ref=f2e791]:
+                      - button "Slip" [ref=f2e792]
+                      - link "Unduh File PDF" [ref=f2e797] [cursor=pointer]:
+                        - /url: http://127.0.0.1:8001/finance/gaji-guru/slip/77?download=1
+                      - button "Lihat Detail Rincian Gaji" [ref=f2e801]
+                      - button "Ubah Rincian Gaji" [ref=f2e805]
+                      - button "Batalkan Pembayaran (Kembalikan ke Draf)" [ref=f2e809]
+                - row [ref=f2e813]:
+                  - cell [ref=f2e814]:
+                    - checkbox [ref=f2e815] [cursor=pointer]
+                  - 'cell "LU Lutfi Hakim, S.Pd. Guru / Pegawai • NIY: 198702022012011002 • Riwayat Gaji" [ref=f2e816]':
+                    - generic [ref=f2e817]:
+                      - generic [ref=f2e818]: LU
+                      - generic [ref=f2e819]:
+                        - button "Lutfi Hakim, S.Pd." [ref=f2e820] [cursor=pointer]
+                        - generic [ref=f2e821]:
+                          - generic [ref=f2e822]: Guru / Pegawai
+                          - generic [ref=f2e823]: •
+                          - generic [ref=f2e824]: "NIY: 198702022012011002"
+                          - generic [ref=f2e825]: •
+                          - link "Riwayat Gaji" [ref=f2e826] [cursor=pointer]:
+                            - /url: http://127.0.0.1:8001/finance/gaji-guru/542
+                  - cell "Juni 2026" [ref=f2e832]
+                  - cell "Rp 2.500.000" [ref=f2e834]
+                  - 'cell "+Rp 350.000 BPJSTK: Rp 150.000 Maghrib: Rp 200.000" [ref=f2e836]':
+                    - generic [ref=f2e837]: +Rp 350.000
+                    - generic [ref=f2e838]:
+                      - generic [ref=f2e839]: "BPJSTK: Rp 150.000"
+                      - generic [ref=f2e840]: "Maghrib: Rp 200.000"
+                  - 'cell "-Rp 410.000 Kasbon: Rp 400.000" [ref=f2e841]':
+                    - generic [ref=f2e842]: "-Rp 410.000"
+                    - generic [ref=f2e843]: "Kasbon: Rp 400.000"
+                  - cell "Rp 2.450.000" [ref=f2e844]
+                  - cell "Dibayar" [ref=f2e846]
+                  - cell [ref=f2e850]:
+                    - generic [ref=f2e851]:
+                      - button "Slip" [ref=f2e852]
+                      - link "Unduh File PDF" [ref=f2e857] [cursor=pointer]:
+                        - /url: http://127.0.0.1:8001/finance/gaji-guru/slip/76?download=1
+                      - button "Lihat Detail Rincian Gaji" [ref=f2e861]
+                      - button "Ubah Rincian Gaji" [ref=f2e865]
+                      - button "Batalkan Pembayaran (Kembalikan ke Draf)" [ref=f2e869]
+                - row [ref=f2e873]:
+                  - cell [ref=f2e874]:
+                    - checkbox [ref=f2e875] [cursor=pointer]
+                  - 'cell "BU Budi Santoso, S.Pd. Guru / Pegawai • NIY: 198501012010011001 • Riwayat Gaji" [ref=f2e876]':
+                    - generic [ref=f2e877]:
+                      - generic [ref=f2e878]: BU
+                      - generic [ref=f2e879]:
+                        - button "Budi Santoso, S.Pd." [ref=f2e880] [cursor=pointer]
+                        - generic [ref=f2e881]:
+                          - generic [ref=f2e882]: Guru / Pegawai
+                          - generic [ref=f2e883]: •
+                          - generic [ref=f2e884]: "NIY: 198501012010011001"
+                          - generic [ref=f2e885]: •
+                          - link "Riwayat Gaji" [ref=f2e886] [cursor=pointer]:
+                            - /url: http://127.0.0.1:8001/finance/gaji-guru/541
+                  - cell "Juni 2026" [ref=f2e892]
+                  - cell "Rp 2.500.000" [ref=f2e894]
+                  - 'cell "+Rp 350.000 BPJSTK: Rp 150.000 Maghrib: Rp 200.000" [ref=f2e896]':
+                    - generic [ref=f2e897]: +Rp 350.000
+                    - generic [ref=f2e898]:
+                      - generic [ref=f2e899]: "BPJSTK: Rp 150.000"
+                      - generic [ref=f2e900]: "Maghrib: Rp 200.000"
+                  - 'cell "-Rp 310.000 Kasbon: Rp 300.000" [ref=f2e901]':
+                    - generic [ref=f2e902]: "-Rp 310.000"
+                    - generic [ref=f2e903]: "Kasbon: Rp 300.000"
+                  - cell "Rp 2.550.000" [ref=f2e904]
+                  - cell "Dibayar" [ref=f2e906]
+                  - cell [ref=f2e910]:
+                    - generic [ref=f2e911]:
+                      - button "Slip" [ref=f2e912]
+                      - link "Unduh File PDF" [ref=f2e917] [cursor=pointer]:
+                        - /url: http://127.0.0.1:8001/finance/gaji-guru/slip/75?download=1
+                      - button "Lihat Detail Rincian Gaji" [ref=f2e921]
+                      - button "Ubah Rincian Gaji" [ref=f2e925]
+                      - button "Batalkan Pembayaran (Kembalikan ke Draf)" [ref=f2e929]
+                - row [ref=f2e933]:
+                  - cell [ref=f2e934]:
+                    - checkbox [ref=f2e935] [cursor=pointer]
+                  - 'cell "GU Guru Teladan, S.Pd. Guru / Pegawai • NIY: 1234567890 • Riwayat Gaji" [ref=f2e936]':
+                    - generic [ref=f2e937]:
+                      - generic [ref=f2e938]: GU
+                      - generic [ref=f2e939]:
+                        - button "Guru Teladan, S.Pd." [ref=f2e940] [cursor=pointer]
+                        - generic [ref=f2e941]:
+                          - generic [ref=f2e942]: Guru / Pegawai
+                          - generic [ref=f2e943]: •
+                          - generic [ref=f2e944]: "NIY: 1234567890"
+                          - generic [ref=f2e945]: •
+                          - link "Riwayat Gaji" [ref=f2e946] [cursor=pointer]:
+                            - /url: http://127.0.0.1:8001/finance/gaji-guru/540
+                  - cell "Mei 2026" [ref=f2e952]
+                  - cell "Rp 2.500.000" [ref=f2e954]
+                  - 'cell "+Rp 350.000 BPJSTK: Rp 150.000 Maghrib: Rp 200.000" [ref=f2e956]':
+                    - generic [ref=f2e957]: +Rp 350.000
+                    - generic [ref=f2e958]:
+                      - generic [ref=f2e959]: "BPJSTK: Rp 150.000"
+                      - generic [ref=f2e960]: "Maghrib: Rp 200.000"
+                  - cell "-Rp 10.000" [ref=f2e961]
+                  - cell "Rp 2.850.000" [ref=f2e963]
+                  - cell "Dibayar" [ref=f2e965]
+                  - cell [ref=f2e969]:
+                    - generic [ref=f2e970]:
+                      - button "Slip" [ref=f2e971]
+                      - link "Unduh File PDF" [ref=f2e976] [cursor=pointer]:
+                        - /url: http://127.0.0.1:8001/finance/gaji-guru/slip/74?download=1
+                      - button "Lihat Detail Rincian Gaji" [ref=f2e980]
+                      - button "Ubah Rincian Gaji" [ref=f2e984]
+                      - button "Batalkan Pembayaran (Kembalikan ke Draf)" [ref=f2e988]
+                - row [ref=f2e992]:
+                  - cell [ref=f2e993]:
+                    - checkbox [ref=f2e994] [cursor=pointer]
+                  - 'cell "DE Dewi Lestari, S.S.Q. Guru / Pegawai • NIY: 199205052018022005 • Riwayat Gaji" [ref=f2e995]':
+                    - generic [ref=f2e996]:
+                      - generic [ref=f2e997]: DE
+                      - generic [ref=f2e998]:
+                        - button "Dewi Lestari, S.S.Q." [ref=f2e999] [cursor=pointer]
+                        - generic [ref=f2e1000]:
+                          - generic [ref=f2e1001]: Guru / Pegawai
+                          - generic [ref=f2e1002]: •
+                          - generic [ref=f2e1003]: "NIY: 199205052018022005"
+                          - generic [ref=f2e1004]: •
+                          - link "Riwayat Gaji" [ref=f2e1005] [cursor=pointer]:
+                            - /url: http://127.0.0.1:8001/finance/gaji-guru/545
+                  - cell "Mei 2026" [ref=f2e1011]
+                  - cell "Rp 2.500.000" [ref=f2e1013]
+                  - 'cell "+Rp 350.000 BPJSTK: Rp 150.000 Maghrib: Rp 200.000" [ref=f2e1015]':
+                    - generic [ref=f2e1016]: +Rp 350.000
+                    - generic [ref=f2e1017]:
+                      - generic [ref=f2e1018]: "BPJSTK: Rp 150.000"
+                      - generic [ref=f2e1019]: "Maghrib: Rp 200.000"
+                  - cell "-Rp 10.000" [ref=f2e1020]
+                  - cell "Rp 2.850.000" [ref=f2e1022]
+                  - cell "Dibayar" [ref=f2e1024]
+                  - cell [ref=f2e1028]:
+                    - generic [ref=f2e1029]:
+                      - button "Slip" [ref=f2e1030]
+                      - link "Unduh File PDF" [ref=f2e1035] [cursor=pointer]:
+                        - /url: http://127.0.0.1:8001/finance/gaji-guru/slip/73?download=1
+                      - button "Lihat Detail Rincian Gaji" [ref=f2e1039]
+                      - button "Ubah Rincian Gaji" [ref=f2e1043]
+                      - button "Batalkan Pembayaran (Kembalikan ke Draf)" [ref=f2e1047]
+                - row [ref=f2e1051]:
+                  - cell [ref=f2e1052]:
+                    - checkbox [ref=f2e1053] [cursor=pointer]
+                  - 'cell "FA Fatmawati, S.Pd. Guru / Pegawai • NIY: 198904042013022004 • Riwayat Gaji" [ref=f2e1054]':
+                    - generic [ref=f2e1055]:
+                      - generic [ref=f2e1056]: FA
+                      - generic [ref=f2e1057]:
+                        - button "Fatmawati, S.Pd." [ref=f2e1058] [cursor=pointer]
+                        - generic [ref=f2e1059]:
+                          - generic [ref=f2e1060]: Guru / Pegawai
+                          - generic [ref=f2e1061]: •
+                          - generic [ref=f2e1062]: "NIY: 198904042013022004"
+                          - generic [ref=f2e1063]: •
+                          - link "Riwayat Gaji" [ref=f2e1064] [cursor=pointer]:
+                            - /url: http://127.0.0.1:8001/finance/gaji-guru/544
+                  - cell "Mei 2026" [ref=f2e1070]
+                  - cell "Rp 2.500.000" [ref=f2e1072]
+                  - 'cell "+Rp 350.000 BPJSTK: Rp 150.000 Maghrib: Rp 200.000" [ref=f2e1074]':
+                    - generic [ref=f2e1075]: +Rp 350.000
+                    - generic [ref=f2e1076]:
+                      - generic [ref=f2e1077]: "BPJSTK: Rp 150.000"
+                      - generic [ref=f2e1078]: "Maghrib: Rp 200.000"
+                  - cell "-Rp 10.000" [ref=f2e1079]
+                  - cell "Rp 2.850.000" [ref=f2e1081]
+                  - cell "Dibayar" [ref=f2e1083]
+                  - cell [ref=f2e1087]:
+                    - generic [ref=f2e1088]:
+                      - button "Slip" [ref=f2e1089]
+                      - link "Unduh File PDF" [ref=f2e1094] [cursor=pointer]:
+                        - /url: http://127.0.0.1:8001/finance/gaji-guru/slip/72?download=1
+                      - button "Lihat Detail Rincian Gaji" [ref=f2e1098]
+                      - button "Ubah Rincian Gaji" [ref=f2e1102]
+                      - button "Batalkan Pembayaran (Kembalikan ke Draf)" [ref=f2e1106]
+            - navigation "Pagination Navigation" [ref=f2e1112]:
+              - generic [ref=f2e1113]:
+                - paragraph [ref=f2e1115]: Showing 1 to 15 of 42 results
+                - generic [ref=f2e1117]:
+                  - generic "pagination.previous" [ref=f2e1119]
+                  - generic [ref=f2e1123]: "1"
+                  - button "Go to page 2" [ref=f2e1127]: "2"
+                  - button "Go to page 3" [ref=f2e1129]: "3"
+                  - button "pagination.next" [ref=f2e1131]
+          - generic [ref=f2e1143]:
+            - generic [ref=f2e1144]:
+              - generic [ref=f2e1145]:
+                - generic [ref=f2e1146]: DRAF PAYROLL PRA-GENERATE
+                - heading "Generate Draf Honorarium Pegawai" [level=3] [ref=f2e1149]
+                - paragraph [ref=f2e1153]: Tinjau, sesuaikan nominal gaji per guru, lalu generate draf sekaligus dalam satu klik.
+              - button "Tutup" [ref=f2e1154] [cursor=pointer]
+            - generic [ref=f2e1159]:
+              - generic [ref=f2e1160]:
+                - generic [ref=f2e1161]:
+                  - generic [ref=f2e1162]: Bulan Gaji
+                  - combobox [ref=f2e1163]:
+                    - option "Januari"
+                    - option "Februari"
+                    - option "Maret"
+                    - option "April"
+                    - option "Mei"
+                    - option "Juni"
+                    - option "Juli"
+                    - option "Agustus" [selected]
+                    - option "September"
+                    - option "Oktober"
+                    - option "November"
+                    - option "Desember"
+                - generic [ref=f2e1164]:
+                  - generic [ref=f2e1165]: Tahun
+                  - spinbutton [ref=f2e1166]: "2026"
+                - generic [ref=f2e1167]:
+                  - generic [ref=f2e1168]: "Status Draf:"
+                  - generic [ref=f2e1169]: 7 Pegawai Siap Digenerate
+              - table [ref=f2e1171]:
+                - rowgroup [ref=f2e1172]:
+                  - row [ref=f2e1173]:
+                    - columnheader [ref=f2e1174]:
+                      - checkbox "Pilih Semua" [checked] [ref=f2e1175] [cursor=pointer]
+                    - columnheader "Pegawai & Jabatan" [ref=f2e1176]
+                    - columnheader "Gaji Pokok (Rp)" [ref=f2e1177]
+                    - columnheader "Berkala (Rp)" [ref=f2e1178]
+                    - columnheader "Insentif (Rp)" [ref=f2e1179]
+                    - columnheader "Ekskul (Rp)" [ref=f2e1180]
+                    - columnheader "Pot. Sosial" [ref=f2e1181]
+                    - columnheader "Kasbon" [ref=f2e1182]
+                    - columnheader "Take Home Pay" [ref=f2e1183]
+                - rowgroup [ref=f2e1184]:
+                  - row [ref=f2e1185]:
+                    - cell [ref=f2e1186]:
+                      - checkbox [checked] [ref=f2e1187] [cursor=pointer]
+                    - 'cell "Guru Teladan, S.Pd. Guru Pengajar NIY: 1234567890" [ref=f2e1188]':
+                      - generic [ref=f2e1189]: Guru Teladan, S.Pd.
+                      - generic [ref=f2e1190]: Guru Pengajar
+                      - text: "NIY: 1234567890"
+                    - cell [ref=f2e1191]:
+                      - textbox [ref=f2e1193]: 1.000.000
+                    - cell [ref=f2e1194]:
+                      - textbox [ref=f2e1196]: "0"
+                    - cell [ref=f2e1197]:
+                      - textbox [ref=f2e1199]: "150.000"
+                    - cell [ref=f2e1200]:
+                      - textbox [ref=f2e1202]: "0"
+                    - cell [ref=f2e1203]:
+                      - textbox [ref=f2e1205]: "10.000"
+                    - cell [ref=f2e1206]:
+                      - textbox [ref=f2e1208]: "160.000"
+                    - cell "Rp 980.000" [ref=f2e1209]
+                  - row [ref=f2e1211]:
+                    - cell [ref=f2e1212]:
+                      - checkbox [checked] [ref=f2e1213] [cursor=pointer]
+                    - 'cell "Budi Santoso, S.Pd. Guru Pengajar NIY: 198501012010011001" [ref=f2e1214]':
+                      - generic [ref=f2e1215]: Budi Santoso, S.Pd.
+                      - generic [ref=f2e1216]: Guru Pengajar
+                      - text: "NIY: 198501012010011001"
+                    - cell [ref=f2e1217]:
+                      - textbox [ref=f2e1219]: 1.000.000
+                    - cell [ref=f2e1220]:
+                      - textbox [ref=f2e1222]: "0"
+                    - cell [ref=f2e1223]:
+                      - textbox [ref=f2e1225]: "150.000"
+                    - cell [ref=f2e1226]:
+                      - textbox [ref=f2e1228]: "0"
+                    - cell [ref=f2e1229]:
+                      - textbox [ref=f2e1231]: "10.000"
+                    - cell [ref=f2e1232]:
+                      - textbox [ref=f2e1234]: "300.000"
+                    - cell "Rp 840.000" [ref=f2e1235]
+                  - row [ref=f2e1237]:
+                    - cell [ref=f2e1238]:
+                      - checkbox [checked] [ref=f2e1239] [cursor=pointer]
+                    - 'cell "Lutfi Hakim, S.Pd. Guru Pengajar NIY: 198702022012011002" [ref=f2e1240]':
+                      - generic [ref=f2e1241]: Lutfi Hakim, S.Pd.
+                      - generic [ref=f2e1242]: Guru Pengajar
+                      - text: "NIY: 198702022012011002"
+                    - cell [ref=f2e1243]:
+                      - textbox [ref=f2e1245]: 1.000.000
+                    - cell [ref=f2e1246]:
+                      - textbox [ref=f2e1248]: "0"
+                    - cell [ref=f2e1249]:
+                      - textbox [ref=f2e1251]: "150.000"
+                    - cell [ref=f2e1252]:
+                      - textbox [ref=f2e1254]: "0"
+                    - cell [ref=f2e1255]:
+                      - textbox [ref=f2e1257]: "10.000"
+                    - cell [ref=f2e1258]:
+                      - textbox [ref=f2e1260]: "0"
+                    - cell "Rp 1.140.000" [ref=f2e1261]
+                  - row [ref=f2e1263]:
+                    - cell [ref=f2e1264]:
+                      - checkbox [checked] [ref=f2e1265] [cursor=pointer]
+                    - 'cell "Hasan Basri, S.Pd.I. Wali Tahfizh NIY: 199003032015011003" [ref=f2e1266]':
+                      - generic [ref=f2e1267]: Hasan Basri, S.Pd.I.
+                      - generic [ref=f2e1268]: Wali Tahfizh
+                      - text: "NIY: 199003032015011003"
+                    - cell [ref=f2e1269]:
+                      - textbox [ref=f2e1271]: 1.000.000
+                    - cell [ref=f2e1272]:
+                      - textbox [ref=f2e1274]: "0"
+                    - cell [ref=f2e1275]:
+                      - textbox [ref=f2e1277]: "150.000"
+                    - cell [ref=f2e1278]:
+                      - textbox [ref=f2e1280]: "0"
+                    - cell [ref=f2e1281]:
+                      - textbox [ref=f2e1283]: "10.000"
+                    - cell [ref=f2e1284]:
+                      - textbox [ref=f2e1286]: "500.000"
+                    - cell "Rp 640.000" [ref=f2e1287]
+                  - row [ref=f2e1289]:
+                    - cell [ref=f2e1290]:
+                      - checkbox [checked] [ref=f2e1291] [cursor=pointer]
+                    - 'cell "Fatmawati, S.Pd. Guru Pengajar NIY: 198904042013022004" [ref=f2e1292]':
+                      - generic [ref=f2e1293]: Fatmawati, S.Pd.
+                      - generic [ref=f2e1294]: Guru Pengajar
+                      - text: "NIY: 198904042013022004"
+                    - cell [ref=f2e1295]:
+                      - textbox [ref=f2e1297]: 1.000.000
+                    - cell [ref=f2e1298]:
+                      - textbox [ref=f2e1300]: "0"
+                    - cell [ref=f2e1301]:
+                      - textbox [ref=f2e1303]: "150.000"
+                    - cell [ref=f2e1304]:
+                      - textbox [ref=f2e1306]: "0"
+                    - cell [ref=f2e1307]:
+                      - textbox [ref=f2e1309]: "10.000"
+                    - cell [ref=f2e1310]:
+                      - textbox [ref=f2e1312]: "0"
+                    - cell "Rp 1.140.000" [ref=f2e1313]
+                  - row [ref=f2e1315]:
+                    - cell [ref=f2e1316]:
+                      - checkbox [checked] [ref=f2e1317] [cursor=pointer]
+                    - 'cell "Dewi Lestari, S.S.Q. Wali Tahfizh NIY: 199205052018022005" [ref=f2e1318]':
+                      - generic [ref=f2e1319]: Dewi Lestari, S.S.Q.
+                      - generic [ref=f2e1320]: Wali Tahfizh
+                      - text: "NIY: 199205052018022005"
+                    - cell [ref=f2e1321]:
+                      - textbox [ref=f2e1323]: 1.000.000
+                    - cell [ref=f2e1324]:
+                      - textbox [ref=f2e1326]: "0"
+                    - cell [ref=f2e1327]:
+                      - textbox [ref=f2e1329]: "150.000"
+                    - cell [ref=f2e1330]:
+                      - textbox [ref=f2e1332]: "0"
+                    - cell [ref=f2e1333]:
+                      - textbox [ref=f2e1335]: "10.000"
+                    - cell [ref=f2e1336]:
+                      - textbox [ref=f2e1338]: "0"
+                    - cell "Rp 1.140.000" [ref=f2e1339]
+                  - row [ref=f2e1341]:
+                    - cell [ref=f2e1342]:
+                      - checkbox [checked] [ref=f2e1343] [cursor=pointer]
+                    - 'cell "Ustadz Nurul Mina, S.Pd. Wali Tahfizh NIY: 200003152202211000" [ref=f2e1344]':
+                      - generic [ref=f2e1345]: Ustadz Nurul Mina, S.Pd.
+                      - generic [ref=f2e1346]: Wali Tahfizh
+                      - text: "NIY: 200003152202211000"
+                    - cell [ref=f2e1347]:
+                      - textbox [ref=f2e1349]: 1.000.000
+                    - cell [ref=f2e1350]:
+                      - textbox [ref=f2e1352]: "0"
+                    - cell [ref=f2e1353]:
+                      - textbox [ref=f2e1355]: "150.000"
+                    - cell [ref=f2e1356]:
+                      - textbox [ref=f2e1358]: "0"
+                    - cell [ref=f2e1359]:
+                      - textbox [ref=f2e1361]: "10.000"
+                    - cell [ref=f2e1362]:
+                      - textbox [ref=f2e1364]: "0"
+                    - cell "Rp 1.140.000" [ref=f2e1365]
+              - generic [ref=f2e1367]:
+                - generic [ref=f2e1368]:
+                  - generic [ref=f2e1369]: Ringkasan Draf Terpilih
+                  - generic [ref=f2e1370]:
+                    - strong [ref=f2e1371]: "7"
+                    - text: "dari 7 pegawai dipilih • Total THP:"
+                    - strong [ref=f2e1372]: Rp 7.020.000
+                - generic [ref=f2e1373]:
+                  - button "Batal" [ref=f2e1374] [cursor=pointer]
+                  - button "Generate & Simpan (7 Guru)" [ref=f2e1376] [cursor=pointer]
+  - button "Buka menu aksesibilitas" [ref=f2e1135]
