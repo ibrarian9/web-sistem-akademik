@@ -140,22 +140,35 @@
                             </div>
                         </td>
                         <td class="p-3.5 text-xs text-stone-800 text-right font-bold border-r border-stone-200">
-                            Rp {{ number_format($sal->gaji_pokok, 0, ',', '.') }}
+                            <div>Rp {{ number_format($sal->gaji_pokok, 0, ',', '.') }}</div>
+                            @if ($sal->gaji_berkala > 0)
+                                <div class="text-[10px] text-emerald-700 font-semibold">+ Berkala: Rp {{ number_format($sal->gaji_berkala, 0, ',', '.') }}</div>
+                            @endif
                         </td>
                         <td class="p-3.5 text-xs text-stone-700 text-right border-r border-stone-200 space-y-0.5">
+                            @php
+                                $totalTunjangan = floatval($sal->gaji_berkala) + floatval($sal->honor_ekskul) + floatval($sal->insentif) + floatval($sal->insentif_bpjs) + floatval($sal->insentif_maghrib_mengaji);
+                            @endphp
                             <span class="text-[11px] block text-emerald-800 font-bold">
-                                + Rp {{ number_format($sal->insentif_bpjs + $sal->insentif_maghrib_mengaji, 0, ',', '.') }}
+                                + Rp {{ number_format($totalTunjangan, 0, ',', '.') }}
                             </span>
                             <span class="text-[10px] block text-stone-500">
-                                BPJS: {{ number_format($sal->insentif_bpjs, 0, ',', '.') }} | Ngaji: {{ number_format($sal->insentif_maghrib_mengaji, 0, ',', '.') }}
+                                @if ($sal->insentif > 0) Insentif: {{ number_format($sal->insentif, 0, ',', '.') }} @endif
+                                @if ($sal->honor_ekskul > 0) | Ekskul ({{ $sal->jumlah_ekskul }}x): {{ number_format($sal->honor_ekskul, 0, ',', '.') }} @endif
+                                @if ($sal->insentif_bpjs > 0) | BPJS: {{ number_format($sal->insentif_bpjs, 0, ',', '.') }} @endif
                             </span>
                         </td>
                         <td class="p-3.5 text-xs text-stone-700 text-right border-r border-stone-200 space-y-0.5">
+                            @php
+                                $totalPot = floatval($sal->potongan_sosial) + floatval($sal->potongan_peminjaman) + floatval($sal->potongan_bpjstk) + floatval($sal->potongan_lainnya);
+                            @endphp
                             <span class="text-[11px] block text-rose-600 font-bold">
-                                - Rp {{ number_format($sal->potongan_peminjaman + $sal->potongan_lainnya, 0, ',', '.') }}
+                                - Rp {{ number_format($totalPot, 0, ',', '.') }}
                             </span>
                             <span class="text-[10px] block text-stone-500">
-                                Kasbon: {{ number_format($sal->potongan_peminjaman, 0, ',', '.') }} | Lain: {{ number_format($sal->potongan_lainnya, 0, ',', '.') }}
+                                @if ($sal->potongan_sosial > 0) Sosial: {{ number_format($sal->potongan_sosial, 0, ',', '.') }} @endif
+                                @if ($sal->potongan_peminjaman > 0) | Kasbon: {{ number_format($sal->potongan_peminjaman, 0, ',', '.') }} @endif
+                                @if ($sal->potongan_bpjstk > 0) | BPJS: {{ number_format($sal->potongan_bpjstk, 0, ',', '.') }} @endif
                             </span>
                         </td>
                         <td class="p-3.5 text-xs font-black text-emerald-800 text-right border-r border-stone-200">

@@ -116,9 +116,9 @@ test('authenticated users can access all authorized module routes with HTTP 200/
         'petugas_id' => $finance->id,
     ]);
 
-    // Test Finance Key Routes
+    // 1. Test Finance Routes
     $this->actingAs($finance);
-    $routesToTest = [
+    $financeRoutes = [
         route('finance.dashboard'),
         route('finance.overview-pembayaran'),
         route('finance.tagihan'),
@@ -127,6 +127,7 @@ test('authenticated users can access all authorized module routes with HTTP 200/
         route('finance.input-pembayaran', ['siswa_id' => $siswa->id]),
         route('finance.tabungan'),
         route('finance.arus-kas'),
+        route('finance.arus-masuk'),
         route('finance.dana-bos'),
         route('finance.gaji-guru'),
         route('finance.peminjaman'),
@@ -134,29 +135,187 @@ test('authenticated users can access all authorized module routes with HTTP 200/
         route('finance.laporan.pemasukan'),
         route('finance.laporan.pengeluaran'),
         route('finance.pembayaran.resi', $pembayaran->id),
+        route('shared.tutorial-faq'),
+        route('shared.notifications'),
     ];
 
-    foreach ($routesToTest as $url) {
+    foreach ($financeRoutes as $url) {
         $res = $this->get($url);
-        expect($res->status())->toBeLessThan(500, "Route {$url} returned status {$res->status()}");
+        expect($res->status())->toBeLessThan(500, "Finance Route {$url} returned status {$res->status()}");
     }
 
-    // Test Super Admin Key Routes
+    // 2. Test Super Admin Routes
     $this->actingAs($superAdmin);
     $adminRoutes = [
         route('super-admin.dashboard'),
         route('super-admin.siswa'),
         route('super-admin.guru'),
+        route('super-admin.capaian-guru'),
+        route('super-admin.karyawan'),
         route('super-admin.kelas'),
+        route('super-admin.plotting-kelas'),
+        route('super-admin.surat'),
         route('super-admin.jadwal'),
         route('super-admin.kalender-akademik'),
+        route('super-admin.kenaikan-kelas'),
+        route('super-admin.laporan.absensi-siswa'),
+        route('super-admin.laporan.absensi-guru'),
+        route('super-admin.laporan.rekap-nilai'),
         route('super-admin.user'),
         route('super-admin.audit-log'),
+        route('super-admin.error-log'),
         route('super-admin.pengaturan'),
     ];
 
     foreach ($adminRoutes as $url) {
         $res = $this->get($url);
-        expect($res->status())->toBeLessThan(500, "Route {$url} returned status {$res->status()}");
+        expect($res->status())->toBeLessThan(500, "Super Admin Route {$url} returned status {$res->status()}");
+    }
+
+    // 3. Test Tata Usaha Routes
+    $tuUser = \App\Models\User::create([
+        'nama' => 'TU Test',
+        'username' => 'tu_test',
+        'email' => 'tu_test@test.com',
+        'password' => bcrypt('password'),
+        'role_id' => $roleTU->id,
+        'status' => 'aktif',
+    ]);
+    $this->actingAs($tuUser);
+    $tuRoutes = [
+        route('tata-usaha.dashboard'),
+        route('tata-usaha.absensi-karyawan'),
+        route('tata-usaha.karyawan'),
+        route('tata-usaha.piket'),
+        route('tata-usaha.user'),
+        route('tata-usaha.siswa'),
+        route('tata-usaha.alumni'),
+        route('tata-usaha.guru'),
+        route('tata-usaha.kelas'),
+        route('tata-usaha.plotting-kelas'),
+        route('tata-usaha.surat'),
+        route('tata-usaha.jadwal'),
+        route('tata-usaha.kalender-akademik'),
+        route('tata-usaha.kenaikan-kelas'),
+        route('tata-usaha.komponen-nilai'),
+        route('tata-usaha.laporan.absensi-siswa'),
+        route('tata-usaha.laporan.absensi-guru'),
+        route('tata-usaha.laporan.rekap-nilai'),
+    ];
+
+    foreach ($tuRoutes as $url) {
+        $res = $this->get($url);
+        expect($res->status())->toBeLessThan(500, "TU Route {$url} returned status {$res->status()}");
+    }
+
+    // 4. Test Guru Routes (Umum & Tahfizh)
+    $guruUser = \App\Models\User::create([
+        'nama' => 'Guru Test',
+        'username' => 'guru_test',
+        'email' => 'guru_test@test.com',
+        'password' => bcrypt('password'),
+        'role_id' => $roleGuru->id,
+        'status' => 'aktif',
+    ]);
+    $guru = \App\Models\Guru::create([
+        'user_id' => $guruUser->id,
+        'nip' => '198501012010011002',
+        'niy' => 'YFI-G01',
+        'jenis_guru' => 'umum',
+        'status_kepegawaian' => 'tetap_yayasan',
+        'pendidikan' => 'S1 Pendidikan',
+        'tanggal_masuk' => date('Y-m-d'),
+        'status_aktif' => true,
+    ]);
+    $this->actingAs($guruUser);
+    $guruRoutes = [
+        route('guru.dashboard'),
+        route('guru.absensi-siswa'),
+        route('guru.jadwal-mengajar'),
+        route('guru.piket'),
+        route('guru.kurikulum-merdeka'),
+        route('guru.input-sumatif'),
+        route('guru.penilaian-p5'),
+        route('guru.bobot-nilai'),
+        route('guru.remedial'),
+        route('guru.kelola-rapor'),
+        route('guru.pengembangan-diri'),
+        route('guru.absensi-diri'),
+        route('guru.slip-gaji'),
+        route('guru.kalender-akademik'),
+        route('guru.laporan.absensi-siswa'),
+        route('guru.laporan.rekap-nilai'),
+    ];
+
+    foreach ($guruRoutes as $url) {
+        $res = $this->get($url);
+        expect($res->status())->toBeLessThan(500, "Guru Route {$url} returned status {$res->status()}");
+    }
+
+    // 5. Test Murid Routes
+    $this->actingAs($muridUser);
+    $muridRoutes = [
+        route('murid.dashboard'),
+        route('murid.rapor'),
+        route('murid.tahfidz'),
+        route('murid.remedial'),
+        route('murid.kehadiran'),
+        route('murid.ekskul'),
+        route('murid.jadwal'),
+        route('murid.kalender-akademik'),
+        route('murid.tagihan'),
+        route('murid.tabungan'),
+        route('murid.riwayat-aktivitas'),
+    ];
+
+    foreach ($muridRoutes as $url) {
+        $res = $this->get($url);
+        expect($res->status())->toBeLessThan(500, "Murid Route {$url} returned status {$res->status()}");
+    }
+
+    // 6. Test Kepala Sekolah & Pengawas Routes
+    $roleKepsek = \App\Models\Role::where('nama', 'kepala_sekolah')->first();
+    $kepsekUser = \App\Models\User::create([
+        'nama' => 'Kepsek Test',
+        'username' => 'kepsek_test',
+        'email' => 'kepsek_test@test.com',
+        'password' => bcrypt('password'),
+        'role_id' => $roleKepsek->id,
+        'status' => 'aktif',
+    ]);
+    $this->actingAs($kepsekUser);
+    $kepsekRoutes = [
+        route('kepala-sekolah.dashboard'),
+        route('kepala-sekolah.laporan.absensi-siswa'),
+        route('kepala-sekolah.laporan.absensi-guru'),
+        route('kepala-sekolah.laporan.rekap-nilai'),
+        route('kepala-sekolah.audit-log'),
+        route('kepala-sekolah.kalender-akademik'),
+    ];
+
+    foreach ($kepsekRoutes as $url) {
+        $res = $this->get($url);
+        expect($res->status())->toBeLessThan(500, "Kepsek Route {$url} returned status {$res->status()}");
+    }
+
+    $rolePengawas = \App\Models\Role::where('nama', 'pengawas')->first();
+    $pengawasUser = \App\Models\User::create([
+        'nama' => 'Pengawas Test',
+        'username' => 'pengawas_test',
+        'email' => 'pengawas_test@test.com',
+        'password' => bcrypt('password'),
+        'role_id' => $rolePengawas->id,
+        'status' => 'aktif',
+    ]);
+    $this->actingAs($pengawasUser);
+    $pengawasRoutes = [
+        route('pengawas.dashboard'),
+        route('pengawas.koreksi-nilai'),
+        route('pengawas.kalender-akademik'),
+    ];
+
+    foreach ($pengawasRoutes as $url) {
+        $res = $this->get($url);
+        expect($res->status())->toBeLessThan(500, "Pengawas Route {$url} returned status {$res->status()}");
     }
 });

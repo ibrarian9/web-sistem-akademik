@@ -27,7 +27,7 @@
             ['title' => 'Edit Live & Pratinjau PDF', 'desc' => 'Periksa isian surat. Pada modal pratinjau, Anda dapat mengedit teks secara langsung (Live Interactive Editor).'],
             ['title' => 'Unduh PDF / Cetak Resmi', 'desc' => 'Klik tombol Unduh File PDF untuk mengunduh berkas .pdf resmi atau Cetak Dokumen untuk mencetak Kop YFI/SD Tahfizh F3.']
         ]"
-        notes="Format Kop & susunan surat 100% disesuaikan dengan dokumen resmi Yayasan Firyal Indonesia / SD Tahfizh F3 Pekanbaru."
+        notes="Format Kop & susunan surat 100% disesuaikan dengan dokumen resmi Yayasan F3 / SD Tahfizh F3 Pekanbaru."
     />
 
     @if (session()->has('message'))
@@ -400,7 +400,7 @@
 
                             <!-- Teks Header Kop -->
                             <div class="flex-1 text-center font-sans px-2">
-                                <h3 class="text-sm font-bold uppercase tracking-wider text-black m-0">YAYASAN FIRYAL INDONESIA (YFI)</h3>
+                                <h3 class="text-sm font-bold uppercase tracking-wider text-black m-0">YAYASAN F3</h3>
                                 <h1 class="text-xl font-black uppercase tracking-wider text-black m-0 mt-0.5">SEKOLAH DASAR TAHFIZH F3</h1>
                                 <h4 class="text-xs font-bold uppercase tracking-wider text-black m-0">AKREDITASI B</h4>
                                 <p class="text-[10px] font-semibold leading-tight text-stone-800 mt-1">

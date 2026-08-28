@@ -207,6 +207,8 @@ Route::middleware(['auth'])->group(function () {
         // Peminjaman & Gaji Guru
         Route::get('/peminjaman', \App\Livewire\Finance\ManajemenPeminjaman::class)->name('peminjaman');
         Route::get('/gaji-guru', \App\Livewire\Finance\ManajemenGajiGuru::class)->name('gaji-guru');
+        Route::get('/gaji-guru/{guruId}', \App\Livewire\Finance\DetailGajiGuru::class)->name('gaji-guru.detail');
+        Route::get('/gaji-guru/riwayat/{guruId}', \App\Livewire\Finance\DetailGajiGuru::class)->name('gaji-guru.riwayat');
 
         // Laporan Keuangan
         Route::get('/laporan/tunggakan', \App\Livewire\Finance\Laporan\LaporanTunggakan::class)->name('laporan.tunggakan');

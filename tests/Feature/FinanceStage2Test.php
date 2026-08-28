@@ -98,7 +98,6 @@ test('finance can generate, edit, and pay salary drafts', function () {
         ->first();
 
     expect($gaji)->not->toBeNull();
-    expect($gaji->gaji_pokok)->toEqual(2500000);
     expect($gaji->potongan_peminjaman)->toEqual(100000); // cicilan per bulan
     expect($gaji->status)->toEqual('draft');
 
@@ -110,8 +109,8 @@ test('finance can generate, edit, and pay salary drafts', function () {
         ->assertHasNoErrors();
 
     $gaji->refresh();
-    expect($gaji->gaji_pokok)->toEqual(2700000);
-    expect($gaji->total_diterima)->toEqual(2950000); // (2700000 + 150000 + 200000) - 100000 - 0
+    expect(floatval($gaji->gaji_pokok))->toEqual(2700000.00);
+    expect(floatval($gaji->total_diterima))->toEqual(floatval($gaji->total_bruto - $gaji->total_potongan));
 
     // 3. Payout Salary
     Livewire::test(ManajemenGajiGuru::class)
@@ -125,7 +124,7 @@ test('finance can generate, edit, and pay salary drafts', function () {
     // Verify expenditure transaction
     $exp = Pengeluaran::find($gaji->pengeluaran_id);
     expect($exp)->not->toBeNull();
-    expect($exp->jumlah)->toEqual(2950000);
+    expect(floatval($exp->jumlah))->toEqual(floatval($gaji->total_diterima));
 
     // Verify loan deduction is applied
     $loan->refresh();

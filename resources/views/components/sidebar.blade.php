@@ -315,7 +315,7 @@
                 </div>
             @else
                 @php
-                    $isActive = !empty($item['route']) && request()->routeIs($item['route']);
+                    $isActive = !empty($item['route']) && (request()->routeIs($item['route']) || request()->routeIs($item['route'] . '.*'));
                 @endphp
                 <a href="{{ !empty($item['route']) ? route($item['route']) : '#' }}" wire:navigate
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group

@@ -158,7 +158,7 @@
 
             <!-- Teks Kop Surat Resmi -->
             <td class="kop-text">
-                <div class="kop-yfi">YAYASAN FIRYAL INDONESIA (YFI)</div>
+                <div class="kop-yfi">YAYASAN F3</div>
                 <div class="kop-title">SEKOLAH DASAR TAHFIZH F3</div>
                 <div class="kop-akreditasi">AKREDITASI B</div>
                 <div class="kop-alamat">

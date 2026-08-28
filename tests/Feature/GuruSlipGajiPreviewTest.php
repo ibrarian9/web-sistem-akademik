@@ -179,7 +179,7 @@ test('template slip gaji tidak lagi menampilkan kop surat yayasan', function () 
 
     expect($html)->not->toContain('header-kop');
     expect($html)->not->toContain('YAYASAN PENDIDIKAN ISLAM');
-    expect($html)->toContain('SLIP GAJI & PENGHASILAN GURU');
+    expect($html)->toContain('HONORARIUM PEGAWAI YAYASAN F3');
     expect($html)->toContain('Ustadz Ahmad Fauzi');
 });
 

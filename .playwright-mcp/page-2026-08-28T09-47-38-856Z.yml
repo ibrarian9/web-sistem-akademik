@@ -1,0 +1,20 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - heading "Sistem Akademik Yayasan" [level=1] [ref=e8]
+    - paragraph [ref=e9]: Silakan masuk untuk mengakses dashboard Anda
+  - generic [ref=e11]:
+    - generic [ref=e12]:
+      - generic [ref=e13]: Username
+      - textbox "Username" [ref=e18]:
+        - /placeholder: Masukkan username Anda
+    - generic [ref=e19]:
+      - generic [ref=e20]: Password
+      - generic [ref=e21]:
+        - textbox "Password" [ref=e25]:
+          - /placeholder: ••••••••
+        - button "Tampilkan/Sembunyikan Password" [ref=e26]
+    - generic [ref=e31] [cursor=pointer]:
+      - checkbox "Ingat saya di perangkat ini" [ref=e32]
+      - generic [ref=e33]: Ingat saya di perangkat ini
+    - button "Masuk ke Aplikasi" [ref=e34]
+  - generic [ref=e38]: © 2026 Yayasan Pendidikan Islam. Hak Cipta Dilindungi.

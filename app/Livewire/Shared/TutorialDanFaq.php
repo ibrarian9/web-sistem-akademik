@@ -163,6 +163,115 @@ class TutorialDanFaq extends Component
                 ],
                 'action_route' => in_array($role, ['finance', 'super_admin']) ? 'finance.input-pembayaran' : null,
                 'action_label' => 'Buka Input Pembayaran'
+            ],
+            [
+                'id' => 'penggajian-yayasan-f3',
+                'category' => 'finance',
+                'category_label' => 'Finance & Bendahara',
+                'role_badge' => 'Payroll Yayasan F3',
+                'title' => 'Panduan Penggajian Pegawai Yayasan F3, Edit Pra-Generate & Slip Gaji QR',
+                'problem_desc' => 'Bagaimana alur lengkap pembuatan honorarium/gaji, penyesuaian nominal, dan penerbitan slip gaji resmi?',
+                'consequences' => [
+                    'Menjamin transparansi gaji pokok, berkala, insentif, ekskul, potongan sosial Rp 10.000, BPJSTK, dan potongan kasbon.',
+                    'Gaji berstatus Dibayar otomatis membukukan transaksi pengeluaran di Buku Kas Yayasan dan memotong saldo kasbon guru.',
+                    'Menerbitkan Slip Gaji Digital Resmi ber-QR Code untuk masing-masing pegawai.'
+                ],
+                'steps' => [
+                    [
+                        'step' => 1,
+                        'title' => 'Buka Menu Gaji Guru',
+                        'desc' => 'Masuk ke menu "Gaji Guru" pada sidebar Pengeluaran & Anggaran Yayasan.'
+                    ],
+                    [
+                        'step' => 2,
+                        'title' => 'Generate Draf Massal atau Buat Manual',
+                        'desc' => 'Klik "Generate Draf Gaji" untuk seluruh guru sekaligus atau "Buat Gaji Manual" untuk pegawai perorangan. Pada modal generate, Anda dapat langsung mengedit angka per kolom (Gaji Pokok, Ekskul, Insentif, Kasbon) sebelum draf disimpan.'
+                    ],
+                    [
+                        'step' => 3,
+                        'title' => 'Tinjau & Ubah Fleksibel Kapan Saja',
+                        'desc' => 'Klik tombol "Ubah" pada baris guru kapan saja untuk merevisi nominal gaji. Jika gaji sudah dibayar, sistem otomatis menyinkronkan nilai pengeluaran kas.'
+                    ],
+                    [
+                        'step' => 4,
+                        'title' => 'Proses Pembayaran (Bayar)',
+                        'desc' => 'Klik tombol "Bayar" untuk mencatat pengeluaran kas yayasan dan memotong saldo cicilan kasbon guru secara otomatis.'
+                    ],
+                    [
+                        'step' => 5,
+                        'title' => 'Cetak & Unduh Slip Gaji PDF Ber-QR Code',
+                        'desc' => 'Klik "Slip" untuk pratinjau slip ber-QR Code, "Unduh" untuk file PDF satuan, atau "Bulk Unduh PDF" untuk mengunduh seluruh slip pegawai dalam satu berkas.'
+                    ]
+                ],
+                'action_route' => in_array($role, ['finance', 'super_admin']) ? 'finance.gaji-guru' : null,
+                'action_label' => 'Buka Manajemen Gaji Guru'
+            ],
+            [
+                'id' => 'fasilitas-kasbon-guru',
+                'category' => 'finance',
+                'category_label' => 'Finance & Bendahara',
+                'role_badge' => 'Integrasi Kasbon',
+                'title' => 'Panduan Fasilitas Kasbon Pegawai & Pemotongan Cicilan Otomatis',
+                'problem_desc' => 'Bagaimana mencatat pinjaman kasbon dan memastikan pemotongan cicilan berjalan otomatis?',
+                'consequences' => [
+                    'Menghindari lupa potong cicilan pinjaman pada saat proses penggajian bulanan.',
+                    'Sisa saldo pinjaman otomatis berkurang secara akurat dan transparan saat gaji dibayarkan.'
+                ],
+                'steps' => [
+                    [
+                        'step' => 1,
+                        'title' => 'Catat Pinjaman Baru',
+                        'desc' => 'Buka menu "Kasbon Guru" (/finance/peminjaman) lalu klik tombol "Catat Pinjaman Baru".'
+                    ],
+                    [
+                        'step' => 2,
+                        'title' => 'Isi Nominal & Tenor Bulan',
+                        'desc' => 'Pilih nama guru, masukkan nominal pinjaman, tenor bulan, serta tanggal pencairan kasbon. Sistem otomatis menghitung cicilan per bulan.'
+                    ],
+                    [
+                        'step' => 3,
+                        'title' => 'Otomatis Terdeteksi di Draf Gaji',
+                        'desc' => 'Saat periode penggajian tiba, kolom Kasbon otomatis terisi nominal cicilan bulanan guru yang bersangkutan.'
+                    ],
+                    [
+                        'step' => 4,
+                        'title' => 'Otomatis Mengurangi Saldo Saat Bayar',
+                        'desc' => 'Ketika status gaji dibayar, sisa saldo kasbon otomatis terpotong. Status pinjaman akan berubah otomatis menjadi "Lunas" setelah seluruh cicilan selesai.'
+                    ]
+                ],
+                'action_route' => in_array($role, ['finance', 'super_admin']) ? 'finance.peminjaman' : null,
+                'action_label' => 'Buka Menu Kasbon Guru'
+            ],
+            [
+                'id' => 'guru-slip-gaji-mandiri',
+                'category' => 'guru',
+                'category_label' => 'Guru & Pengajar',
+                'role_badge' => 'Slip Gaji Mandiri',
+                'title' => 'Cara Guru Melihat & Mengunduh Slip Gaji Digital Mandiri',
+                'problem_desc' => 'Bagaimana guru mengecek rincian penerimaan honorarium dan bukti slip gaji ber-QR Code?',
+                'consequences' => [
+                    'Guru mendapatkan transparansi penuh atas gaji pokok, insentif, ekskul, dan potongan.',
+                    'Guru dapat mengunduh dokumen slip gaji resmi kapan saja tanpa perlu meminta berkas cetak ke bendahara.'
+                ],
+                'steps' => [
+                    [
+                        'step' => 1,
+                        'title' => 'Buka Menu Slip Gaji Saya',
+                        'desc' => 'Login ke akun Guru, klik menu "Slip Gaji Saya" pada sidebar kelompok Keuangan Saya.'
+                    ],
+                    [
+                        'step' => 2,
+                        'title' => 'Pilih Periode Bulan & Tahun',
+                        'desc' => 'Pilih periode bulan dan tahun penggajian untuk melihat kartu slip gaji resmi.'
+                    ],
+                    [
+                        'step' => 3,
+                        'title' => 'Cek Rincian & Unduh PDF',
+                        'desc' => 'Periksa rincian Penerimaan (Gaji Pokok, Berkala, Ekskul, Insentif, BPJS), Potongan (Sosial, Kasbon, BPJSTK), dan Take Home Pay, lalu klik tombol "Unduh PDF Resmi" untuk menyimpan file PDF ber-QR Code.'
+                    ]
+                ],
+                'action_route' => $role === 'guru' ? 'guru.slip-gaji-saya' : null,
+                'action_label' => 'Buka Slip Gaji Saya'
             ]
         ];
 
@@ -181,18 +290,36 @@ class TutorialDanFaq extends Component
             ],
             [
                 'id' => 'faq-3',
+                'question' => 'Apakah kasbon guru otomatis memotong slip gaji dan mengurangi saldo pinjaman?',
+                'answer' => 'Ya, sistem secara otomatis mendeteksi pinjaman aktif guru dan mengisi nilai cicilan ke kolom Kasbon saat draf gaji digenerate. Begitu tombol "Bayar" diklik, sisa saldo kasbon di menu Kasbon Guru otomatis terpotong dan statusnya otomatis menjadi "Lunas" bila seluruh angsuran telah terpenuhi.',
+                'category' => 'finance'
+            ],
+            [
+                'id' => 'faq-4',
+                'question' => 'Apakah Finance dapat mengubah nominal gaji setelah digenerate atau setelah dibayar?',
+                'answer' => 'Ya, Finance memiliki fleksibilitas penuh: dapat mengedit nominal langsung di tabel modal sebelum digenerate, maupun menekan tombol "Ubah" pada baris tabel kapan saja. Jika gaji yang diubah sudah berstatus Dibayar, sistem otomatis menyinkronkan nilai pengeluaran kas di Buku Kas Keuangan Yayasan.',
+                'category' => 'finance'
+            ],
+            [
+                'id' => 'faq-5',
+                'question' => 'Bagaimana jika ingin membatalkan status pembayaran gaji yang keliru?',
+                'answer' => 'Finance cukup menekan tombol "Batal" (ikon putar balik) pada baris gaji terkait. Sistem akan mengembalikan status gaji menjadi Draf, menghapus transaksi pengeluaran kas otomatis, dan mengembalikan nominal cicilan ke saldo kasbon guru.',
+                'category' => 'finance'
+            ],
+            [
+                'id' => 'faq-6',
                 'question' => 'Bagaimana cara orang tua memberikan tanggapan setoran Tahfizh anak?',
                 'answer' => 'Orang tua / Wali murid dapat masuk ke Portal Murid -> Menu Evaluasi Tahfizh -> klik tombol "Beri Tanggapan Orang Tua" pada baris setoran mutaba\'ah ustadz.',
                 'category' => 'murid'
             ],
             [
-                'id' => 'faq-4',
+                'id' => 'faq-7',
                 'question' => 'Apakah Rapor Digital Kurikulum Merdeka mendukung cetak PDF?',
                 'answer' => 'Ya, sistem dilengkapi dengan PDF Render Engine otomatis untuk Rapor Akademik (Kurikulum Merdeka & KTSP) serta Lembar Rapor Tahfizh yang siap dicetak atau diunduh langsung dalam format PDF resmi.',
                 'category' => 'guru'
             ],
             [
-                'id' => 'faq-5',
+                'id' => 'faq-8',
                 'question' => 'Bagaimana prosedur pergantian password akun login?',
                 'answer' => 'Pengguna dapat mengganti password mandiri melalui menu "Profil Saya" -> "Ubah Password". Jika lupa password, Tata Usaha atau Super Admin dapat mereset password melalui menu Manajemen User.',
                 'category' => 'semua'
