@@ -1,4 +1,7 @@
 <div class="space-y-6 font-sans">
+    <!-- Navigation Tabs Menu (Top of Page) -->
+    <x-finance.tagihan-nav-tabs active="tagihan" />
+
     <!-- Header Title Bar -->
     <x-page-header 
         title="Manajemen Tagihan Siswa" 
@@ -8,25 +11,38 @@
         icon="file-text"
     >
         <x-slot:actions>
-            <div class="flex items-center gap-2.5">
-                <x-button variant="secondary" size="md" icon="credit-card" href="{{ route('finance.input-pembayaran') }}">
-                    Kasir Pembayaran Siswa
-                </x-button>
-                <x-button variant="primary" size="md" icon="plus" wire:click="openCreateModal">
-                    Rilis Tagihan Siswa
-                </x-button>
-            </div>
+            <x-button variant="primary" size="md" icon="plus" wire:click="openCreateModal">
+                Rilis Tagihan Siswa
+            </x-button>
         </x-slot:actions>
     </x-page-header>
 
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
-        title="Petunjuk Manajemen Tagihan Siswa" 
+        title="Petunjuk Manajemen Tagihan & SPP Siswa" 
         :steps="[
-            ['title' => 'Tabel Per-Siswa', 'desc' => 'Daftar diringkas 1 baris per siswa dengan total tagihan, total dibayar, dan sisa tunggakan.'],
-            ['title' => 'Tombol Detail & Edit', 'desc' => 'Klik tombol Detail untuk melihat rincian tagihan per bulan, serta tombol Edit untuk mengubah nominal/jatuh tempo.'],
-            ['title' => 'Wewenang Akses', 'desc' => 'Finance dapat menerbitkan dan mengedit tagihan. Penghapusan tagihan hanya dapat dilakukan oleh Founder / Super Admin.']
+            [
+                'title' => '1. Rilis Tagihan Massal & Mandiri', 
+                'desc' => 'Klik tombol Rilis Tagihan Siswa untuk menerbitkan tagihan sekaligus per kelas, seluruh siswa, atau memilih siswa tertentu. Berlaku untuk SPP bulanan maupun tagihan non-SPP (Uang Gedung, Seragam, dll).'
+            ],
+            [
+                'title' => '2. Dukungan SPP Rp 0 (Beasiswa)', 
+                'desc' => 'Untuk siswa penerima beasiswa / bebas biaya, masukkan nominal Rp 0. Sistem secara otomatis menandai tagihan sebagai LUNAS dan tidak mencatatnya sebagai tunggakan.'
+            ],
+            [
+                'title' => '3. Proteksi Duplikasi Tagihan', 
+                'desc' => 'Sistem mencegah pembuatan tagihan ganda pada periode dan kategori yang sama. Jika data sudah ada, sistem akan melewati tagihan tersebut dan menampilkan ringkasan.'
+            ],
+            [
+                'title' => '4. Akses Detail & Kasir Langsung', 
+                'desc' => 'Klik tombol Detail pada baris siswa untuk melihat rincian riwayat tagihan & kwitansi perorangan, atau klik tombol Input Bayar untuk langsung membuka kasir pembayaran.'
+            ],
+            [
+                'title' => '5. Wewenang & Audit Trail', 
+                'desc' => 'Role Finance, Super Admin, dan Founder memiliki akses penuh untuk menerbitkan, mengedit nominal/jatuh tempo, dan menghapus tagihan. Seluruh aksi terekam dalam Log Audit.'
+            ]
         ]"
+        notes="Gunakan filter kelas, kategori tagihan, status pelunasan, dan kolom pencarian untuk memantau rekapitulasi tunggakan siswa secara instan."
     />
 
     @if (session()->has('warning'))
@@ -290,7 +306,8 @@
                 label="Nominal Tagihan Baru (Rp)" 
                 name="edit_nominal" 
                 wire:model="edit_nominal" 
-                placeholder="Contoh: 350.000" 
+                placeholder="Contoh: 350.000 (Isi 0 jika Gratis / Beasiswa)" 
+                hint="Jika diisi Rp 0, status tagihan otomatis menjadi Lunas."
                 required 
             />
 
@@ -471,8 +488,8 @@
                     label="Nominal Tagihan Siswa (Rp)" 
                     name="nominal" 
                     wire:model="nominal" 
-                    placeholder="Contoh: 350.000" 
-                    hint="Dapat disesuaikan secara fleksibel untuk siswa beasiswa atau potongan khusus."
+                    placeholder="Contoh: 350.000 (Isi 0 jika Gratis / Beasiswa)" 
+                    hint="Dapat disesuaikan secara fleksibel untuk siswa beasiswa atau pembebasan SPP (Isi 0 untuk otomatis Lunas)."
                     required 
                 />
 
@@ -519,78 +536,62 @@
                             </div>
                         </label>
                     </div>
+
+                    @error('bulkTarget') 
+                        <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> 
+                    @enderror
                 </div>
 
                 @if ($bulkTarget === 'custom')
-                    <!-- MULTI-STUDENT PICKER (LINTAS KELAS) -->
-                    <div class="space-y-3 bg-stone-50/80 border border-stone-200 p-3.5 rounded-2xl">
-                        <div class="flex items-center justify-between gap-2">
-                            <span class="text-xs font-extrabold text-stone-900 flex items-center gap-1.5">
-                                <x-lucide-user-plus class="w-4 h-4 text-indigo-600" />
-                                <span>Cari & Tambah Siswa Lintas Kelas</span>
+                    <!-- Multi-Select Siswa Lintas Kelas -->
+                    <div class="p-4 bg-stone-50/80 border border-stone-200 rounded-2xl space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-extrabold text-stone-800">Cari & Pilih Siswa Penerima</span>
+                            <span class="text-[11px] font-black text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-200">
+                                {{ count($bulkSelectedSiswaIds) }} Siswa Dipilih
                             </span>
-                            @if (count($bulkSelectedSiswaIds) > 0)
-                                <button 
-                                    type="button" 
-                                    wire:click="clearBulkSelected" 
-                                    class="text-[11px] font-bold text-rose-600 hover:text-rose-800 hover:underline cursor-pointer">
-                                    Hapus Semua Pilihan
-                                </button>
-                            @endif
                         </div>
 
-                        <!-- Filter Kelas & Search Input -->
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            <div class="sm:col-span-1">
-                                <select wire:model.live="bulkSearchKelasId" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-indigo-600 shadow-2xs">
-                                    <option value="">Semua Kelas</option>
-                                    @foreach ($classes as $c)
-                                        <option value="{{ $c['id'] }}">Kelas {{ $c['nama_kelas'] }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="sm:col-span-2 relative">
-                                <input 
-                                    type="text" 
-                                    wire:model.live.debounce.250ms="bulkSearchStudent" 
-                                    placeholder="Ketik nama siswa atau NIS..." 
-                                    class="w-full pl-9 pr-4 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-semibold focus:ring-2 focus:ring-indigo-600 shadow-2xs" 
-                                />
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400">
-                                    <x-lucide-search class="w-4 h-4" />
-                                </div>
-                            </div>
+                        <!-- Class filter & search -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <select wire:model.live="bulkSearchKelasId" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-indigo-600 shadow-2xs">
+                                <option value="">-- Semua Kelas --</option>
+                                @foreach ($classes as $c)
+                                    <option value="{{ $c['id'] }}">Kelas {{ $c['nama_kelas'] }}</option>
+                                @endforeach
+                            </select>
+
+                            <input 
+                                type="text" 
+                                wire:model.live.debounce.300ms="bulkSearchStudent" 
+                                placeholder="Ketik nama / NIS siswa..." 
+                                class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-indigo-600 shadow-2xs"
+                            />
                         </div>
 
-                        <!-- Search Matching Results -->
-                        @if (count($bulkSearchedStudents) > 0)
-                            <div class="bg-white border border-stone-200 rounded-xl shadow-xs p-2 max-h-44 overflow-y-auto space-y-1 divide-y divide-stone-100">
-                                @foreach ($bulkSearchedStudents as $bs)
-                                    @php
-                                        $isAlreadySelected = in_array($bs->id, $bulkSelectedSiswaIds);
-                                    @endphp
-                                    <div class="pt-1 first:pt-0 flex items-center justify-between gap-2 p-1.5 hover:bg-indigo-50/50 rounded-lg transition">
-                                        <div class="flex items-center gap-2">
-                                            <span class="w-6 h-6 rounded-md bg-indigo-100 text-indigo-800 font-extrabold text-[10px] flex items-center justify-center shrink-0">
-                                                {{ strtoupper(substr($bs->user->nama ?? 'S', 0, 2)) }}
-                                            </span>
-                                            <div>
-                                                <span class="text-xs font-bold text-stone-900 block leading-none">{{ $bs->user->nama ?? '-' }}</span>
-                                                <span class="text-[10px] text-stone-500 font-mono">NIS: {{ $bs->nis }} • Kelas {{ $bs->kelas->nama_kelas ?? '-' }}</span>
-                                            </div>
+                        <!-- Search Results for selection -->
+                        @if (!empty($bulkSearchedStudents) && count($bulkSearchedStudents) > 0)
+                            <div class="max-h-48 overflow-y-auto border border-stone-200 rounded-xl bg-white divide-y divide-stone-100 shadow-2xs">
+                                @foreach ($bulkSearchedStudents as $res)
+                                    @php $isSelected = in_array($res->id, $bulkSelectedSiswaIds); @endphp
+                                    <div class="p-2.5 flex items-center justify-between hover:bg-stone-50 transition {{ $isSelected ? 'bg-indigo-50/40' : '' }}">
+                                        <div>
+                                            <span class="text-xs font-extrabold text-stone-900 block leading-tight">{{ $res->user->nama ?? '-' }}</span>
+                                            <span class="text-[10px] text-stone-500 font-mono">NIS: {{ $res->nis }} • Kelas {{ $res->kelas->nama_kelas ?? '-' }}</span>
                                         </div>
-                                        @if ($isAlreadySelected)
+
+                                        @if ($isSelected)
                                             <button 
                                                 type="button" 
-                                                wire:click="removeSiswaFromBulk({{ $bs->id }})" 
-                                                class="px-2.5 py-1 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-lg text-[10px] font-bold border border-rose-200 transition cursor-pointer">
-                                                Batal Pilih
+                                                wire:click="removeSiswaFromBulk({{ $res->id }})" 
+                                                class="px-2.5 py-1 bg-rose-100 hover:bg-rose-200 text-rose-800 text-[11px] font-extrabold rounded-lg transition cursor-pointer">
+                                                ✕ Hapus
                                             </button>
                                         @else
                                             <button 
                                                 type="button" 
-                                                wire:click="addSiswaToBulk({{ $bs->id }})" 
-                                                class="px-2.5 py-1 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg text-[10px] font-bold shadow-2xs transition cursor-pointer">
+                                                wire:click="addSiswaToBulk({{ $res->id }})" 
+                                                class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-extrabold rounded-lg transition cursor-pointer">
                                                 + Pilih
                                             </button>
                                         @endif
@@ -609,7 +610,7 @@
                                 <span>Daftar Siswa Dipilih ({{ count($bulkSelectedSiswaIds) }} Siswa):</span>
                             </div>
 
-                            @if (count($selectedStudentsList) > 0)
+                            @if (!empty($selectedStudentsList) && count($selectedStudentsList) > 0)
                                 <div class="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-1 bg-white border border-stone-200 rounded-xl">
                                     @foreach ($selectedStudentsList as $sel)
                                         <div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 border border-indigo-200 rounded-lg text-indigo-950 text-xs font-bold shadow-2xs">
@@ -700,8 +701,8 @@
                     label="Nominal Tagihan yang Diterapkan (Rp)" 
                     name="nominal" 
                     wire:model="nominal" 
-                    placeholder="Contoh: 350.000" 
-                    hint="Nominal ini akan diterapkan serentak ke seluruh siswa yang dipilih di atas."
+                    placeholder="Contoh: 350.000 (Isi 0 jika Gratis / Beasiswa)" 
+                    hint="Nominal ini akan diterapkan serentak ke seluruh siswa yang dipilih di atas (Isi 0 untuk otomatis Lunas)."
                     required 
                 />
 

@@ -30,6 +30,21 @@ class Tagihan extends Model
         'jatuh_tempo' => 'date',
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function ($tagihan) {
+            if (floatval($tagihan->nominal) <= 0) {
+                $tagihan->status = 'lunas';
+            }
+        });
+
+        static::updating(function ($tagihan) {
+            if (floatval($tagihan->nominal) <= 0) {
+                $tagihan->status = 'lunas';
+            }
+        });
+    }
+
     public function siswa()
     {
         return $this->belongsTo(Siswa::class);

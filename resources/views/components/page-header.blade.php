@@ -4,11 +4,14 @@
     'badge' => null,
     'badgeVariant' => 'emerald',
     'icon' => null,
+    'breadcrumbs' => [],
 ])
 
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-stone-200 p-6 rounded-2xl shadow-xs">
     <div class="space-y-1">
-        @if ($badge)
+        @if (!empty($breadcrumbs))
+            <x-breadcrumb :items="$breadcrumbs" />
+        @elseif ($badge)
             <div class="flex items-center gap-2 mb-1">
                 <x-badge :variant="$badgeVariant" size="xs">{{ $badge }}</x-badge>
             </div>

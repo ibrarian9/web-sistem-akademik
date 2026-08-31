@@ -88,6 +88,8 @@ class GenerateMonthlySppCommand extends Command
                 continue;
             }
 
+            $status = ($nominal <= 0) ? 'lunas' : 'belum_bayar';
+
             $tagihan = Tagihan::create([
                 'siswa_id' => $siswa->id,
                 'jenis_tagihan_id' => $jenisSpp->id,
@@ -95,7 +97,7 @@ class GenerateMonthlySppCommand extends Command
                 'bulan' => $targetBulan,
                 'nominal' => $nominal,
                 'total_dibayar' => 0,
-                'status' => 'belum_bayar',
+                'status' => $status,
                 'jatuh_tempo' => $dueDate,
             ]);
 

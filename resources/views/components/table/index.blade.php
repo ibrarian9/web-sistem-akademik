@@ -4,21 +4,25 @@
     'overflow' => true,
 ])
 
-<div class="relative bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-xs">
-    @if ($loadingTarget)
-        <!-- Livewire Top Loading Progress Bar -->
-        <div wire:loading.delay wire:target="{{ $loadingTarget }}" class="absolute top-0 left-0 right-0 h-1 bg-emerald-100 overflow-hidden z-30">
+@php
+    $cleanTarget = $loadingTarget ? implode(',', array_map('trim', explode(',', $loadingTarget))) : null;
+@endphp
+
+<div class="relative bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-xs min-h-[120px]">
+    @if ($cleanTarget)
+        <!-- Livewire Top Indeterminate Progress Line -->
+        <div wire:loading.delay.block wire:target="{{ $cleanTarget }}" style="display: none;" class="absolute top-0 left-0 right-0 h-0.5 bg-emerald-100 overflow-hidden z-30 pointer-events-none">
             <div class="w-full h-full bg-emerald-600 animate-pulse"></div>
         </div>
 
-        <!-- Subtle Translucent Overlay with Loading Text -->
-        <div wire:loading.delay wire:target="{{ $loadingTarget }}" class="absolute inset-0 bg-white/60 backdrop-blur-2xs z-20 flex items-center justify-center transition-opacity">
-            <div class="px-4 py-2 bg-stone-900/80 text-white rounded-xl text-xs font-bold shadow-lg flex items-center gap-2.5">
-                <svg class="animate-spin w-4 h-4 text-emerald-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+        <!-- Sleek Translucent Overlay with Centered Indicator Card -->
+        <div wire:loading.delay.flex wire:target="{{ $cleanTarget }}" style="display: none;" class="absolute inset-0 bg-white/75 backdrop-blur-[2px] z-20 items-center justify-center transition-all">
+            <div class="inline-flex items-center gap-2.5 px-4 py-2.5 bg-white border border-stone-200 text-stone-800 rounded-2xl shadow-xl shadow-stone-900/10">
+                <svg class="animate-spin w-4 h-4 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+                    <path class="opacity-85" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                 </svg>
-                <span>Memuat data...</span>
+                <span class="text-xs font-bold text-stone-700 tracking-tight">Memperbarui data...</span>
             </div>
         </div>
     @endif

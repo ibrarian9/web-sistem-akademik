@@ -1,19 +1,12 @@
 <div class="space-y-6 font-sans">
-    <!-- Info & Tutorial Box -->
-    <x-info-tutorial-box 
-        title="Petunjuk Monitoring Status Pembayaran Siswa"
-        :steps="[
-            ['title' => 'Filter Tahun Ajaran', 'desc' => 'Pilih tahun ajaran aktif pada pojok kanan atas untuk memuat statistik kelunasan siswa.'],
-            ['title' => 'Pencarian & Status', 'desc' => 'Cari berdasarkan nama/NIS atau filter status: Lunas, Ada Tunggakan, atau Belum Bayar.'],
-            ['title' => 'Detail Transaksi', 'desc' => 'Klik tombol Detail Pembayaran pada siswa untuk melihat riwayat tagihan dan cetak kuitansi resi.']
-        ]"
-    />
+    <!-- Navigation Tabs Menu (Top of Page) -->
+    <x-finance.tagihan-nav-tabs active="overview" />
 
     <!-- Header Title Bar -->
     <x-page-header 
         title="Overview Pembayaran Siswa" 
-        subtitle="Pantau rangkuman lunas dan tunggakan tagihan administrasi/SPP siswa per tahun ajaran."
-        badge="MONITORING ADMINISTRASI"
+        subtitle="Pantau rangkuman realisasi lunas dan sisa tunggakan tagihan administrasi/SPP siswa per tahun ajaran."
+        badge="MONITORING REALISASI SPP"
         badgeVariant="emerald"
         icon="eye"
     >
@@ -29,6 +22,16 @@
             </div>
         </x-slot:actions>
     </x-page-header>
+
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Monitoring Status Pembayaran Siswa"
+        :steps="[
+            ['title' => 'Filter Tahun Ajaran', 'desc' => 'Pilih tahun ajaran aktif pada pojok kanan atas untuk memuat statistik kelunasan siswa.'],
+            ['title' => 'Pencarian & Status', 'desc' => 'Cari berdasarkan nama/NIS atau filter status: Lunas, Ada Tunggakan, atau Belum Bayar.'],
+            ['title' => 'Detail Transaksi', 'desc' => 'Klik tombol Detail Pembayaran pada siswa untuk melihat riwayat tagihan dan cetak kuitansi resi.']
+        ]"
+    />
 
     <!-- Alert / Toast Banner -->
     @if (session()->has('message'))
@@ -166,15 +169,15 @@
                         <!-- Action button triggers -->
                         <td class="p-3.5 text-center">
                             <div class="flex items-center justify-center gap-1.5 flex-wrap">
-                                <!-- View details modal trigger -->
-                                <x-button variant="secondary" size="xs" icon="list" wire:click="viewDetails({{ $item['id'] }})" title="Rincian Tagihan">
+                                <!-- Link to full student billing ledger & history -->
+                                <x-button variant="secondary" size="xs" icon="file-text" href="{{ route('finance.tagihan.detail', $item['id']) }}" title="Buka Rincian Lengkap Tagihan Siswa">
                                     Detail
                                 </x-button>
 
                                 <!-- Send reminder notification if there are outstanding arrears -->
                                 @if ($item['sisa_tunggakan'] > 0)
                                     <x-button variant="warning" size="xs" icon="bell" wire:click="kirimReminder({{ $item['id'] }})" title="Kirim Reminder" />
-                                    <x-button variant="primary" size="xs" icon="plus" href="{{ route('finance.input-pembayaran', ['siswa_id' => $item['id']]) }}" title="Bayar" />
+                                    <x-button variant="primary" size="xs" icon="credit-card" href="{{ route('finance.input-pembayaran', ['siswa_id' => $item['id']]) }}" title="Bayar Sekarang" />
                                 @endif
                             </div>
                         </td>
@@ -190,99 +193,4 @@
             {{ $siswas->links() }}
         </div>
     </div>
-
-    <!-- Details Floating Modal -->
-    <x-floating-card 
-        :show="$selectedSiswaDetails ? true : false"
-        :title="$selectedSiswaDetails ? ('Rincian Tagihan: ' . ($selectedSiswaDetails->user?->nama ?? '-')) : 'Rincian Tagihan'"
-        :subtitle="$selectedSiswaDetails ? ('Kelas: ' . ($selectedSiswaDetails->kelas?->nama_kelas ?? '-') . ' | NIS: ' . ($selectedSiswaDetails->nis ?? '-')) : ''"
-        badge="RINCIAN TAGIHAN SISWA"
-        badgeVariant="emerald"
-        icon="file-text"
-        maxWidth="max-w-3xl"
-        closeAction="closeDetails"
-    >
-        @if ($selectedSiswaDetails)
-            <div class="space-y-4">
-                <x-table>
-                    <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider text-[11px] border-b border-emerald-900">
-                        <tr>
-                            <x-table.th class="min-w-[150px]">Kategori Tagihan</x-table.th>
-                            <x-table.th class="w-28">Periode</x-table.th>
-                            <x-table.th align="right" class="w-32">Nominal</x-table.th>
-                            <x-table.th align="right" class="w-32">Dibayar</x-table.th>
-                            <x-table.th align="right" class="w-32">Sisa</x-table.th>
-                            <x-table.th align="center" class="w-28">Status</x-table.th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-stone-200 bg-white">
-                        @forelse ($selectedSiswaDetails->tagihans as $t)
-                            <tr class="hover:bg-stone-50 transition">
-                                <td class="p-3 text-xs font-bold text-stone-900 border-r border-stone-200">{{ $t->jenisTagihan->nama ?? '-' }}</td>
-                                <td class="p-3 text-xs text-stone-600 border-r border-stone-200">{{ $t->bulan ?: '-' }}</td>
-                                <td class="p-3 text-xs font-bold text-stone-900 text-right border-r border-stone-200">Rp {{ number_format($t->nominal, 0, ',', '.') }}</td>
-                                <td class="p-3 text-xs text-emerald-700 text-right font-bold border-r border-stone-200">Rp {{ number_format($t->total_dibayar, 0, ',', '.') }}</td>
-                                <td class="p-3 text-xs text-rose-600 text-right font-black border-r border-stone-200">Rp {{ number_format($t->nominal - $t->total_dibayar, 0, ',', '.') }}</td>
-                                <td class="p-3 text-center">
-                                    @switch($t->status)
-                                        @case('lunas')
-                                            <x-badge variant="emerald" size="xs">Lunas</x-badge>
-                                            @break
-                                        @case('sebagian')
-                                            <x-badge variant="amber" size="xs">Sebagian</x-badge>
-                                            @break
-                                        @case('batal')
-                                            <x-badge variant="stone" size="xs">Batal</x-badge>
-                                            @break
-                                        @default
-                                            <x-badge variant="rose" size="xs">Belum Bayar</x-badge>
-                                    @endswitch
-                                </td>
-                            </tr>
-                            @if ($t->pembayarans && $t->pembayarans->count() > 0)
-                                <tr>
-                                    <td colspan="6" class="bg-stone-50/80 p-3 text-xs">
-                                        <span class="font-bold text-stone-700 block mb-2">Riwayat Pembayaran Kuitansi:</span>
-                                        <div class="space-y-1.5">
-                                            @foreach ($t->pembayarans as $p)
-                                                <div class="flex items-center justify-between bg-white p-2.5 rounded-xl border border-stone-200 shadow-2xs">
-                                                    <div class="flex items-center gap-2.5">
-                                                        <span class="font-mono font-bold text-stone-900 text-[11px]">{{ $p->no_resi ?? '-' }}</span>
-                                                        <span class="text-stone-500 text-[11px]">{{ date('d/m/Y', strtotime($p->tanggal_bayar)) }}</span>
-                                                        <x-badge variant="stone" size="xs">{{ $p->metode_bayar }}</x-badge>
-                                                        @if ($p->is_void)
-                                                            <x-badge variant="rose" size="xs">VOID</x-badge>
-                                                        @endif
-                                                    </div>
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="font-black text-emerald-800 text-xs">Rp {{ number_format($p->nominal_dibayar, 0, ',', '.') }}</span>
-                                                        @if (!$p->is_void)
-                                                            <x-button type="button" variant="outline" size="xs" icon="printer" href="{{ route('finance.pembayaran.resi', $p->id) }}" target="_blank" title="Cetak Resi">
-                                                                Cetak
-                                                            </x-button>
-                                                            <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="voidPayment({{ $p->id }})" data-confirm="Apakah Anda yakin ingin membatalkan (VOID) transaksi pembayaran ini?" title="Batalkan (VOID)">
-                                                                Batalkan (VOID)
-                                                            </x-button>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endif
-                        @empty
-                            <x-table.empty :colspan="6" title="Tidak ada tagihan aktif" message="Tidak ada tagihan yang dirilis untuk tahun ajaran terpilih." />
-                        @endforelse
-                    </tbody>
-                </x-table>
-
-                <div class="flex justify-end pt-3 border-t border-stone-200">
-                    <x-button variant="secondary" size="sm" wire:click="closeDetails">
-                        Tutup
-                    </x-button>
-                </div>
-            </div>
-        @endif
-    </x-floating-card>
 </div>

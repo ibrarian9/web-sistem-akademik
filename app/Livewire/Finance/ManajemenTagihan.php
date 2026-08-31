@@ -302,7 +302,7 @@ class ManajemenTagihan extends Component
             'single_siswa_id' => 'required|exists:siswa,id',
             'jenis_tagihan_id' => 'required|exists:jenis_tagihan,id',
             'bulan' => 'required|string|max:50',
-            'nominal' => 'required|numeric|min:1',
+            'nominal' => 'required|numeric|min:0',
             'jatuh_tempo' => 'required|date',
         ], [
             'single_siswa_id.required' => 'Pilih siswa penerima tagihan terlebih dahulu.',
@@ -336,6 +336,8 @@ class ManajemenTagihan extends Component
             return;
         }
 
+        $status = ($this->nominal <= 0) ? 'lunas' : 'belum_bayar';
+
         Tagihan::create([
             'siswa_id' => $siswa->id,
             'jenis_tagihan_id' => $this->jenis_tagihan_id,
@@ -343,11 +345,11 @@ class ManajemenTagihan extends Component
             'bulan' => $this->bulan,
             'nominal' => $this->nominal,
             'total_dibayar' => 0.00,
-            'status' => 'belum_bayar',
+            'status' => $status,
             'jatuh_tempo' => $this->jatuh_tempo,
         ]);
 
-        $msg = "Berhasil merilis tagihan untuk siswa " . ($siswa->user->nama ?? 'Siswa') . ".";
+        $msg = "Berhasil merilis tagihan untuk siswa " . ($siswa->user->nama ?? 'Siswa') . ($this->nominal <= 0 ? " (Nominal Rp 0 - Otomatis Lunas)." : ".");
         session()->flash('message', $msg);
         $this->dispatch('show-alert', [
             'title' => 'Tagihan Diterbitkan',
@@ -370,7 +372,7 @@ class ManajemenTagihan extends Component
         $rules = [
             'jenis_tagihan_id' => 'required|exists:jenis_tagihan,id',
             'bulan' => 'required|string|max:50',
-            'nominal' => 'required|numeric|min:1',
+            'nominal' => 'required|numeric|min:0',
             'jatuh_tempo' => 'required|date',
         ];
 
@@ -413,6 +415,8 @@ class ManajemenTagihan extends Component
         $skippedCount = 0;
 
         DB::transaction(function () use ($targetStudents, $activeTA, &$createdCount, &$skippedCount) {
+            $status = ($this->nominal <= 0) ? 'lunas' : 'belum_bayar';
+
             foreach ($targetStudents as $siswa) {
                 // Check if duplicate tagihan exists
                 $exists = Tagihan::where('siswa_id', $siswa->id)
@@ -429,7 +433,7 @@ class ManajemenTagihan extends Component
                         'bulan' => $this->bulan,
                         'nominal' => $this->nominal,
                         'total_dibayar' => 0.00,
-                        'status' => 'belum_bayar',
+                        'status' => $status,
                         'jatuh_tempo' => $this->jatuh_tempo,
                     ]);
                     $createdCount++;
@@ -448,18 +452,18 @@ class ManajemenTagihan extends Component
                 'type' => 'warning',
             ]);
         } elseif ($createdCount > 0 && $skippedCount > 0) {
-            $msg = "Berhasil merilis tagihan untuk {$createdCount} siswa. ({$skippedCount} siswa dilewati karena sudah memiliki tagihan ini).";
-            session()->flash('warning', $msg);
+            $msg = "Berhasil merilis tagihan untuk {$createdCount} siswa ({$skippedCount} siswa dilewati karena sudah memiliki tagihan ini).";
+            session()->flash('message', $msg);
             $this->dispatch('show-alert', [
-                'title' => 'Tagihan Dirilis (Sebagian Dilewati)',
+                'title' => 'Rilis Massal Selesai',
                 'message' => $msg,
-                'type' => 'warning',
+                'type' => 'create',
             ]);
         } else {
             $msg = "Berhasil merilis tagihan untuk {$createdCount} siswa.";
             session()->flash('message', $msg);
             $this->dispatch('show-alert', [
-                'title' => 'Rilis Tagihan Berhasil',
+                'title' => 'Rilis Massal Selesai',
                 'message' => $msg,
                 'type' => 'create',
             ]);
@@ -480,21 +484,25 @@ class ManajemenTagihan extends Component
         
         $this->resetValidation();
         $this->editingTagihanId = $tagihan->id;
-        $this->edit_jenis_tagihan_id = $tagihan->jenis_tagihan_id;
-        $this->edit_bulan = $tagihan->bulan ?? 'Juli';
-        $this->edit_nominal = floatval($tagihan->nominal);
-        $this->edit_total_dibayar = floatval($tagihan->total_dibayar);
-        $this->edit_jatuh_tempo = $tagihan->jatuh_tempo ? $tagihan->jatuh_tempo->format('Y-m-d') : date('Y-m-d', strtotime('+30 days'));
-        $this->edit_siswa_nama = $tagihan->siswa->user->nama ?? ('Siswa #' . $tagihan->siswa->nis);
-
+        $this->resetValidation();
+        $t = Tagihan::with(['siswa.user', 'jenisTagihan'])->findOrFail($tagihanId);
+        
+        $this->editingTagihanId = $t->id;
+        $this->edit_jenis_tagihan_id = $t->jenis_tagihan_id;
+        $this->edit_bulan = $t->bulan;
+        $this->edit_nominal = floatval($t->nominal);
+        $this->edit_jatuh_tempo = $t->jatuh_tempo ? date('Y-m-d', strtotime($t->jatuh_tempo)) : '';
+        $this->edit_total_dibayar = floatval($t->total_dibayar);
+        $this->edit_siswa_nama = ($t->siswa->user->nama ?? 'Siswa') . ' (' . ($t->jenisTagihan->nama ?? 'Tagihan') . ' - ' . $t->bulan . ')';
+        
         $this->showEditModal = true;
     }
 
     public function closeEditModal()
     {
         $this->showEditModal = false;
-        $this->resetValidation();
         $this->editingTagihanId = null;
+        $this->resetValidation();
     }
 
     public function saveEditTagihan()
@@ -503,7 +511,7 @@ class ManajemenTagihan extends Component
             'editingTagihanId' => 'required|exists:tagihan,id',
             'edit_jenis_tagihan_id' => 'required|exists:jenis_tagihan,id',
             'edit_bulan' => 'required|string|max:50',
-            'edit_nominal' => 'required|numeric|min:1',
+            'edit_nominal' => 'required|numeric|min:0',
             'edit_jatuh_tempo' => 'required|date',
         ]);
 
@@ -516,7 +524,7 @@ class ManajemenTagihan extends Component
 
         // Recalculate status based on new nominal
         $status = 'belum_bayar';
-        if ($tagihan->total_dibayar >= $this->edit_nominal) {
+        if ($this->edit_nominal <= 0 || $tagihan->total_dibayar >= $this->edit_nominal) {
             $status = 'lunas';
         } elseif ($tagihan->total_dibayar > 0) {
             $status = 'sebagian';

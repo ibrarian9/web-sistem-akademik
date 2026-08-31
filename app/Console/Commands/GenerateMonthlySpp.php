@@ -74,6 +74,8 @@ class GenerateMonthlySpp extends Command
                 ->exists();
 
             if (!$exists) {
+                $status = (floatval($jtSpp->default_nominal) <= 0) ? 'lunas' : 'belum_bayar';
+
                 Tagihan::create([
                     'siswa_id' => $siswa->id,
                     'jenis_tagihan_id' => $jtSpp->id,
@@ -81,7 +83,7 @@ class GenerateMonthlySpp extends Command
                     'bulan' => $currentMonthName,
                     'nominal' => $jtSpp->default_nominal,
                     'total_dibayar' => 0,
-                    'status' => 'belum_bayar',
+                    'status' => $status,
                     'jatuh_tempo' => Carbon::now()->startOfMonth()->addDays(9)->toDateString(), // 10th of current month
                 ]);
                 $countCreated++;

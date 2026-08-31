@@ -1,4 +1,7 @@
 <div class="space-y-6 font-sans">
+    <!-- Navigation Tabs Menu (Top of Page) -->
+    <x-finance.tagihan-nav-tabs active="kasir" />
+
     <!-- Header Title Bar -->
     <x-page-header 
         title="Input Pembayaran Siswa" 
@@ -6,22 +9,38 @@
         badge="KASIR PEMBAYARAN SISWA"
         badgeVariant="emerald"
         icon="plus-circle"
-    >
-        <x-slot:actions>
-            <x-button variant="secondary" size="md" icon="file-text" href="{{ route('finance.tagihan') }}">
-                Manajemen & Rilis Tagihan
-            </x-button>
-        </x-slot:actions>
-    </x-page-header>
+    />
 
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
-        title="Petunjuk Kasir & Input Setoran Pembayaran Siswa"
+        title="Petunjuk Kasir & Pencatatan Pembayaran Siswa"
         :steps="[
-            ['title' => 'Pilih Siswa', 'desc' => 'Klik tombol Bayar Sekarang pada baris siswa untuk membuka card mengambang form kasir.'],
-            ['title' => 'Metode & Nominal', 'desc' => 'Tentukan metode pembayaran (Tunai, Transfer Bank, E-Wallet, Deposit) dan masukkan nominal setoran.'],
-            ['title' => 'Cetak Kuitansi Resi', 'desc' => 'Setelah disimpan, klik Cetak Resi untuk mencetak kuitansi pembayaran sah ber-QR Code & TTD.']
+            [
+                'title' => '1. Cari & Pilih Siswa', 
+                'desc' => 'Gunakan kolom pencarian nama/NIS atau filter kelas pada tabel di bawah, kemudian klik tombol Bayar Sekarang pada baris siswa yang bersangkutan.'
+            ],
+            [
+                'title' => '2. Pilih Tagihan yang Dibayar', 
+                'desc' => 'Centang tagihan (SPP bulanan, Uang Gedung, Seragam, dll.) yang ingin dilunasi. Anda dapat mencentang satu atau beberapa tagihan sekaligus.'
+            ],
+            [
+                'title' => '3. Pilih Metode Pembayaran', 
+                'desc' => 'Pilih metode bayar: Tunai, Transfer Bank, E-Wallet, Saldo Deposit Tabungan, atau Beasiswa. Masukkan nominal uang yang disetorkan.'
+            ],
+            [
+                'title' => '4. Alokasi Kelebihan Setoran (Deposit)', 
+                'desc' => 'Jika Siswa membayar lebih dari jumlah tagihan yang dicentang, selisih uang otomatis disimpan menjadi Saldo Deposit Tabungan untuk tagihan berikutnya.'
+            ],
+            [
+                'title' => '5. Cetak Kuitansi & Resi Sah', 
+                'desc' => 'Setelah transaksi berhasil disimpan, tombol Cetak Resi akan muncul untuk mencetak kuitansi resmi lengkap dengan rincian pelunasan, barcode/QR, dan stempel.'
+            ],
+            [
+                'title' => '6. Pembatalan Transaksi Pembayaran', 
+                'desc' => 'Jika terjadi salah input, transaksi pembayaran dapat dibatalkan atau dihapus melalui menu Rincian Tagihan Siswa di tabel Riwayat Pembayaran.'
+            ]
         ]"
+        notes="Pembayaran dengan metode Saldo Deposit akan langsung memotong saldo tabungan siswa. Pastikan saldo deposit siswa mencukupi sebelum memproses transaksi."
     />
 
     @if (session()->has('message'))

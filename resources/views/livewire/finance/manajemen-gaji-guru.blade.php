@@ -18,6 +18,38 @@
         </x-slot:actions>
     </x-page-header>
 
+    <!-- Info & Tutorial Box -->
+    <x-info-tutorial-box 
+        title="Petunjuk Pengelolaan Honorarium & Gaji Pegawai" 
+        :steps="[
+            [
+                'title' => '1. Generate Draf Gaji Otomatis', 
+                'desc' => 'Klik tombol Generate Draf Gaji untuk menghitung honorarium seluruh pegawai pada bulan tertentu secara otomatis berdasarkan formula tunjangan dan potongan kasbon.'
+            ],
+            [
+                'title' => '2. Buat Gaji Manual Satuan', 
+                'desc' => 'Gunakan tombol Buat Gaji Manual jika ingin menambahkan data penggajian pegawai secara perorangan di luar jadwal generate massal.'
+            ],
+            [
+                'title' => '3. Tinjau & Edit Komponen Gaji', 
+                'desc' => 'Klik tombol Detail / Edit pada baris pegawai untuk meninjau atau menyesuaikan komponen gaji pokok, tunjangan berkala/jabatan, honor mengajar, insentif, dan potongan.'
+            ],
+            [
+                'title' => '4. Pembayaran & Sinkronisasi Kas', 
+                'desc' => 'Klik tombol Bayar pada baris draf atau bayar massal via centang checkbox. Transaksi otomatis membukukan pengeluaran ke Arus Kas Yayasan.'
+            ],
+            [
+                'title' => '5. Cetak Slip Gaji Satuan & Massal', 
+                'desc' => 'Cetak slip gaji resmi pegawai perorangan melalui tombol Slip Gaji, atau cetak seluruh slip gaji dalam satu file PDF melalui tombol Cetak Massal Slip.'
+            ],
+            [
+                'title' => '6. Riwayat Gaji & Koreksi Pembatalan', 
+                'desc' => 'Klik tombol Riwayat untuk melihat histori penggajian pegawai. Jika ada koreksi, pembayaran dapat dibatalkan kembali ke draf dan kas keluar otomatis disesuaikan.'
+            ]
+        ]"
+        notes="Gaji berstatus Draf belum memotong arus kas yayasan. Kas keluar baru tercatat otomatis saat status gaji diubah menjadi Dibayar."
+    />
+
     <!-- Summary KPI Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white border border-stone-200 rounded-2xl p-4 shadow-xs flex items-center justify-between">
