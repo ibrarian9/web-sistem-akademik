@@ -131,7 +131,7 @@
                 <strong>( ..................................... )</strong>
             </td>
             <td width="34%" text-align="center" style="text-align: center;">
-                Yogyakarta, {{ date('d F Y', strtotime($rapor->tanggal_terbit ?? date('Y-m-d'))) }}<br>
+                {{ \App\Models\Pengaturan::getValue('kota', 'Pekanbaru') }}, {{ date('d F Y', strtotime($rapor->tanggal_terbit ?? date('Y-m-d'))) }}<br>
                 Ustadz Pembimbing Tahfizh<br><br><br><br>
                 <strong><u>Ustadz Nurul Mina, S.Pd.</u></strong>
             </td>

@@ -128,7 +128,7 @@
                         <td class="p-3.5 text-xs font-bold text-stone-900 text-right border-r border-stone-200">Rp {{ number_format($t->nominal, 0, ',', '.') }}</td>
                         <td class="p-3.5 text-xs text-emerald-700 text-right font-bold border-r border-stone-200">Rp {{ number_format($t->total_dibayar, 0, ',', '.') }}</td>
                         <td class="p-3.5 text-xs font-black text-rose-700 text-right border-r border-stone-200">Rp {{ number_format($t->nominal - $t->total_dibayar, 0, ',', '.') }}</td>
-                        <td class="p-3.5 text-xs text-stone-600 text-center font-semibold">{{ $t->jatuh_tempo ? $t->jatuh_tempo->format('d/m/Y') : '-' }}</td>
+                        <td class="p-3.5 text-xs text-stone-600 text-center font-semibold">{{ $t->jatuh_tempo ? $t->jatuh_tempo->translatedFormat('d M Y') : '-' }}</td>
                     </tr>
                 @empty
                     <x-table.empty :colspan="8" title="Tidak ada data tunggakan" message="Seluruh tagihan lunas atau tidak ada data yang sesuai filter." />

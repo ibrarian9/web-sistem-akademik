@@ -5,6 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\GajiGuru;
 use App\Models\Pembayaran;
 use App\Models\User;
+use App\Models\DanaBos;
+use App\Models\Tabungan;
+use App\Models\Siswa;
+use App\Models\Kelas;
+use App\Models\TahunAjaran;
+use App\Models\Pengaturan;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
@@ -238,9 +244,18 @@ class FinanceReportController extends Controller
             'kemarin' => 'Kemarin (' . date('d/m/Y', strtotime('-1 day')) . ')',
             'minggu_ini' => 'Minggu Ini',
             'bulan_ini' => 'Bulan Ini',
-            'custom' => ($startDate ? date('d/m/Y', strtotime($startDate)) : '') . ' s/d ' . ($endDate ? date('d/m/Y', strtotime($endDate)) : ''),
+            'custom' => ($startDate ? \Carbon\Carbon::parse($startDate)->translatedFormat('d M Y') : '') . ' s/d ' . ($endDate ? \Carbon\Carbon::parse($endDate)->translatedFormat('d M Y') : ''),
             default => 'Semua Periode',
         };
+
+        $namaSekolah = Pengaturan::getValue('nama_sekolah', 'PONDOK PESANTREN & SEKOLAH ISLAM TERPADU');
+        $alamatSekolah = Pengaturan::getValue('alamat_sekolah', 'Jl. Pendidikan Karakter Islami No. 123');
+        $noTelepon = Pengaturan::getValue('no_telepon', '(0274) 123456');
+
+        $judul = $request->query('judul') ?: 'LAPORAN PENGELUARAN KEUANGAN YAYASAN';
+        $catatan = $request->query('catatan');
+        $penandatangan = $request->query('penandatangan');
+        $jabatanPenandatangan = $request->query('jabatan_penandatangan') ?: 'Bendahara Yayasan';
 
         $pdf = Pdf::loadView('livewire.shared.laporan.pdf-laporan-pengeluaran', [
             'data' => $data,
@@ -250,6 +265,13 @@ class FinanceReportController extends Controller
             'bulan' => $bulan,
             'kategori' => $cat?->nama ?? 'Semua',
             'totalPengeluaran' => $data->sum('jumlah'),
+            'namaSekolah' => $namaSekolah,
+            'alamatSekolah' => $alamatSekolah,
+            'noTelepon' => $noTelepon,
+            'judul' => $judul,
+            'catatan' => $catatan,
+            'penandatangan' => $penandatangan,
+            'jabatanPenandatangan' => $jabatanPenandatangan,
         ])->setPaper('a4', 'landscape');
 
         $filename = 'laporan_pengeluaran_' . date('Ymd_His') . '.pdf';
@@ -489,6 +511,462 @@ class FinanceReportController extends Controller
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="' . $filename . '"'
         ]);
+    }
+
+    public function danaBosPdf(Request $request)
+    {
+        if (!auth()->check()) {
+            abort(403, 'Akses tidak sah.');
+        }
+
+        $user = auth()->user();
+        $userRole = $user->role->nama ?? '';
+
+        if (!in_array($userRole, ['finance', 'super_admin', 'kepala_sekolah', 'founder'])) {
+            abort(403, 'Anda tidak memiliki hak akses untuk mencetak laporan Dana BOS.');
+        }
+
+        $filterPeriode = $request->query('filter_periode');
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+        $jenis = $request->query('jenis', 'semua');
+        $search = $request->query('search');
+
+        $query = DanaBos::with('tahunAjaran');
+
+        if ($jenis !== 'semua' && in_array($jenis, ['masuk', 'keluar'])) {
+            $query->where('jenis', $jenis);
+        }
+
+        if ($filterPeriode === 'hari_ini') {
+            $query->whereDate('tanggal', date('Y-m-d'));
+        } elseif ($filterPeriode === 'kemarin') {
+            $query->whereDate('tanggal', date('Y-m-d', strtotime('-1 day')));
+        } elseif ($filterPeriode === 'minggu_ini') {
+            $query->whereBetween('tanggal', [now()->startOfWeek()->format('Y-m-d'), now()->endOfWeek()->format('Y-m-d')]);
+        } elseif ($filterPeriode === 'bulan_ini') {
+            $query->whereBetween('tanggal', [now()->startOfMonth()->format('Y-m-d'), now()->endOfMonth()->format('Y-m-d')]);
+        } elseif ($filterPeriode === 'custom' || ($startDate && $endDate)) {
+            if ($startDate && $endDate) {
+                $query->whereBetween('tanggal', [$startDate, $endDate]);
+            } elseif ($startDate) {
+                $query->whereDate('tanggal', '>=', $startDate);
+            } elseif ($endDate) {
+                $query->whereDate('tanggal', '<=', $endDate);
+            }
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('kategori', 'like', '%' . $search . '%')
+                  ->orWhere('keterangan', 'like', '%' . $search . '%');
+            });
+        }
+
+        $data = $query->orderBy('tanggal', 'asc')->get();
+
+        if ($data->isEmpty()) {
+            abort(404, 'Tidak ada catatan transaksi dana BOS yang ditemukan.');
+        }
+
+        $totalMasuk = (float) DanaBos::where('jenis', 'masuk')->sum('nominal');
+        $totalKeluar = (float) DanaBos::where('jenis', 'keluar')->sum('nominal');
+        $saldoBos = $totalMasuk - $totalKeluar;
+
+        $activeTA = TahunAjaran::where('status_aktif', true)->first();
+
+        $namaSekolah = Pengaturan::getValue('nama_sekolah', 'PONDOK PESANTREN & SEKOLAH ISLAM TERPADU');
+        $alamatSekolah = Pengaturan::getValue('alamat_sekolah', 'Jl. Pendidikan Karakter Islami No. 123');
+        $noTelepon = Pengaturan::getValue('no_telepon', '(0274) 123456');
+
+        $periodeText = match ($filterPeriode) {
+            'hari_ini' => 'Hari Ini (' . date('d/m/Y') . ')',
+            'kemarin' => 'Kemarin (' . date('d/m/Y', strtotime('-1 day')) . ')',
+            'minggu_ini' => 'Minggu Ini',
+            'bulan_ini' => 'Bulan Ini',
+            'custom' => ($startDate ? date('d/m/Y', strtotime($startDate)) : '') . ' s/d ' . ($endDate ? date('d/m/Y', strtotime($endDate)) : ''),
+            default => 'Semua Periode',
+        };
+
+        $jenisText = match ($jenis) {
+            'masuk' => 'Penerimaan Sahaja',
+            'keluar' => 'Belanja / Realisasi Sahaja',
+            default => 'Semua Mutasi (Penerimaan & Belanja)'
+        };
+
+        $pdf = Pdf::loadView('livewire.shared.laporan.pdf-dana-bos', [
+            'data' => $data,
+            'namaSekolah' => $namaSekolah,
+            'alamatSekolah' => $alamatSekolah,
+            'noTelepon' => $noTelepon,
+            'tahunAjaran' => $activeTA?->nama ?? 'Semua',
+            'periodeText' => $periodeText,
+            'jenisText' => $jenisText,
+            'totalMasuk' => $totalMasuk,
+            'totalKeluar' => $totalKeluar,
+            'saldoBos' => $saldoBos,
+        ])->setPaper('a4', 'portrait');
+
+        $filename = 'rekap_dana_bos_' . date('Ymd_His') . '.pdf';
+
+        if ($request->query('download') === '1' || request('download') === '1') {
+            return response()->streamDownload(function () use ($pdf) {
+                echo $pdf->output();
+            }, $filename, ['Content-Type' => 'application/pdf']);
+        }
+
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"'
+        ]);
+    }
+
+    public function rekapGajiPdf(Request $request)
+    {
+        if (!auth()->check()) {
+            abort(403, 'Akses tidak sah.');
+        }
+
+        $user = auth()->user();
+        $userRole = $user->role->nama ?? '';
+
+        if (!in_array($userRole, ['finance', 'super_admin', 'kepala_sekolah', 'founder'])) {
+            abort(403, 'Anda tidak memiliki hak akses untuk melihat rekapitulasi gaji guru.');
+        }
+
+        $bulan = $request->query('bulan');
+        $tahun = $request->query('tahun');
+        $status = $request->query('status');
+        $search = $request->query('search');
+
+        $query = GajiGuru::with(['guru.user']);
+
+        if ($request->filled('ids')) {
+            $ids = is_array($request->ids) ? $request->ids : explode(',', $request->ids);
+            $query->whereIn('id', array_filter($ids));
+        } else {
+            if ($bulan) {
+                $query->where('bulan', $bulan);
+            }
+            if ($tahun) {
+                $query->where('tahun', $tahun);
+            }
+            if ($status && in_array($status, ['draft', 'dibayar'])) {
+                $query->where('status', $status);
+            }
+            if ($sumberDana = $request->query('sumber_dana')) {
+                $query->where('sumber_dana', $sumberDana);
+            }
+            if ($search) {
+                $query->where(function($q) use ($search) {
+                    $q->whereHas('guru.user', function ($sub) use ($search) {
+                        $sub->where('nama', 'like', '%' . $search . '%');
+                    })->orWhere('jabatan', 'like', '%' . $search . '%')
+                      ->orWhereHas('guru', function ($sub) use ($search) {
+                          $sub->where('nip', 'like', '%' . $search . '%')
+                              ->orWhere('niy', 'like', '%' . $search . '%');
+                      });
+                });
+            }
+        }
+
+        $data = $query->latest('id')->get();
+
+        if ($data->isEmpty()) {
+            abort(404, 'Tidak ada data penggajian guru yang ditemukan.');
+        }
+
+        $namaSekolah = Pengaturan::getValue('nama_sekolah', 'PONDOK PESANTREN & SEKOLAH ISLAM TERPADU');
+        $alamatSekolah = Pengaturan::getValue('alamat_sekolah', 'Jl. Pendidikan Karakter Islami No. 123');
+        $noTelepon = Pengaturan::getValue('no_telepon', '(0274) 123456');
+
+        $statusText = match ($status) {
+            'dibayar' => 'Sudah Dibayar (Lunas)',
+            'draft' => 'Draft / Belum Ditransfer',
+            default => 'Semua Status'
+        };
+
+        $pdf = Pdf::loadView('livewire.shared.laporan.pdf-rekap-gaji-guru', [
+            'data' => $data,
+            'bulan' => $bulan ?: 'Semua Bulan',
+            'tahun' => $tahun ?: date('Y'),
+            'statusText' => $statusText,
+            'namaSekolah' => $namaSekolah,
+            'alamatSekolah' => $alamatSekolah,
+            'noTelepon' => $noTelepon,
+        ])->setPaper('a4', 'landscape');
+
+        $filename = 'rekap_gaji_guru_' . ($bulan ? strtolower($bulan) . '_' : '') . ($tahun ?: date('Y')) . '.pdf';
+
+        if ($request->query('download') === '1' || request('download') === '1') {
+            return response()->streamDownload(function () use ($pdf) {
+                echo $pdf->output();
+            }, $filename, ['Content-Type' => 'application/pdf']);
+        }
+
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"'
+        ]);
+    }
+
+    public function tabunganSiswaPdf(Request $request)
+    {
+        if (!auth()->check()) {
+            abort(403, 'Akses tidak sah.');
+        }
+
+        $user = auth()->user();
+        $userRole = $user->role->nama ?? '';
+
+        if (!in_array($userRole, ['finance', 'super_admin', 'kepala_sekolah', 'founder'])) {
+            abort(403, 'Anda tidak memiliki hak akses untuk melihat laporan tabungan siswa.');
+        }
+
+        $siswaId = $request->query('siswa_id');
+        $kelasId = $request->query('kelas_id');
+        $search = $request->query('search');
+        $view = $request->query('view');
+        $isHistory = $request->query('history') === '1' || $view === 'history';
+
+        $namaSekolah = Pengaturan::getValue('nama_sekolah', 'PONDOK PESANTREN & SEKOLAH ISLAM TERPADU');
+        $alamatSekolah = Pengaturan::getValue('alamat_sekolah', 'Jl. Pendidikan Karakter Islami, Pekanbaru');
+        $noTelepon = Pengaturan::getValue('no_telepon', '(0761) 123456');
+
+        // Mode 0: Jurnal Riwayat Seluruh Mutasi Tabungan Murid
+        if ($isHistory) {
+            $filterPeriode = $request->query('filter_periode');
+            $startDate = $request->query('start_date');
+            $endDate = $request->query('end_date');
+            $jenis = $request->query('jenis');
+
+            $query = Tabungan::with(['siswa.user', 'siswa.kelas', 'petugas']);
+
+            if ($kelasId) {
+                $query->whereHas('siswa', function ($q) use ($kelasId) {
+                    $q->where('kelas_id', $kelasId);
+                });
+            }
+
+            if ($jenis && in_array($jenis, ['setor', 'tarik'])) {
+                $query->where('jenis', $jenis);
+            }
+
+            if ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('kode_transaksi', 'like', '%' . $search . '%')
+                      ->orWhere('keterangan', 'like', '%' . $search . '%')
+                      ->orWhereHas('siswa.user', function ($uq) use ($search) {
+                          $uq->where('nama', 'like', '%' . $search . '%');
+                      })
+                      ->orWhereHas('siswa', function ($sq) use ($search) {
+                          $sq->where('nis', 'like', '%' . $search . '%');
+                      })
+                      ->orWhereHas('petugas', function ($pq) use ($search) {
+                          $pq->where('nama', 'like', '%' . $search . '%');
+                      });
+                });
+            }
+
+            if ($filterPeriode === 'hari_ini') {
+                $query->whereDate('tanggal', date('Y-m-d'));
+            } elseif ($filterPeriode === 'kemarin') {
+                $query->whereDate('tanggal', date('Y-m-d', strtotime('-1 day')));
+            } elseif ($filterPeriode === 'minggu_ini') {
+                $query->whereBetween('tanggal', [now()->startOfWeek()->format('Y-m-d'), now()->endOfWeek()->format('Y-m-d')]);
+            } elseif ($filterPeriode === 'bulan_ini') {
+                $query->whereBetween('tanggal', [now()->startOfMonth()->format('Y-m-d'), now()->endOfMonth()->format('Y-m-d')]);
+            } elseif ($filterPeriode === 'custom' || ($startDate && $endDate)) {
+                if ($startDate && $endDate) {
+                    $query->whereBetween('tanggal', [$startDate, $endDate]);
+                } elseif ($startDate) {
+                    $query->whereDate('tanggal', '>=', $startDate);
+                } elseif ($endDate) {
+                    $query->whereDate('tanggal', '<=', $endDate);
+                }
+            }
+
+            $data = $query->orderBy('tanggal', 'desc')->orderBy('id', 'desc')->get();
+
+            if ($data->isEmpty()) {
+                abort(404, 'Tidak ada riwayat mutasi tabungan yang ditemukan untuk kriteria filter ini.');
+            }
+
+            $totalSetor = (float) $data->where('jenis', 'setor')->sum('nominal');
+            $totalTarik = (float) $data->where('jenis', 'tarik')->sum('nominal');
+
+            $kelas = Kelas::find($kelasId);
+            $namaKelas = $kelas?->nama_kelas ? ('Kelas ' . $kelas->nama_kelas) : 'Semua Kelas';
+
+            $periodeText = match ($filterPeriode) {
+                'hari_ini' => 'Hari Ini (' . date('d/m/Y') . ')',
+                'kemarin' => 'Kemarin (' . date('d/m/Y', strtotime('-1 day')) . ')',
+                'minggu_ini' => 'Minggu Ini',
+                'bulan_ini' => 'Bulan Ini',
+                'custom' => ($startDate ? \Carbon\Carbon::parse($startDate)->translatedFormat('d M Y') : '') . ' s/d ' . ($endDate ? \Carbon\Carbon::parse($endDate)->translatedFormat('d M Y') : ''),
+                default => 'Semua Periode',
+            };
+
+            $jenisText = match ($jenis) {
+                'setor' => 'Mutasi Setor Sahaja',
+                'tarik' => 'Mutasi Tarik Sahaja',
+                default => 'Semua Mutasi (Setor & Tarik)'
+            };
+
+            $pdf = Pdf::loadView('livewire.shared.laporan.pdf-jurnal-tabungan-siswa', [
+                'data' => $data,
+                'totalSetor' => $totalSetor,
+                'totalTarik' => $totalTarik,
+                'namaKelas' => $namaKelas,
+                'periodeText' => $periodeText,
+                'jenisText' => $jenisText,
+                'namaSekolah' => $namaSekolah,
+                'alamatSekolah' => $alamatSekolah,
+                'noTelepon' => $noTelepon,
+            ])->setPaper('a4', 'landscape');
+
+            $filename = 'jurnal_mutasi_tabungan_' . date('Ymd_His') . '.pdf';
+        }
+        // Mode 1: Buku Mutasi 1 Siswa
+        elseif ($siswaId) {
+            $siswa = Siswa::with(['user', 'kelas'])->findOrFail($siswaId);
+            $txRecords = Tabungan::where('siswa_id', $siswaId)
+                ->orderBy('tanggal', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+
+            $mutasi = [];
+            $runningBalance = 0;
+            $totalSetor = 0;
+            $totalTarik = 0;
+
+            foreach ($txRecords as $tx) {
+                if ($tx->jenis === 'setor') {
+                    $runningBalance += (float) $tx->nominal;
+                    $totalSetor += (float) $tx->nominal;
+                } else {
+                    $runningBalance -= (float) $tx->nominal;
+                    $totalTarik += (float) $tx->nominal;
+                }
+
+                $mutasi[] = [
+                    'tanggal' => $tx->tanggal ? $tx->tanggal->format('d/m/Y') : '-',
+                    'jenis' => $tx->jenis,
+                    'keterangan' => $tx->keterangan ?: ($tx->jenis === 'setor' ? 'Setoran Tabungan' : 'Penarikan Tabungan'),
+                    'nominal' => (float) $tx->nominal,
+                    'saldo_berjalan' => $runningBalance,
+                ];
+            }
+
+            $pdf = Pdf::loadView('livewire.shared.laporan.pdf-buku-tabungan-siswa', [
+                'siswa' => $siswa,
+                'mutasi' => $mutasi,
+                'totalSetor' => $totalSetor,
+                'totalTarik' => $totalTarik,
+                'saldoAkhir' => $runningBalance,
+                'namaSekolah' => $namaSekolah,
+                'alamatSekolah' => $alamatSekolah,
+                'noTelepon' => $noTelepon,
+            ])->setPaper('a4', 'portrait');
+
+            $filename = 'buku_tabungan_' . str_replace(' ', '_', strtolower($siswa->user->nama ?? 'siswa')) . '.pdf';
+        } else {
+            // Mode 2: Rekap Saldo Seluruh Siswa
+            $query = Siswa::with(['user', 'kelas', 'tabungans']);
+
+            if ($kelasId) {
+                $query->where('kelas_id', $kelasId);
+            }
+
+            if ($search) {
+                $query->whereHas('user', function ($q) use ($search) {
+                    $q->where('nama', 'like', '%' . $search . '%')
+                      ->orWhere('username', 'like', '%' . $search . '%');
+                });
+            }
+
+            $siswas = $query->get();
+
+            if ($siswas->isEmpty()) {
+                abort(404, 'Tidak ada data tabungan siswa yang ditemukan.');
+            }
+
+            $data = $siswas->map(function ($s) {
+                $setor = (float) $s->tabungans->where('jenis', 'setor')->sum('nominal');
+                $tarik = (float) $s->tabungans->where('jenis', 'tarik')->sum('nominal');
+                $saldo = $setor - $tarik;
+
+                return [
+                    'nis' => $s->nis ?? '-',
+                    'nama' => $s->user->nama ?? '-',
+                    'kelas' => $s->kelas->nama_kelas ?? 'Belum Diatur',
+                    'total_setor' => $setor,
+                    'total_tarik' => $tarik,
+                    'saldo' => $saldo,
+                ];
+            });
+
+            $totalSetorAll = (float) Tabungan::where('jenis', 'setor')->sum('nominal');
+            $totalTarikAll = (float) Tabungan::where('jenis', 'tarik')->sum('nominal');
+            $totalSaldoAll = $totalSetorAll - $totalTarikAll;
+
+            $kelas = Kelas::find($kelasId);
+
+            $pdf = Pdf::loadView('livewire.shared.laporan.pdf-rekap-tabungan-siswa', [
+                'data' => $data,
+                'namaKelas' => $kelas?->nama_kelas ?? 'Semua Kelas',
+                'totalSetorAll' => $totalSetorAll,
+                'totalTarikAll' => $totalTarikAll,
+                'totalSaldoAll' => $totalSaldoAll,
+                'namaSekolah' => $namaSekolah,
+                'alamatSekolah' => $alamatSekolah,
+                'noTelepon' => $noTelepon,
+            ])->setPaper('a4', 'portrait');
+
+            $filename = 'rekap_tabungan_siswa_' . date('Ymd_His') . '.pdf';
+        }
+
+        if ($request->query('download') === '1' || request('download') === '1') {
+            return response()->streamDownload(function () use ($pdf) {
+                echo $pdf->output();
+            }, $filename, ['Content-Type' => 'application/pdf']);
+        }
+
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"'
+        ]);
+    }
+
+    public function arusKasPdf(Request $request)
+    {
+        if (!auth()->check()) {
+            abort(403, 'Akses tidak sah.');
+        }
+
+        $user = auth()->user();
+        $userRole = $user->role->nama ?? '';
+
+        if (!in_array($userRole, ['finance', 'super_admin', 'kepala_sekolah', 'founder'])) {
+            abort(403, 'Anda tidak memiliki hak akses untuk melihat laporan arus kas.');
+        }
+
+        $tab = $request->query('tab', 'semua');
+        $stream = $request->query('stream', 'semua');
+        $filterPeriode = $request->query('filter_periode', 'semua');
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+        $search = $request->query('search', '');
+
+        $component = new \App\Livewire\Finance\ArusKas();
+        $component->tab = $tab;
+        $component->stream = $stream;
+        $component->filterPeriode = $filterPeriode;
+        $component->startDate = $startDate;
+        $component->endDate = $endDate;
+        $component->search = $search;
+
+        return $component->exportPdf();
     }
 
     public static function terbilang($angka)

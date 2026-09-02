@@ -195,7 +195,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', \App\Livewire\Finance\Dashboard::class)->name('dashboard');
         Route::get('/overview-pembayaran', \App\Livewire\Finance\OverviewPembayaran::class)->name('overview-pembayaran');
         Route::get('/tagihan', \App\Livewire\Finance\ManajemenTagihan::class)->name('tagihan');
-        Route::get('/tagihan/{siswaId}', \App\Livewire\Finance\DetailTagihanSiswa::class)->name('tagihan.detail');
+        Route::get('/tagihan/{siswaId}', \App\Livewire\Finance\DetailTagihanSiswa::class)->name('tagihan.detail')->whereNumber('siswaId');
         Route::get('/tabungan', \App\Livewire\Finance\TabunganSiswa::class)->name('tabungan');
         Route::get('/input-pembayaran', \App\Livewire\Finance\InputPembayaran::class)->name('input-pembayaran');
         Route::get('/arus-masuk', \App\Livewire\Finance\ArusMasuk::class)->name('arus-masuk');
@@ -207,8 +207,10 @@ Route::middleware(['auth'])->group(function () {
         // Peminjaman & Gaji Guru
         Route::get('/peminjaman', \App\Livewire\Finance\ManajemenPeminjaman::class)->name('peminjaman');
         Route::get('/gaji-guru', \App\Livewire\Finance\ManajemenGajiGuru::class)->name('gaji-guru');
-        Route::get('/gaji-guru/{guruId}', \App\Livewire\Finance\DetailGajiGuru::class)->name('gaji-guru.detail');
-        Route::get('/gaji-guru/riwayat/{guruId}', \App\Livewire\Finance\DetailGajiGuru::class)->name('gaji-guru.riwayat');
+        Route::get('/gaji-guru/rekap-pdf', [\App\Http\Controllers\FinanceReportController::class, 'rekapGajiPdf'])->name('gaji-guru.rekap-pdf');
+        Route::get('/gaji-guru/rekap-excel', [\App\Http\Controllers\FinanceExportController::class, 'exportRekapGaji'])->name('gaji-guru.rekap-excel');
+        Route::get('/gaji-guru/{guruId}', \App\Livewire\Finance\DetailGajiGuru::class)->name('gaji-guru.detail')->whereNumber('guruId');
+        Route::get('/gaji-guru/riwayat/{guruId}', \App\Livewire\Finance\DetailGajiGuru::class)->name('gaji-guru.riwayat')->whereNumber('guruId');
 
         // Laporan Keuangan
         Route::get('/laporan/tunggakan', \App\Livewire\Finance\Laporan\LaporanTunggakan::class)->name('laporan.tunggakan');
@@ -219,11 +221,17 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/export/tunggakan', [\App\Http\Controllers\FinanceExportController::class, 'exportTunggakan'])->name('export.tunggakan');
         Route::get('/export/pemasukan', [\App\Http\Controllers\FinanceExportController::class, 'exportPemasukan'])->name('export.pemasukan');
         Route::get('/export/pengeluaran', [\App\Http\Controllers\FinanceExportController::class, 'exportPengeluaran'])->name('export.pengeluaran');
+        Route::get('/dana-bos/excel', [\App\Http\Controllers\FinanceExportController::class, 'exportDanaBos'])->name('dana-bos.excel');
+        Route::get('/tabungan/excel', [\App\Http\Controllers\FinanceExportController::class, 'exportTabungan'])->name('tabungan.excel');
+        Route::get('/arus-kas/excel', [\App\Http\Controllers\FinanceExportController::class, 'exportArusKas'])->name('arus-kas.excel');
 
         // PDF Previews & Direct Downloads
         Route::get('/laporan/pengeluaran/pdf', [\App\Http\Controllers\FinanceReportController::class, 'laporanPengeluaranPdf'])->name('laporan.pengeluaran.pdf');
         Route::get('/laporan/pemasukan/pdf', [\App\Http\Controllers\FinanceReportController::class, 'laporanPemasukanPdf'])->name('laporan.pemasukan.pdf');
         Route::get('/laporan/tunggakan/pdf', [\App\Http\Controllers\FinanceReportController::class, 'laporanTunggakanPdf'])->name('laporan.tunggakan.pdf');
+        Route::get('/dana-bos/pdf', [\App\Http\Controllers\FinanceReportController::class, 'danaBosPdf'])->name('dana-bos.pdf');
+        Route::get('/tabungan/pdf', [\App\Http\Controllers\FinanceReportController::class, 'tabunganSiswaPdf'])->name('tabungan.pdf');
+        Route::get('/arus-kas/pdf', [\App\Http\Controllers\FinanceReportController::class, 'arusKasPdf'])->name('arus-kas.pdf');
     });
 
 });

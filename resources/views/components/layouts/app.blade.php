@@ -142,6 +142,9 @@
     <!-- Global Floating Toast Notification -->
     <x-toast-notification />
 
+    <!-- Global Universal Export & Download Loading Modal -->
+    <x-export-loading-modal />
+
     <!-- MicroModal Alert / Confirm Component -->
     <x-micromodal-notification rounded="rounded-2xl" badgeRounded="rounded-xl" categoryRounded="rounded-lg" />
 

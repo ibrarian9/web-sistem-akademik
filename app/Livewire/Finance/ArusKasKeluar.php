@@ -203,6 +203,72 @@ class ArusKasKeluar extends Component
         }, 'laporan_kas_keluar_' . date('Ymd_His') . '.pdf');
     }
 
+    public function exportExcel()
+    {
+        $query = Pengeluaran::with(['kategori', 'petugas'])->orderBy('tanggal', 'desc');
+
+        if ($this->filterKategori) {
+            $query->where('kategori_pengeluaran_id', $this->filterKategori);
+        }
+
+        if ($this->search !== '') {
+            $query->where(function ($q) {
+                $q->where('keterangan', 'like', '%' . $this->search . '%')
+                  ->orWhereHas('kategori', function ($kq) {
+                      $kq->where('nama', 'like', '%' . $this->search . '%');
+                  });
+            });
+        }
+
+        $this->applyDateFilter($query, 'tanggal');
+
+        $data = $query->get();
+
+        if ($data->isEmpty()) {
+            session()->flash('error', 'Tidak ada data pengeluaran kas untuk diekspor ke Excel.');
+            return;
+        }
+
+        $filename = 'rekap-kas-keluar-' . date('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        $callback = function () use ($data) {
+            $file = fopen('php://output', 'w');
+            fputs($file, "\xEF\xBB\xBF");
+
+            fputcsv($file, [
+                'No',
+                'Tanggal',
+                'Kategori Pengeluaran',
+                'Nominal (Rp)',
+                'Keterangan',
+                'Petugas Pencatat'
+            ]);
+
+            foreach ($data as $index => $item) {
+                fputcsv($file, [
+                    $index + 1,
+                    $item->tanggal ? Carbon::parse($item->tanggal)->translatedFormat('d M Y') : '-',
+                    $item->kategori->nama ?? 'Umum',
+                    number_format($item->jumlah, 0, ',', '.'),
+                    $item->keterangan ?: '-',
+                    $item->petugas->nama ?? 'Sistem'
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     public function render()
     {
         // 1. Calculate Summary Metrics for the Active Date Filter (Tanpa Dana BOS)

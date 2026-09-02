@@ -96,8 +96,8 @@
 </head>
 <body>
     <div class="header">
-        <h1>YAYASAN PENDIDIKAN ISLAM</h1>
-        <p>Jl. Kaliurang Km. 10, Sleman, D.I. Yogyakarta | Telp: (0274) 123456</p>
+        <h1>{{ $namaSekolah ?? 'YAYASAN PENDIDIKAN ISLAM' }}</h1>
+        <p>{{ $alamatSekolah ?? 'Jl. Pendidikan Karakter Islami, Pekanbaru | Telp: (0761) 123456' }}</p>
     </div>
 
     <div class="title">LAPORAN ARUS KAS MASUK (NON-SPP)</div>

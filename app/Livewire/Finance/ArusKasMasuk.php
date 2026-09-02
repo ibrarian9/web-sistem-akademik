@@ -210,6 +210,70 @@ class ArusKasMasuk extends Component
         }, 'laporan_kas_masuk_' . date('Ymd_His') . '.pdf');
     }
 
+    public function exportExcel()
+    {
+        $query = PemasukanKas::with('petugas')->orderBy('tanggal', 'desc');
+
+        if ($this->filterKategori !== '') {
+            $query->where('kategori', $this->filterKategori);
+        }
+
+        if ($this->search !== '') {
+            $query->where(function ($q) {
+                $q->where('kategori', 'like', '%' . $this->search . '%')
+                  ->orWhere('keterangan', 'like', '%' . $this->search . '%');
+            });
+        }
+
+        $this->applyDateFilter($query, 'tanggal');
+
+        $data = $query->get();
+
+        if ($data->isEmpty()) {
+            session()->flash('error', 'Tidak ada data pemasukan kas untuk diekspor ke Excel.');
+            return;
+        }
+
+        $filename = 'rekap-kas-masuk-' . date('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        $callback = function () use ($data) {
+            $file = fopen('php://output', 'w');
+            fputs($file, "\xEF\xBB\xBF");
+
+            fputcsv($file, [
+                'No',
+                'Tanggal',
+                'Kategori Pemasukan',
+                'Nominal (Rp)',
+                'Keterangan',
+                'Petugas Pencatat'
+            ]);
+
+            foreach ($data as $index => $item) {
+                fputcsv($file, [
+                    $index + 1,
+                    $item->tanggal ? Carbon::parse($item->tanggal)->translatedFormat('d M Y') : '-',
+                    $item->kategori,
+                    number_format($item->jumlah, 0, ',', '.'),
+                    $item->keterangan ?: '-',
+                    $item->petugas->nama ?? 'Sistem'
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     public function render()
     {
         // 1. Calculate Summary Metrics for the Active Date Filter (Non-BOS)

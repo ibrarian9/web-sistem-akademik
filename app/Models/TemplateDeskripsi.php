@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Traits\Auditable;
 
 class TemplateDeskripsi extends Model
 {
+    use Auditable;
     protected $table = 'template_deskripsi';
 
     protected $fillable = [

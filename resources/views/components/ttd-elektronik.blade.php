@@ -4,12 +4,13 @@
     'docId' => 1,
     'user' => null,
     'tanggal' => null,
-    'location' => 'Sleman',
+    'location' => 'Pekanbaru',
     'showLocation' => true,
     'title' => null,
 ])
 
 @php
+    $location = $location ?: \App\Models\Pengaturan::getValue('kota', 'Pekanbaru');
     $sigData = \App\Services\ESignatureService::getSignatureData(
         $role,
         $docType,
@@ -40,7 +41,7 @@
         
         <!-- Status Keabsahan Dokumen -->
         <div style="font-size: 11px; font-weight: 800; color: #047857; text-transform: uppercase; letter-spacing: 0.6px; margin-top: 4px;">
-            ✓ DOKUMEN RESMI SAH & TERVERIFIKASI
+            DOKUMEN RESMI SAH & TERVERIFIKASI
         </div>
 
         <div style="font-size: 10.5px; font-weight: bold; color: #0f172a; text-decoration: underline; margin-top: 4px;">

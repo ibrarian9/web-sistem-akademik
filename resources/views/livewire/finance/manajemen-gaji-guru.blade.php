@@ -126,6 +126,37 @@
             </div>
         </div>
 
+        <!-- Action & Export Toolbar Row -->
+        <div class="flex items-center justify-between gap-3 pt-3 border-t border-stone-100 flex-wrap">
+            <div class="text-xs text-stone-500 font-semibold">
+                Menampilkan data penggajian pegawai sesuai filter aktif.
+            </div>
+
+            <div class="flex items-center gap-2 flex-wrap">
+                @if ($filterBulan)
+                    <a href="{{ route('finance.gaji-guru.bulk-slip', ['bulan' => $filterBulan, 'tahun' => $filterTahun, 'status' => $filterStatus]) }}" 
+                       target="_blank" 
+                       class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 text-stone-700 hover:bg-stone-200 border border-stone-300 rounded-xl text-xs font-bold transition shadow-2xs">
+                        <x-lucide-printer class="w-3.5 h-3.5 text-stone-600" />
+                        <span>Cetak Semua Slip PDF</span>
+                    </a>
+                @endif
+
+                <a href="{{ route('finance.gaji-guru.rekap-pdf', array_filter(['bulan' => $filterBulan, 'tahun' => $filterTahun, 'status' => $filterStatus, 'search' => $search])) }}" 
+                   target="_blank" 
+                   class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-800 border border-rose-200 rounded-xl text-xs font-bold transition shadow-2xs">
+                    <x-lucide-file-text class="w-4 h-4 text-rose-600" />
+                    <span>Rekap PDF</span>
+                </a>
+
+                <a href="{{ route('finance.gaji-guru.rekap-excel', array_filter(['bulan' => $filterBulan, 'tahun' => $filterTahun, 'status' => $filterStatus, 'search' => $search])) }}" 
+                   class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold transition shadow-2xs">
+                    <x-lucide-file-spreadsheet class="w-4 h-4 text-emerald-600" />
+                    <span>Rekap Excel</span>
+                </a>
+            </div>
+        </div>
+
         <!-- Bulk Actions Floating / Top Bar (When items are selected) -->
         @if (count($selectedGajiIds) > 0)
             <div class="bg-gradient-to-r from-emerald-900 to-emerald-800 text-white rounded-2xl p-4 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4 border border-emerald-700">
@@ -135,7 +166,7 @@
                     </div>
                     <div>
                         <div class="text-xs font-black tracking-wide text-white">{{ count($selectedGajiIds) }} Data Gaji Pegawai Terpilih</div>
-                        <div class="text-[11px] text-emerald-200/80 font-medium">Pilih aksi untuk mengunduh slip PDF atau menghapus data sekaligus.</div>
+                        <div class="text-[11px] text-emerald-200/80 font-medium">Pilih aksi untuk mengunduh rekap PDF/Excel, mencetak slip, atau menghapus data sekaligus.</div>
                     </div>
                 </div>
 
@@ -143,13 +174,30 @@
                     <x-button 
                         variant="primary" 
                         size="sm" 
-                        icon="download" 
+                        icon="printer" 
                         href="{{ route('finance.gaji-guru.bulk-slip', ['ids' => implode(',', $selectedGajiIds)]) }}"
                         :wireNavigate="false"
                         target="_blank"
                     >
-                        Unduh ({{ count($selectedGajiIds) }}) Slip PDF
+                        Slip ({{ count($selectedGajiIds) }}) PDF
                     </x-button>
+
+                    <a 
+                        href="{{ route('finance.gaji-guru.rekap-pdf', ['ids' => implode(',', $selectedGajiIds)]) }}"
+                        target="_blank"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition shadow-xs"
+                    >
+                        <x-lucide-file-text class="w-3.5 h-3.5" />
+                        <span>Rekap PDF ({{ count($selectedGajiIds) }})</span>
+                    </a>
+
+                    <a 
+                        href="{{ route('finance.gaji-guru.rekap-excel', ['ids' => implode(',', $selectedGajiIds)]) }}"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition shadow-xs"
+                    >
+                        <x-lucide-file-spreadsheet class="w-3.5 h-3.5" />
+                        <span>Rekap Excel ({{ count($selectedGajiIds) }})</span>
+                    </a>
 
                     <x-button 
                         variant="danger" 
@@ -438,8 +486,10 @@
                                 <th class="p-2.5 border-b border-r border-stone-700 min-w-[150px]">Pegawai & Jabatan</th>
                                 <th class="p-2.5 border-b border-r border-stone-700 w-32 text-right">Gaji Pokok (Rp)</th>
                                 <th class="p-2.5 border-b border-r border-stone-700 w-28 text-right">Berkala (Rp)</th>
-                                <th class="p-2.5 border-b border-r border-stone-700 w-32 text-right">Insentif (Rp)</th>
-                                <th class="p-2.5 border-b border-r border-stone-700 w-32 text-right">Ekskul (Rp)</th>
+                                <th class="p-2.5 border-b border-r border-stone-700 w-28 text-right">Insentif (Rp)</th>
+                                <th class="p-2.5 border-b border-r border-stone-700 w-28 text-right">Ekskul (Rp)</th>
+                                <th class="p-2.5 border-b border-r border-stone-700 w-28 text-right">BPJSTK (Rp)</th>
+                                <th class="p-2.5 border-b border-r border-stone-700 w-28 text-right">Maghrib (Rp)</th>
                                 <th class="p-2.5 border-b border-r border-stone-700 w-28 text-right">Pot. Sosial</th>
                                 <th class="p-2.5 border-b border-r border-stone-700 w-28 text-right">Kasbon</th>
                                 <th class="p-2.5 border-b border-stone-700 w-36 text-right">Take Home Pay</th>
@@ -566,6 +616,76 @@
                                     <td class="p-2 border-b border-r border-stone-200 text-right">
                                         <div x-data="{
                                             val: @entangle('generateItems.' . $gId . '.honor_ekskul'),
+                                            fmt: '',
+                                            format(v) {
+                                                if (v === null || v === undefined || v === '') return '0';
+                                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                                let s = v.toString().trim();
+                                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                                let clean = s.replace(/[^0-9]/g, '');
+                                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                                            },
+                                            onInput(e) {
+                                                let c = e.target.value.replace(/[^0-9]/g, '');
+                                                this.val = c ? parseInt(c, 10) : 0;
+                                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
+                                                e.target.value = this.fmt;
+                                                $wire.recalculateGenerateRow({{ $gId }});
+                                            },
+                                            init() {
+                                                this.fmt = this.format(this.val);
+                                                this.$watch('val', (v) => { this.fmt = this.format(v); });
+                                            }
+                                        }">
+                                            <input 
+                                                type="text" 
+                                                inputmode="numeric" 
+                                                x-model="fmt" 
+                                                @input="onInput($event)"
+                                                class="w-full px-2.5 py-1.5 bg-white border border-stone-300 rounded-lg text-stone-900 text-xs font-black text-right focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 shadow-2xs" 
+                                            />
+                                        </div>
+                                    </td>
+
+                                    <!-- BPJSTK Formatted Input -->
+                                    <td class="p-2 border-b border-r border-stone-200 text-right">
+                                        <div x-data="{
+                                            val: @entangle('generateItems.' . $gId . '.insentif_bpjs'),
+                                            fmt: '',
+                                            format(v) {
+                                                if (v === null || v === undefined || v === '') return '0';
+                                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                                let s = v.toString().trim();
+                                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                                let clean = s.replace(/[^0-9]/g, '');
+                                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                                            },
+                                            onInput(e) {
+                                                let c = e.target.value.replace(/[^0-9]/g, '');
+                                                this.val = c ? parseInt(c, 10) : 0;
+                                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
+                                                e.target.value = this.fmt;
+                                                $wire.recalculateGenerateRow({{ $gId }});
+                                            },
+                                            init() {
+                                                this.fmt = this.format(this.val);
+                                                this.$watch('val', (v) => { this.fmt = this.format(v); });
+                                            }
+                                        }">
+                                            <input 
+                                                type="text" 
+                                                inputmode="numeric" 
+                                                x-model="fmt" 
+                                                @input="onInput($event)"
+                                                class="w-full px-2.5 py-1.5 bg-white border border-stone-300 rounded-lg text-stone-900 text-xs font-black text-right focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 shadow-2xs" 
+                                            />
+                                        </div>
+                                    </td>
+
+                                    <!-- Maghrib Mengaji Formatted Input -->
+                                    <td class="p-2 border-b border-r border-stone-200 text-right">
+                                        <div x-data="{
+                                            val: @entangle('generateItems.' . $gId . '.insentif_maghrib_mengaji'),
                                             fmt: '',
                                             format(v) {
                                                 if (v === null || v === undefined || v === '') return '0';
@@ -787,7 +907,7 @@
                 <div class="bg-emerald-50/40 border border-emerald-200/80 rounded-2xl p-4 space-y-3">
                     <div class="flex items-center justify-between border-b border-emerald-200 pb-2">
                         <span class="text-xs font-extrabold text-emerald-900 uppercase tracking-wider">A. Penerimaan (Earnings)</span>
-                        <span class="text-xs font-black text-emerald-800">Bruto: Rp {{ number_format($createTotalBruto, 0, ',', '.') }}</span>
+                        <span class="text-xs font-black text-emerald-800">Total: Rp {{ number_format($createTotalBruto, 0, ',', '.') }}</span>
                     </div>
 
                     <div class="space-y-2.5">
@@ -912,7 +1032,7 @@
                                 if (v === null || v === undefined || v === '') return '0';
                                 if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
                                 let s = v.toString().trim();
-                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                if (/^-?\d+\.\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
                                 let clean = s.replace(/[^0-9]/g, '');
                                 return clean ? Number(clean).toLocaleString('id-ID') : '0';
                             },
@@ -929,6 +1049,33 @@
                             }
                         }">
                             <label class="block text-[11px] font-bold text-stone-700 mb-1">5. Tunjangan BPJSTK (Rp)</label>
+                            <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
+                        </div>
+
+                        <div x-data="{
+                            val: @entangle('createInsentifMaghrib'),
+                            fmt: '',
+                            format(v) {
+                                if (v === null || v === undefined || v === '') return '0';
+                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                let s = v.toString().trim();
+                                if (/^-?\d+\.\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                let clean = s.replace(/[^0-9]/g, '');
+                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                            },
+                            onInput(e) {
+                                let c = e.target.value.replace(/[^0-9]/g, '');
+                                this.val = c ? parseInt(c, 10) : 0;
+                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
+                                e.target.value = this.fmt;
+                                $wire.calculateCreateTotal();
+                            },
+                            init() {
+                                this.fmt = this.format(this.val);
+                                this.$watch('val', (v) => { this.fmt = this.format(v); });
+                            }
+                        }">
+                            <label class="block text-[11px] font-bold text-stone-700 mb-1">6. Insentif Maghrib Mengaji (Rp)</label>
                             <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
                         </div>
                     </div>
@@ -1057,7 +1204,7 @@
             <div class="p-3.5 bg-emerald-700 text-white rounded-2xl flex items-center justify-between shadow-md">
                 <div>
                     <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-200 block">Total Gaji Bersih (Take Home Pay)</span>
-                    <span class="text-xs text-emerald-100">Formula: Penerimaan Bruto - Total Potongan</span>
+                    <span class="text-xs text-emerald-100">Formula: Total Penerimaan - Total Potongan</span>
                 </div>
                 <div class="text-right">
                     <span class="text-xl sm:text-2xl font-black tracking-tight">Rp {{ number_format($createTotalDiterima, 0, ',', '.') }}</span>
@@ -1117,7 +1264,7 @@
                 <div class="bg-emerald-50/40 border border-emerald-200/80 rounded-2xl p-4 space-y-3">
                     <div class="flex items-center justify-between border-b border-emerald-200 pb-2">
                         <span class="text-xs font-extrabold text-emerald-900 uppercase tracking-wider">A. Penerimaan (Earnings)</span>
-                        <span class="text-xs font-black text-emerald-800">Bruto: Rp {{ number_format($editTotalBruto, 0, ',', '.') }}</span>
+                        <span class="text-xs font-black text-emerald-800">Total: Rp {{ number_format($editTotalBruto, 0, ',', '.') }}</span>
                     </div>
 
                     <div class="space-y-2.5">
@@ -1261,6 +1408,33 @@
                             <label class="block text-[11px] font-bold text-stone-700 mb-1">5. Tunjangan BPJSTK (Rp)</label>
                             <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
                         </div>
+
+                        <div x-data="{
+                            val: @entangle('editInsentifMaghrib'),
+                            fmt: '',
+                            format(v) {
+                                if (v === null || v === undefined || v === '') return '0';
+                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
+                                let s = v.toString().trim();
+                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
+                                let clean = s.replace(/[^0-9]/g, '');
+                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
+                            },
+                            onInput(e) {
+                                let c = e.target.value.replace(/[^0-9]/g, '');
+                                this.val = c ? parseInt(c, 10) : 0;
+                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
+                                e.target.value = this.fmt;
+                                $wire.calculateEditTotal();
+                            },
+                            init() {
+                                this.fmt = this.format(this.val);
+                                this.$watch('val', (v) => { this.fmt = this.format(v); });
+                            }
+                        }">
+                            <label class="block text-[11px] font-bold text-stone-700 mb-1">6. Insentif Maghrib Mengaji (Rp)</label>
+                            <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
+                        </div>
                     </div>
                 </div>
 
@@ -1387,7 +1561,7 @@
             <div class="p-3.5 bg-emerald-700 text-white rounded-2xl flex items-center justify-between shadow-md">
                 <div>
                     <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-200 block">Total Gaji Bersih (Take Home Pay)</span>
-                    <span class="text-xs text-emerald-100">Formula: Penerimaan Bruto - Total Potongan</span>
+                    <span class="text-xs text-emerald-100">Formula: Total Penerimaan - Total Potongan</span>
                 </div>
                 <div class="text-right">
                     <span class="text-xl sm:text-2xl font-black tracking-tight">Rp {{ number_format($editTotalDiterima, 0, ',', '.') }}</span>
@@ -1467,7 +1641,7 @@
                                 A. Komponen Penerimaan
                             </span>
                             <span class="text-[10px] font-extrabold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md border border-emerald-300">
-                                Bruto
+                                Total
                             </span>
                         </div>
 
@@ -1594,7 +1768,7 @@
                                 @endif
                             </div>
                             <div class="text-stone-500 text-[11px] mt-0.5">
-                                Tanggal Pembayaran: {{ $selectedSalaryDetail->tanggal_bayar ? $selectedSalaryDetail->tanggal_bayar->format('d/m/Y') : 'Belum dibayarkan' }} &bull; Metode: Kas Utama Yayasan
+                                Tanggal Pembayaran: {{ $selectedSalaryDetail->tanggal_bayar ? \Carbon\Carbon::parse($selectedSalaryDetail->tanggal_bayar)->translatedFormat('d F Y') : 'Belum dibayarkan' }} &bull; Metode: Kas Utama Yayasan
                             </div>
                         </div>
                     </div>

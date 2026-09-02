@@ -77,7 +77,7 @@
                     <tr class="hover:bg-emerald-50/40 transition">
                         <td class="p-3.5 border-r border-stone-200">
                             <span class="font-mono font-bold text-stone-900 block text-xs">{{ $p->no_resi ?? '-' }}</span>
-                            <span class="text-stone-400 font-mono text-[10px]">{{ date('d/m/Y', strtotime($p->tanggal_bayar)) }}</span>
+                            <span class="text-stone-500 font-medium text-[11px]">{{ \Carbon\Carbon::parse($p->tanggal_bayar)->translatedFormat('d M Y') }}</span>
                         </td>
                         <td class="p-3.5 font-extrabold text-stone-900 text-xs border-r border-stone-200">
                             {{ $p->tagihan->siswa->user->nama ?? '-' }}

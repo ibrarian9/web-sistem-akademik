@@ -284,7 +284,7 @@
                     <tr class="subtotal-row">
                         <td style="padding: 5px 6px;">
                             <div style="display: flex; justify-content: space-between;">
-                                <span>Total Gaji Bruto:</span>
+                                <span>Total Gaji:</span>
                                 <span class="num" style="float: right; color: #047857;">Rp {{ number_format($brutoCalc, 0, ',', '.') }}</span>
                             </div>
                         </td>

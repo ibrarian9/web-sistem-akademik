@@ -8,8 +8,11 @@
         icon="trending-down"
     >
         <x-slot:actions>
-            <x-button variant="outline" size="sm" icon="file-text" wire:click="exportPdf" :disabled="$paginatedOutflows->total() === 0" title="{{ $paginatedOutflows->total() === 0 ? 'Tidak ada catatan pengeluaran untuk diekspor' : 'Ekspor Dokumen PDF' }}">
-                Ekspor PDF
+            <x-button variant="outline" size="sm" icon="printer" wire:click="exportPdf" :disabled="$paginatedOutflows->total() === 0" title="{{ $paginatedOutflows->total() === 0 ? 'Tidak ada catatan pengeluaran untuk diekspor' : 'Ekspor Dokumen PDF Sesuai Filter' }}">
+                Cetak PDF
+            </x-button>
+            <x-button variant="outline" size="sm" icon="file-spreadsheet" wire:click="exportExcel" :disabled="$paginatedOutflows->total() === 0" title="{{ $paginatedOutflows->total() === 0 ? 'Tidak ada catatan pengeluaran untuk diekspor' : 'Ekspor Spreadsheet Excel Sesuai Filter' }}">
+                Ekspor Excel
             </x-button>
             <x-button variant="danger-solid" size="sm" icon="plus" wire:click="openCreateModal">
                 Catat Kas Keluar
@@ -297,8 +300,11 @@
                                 <input type="checkbox" wire:model.live="selectedIds" value="{{ $item->raw_id }}" class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer" />
                             </td>
                         @endif
-                        <td class="p-3.5 text-stone-600 text-xs font-semibold border-r border-stone-200">
-                            {{ $item->tanggal->format('d/m/Y') }}
+                        <td class="p-3.5 border-r border-stone-200">
+                            <div class="font-bold text-xs text-stone-900">{{ $item->tanggal->translatedFormat('d M Y') }}</div>
+                            @if($item->tanggal->format('H:i') !== '00:00')
+                                <div class="text-[10px] text-stone-400 font-mono">{{ $item->tanggal->format('H:i') }} WIB</div>
+                            @endif
                         </td>
                         <td class="p-3.5 border-r border-stone-200">
                             <x-badge :variant="$item->stream_badge" size="xs">

@@ -14,8 +14,17 @@ class TabunganSiswa extends Component
 {
     use WithPagination;
 
+    // Filter Saldo Siswa Table
     public $search = '';
     public $filterKelas = '';
+
+    // Filter Riwayat / Jurnal Mutasi Seluruh Siswa Table
+    public string $historySearch = '';
+    public string $historyJenis = '';
+    public string $historyFilterKelas = '';
+    public string $historyFilterPeriode = 'semua';
+    public ?string $historyStartDate = null;
+    public ?string $historyEndDate = null;
 
     // Modal Transaction State
     public $showTransactionModal = false;
@@ -36,7 +45,7 @@ class TabunganSiswa extends Component
     public string $edit_keterangan = '';
     public string $edit_siswa_nama = '';
 
-    // Modal History State
+    // Modal History 1 Siswa State
     public $showHistoryModal = false;
     public $selectedSiswaHistory = null;
     public $historyTransactions = [];
@@ -44,6 +53,10 @@ class TabunganSiswa extends Component
     protected $queryString = [
         'search' => ['except' => ''],
         'filterKelas' => ['except' => ''],
+        'historySearch' => ['except' => ''],
+        'historyJenis' => ['except' => ''],
+        'historyFilterKelas' => ['except' => ''],
+        'historyFilterPeriode' => ['except' => 'semua'],
     ];
 
     public function mount()
@@ -70,6 +83,36 @@ class TabunganSiswa extends Component
     public function updatingFilterKelas()
     {
         $this->resetPage();
+    }
+
+    public function updatingHistorySearch()
+    {
+        $this->resetPage('historyPage');
+    }
+
+    public function updatingHistoryJenis()
+    {
+        $this->resetPage('historyPage');
+    }
+
+    public function updatingHistoryFilterKelas()
+    {
+        $this->resetPage('historyPage');
+    }
+
+    public function updatingHistoryFilterPeriode()
+    {
+        $this->resetPage('historyPage');
+    }
+
+    public function updatingHistoryStartDate()
+    {
+        $this->resetPage('historyPage');
+    }
+
+    public function updatingHistoryEndDate()
+    {
+        $this->resetPage('historyPage');
     }
 
     public function openTransactionModal($siswaId, $jenis = 'setor')
@@ -290,6 +333,7 @@ class TabunganSiswa extends Component
     {
         $kelasList = Kelas::orderBy('nama_kelas', 'asc')->get();
 
+        // 1. Query Data Siswa & Saldo Tabungan
         $siswaQuery = Siswa::with(['user', 'kelas', 'latestTabungan']);
 
         if ($this->search) {
@@ -306,7 +350,56 @@ class TabunganSiswa extends Component
             $siswaQuery->where('kelas_id', $this->filterKelas);
         }
 
-        $siswas = $siswaQuery->orderBy('nis', 'asc')->paginate(12);
+        $siswas = $siswaQuery->orderBy('nis', 'asc')->paginate(10, ['*'], 'page');
+
+        // 2. Query History Seluruh Riwayat Transaksi Mutasi Tabungan
+        $historyQuery = Tabungan::with(['siswa.user', 'siswa.kelas', 'petugas']);
+
+        if ($this->historySearch) {
+            $historyQuery->where(function ($q) {
+                $q->where('kode_transaksi', 'like', '%' . $this->historySearch . '%')
+                  ->orWhere('keterangan', 'like', '%' . $this->historySearch . '%')
+                  ->orWhereHas('siswa.user', function ($uq) {
+                      $uq->where('nama', 'like', '%' . $this->historySearch . '%');
+                  })
+                  ->orWhereHas('siswa', function ($sq) {
+                      $sq->where('nis', 'like', '%' . $this->historySearch . '%');
+                  })
+                  ->orWhereHas('petugas', function ($pq) {
+                      $pq->where('nama', 'like', '%' . $this->historySearch . '%');
+                  });
+            });
+        }
+
+        if ($this->historyJenis && in_array($this->historyJenis, ['setor', 'tarik'])) {
+            $historyQuery->where('jenis', $this->historyJenis);
+        }
+
+        if ($this->historyFilterKelas) {
+            $historyQuery->whereHas('siswa', function ($sq) {
+                $sq->where('kelas_id', $this->historyFilterKelas);
+            });
+        }
+
+        if ($this->historyFilterPeriode === 'hari_ini') {
+            $historyQuery->whereDate('tanggal', date('Y-m-d'));
+        } elseif ($this->historyFilterPeriode === 'kemarin') {
+            $historyQuery->whereDate('tanggal', date('Y-m-d', strtotime('-1 day')));
+        } elseif ($this->historyFilterPeriode === 'minggu_ini') {
+            $historyQuery->whereBetween('tanggal', [now()->startOfWeek()->format('Y-m-d'), now()->endOfWeek()->format('Y-m-d')]);
+        } elseif ($this->historyFilterPeriode === 'bulan_ini') {
+            $historyQuery->whereBetween('tanggal', [now()->startOfMonth()->format('Y-m-d'), now()->endOfMonth()->format('Y-m-d')]);
+        } elseif ($this->historyFilterPeriode === 'custom' || ($this->historyStartDate && $this->historyEndDate)) {
+            if ($this->historyStartDate && $this->historyEndDate) {
+                $historyQuery->whereBetween('tanggal', [$this->historyStartDate, $this->historyEndDate]);
+            } elseif ($this->historyStartDate) {
+                $historyQuery->whereDate('tanggal', '>=', $this->historyStartDate);
+            } elseif ($this->historyEndDate) {
+                $historyQuery->whereDate('tanggal', '<=', $this->historyEndDate);
+            }
+        }
+
+        $allHistoryTransactions = $historyQuery->orderBy('tanggal', 'desc')->orderBy('id', 'desc')->paginate(12, ['*'], 'historyPage');
 
         // Compute summary metrics
         $totalSetorAll = Tabungan::where('jenis', 'setor')->sum('nominal');
@@ -316,6 +409,7 @@ class TabunganSiswa extends Component
 
         return view('livewire.finance.tabungan-siswa', [
             'siswas' => $siswas,
+            'allHistoryTransactions' => $allHistoryTransactions,
             'kelasList' => $kelasList,
             'totalSetorAll' => $totalSetorAll,
             'totalTarikAll' => $totalTarikAll,

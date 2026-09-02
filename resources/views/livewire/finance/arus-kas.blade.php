@@ -8,9 +8,6 @@
         icon="layers"
     >
         <x-slot:actions>
-            <x-button variant="outline" size="sm" icon="file-text" wire:click="exportPdf" :disabled="$paginatedTransactions->total() === 0" title="{{ $paginatedTransactions->total() === 0 ? 'Tidak ada transaksi untuk diekspor' : 'Ekspor Dokumen PDF' }}">
-                Ekspor PDF
-            </x-button>
             <x-button variant="primary" size="sm" icon="plus" wire:click="openIncomeModal">
                 Catat Kas Masuk
             </x-button>
@@ -239,8 +236,20 @@
                 <x-date-filter model="filterPeriode" startDateModel="startDate" endDateModel="endDate" />
             </div>
 
-            <div class="text-xs font-bold text-stone-600">
-                Menampilkan <span class="text-stone-900">{{ $paginatedTransactions->total() }}</span> transaksi kas
+            <div class="flex items-center gap-3 flex-wrap">
+                <div class="text-xs font-bold text-stone-600">
+                    Menampilkan <span class="text-stone-900 font-extrabold">{{ $paginatedTransactions->total() }}</span> transaksi kas
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <button type="button" wire:click="exportPdf" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-xl text-xs font-bold border border-rose-200 transition shadow-2xs cursor-pointer" title="Cetak Jurnal PDF Sesuai Filter">
+                        <x-lucide-printer class="w-3.5 h-3.5 text-rose-600" />
+                        <span>PDF</span>
+                    </button>
+                    <button type="button" wire:click="exportExcel" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl text-xs font-bold border border-emerald-200 transition shadow-2xs cursor-pointer" title="Ekspor Jurnal Excel Sesuai Filter">
+                        <x-lucide-file-spreadsheet class="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Excel</span>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -262,8 +271,11 @@
             <tbody class="divide-y divide-stone-200 bg-white">
                 @forelse ($paginatedTransactions as $item)
                     <tr class="hover:bg-stone-50/80 transition">
-                        <td class="p-3.5 text-stone-600 text-xs font-semibold border-r border-stone-200">
-                            {{ $item->tanggal->format('d/m/Y') }}
+                        <td class="p-3.5 border-r border-stone-200">
+                            <div class="font-bold text-xs text-stone-900">{{ $item->tanggal->translatedFormat('d M Y') }}</div>
+                            @if($item->tanggal->format('H:i') !== '00:00')
+                                <div class="text-[10px] text-stone-400 font-mono">{{ $item->tanggal->format('H:i') }} WIB</div>
+                            @endif
                         </td>
                         <td class="p-3.5 text-center border-r border-stone-200">
                             @if ($item->type === 'masuk')

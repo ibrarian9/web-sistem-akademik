@@ -142,7 +142,7 @@
                                 @endif
 
                                 @if ($item->status === 'direalisasi')
-                                    <span class="text-[10px] text-stone-500 font-semibold italic">Dicairkan {{ date('d/m/Y', strtotime($item->realisasi_pada)) }}</span>
+                                    <span class="text-[10px] text-stone-500 font-semibold italic">Dicairkan {{ \Carbon\Carbon::parse($item->realisasi_pada)->translatedFormat('d M Y') }}</span>
                                 @endif
                             </div>
                         </td>

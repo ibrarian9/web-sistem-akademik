@@ -468,7 +468,7 @@
                         </div>
 
                         <div class="pt-4 mt-4 border-t border-emerald-200/80 flex items-center justify-between">
-                            <span class="text-xs font-extrabold text-emerald-900">Total Penghasilan Bruto (A)</span>
+                            <span class="text-xs font-extrabold text-emerald-900">Total Penghasilan (A)</span>
                             <span class="text-sm font-black text-emerald-950 font-mono">Rp {{ number_format($sd->total_bruto, 0, ',', '.') }}</span>
                         </div>
                     </div>

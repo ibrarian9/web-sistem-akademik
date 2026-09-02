@@ -115,7 +115,7 @@
             <tbody class="divide-y divide-stone-200 bg-white">
                 @forelse ($payments as $p)
                     <tr class="hover:bg-emerald-50/40 transition">
-                        <td class="p-3.5 text-xs font-bold text-stone-900 border-r border-stone-200">{{ $p->tanggal_bayar ? $p->tanggal_bayar->format('d/m/Y') : '-' }}</td>
+                        <td class="p-3.5 text-xs font-bold text-stone-900 border-r border-stone-200">{{ $p->tanggal_bayar ? $p->tanggal_bayar->translatedFormat('d M Y') : '-' }}</td>
                         <td class="p-3.5 text-xs font-extrabold text-stone-900 border-r border-stone-200">{{ $p->tagihan->siswa->user->nama ?? '-' }}</td>
                         <td class="p-3.5 border-r border-stone-200">
                             <x-badge variant="stone" size="xs">

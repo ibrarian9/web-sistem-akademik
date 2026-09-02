@@ -62,7 +62,7 @@
                 @forelse ($loans as $loan)
                     <tr class="hover:bg-emerald-50/40 transition">
                         <td class="p-3.5 font-extrabold text-stone-900 text-xs border-r border-stone-200">{{ $loan->guru->user->nama ?? '-' }}</td>
-                        <td class="p-3.5 text-xs text-stone-600 text-center font-semibold border-r border-stone-200">{{ $loan->tanggal_pinjam ? $loan->tanggal_pinjam->format('d/m/Y') : '-' }}</td>
+                        <td class="p-3.5 text-xs text-stone-600 text-center font-semibold border-r border-stone-200">{{ $loan->tanggal_pinjam ? $loan->tanggal_pinjam->translatedFormat('d M Y') : '-' }}</td>
                         <td class="p-3.5 text-xs font-bold text-stone-900 text-right border-r border-stone-200">Rp {{ number_format($loan->nominal, 0, ',', '.') }}</td>
                         <td class="p-3.5 text-xs text-stone-600 text-center font-bold border-r border-stone-200">{{ $loan->tenor_bulan }} Bulan</td>
                         <td class="p-3.5 text-xs text-stone-700 text-right font-medium border-r border-stone-200">Rp {{ number_format($loan->cicilan_per_bulan, 0, ',', '.') }}</td>

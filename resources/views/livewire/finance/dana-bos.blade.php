@@ -84,18 +84,33 @@
             </div>
         </div>
 
-        <!-- Date Range Filter Row -->
+        <!-- Date Range Filter & Export Row -->
         <div class="flex items-center justify-between gap-4 border-t border-stone-100 pt-3 flex-wrap">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
                 <span class="text-xs font-bold text-stone-500 uppercase tracking-wider">Periode:</span>
                 <x-date-filter model="filterPeriode" startDateModel="startDate" endDateModel="endDate" />
             </div>
 
-            @if (count($selectedIds) > 0)
-                <span class="text-xs font-bold text-sky-700 bg-sky-50 px-3 py-1.5 rounded-xl border border-sky-200">
-                    {{ count($selectedIds) }} transaksi dipilih
-                </span>
-            @endif
+            <div class="flex items-center gap-2 flex-wrap">
+                @if (count($selectedIds) > 0)
+                    <span class="text-xs font-bold text-sky-700 bg-sky-50 px-3 py-1.5 rounded-xl border border-sky-200">
+                        {{ count($selectedIds) }} transaksi dipilih
+                    </span>
+                @endif
+
+                <a href="{{ route('finance.dana-bos.pdf', ['filter_periode' => $filterPeriode, 'start_date' => $startDate, 'end_date' => $endDate, 'jenis' => $filterJenis, 'search' => $search]) }}" 
+                   target="_blank" 
+                   class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-800 border border-rose-200 rounded-xl text-xs font-bold transition shadow-2xs">
+                    <x-lucide-file-text class="w-4 h-4 text-rose-600" />
+                    <span>Rekap PDF</span>
+                </a>
+
+                <a href="{{ route('finance.dana-bos.excel', ['filter_periode' => $filterPeriode, 'start_date' => $startDate, 'end_date' => $endDate, 'jenis' => $filterJenis, 'search' => $search]) }}" 
+                   class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold transition shadow-2xs">
+                    <x-lucide-file-spreadsheet class="w-4 h-4 text-emerald-600" />
+                    <span>Rekap Excel</span>
+                </a>
+            </div>
         </div>
 
         <!-- Table -->
@@ -119,8 +134,8 @@
                         <td class="p-3.5 text-center border-r border-stone-200">
                             <input type="checkbox" wire:model.live="selectedIds" value="{{ $t->id }}" class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer" />
                         </td>
-                        <td class="p-3.5 text-stone-600 text-xs font-semibold border-r border-stone-200">
-                            {{ date('d/m/Y', strtotime($t->tanggal)) }}
+                        <td class="p-3.5 text-stone-900 text-xs font-bold border-r border-stone-200">
+                            {{ \Carbon\Carbon::parse($t->tanggal)->translatedFormat('d M Y') }}
                         </td>
                         <td class="p-3.5 text-center border-r border-stone-200">
                             @if ($t->jenis === 'masuk')

@@ -10,6 +10,7 @@ use App\Models\Pembayaran;
 use App\Models\Tabungan;
 use App\Models\GajiGuru;
 use App\Models\Peminjaman;
+use App\Models\Pengaturan;
 use App\Traits\WithDateFilter;
 use Livewire\WithPagination;
 use Carbon\Carbon;
@@ -74,6 +75,12 @@ class ArusKas extends Component
 
     public function mount()
     {
+        if (request()->routeIs('finance.arus-kas-masuk') || request()->routeIs('arus-kas-masuk')) {
+            $this->tab = 'masuk';
+        } elseif (request()->routeIs('finance.arus-kas-keluar') || request()->routeIs('arus-kas-keluar')) {
+            $this->tab = 'keluar';
+        }
+
         $this->kategoriKeluarOptions = KategoriPengeluaran::orderBy('nama')->get()->toArray();
         if (!empty($this->kategoriKeluarOptions)) {
             $this->kategori_pengeluaran_id = $this->kategoriKeluarOptions[0]['id'];
@@ -153,7 +160,7 @@ class ArusKas extends Component
             'petugas_id' => auth()->id(),
         ]);
 
-        session()->flash('message', 'Penerimaan kas masuk yayasan berhasil dicatat.');
+        session()->flash('message', 'Pemasukan kas yayasan berhasil dicatat.');
         $this->showIncomeModal = false;
         $this->reset(['jumlah_masuk', 'keterangan_masuk', 'jumlah', 'keterangan']);
         $this->resetPage();
@@ -163,7 +170,7 @@ class ArusKas extends Component
     {
         $item = PemasukanKas::findOrFail($id);
         $item->delete();
-        session()->flash('message', 'Catatan kas masuk yayasan berhasil dihapus.');
+        session()->flash('message', 'Catatan pemasukan kas berhasil dihapus.');
     }
 
     // Modal Kas Keluar
@@ -222,120 +229,11 @@ class ArusKas extends Component
         session()->flash('message', 'Catatan pengeluaran kas berhasil dihapus.');
     }
 
-    public function exportPdf()
+    /**
+     * Get unified collection of transactions based on active tab, stream, search, and date filters.
+     */
+    public function getUnifiedTransactions(): \Illuminate\Support\Collection
     {
-        // 1. Gather all transactions for active date filter
-        $inflowQuery = PemasukanKas::with('petugas')->latest('tanggal');
-        $this->applyDateFilter($inflowQuery, 'tanggal');
-        $inflows = $inflowQuery->get();
-
-        $outflowQuery = Pengeluaran::with(['kategori', 'petugas'])->latest('tanggal');
-        $this->applyDateFilter($outflowQuery, 'tanggal');
-        $outflows = $outflowQuery->get();
-
-        if ($outflows->isEmpty() && $inflows->isEmpty()) {
-            session()->flash('error', 'Tidak dapat mengunduh PDF karena tidak ada transaksi pada periode terpilih.');
-            return;
-        }
-
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('livewire.shared.laporan.pdf-laporan-kas-keluar', [
-            'data' => $outflows,
-            'kategori' => 'Laporan Arus Kas Terpadu',
-            'totalPengeluaran' => $outflows->sum('jumlah'),
-        ])->setPaper('a4', 'portrait');
-
-        return response()->streamDownload(function () use ($pdf) {
-            echo $pdf->output();
-        }, 'laporan_arus_kas_' . date('Ymd_His') . '.pdf');
-    }
-
-    public function render()
-    {
-        // 1. Calculate Inflow Metrics (Non-BOS)
-        $sppQuery = Pembayaran::where('is_void', false);
-        $this->applyDateFilter($sppQuery, 'tanggal_bayar');
-        $totalTagihanSpp = (float) $sppQuery->sum('nominal_dibayar');
-
-        $kasMasukQuery = PemasukanKas::query();
-        $this->applyDateFilter($kasMasukQuery, 'tanggal');
-        $totalKasYayasan = (float) $kasMasukQuery->sum('jumlah');
-
-        $tabunganQuery = Tabungan::where('jenis', 'setor');
-        $this->applyDateFilter($tabunganQuery, 'tanggal');
-        $totalTabunganSetor = (float) $tabunganQuery->sum('nominal');
-
-        $totalInflow = $totalTagihanSpp + $totalKasYayasan + $totalTabunganSetor;
-
-        // 2. Calculate Outflow Metrics (Non-BOS)
-        $opQuery = Pengeluaran::query();
-        $this->applyDateFilter($opQuery, 'tanggal');
-        $totalOperasional = (float) $opQuery->sum('jumlah');
-
-        $gajiQuery = GajiGuru::where('status', 'dibayar');
-        $this->applyDateFilter($gajiQuery, 'tanggal_bayar');
-        $totalGaji = (float) $gajiQuery->sum('total_diterima');
-
-        $loanQuery = Peminjaman::query();
-        $this->applyDateFilter($loanQuery, 'tanggal_pinjam');
-        $totalKasbon = (float) $loanQuery->sum('nominal');
-
-        $totalOutflow = $totalOperasional + $totalGaji + $totalKasbon;
-
-        // Net Cash Flow
-        $netCashFlow = $totalInflow - $totalOutflow;
-
-        // 3. Compute 6-Month Inflow vs Outflow Comparison Trend (Chart Data)
-        $monthlyChartData = [];
-        $maxMonthVal = 1;
-
-        for ($i = 5; $i >= 0; $i--) {
-            $mCarbon = Carbon::now()->subMonths($i);
-            $year = $mCarbon->year;
-            $monthNum = $mCarbon->month;
-            $monthLabel = $mCarbon->locale('id')->isoFormat('MMM YYYY');
-
-            // Inflow
-            $mSpp = (float) Pembayaran::where('is_void', false)->whereYear('tanggal_bayar', $year)->whereMonth('tanggal_bayar', $monthNum)->sum('nominal_dibayar');
-            $mInfaq = (float) PemasukanKas::whereYear('tanggal', $year)->whereMonth('tanggal', $monthNum)->sum('jumlah');
-            $mTab = (float) Tabungan::where('jenis', 'setor')->whereYear('tanggal', $year)->whereMonth('tanggal', $monthNum)->sum('nominal');
-            $mInflowTotal = $mSpp + $mInfaq + $mTab;
-
-            // Outflow
-            $mOp = (float) Pengeluaran::whereYear('tanggal', $year)->whereMonth('tanggal', $monthNum)->sum('jumlah');
-            $mGaji = (float) GajiGuru::where('status', 'dibayar')
-                ->where(function ($q) use ($year, $monthNum, $mCarbon) {
-                    $q->whereYear('tanggal_bayar', $year)->whereMonth('tanggal_bayar', $monthNum)
-                      ->orWhere(function ($sq) use ($year, $mCarbon) {
-                          $sq->where('tahun', $year)->where('bulan', $mCarbon->locale('id')->isoFormat('MMMM'));
-                      });
-                })->sum('total_diterima');
-            $mLoan = (float) Peminjaman::whereYear('tanggal_pinjam', $year)->whereMonth('tanggal_pinjam', $monthNum)->sum('nominal');
-            $mOutflowTotal = $mOp + $mGaji + $mLoan;
-
-            if ($mInflowTotal > $maxMonthVal) {
-                $maxMonthVal = $mInflowTotal;
-            }
-            if ($mOutflowTotal > $maxMonthVal) {
-                $maxMonthVal = $mOutflowTotal;
-            }
-
-            $monthlyChartData[] = [
-                'label' => $monthLabel,
-                'year' => $year,
-                'month' => $monthNum,
-                'inflow' => $mInflowTotal,
-                'outflow' => $mOutflowTotal,
-                'net' => $mInflowTotal - $mOutflowTotal,
-            ];
-        }
-
-        foreach ($monthlyChartData as &$mItem) {
-            $mItem['inflow_pct'] = $maxMonthVal > 0 ? round(($mItem['inflow'] / $maxMonthVal) * 100) : 0;
-            $mItem['outflow_pct'] = $maxMonthVal > 0 ? round(($mItem['outflow'] / $maxMonthVal) * 100) : 0;
-        }
-        unset($mItem);
-
-        // 4. Query & Unify All Transactions for Data Table
         $transactions = collect();
 
         // 🟢 INFLOW STREAMS (Include when tab = 'semua' or 'masuk')
@@ -541,8 +439,225 @@ class ArusKas extends Component
             }
         }
 
-        // Sort unified collection by date descending
-        $sortedTransactions = $transactions->sortByDesc(fn($item) => $item->tanggal->timestamp)->values();
+        return $transactions->sortByDesc(fn($item) => $item->tanggal->timestamp)->values();
+    }
+
+    /**
+     * Export active filtered cash flow table data to PDF document.
+     */
+    public function exportPdf()
+    {
+        @ini_set('max_execution_time', 120);
+        @ini_set('memory_limit', '512M');
+
+        $data = $this->getUnifiedTransactions();
+
+        if ($data->isEmpty()) {
+            session()->flash('error', 'Tidak dapat mencetak PDF karena tidak ada transaksi pada filter yang dipilih.');
+            return;
+        }
+
+        $totalMasuk = (float) $data->sum('nominal_masuk');
+        $totalKeluar = (float) $data->sum('nominal_keluar');
+        $netBalance = $totalMasuk - $totalKeluar;
+
+        $namaSekolah = Pengaturan::getValue('nama_sekolah', 'PONDOK PESANTREN & SEKOLAH ISLAM TERPADU');
+        $alamatSekolah = Pengaturan::getValue('alamat_sekolah', 'Jl. Pendidikan Karakter Islami, Pekanbaru');
+        $noTelepon = Pengaturan::getValue('no_telepon', '(0761) 123456');
+
+        $periodeText = match ($this->filterPeriode) {
+            'hari_ini' => 'Hari Ini (' . date('d/m/Y') . ')',
+            'kemarin' => 'Kemarin (' . date('d/m/Y', strtotime('-1 day')) . ')',
+            'minggu_ini' => 'Minggu Ini',
+            'bulan_ini' => 'Bulan Ini (' . date('F Y') . ')',
+            'custom' => ($this->startDate ? Carbon::parse($this->startDate)->translatedFormat('d M Y') : '') . ' s/d ' . ($this->endDate ? Carbon::parse($this->endDate)->translatedFormat('d M Y') : ''),
+            default => 'Semua Periode Transaksi',
+        };
+
+        $tabText = match ($this->tab) {
+            'masuk' => 'Kas Masuk Sahaja',
+            'keluar' => 'Kas Keluar Sahaja',
+            default => 'Semua Arus Kas (Masuk & Keluar)',
+        };
+
+        $streamText = match ($this->stream) {
+            'spp' => 'SPP & Tagihan Siswa',
+            'infaq' => 'Kas Masuk Yayasan (Infaq/Donasi)',
+            'tabungan' => 'Setoran Tabungan Siswa',
+            'operasional' => 'Beban Operasional Yayasan',
+            'gaji' => 'Gaji & Honor Guru',
+            'kasbon' => 'Fasilitas Kasbon Guru',
+            default => 'Semua Stream Kas',
+        };
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('livewire.shared.laporan.pdf-jurnal-arus-kas', [
+            'data' => $data,
+            'totalMasuk' => $totalMasuk,
+            'totalKeluar' => $totalKeluar,
+            'netBalance' => $netBalance,
+            'periodeText' => $periodeText,
+            'tabText' => $tabText,
+            'streamText' => $streamText,
+            'namaSekolah' => $namaSekolah,
+            'alamatSekolah' => $alamatSekolah,
+            'noTelepon' => $noTelepon,
+        ])->setPaper('a4', 'landscape');
+
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->output();
+        }, 'jurnal_arus_kas_' . date('Ymd_His') . '.pdf');
+    }
+
+    /**
+     * Export active filtered cash flow table data to Excel (.csv format with UTF-8 BOM).
+     */
+    public function exportExcel()
+    {
+        $data = $this->getUnifiedTransactions();
+
+        if ($data->isEmpty()) {
+            session()->flash('error', 'Tidak ada data arus kas untuk diekspor ke Excel pada filter ini.');
+            return;
+        }
+
+        $filename = 'jurnal-arus-kas-' . date('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        $callback = function () use ($data) {
+            $file = fopen('php://output', 'w');
+            fputs($file, "\xEF\xBB\xBF");
+
+            fputcsv($file, [
+                'No',
+                'Tanggal Transaksi',
+                'Waktu',
+                'Tipe Kas',
+                'Stream / Sumber',
+                'Kategori / Pos',
+                'Kas Masuk (Rp)',
+                'Kas Keluar (Rp)',
+                'Keterangan & Rincian',
+                'Metode / No Resi',
+                'Petugas Pencatat'
+            ]);
+
+            foreach ($data as $index => $item) {
+                fputcsv($file, [
+                    $index + 1,
+                    $item->tanggal ? Carbon::parse($item->tanggal)->translatedFormat('d M Y') : '-',
+                    $item->tanggal && Carbon::parse($item->tanggal)->format('H:i') !== '00:00' ? Carbon::parse($item->tanggal)->format('H:i') . ' WIB' : '-',
+                    strtoupper($item->type),
+                    $item->stream_label,
+                    $item->kategori,
+                    $item->nominal_masuk > 0 ? number_format($item->nominal_masuk, 0, ',', '.') : '0',
+                    $item->nominal_keluar > 0 ? number_format($item->nominal_keluar, 0, ',', '.') : '0',
+                    $item->keterangan,
+                    $item->no_resi ? ($item->metode_resi . ' (' . $item->no_resi . ')') : $item->metode_resi,
+                    $item->petugas ?? 'Sistem'
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function render()
+    {
+        // 1. Calculate Inflow Metrics (Non-BOS)
+        $sppQuery = Pembayaran::where('is_void', false);
+        $this->applyDateFilter($sppQuery, 'tanggal_bayar');
+        $totalTagihanSpp = (float) $sppQuery->sum('nominal_dibayar');
+
+        $kasMasukQuery = PemasukanKas::query();
+        $this->applyDateFilter($kasMasukQuery, 'tanggal');
+        $totalKasYayasan = (float) $kasMasukQuery->sum('jumlah');
+
+        $tabunganQuery = Tabungan::where('jenis', 'setor');
+        $this->applyDateFilter($tabunganQuery, 'tanggal');
+        $totalTabunganSetor = (float) $tabunganQuery->sum('nominal');
+
+        $totalInflow = $totalTagihanSpp + $totalKasYayasan + $totalTabunganSetor;
+
+        // 2. Calculate Outflow Metrics (Non-BOS)
+        $opQuery = Pengeluaran::query();
+        $this->applyDateFilter($opQuery, 'tanggal');
+        $totalOperasional = (float) $opQuery->sum('jumlah');
+
+        $gajiQuery = GajiGuru::where('status', 'dibayar');
+        $this->applyDateFilter($gajiQuery, 'tanggal_bayar');
+        $totalGaji = (float) $gajiQuery->sum('total_diterima');
+
+        $loanQuery = Peminjaman::query();
+        $this->applyDateFilter($loanQuery, 'tanggal_pinjam');
+        $totalKasbon = (float) $loanQuery->sum('nominal');
+
+        $totalOutflow = $totalOperasional + $totalGaji + $totalKasbon;
+
+        // Net Cash Flow
+        $netCashFlow = $totalInflow - $totalOutflow;
+
+        // 3. Compute 6-Month Inflow vs Outflow Comparison Trend (Chart Data)
+        $monthlyChartData = [];
+        $maxMonthVal = 1;
+
+        for ($i = 5; $i >= 0; $i--) {
+            $mCarbon = Carbon::now()->subMonths($i);
+            $year = $mCarbon->year;
+            $monthNum = $mCarbon->month;
+            $monthLabel = $mCarbon->locale('id')->isoFormat('MMM YYYY');
+
+            // Inflow
+            $mSpp = (float) Pembayaran::where('is_void', false)->whereYear('tanggal_bayar', $year)->whereMonth('tanggal_bayar', $monthNum)->sum('nominal_dibayar');
+            $mInfaq = (float) PemasukanKas::whereYear('tanggal', $year)->whereMonth('tanggal', $monthNum)->sum('jumlah');
+            $mTab = (float) Tabungan::where('jenis', 'setor')->whereYear('tanggal', $year)->whereMonth('tanggal', $monthNum)->sum('nominal');
+            $mInflowTotal = $mSpp + $mInfaq + $mTab;
+
+            // Outflow
+            $mOp = (float) Pengeluaran::whereYear('tanggal', $year)->whereMonth('tanggal', $monthNum)->sum('jumlah');
+            $mGaji = (float) GajiGuru::where('status', 'dibayar')
+                ->where(function ($q) use ($year, $monthNum, $mCarbon) {
+                    $q->whereYear('tanggal_bayar', $year)->whereMonth('tanggal_bayar', $monthNum)
+                      ->orWhere(function ($sq) use ($year, $mCarbon) {
+                          $sq->where('tahun', $year)->where('bulan', $mCarbon->locale('id')->isoFormat('MMMM'));
+                      });
+                })->sum('total_diterima');
+            $mLoan = (float) Peminjaman::whereYear('tanggal_pinjam', $year)->whereMonth('tanggal_pinjam', $monthNum)->sum('nominal');
+            $mOutflowTotal = $mOp + $mGaji + $mLoan;
+
+            if ($mInflowTotal > $maxMonthVal) {
+                $maxMonthVal = $mInflowTotal;
+            }
+            if ($mOutflowTotal > $maxMonthVal) {
+                $maxMonthVal = $mOutflowTotal;
+            }
+
+            $monthlyChartData[] = [
+                'label' => $monthLabel,
+                'year' => $year,
+                'month' => $monthNum,
+                'inflow' => $mInflowTotal,
+                'outflow' => $mOutflowTotal,
+                'net' => $mInflowTotal - $mOutflowTotal,
+            ];
+        }
+
+        foreach ($monthlyChartData as &$mItem) {
+            $mItem['inflow_pct'] = $maxMonthVal > 0 ? round(($mItem['inflow'] / $maxMonthVal) * 100) : 0;
+            $mItem['outflow_pct'] = $maxMonthVal > 0 ? round(($mItem['outflow'] / $maxMonthVal) * 100) : 0;
+        }
+        unset($mItem);
+
+        // 4. Query Unified Transactions
+        $sortedTransactions = $this->getUnifiedTransactions();
 
         // Paginate manually
         $page = LengthAwarePaginator::resolveCurrentPage();
