@@ -116,6 +116,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik');
         Route::get('/kenaikan-kelas', \App\Livewire\TataUsaha\ProsesKenaikanKelas::class)->name('kenaikan-kelas');
         
+        // Pengaturan Sistem & Sekolah
+        Route::get('/pengaturan', \App\Livewire\SuperAdmin\TataKelola\ManajemenPengaturan::class)->name('pengaturan');
+
         // Laporan
         Route::get('/laporan/absensi-siswa', \App\Livewire\Shared\Laporan\RekapAbsensiSiswa::class)->name('laporan.absensi-siswa');
         Route::get('/laporan/absensi-guru', \App\Livewire\Shared\Laporan\RekapAbsensiGuru::class)->name('laporan.absensi-guru');
@@ -224,6 +227,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dana-bos/excel', [\App\Http\Controllers\FinanceExportController::class, 'exportDanaBos'])->name('dana-bos.excel');
         Route::get('/tabungan/excel', [\App\Http\Controllers\FinanceExportController::class, 'exportTabungan'])->name('tabungan.excel');
         Route::get('/arus-kas/excel', [\App\Http\Controllers\FinanceExportController::class, 'exportArusKas'])->name('arus-kas.excel');
+
+        // Pengaturan Sistem & Sekolah
+        Route::get('/pengaturan', \App\Livewire\SuperAdmin\TataKelola\ManajemenPengaturan::class)->name('pengaturan');
 
         // PDF Previews & Direct Downloads
         Route::get('/laporan/pengeluaran/pdf', [\App\Http\Controllers\FinanceReportController::class, 'laporanPengeluaranPdf'])->name('laporan.pengeluaran.pdf');

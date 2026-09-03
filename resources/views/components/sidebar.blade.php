@@ -169,6 +169,7 @@
             ['title' => 'Rekap Absensi Guru', 'route' => 'tata-usaha.laporan.absensi-guru', 'icon' => 'clipboard'],
             ['title' => 'Laporan Rekap Nilai', 'route' => 'tata-usaha.laporan.rekap-nilai', 'icon' => 'award'],
             ['title' => 'Lainnya', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Pengaturan Sekolah', 'route' => 'tata-usaha.pengaturan', 'icon' => 'settings'],
             ['title' => 'Notifikasi', 'route' => 'shared.notifications', 'icon' => 'bell'],
         ],
         'pengawas' => [
@@ -238,6 +239,7 @@
             ['title' => 'Laporan Pemasukan', 'route' => 'finance.laporan.pemasukan', 'icon' => 'activity'],
             ['title' => 'Laporan Pengeluaran', 'route' => 'finance.laporan.pengeluaran', 'icon' => 'trending-down'],
             ['title' => 'Lainnya', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Pengaturan Sekolah', 'route' => 'finance.pengaturan', 'icon' => 'settings'],
             ['title' => 'Kalender Akademik', 'route' => 'kalender-akademik.shared', 'icon' => 'calendar'],
             ['title' => 'Notifikasi', 'route' => 'shared.notifications', 'icon' => 'bell'],
         ],

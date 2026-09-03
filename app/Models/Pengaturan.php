@@ -40,6 +40,19 @@ class Pengaturan extends Model
         });
     }
 
+    public static function setValue(string $key, $value, ?string $keterangan = null): void
+    {
+        self::updateOrCreate(
+            ['key' => $key],
+            [
+                'value' => $value ?? '',
+                'keterangan' => $keterangan ?? ucfirst(str_replace('_', ' ', $key)),
+            ]
+        );
+        Cache::forget('setting_' . $key);
+        Cache::forget('all_app_settings');
+    }
+
     public static function getAllSettings(): array
     {
         return Cache::remember('all_app_settings', 3600, function () {
