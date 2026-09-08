@@ -19,9 +19,10 @@ class ManajemenJadwal extends Component
 
     // View mode & selected class for timetable matrix
     public string $viewMode = 'grid'; // 'grid' or 'table'
+    public string $jadwalType = 'reguler'; // 'reguler' or 'ekstrakurikuler'
     public ?int $selectedKelasId = null;
 
-    // Form fields
+    // Form fields (Reguler)
     public ?int $jadwalId = null;
     public ?int $guru_mapel_kelas_id = null;
     public string $hari = 'senin';
@@ -30,11 +31,20 @@ class ManajemenJadwal extends Component
 
     public bool $isFormOpen = false;
 
+    // Form fields (Ekstrakurikuler)
+    public ?int $selectedEkskulScheduleId = null;
+    public string $ekskulHari = 'senin';
+    public string $ekskulJamMulai = '15:30';
+    public string $ekskulJamSelesai = '17:00';
+    public string $ekskulTempat = '';
+    public bool $isEkskulFormOpen = false;
+
     protected $queryString = [
         'search' => ['except' => ''],
         'filterHari' => ['except' => ''],
         'filterKelasId' => ['except' => null],
         'viewMode' => ['except' => 'grid'],
+        'jadwalType' => ['except' => 'reguler'],
         'selectedKelasId' => ['except' => null],
     ];
 
@@ -201,6 +211,61 @@ class ManajemenJadwal extends Component
         $this->jam_selesai = '09:00';
     }
 
+    // ================= EKSTRAKURIKULER SCHEDULE METHODS ================= //
+
+    public function openEditEkskulSchedule(int $id)
+    {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('message', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
+        $ekskul = \App\Models\Ekstrakurikuler::findOrFail($id);
+        $this->selectedEkskulScheduleId = $ekskul->id;
+        $this->ekskulHari = $ekskul->hari ?? 'senin';
+        $this->ekskulJamMulai = $ekskul->jam_mulai ?? '15:30';
+        $this->ekskulJamSelesai = $ekskul->jam_selesai ?? '17:00';
+        $this->ekskulTempat = $ekskul->tempat ?? '';
+        $this->isEkskulFormOpen = true;
+    }
+
+    public function saveEkskulSchedule()
+    {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('message', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
+        $this->validate([
+            'ekskulHari' => 'required|string',
+            'ekskulJamMulai' => 'required|string',
+            'ekskulJamSelesai' => 'required|string',
+            'ekskulTempat' => 'nullable|string|max:100',
+        ]);
+
+        if ($this->selectedEkskulScheduleId) {
+            $ekskul = \App\Models\Ekstrakurikuler::find($this->selectedEkskulScheduleId);
+            if ($ekskul) {
+                $ekskul->update([
+                    'hari' => strtolower($this->ekskulHari),
+                    'jam_mulai' => $this->ekskulJamMulai,
+                    'jam_selesai' => $this->ekskulJamSelesai,
+                    'tempat' => $this->ekskulTempat,
+                ]);
+                session()->flash('message', "Jadwal kegiatan {$ekskul->nama} berhasil diperbarui.");
+            }
+        }
+
+        $this->isEkskulFormOpen = false;
+        $this->selectedEkskulScheduleId = null;
+    }
+
+    public function closeEkskulSchedule()
+    {
+        $this->isEkskulFormOpen = false;
+        $this->selectedEkskulScheduleId = null;
+    }
+
     public function render()
     {
         $kelases = \App\Models\Kelas::orderBy('nama_kelas')->get();
@@ -298,6 +363,7 @@ class ManajemenJadwal extends Component
             'days' => $days,
             'weeklyGrid' => $weeklyGrid,
             'formExistingSchedules' => $formExistingSchedules,
+            'ekskuls' => \App\Models\Ekstrakurikuler::with('pembina.user')->withCount('siswaEkskul')->get(),
         ])->layout('components.layouts.app', ['title' => 'Jadwal Pelajaran']);
     }
 }

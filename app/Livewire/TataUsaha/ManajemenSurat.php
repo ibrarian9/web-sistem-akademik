@@ -3,8 +3,10 @@
 namespace App\Livewire\TataUsaha;
 
 use App\Models\Guru;
+use App\Models\Pengaturan;
 use App\Models\RiwayatSurat;
 use App\Models\Siswa;
+use App\Services\ESignatureService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -28,9 +30,9 @@ class ManajemenSurat extends Component
     public string $nomor_surat = '';
     public string $tanggal_surat = '';
     public string $kota_surat = 'Pekanbaru';
-    public string $penandatangan_nama = 'RINA, S.Pd., Gr.';
-    public string $penandatangan_jabatan = 'Kepala SD Tahfizh F3';
-    public string $penandatangan_niy = '198010052201907001';
+    public string $penandatangan_nama = '';
+    public string $penandatangan_jabatan = '';
+    public string $penandatangan_niy = '';
 
     // Penerima Fields (Siswa / Guru)
     public string $penerima_nama = '';
@@ -72,7 +74,16 @@ class ManajemenSurat extends Component
     public function mount()
     {
         $this->tanggal_surat = date('Y-m-d');
+        $this->resetPenandatanganToDefault();
         $this->autoGenerateNomorSurat();
+    }
+
+    public function resetPenandatanganToDefault(): void
+    {
+        $this->penandatangan_nama = Pengaturan::getValue('kepala_sekolah_nama', 'Drs. H. Ahmad Fauzi, M.Pd.');
+        $this->penandatangan_jabatan = Pengaturan::getValue('kepala_sekolah_jabatan', 'Kepala Sekolah / Madrasah');
+        $this->penandatangan_niy = Pengaturan::getValue('kepala_sekolah_nip', '19750812 200003 1 001');
+        $this->kota_surat = Pengaturan::getValue('kota', 'Pekanbaru');
     }
 
     public function updatedJenisSurat()
@@ -173,13 +184,16 @@ class ManajemenSurat extends Component
                 'jenis_surat' => $this->jenis_surat,
                 'penerima_nama' => $this->penerima_nama,
                 'tanggal_surat' => $this->tanggal_surat,
-                'payload_json' => $payload,
+                'payload_json' => [],
                 'created_by' => auth()->id(),
             ]
         );
 
         $this->suratId = $surat->id;
-        session()->flash('message', 'Surat berhasil disimpan & siap dicetak/diunduh PDF.');
+        $payload = $this->getPayload($surat->id);
+        $surat->update(['payload_json' => $payload]);
+
+        session()->flash('message', 'Surat berhasil disimpan & siap dicetak/diunduh PDF dengan QR Code resmi.');
         $this->showPrintModal = true;
     }
 
@@ -213,12 +227,17 @@ class ManajemenSurat extends Component
         $this->posisi_kerja = $payload['posisi_kerja'] ?? '';
         $this->periode_kerja = $payload['periode_kerja'] ?? '';
 
+        $this->penandatangan_nama = $payload['penandatangan_nama'] ?? Pengaturan::getValue('kepala_sekolah_nama', 'Drs. H. Ahmad Fauzi, M.Pd.');
+        $this->penandatangan_jabatan = $payload['penandatangan_jabatan'] ?? Pengaturan::getValue('kepala_sekolah_jabatan', 'Kepala Sekolah / Madrasah');
+        $this->penandatangan_niy = $payload['penandatangan_niy'] ?? Pengaturan::getValue('kepala_sekolah_nip', '19750812 200003 1 001');
+        $this->kota_surat = $payload['kota_surat'] ?? Pengaturan::getValue('kota', 'Pekanbaru');
+
         $this->showPrintModal = true;
     }
 
     public function downloadCurrentPdf()
     {
-        $payload = $this->getPayload();
+        $payload = $this->getPayload($this->suratId);
         $pdf = Pdf::loadView('pdf.surat-template', $payload);
         $filename = str_replace('/', '_', $this->nomor_surat) . '.pdf';
 
@@ -231,6 +250,18 @@ class ManajemenSurat extends Component
     {
         $surat = RiwayatSurat::findOrFail($id);
         $payload = $surat->payload_json ?? [];
+
+        // Pastikan QR code dan kode verifikasi resmi terisi
+        if (empty($payload['qr_code']) || empty($payload['verification_url'])) {
+            $tglStr = $surat->tanggal_surat ? $surat->tanggal_surat->format('Ymd') : date('Ymd');
+            $code = ESignatureService::generateCode('SUR', $surat->id, $tglStr);
+            $verificationUrl = ESignatureService::getVerificationUrl($code);
+            $payload['verification_code'] = $code;
+            $payload['verification_url'] = $verificationUrl;
+            $payload['qr_code'] = ESignatureService::generateQrCode($verificationUrl);
+            $surat->update(['payload_json' => $payload]);
+        }
+
         $pdf = Pdf::loadView('pdf.surat-template', $payload);
         $filename = str_replace('/', '_', $surat->nomor_surat) . '.pdf';
 
@@ -250,8 +281,14 @@ class ManajemenSurat extends Component
         session()->flash('message', 'Riwayat surat berhasil dihapus.');
     }
 
-    private function getPayload(): array
+    public function getPayload(?int $suratId = null): array
     {
+        $id = $suratId ?? $this->suratId ?? 0;
+        $tglStr = $this->tanggal_surat ? date('Ymd', strtotime($this->tanggal_surat)) : date('Ymd');
+        $verificationCode = ESignatureService::generateCode('SUR', $id, $tglStr);
+        $verificationUrl = ESignatureService::getVerificationUrl($verificationCode);
+        $qrCode = ESignatureService::generateQrCode($verificationUrl);
+
         return [
             'jenis_surat' => $this->jenis_surat,
             'nomor_surat' => $this->nomor_surat,
@@ -260,6 +297,9 @@ class ManajemenSurat extends Component
             'penandatangan_nama' => $this->penandatangan_nama,
             'penandatangan_jabatan' => $this->penandatangan_jabatan,
             'penandatangan_niy' => $this->penandatangan_niy,
+            'verification_code' => $verificationCode,
+            'verification_url' => $verificationUrl,
+            'qr_code' => $qrCode,
             'penerima_nama' => $this->penerima_nama,
             'penerima_nisn' => $this->penerima_nisn,
             'penerima_nis' => $this->penerima_nis,

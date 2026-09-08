@@ -16,6 +16,17 @@ class Ekstrakurikuler extends Model
         'nama',
         'pembina_guru_id',
         'deskripsi',
+        'hari',
+        'jam_mulai',
+        'jam_selesai',
+        'tempat',
+        'kuota',
+        'status_aktif',
+    ];
+
+    protected $casts = [
+        'status_aktif' => 'boolean',
+        'kuota' => 'integer',
     ];
 
     public function pembina()
@@ -26,5 +37,10 @@ class Ekstrakurikuler extends Model
     public function siswaEkskul()
     {
         return $this->hasMany(SiswaEkstrakurikuler::class, 'ekstrakurikuler_id');
+    }
+
+    public function kegiatans()
+    {
+        return $this->hasMany(KegiatanEkstrakurikuler::class, 'ekstrakurikuler_id')->orderBy('tanggal', 'desc');
     }
 }

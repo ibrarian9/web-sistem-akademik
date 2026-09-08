@@ -15,9 +15,9 @@
     "semantic_hash": "25a307335c0719bc9a91b3f7babd186d"
   },
   "app/Http/Controllers/DocumentVerificationController.php": {
-    "mtime": 1785734337.1122925,
-    "ast_hash": "ca1fc9a95cea5af8060ecdab10564946",
-    "semantic_hash": "ca1fc9a95cea5af8060ecdab10564946"
+    "mtime": 1788835014.4342406,
+    "ast_hash": "b575adf585a77d9286717c03ebe3b7d8",
+    "semantic_hash": ""
   },
   "app/Http/Controllers/FinanceExportController.php": {
     "mtime": 1788748108.7139516,
@@ -35,9 +35,9 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/VerifikasiDokumenController.php": {
-    "mtime": 1784739599.31114,
-    "ast_hash": "19bfb4b5124921834ee9af57c91d55bc",
-    "semantic_hash": "19bfb4b5124921834ee9af57c91d55bc"
+    "mtime": 1788834603.0323744,
+    "ast_hash": "a628ec531ca73d4a6559e36f25c954e7",
+    "semantic_hash": ""
   },
   "app/Http/Middleware/RoleMiddleware.php": {
     "mtime": 1788714594.7590675,
@@ -270,18 +270,18 @@
     "semantic_hash": ""
   },
   "app/Livewire/SuperAdmin/TataKelola/AuditLog.php": {
-    "mtime": 1787322468.039714,
-    "ast_hash": "c4eaf6c6615fe6904c338c4eda3cc230",
+    "mtime": 1788831545.6177354,
+    "ast_hash": "9a231dd7e4e745bda6a0b5093a0c22e7",
     "semantic_hash": ""
   },
   "app/Livewire/SuperAdmin/TataKelola/ManajemenGuru.php": {
-    "mtime": 1788715478.3667338,
-    "ast_hash": "9aa52ff9a6927ae0f3c6b63e0872da17",
+    "mtime": 1788831722.8974807,
+    "ast_hash": "a9fc092e8a1555d920fa2c382458565c",
     "semantic_hash": ""
   },
   "app/Livewire/SuperAdmin/TataKelola/ManajemenJadwal.php": {
-    "mtime": 1788757210.8091507,
-    "ast_hash": "b587f731abc9e73471edac0fdb28657c",
+    "mtime": 1788831453.2533884,
+    "ast_hash": "f35ef8563fd87d41f0e9613a91b868f7",
     "semantic_hash": ""
   },
   "app/Livewire/SuperAdmin/TataKelola/ManajemenKelas.php": {
@@ -305,8 +305,8 @@
     "semantic_hash": ""
   },
   "app/Livewire/SuperAdmin/TataKelola/ManajemenSiswa.php": {
-    "mtime": 1788757442.6324883,
-    "ast_hash": "0946bb8c76cb1e87bdf5f0b1504d8fa5",
+    "mtime": 1788832608.0720496,
+    "ast_hash": "8654c6462fd16cc035d717d0b8a16747",
     "semantic_hash": ""
   },
   "app/Livewire/SuperAdmin/TataKelola/ManajemenUser.php": {
@@ -345,8 +345,8 @@
     "semantic_hash": ""
   },
   "app/Livewire/TataUsaha/ManajemenSurat.php": {
-    "mtime": 1788715837.438485,
-    "ast_hash": "371693f13d0f440c1bc2f2fe2b6f2c8a",
+    "mtime": 1788834543.9543965,
+    "ast_hash": "4739d0035140086146050dfb4ae6b603",
     "semantic_hash": ""
   },
   "app/Livewire/TataUsaha/PlottingSiswaKelas.php": {
@@ -385,8 +385,8 @@
     "semantic_hash": ""
   },
   "app/Models/Ekstrakurikuler.php": {
-    "mtime": 1788322374.5632827,
-    "ast_hash": "4821de1897815a74f6bedbfe187c6aa5",
+    "mtime": 1788831327.2342184,
+    "ast_hash": "bd79f7b9ca885501d8887e968ce1f439",
     "semantic_hash": ""
   },
   "app/Models/GajiGuru.php": {
@@ -550,8 +550,8 @@
     "semantic_hash": ""
   },
   "app/Models/Siswa.php": {
-    "mtime": 1788756928.1722121,
-    "ast_hash": "71bdb510d5f84c65e8f174449b76bd75",
+    "mtime": 1788831855.1070027,
+    "ast_hash": "bd324000da6ec256f4c8206ea9c4eb1c",
     "semantic_hash": ""
   },
   "app/Models/SiswaEkstrakurikuler.php": {
@@ -595,8 +595,8 @@
     "semantic_hash": ""
   },
   "app/Models/User.php": {
-    "mtime": 1788748082.7014477,
-    "ast_hash": "b458c739e71391cb38eba5dfa78d0303",
+    "mtime": 1788833625.7684174,
+    "ast_hash": "c53b299f29fe8da8124669da39352248",
     "semantic_hash": ""
   },
   "app/Providers/AppServiceProvider.php": {
@@ -705,9 +705,9 @@
     "semantic_hash": "5ea7169252ec3cc7fad471f5cd0d7678"
   },
   "database/factories/UserFactory.php": {
-    "mtime": 1784160245.0949361,
-    "ast_hash": "27251ccd66cbd699bce233e46b00d399",
-    "semantic_hash": "27251ccd66cbd699bce233e46b00d399"
+    "mtime": 1788831699.8761213,
+    "ast_hash": "fe2444294a6acaad6c963307e5923c4a",
+    "semantic_hash": ""
   },
   "database/migrations/0001_01_01_000000_create_users_table.php": {
     "mtime": 1784158137.3577025,
@@ -950,8 +950,8 @@
     "semantic_hash": ""
   },
   "resources/views/components/layouts/app.blade.php": {
-    "mtime": 1788326352.8400884,
-    "ast_hash": "50c110d79da4c653b6119b3c8d42ae83",
+    "mtime": 1788833662.6961112,
+    "ast_hash": "a46d8ad3d3def22d84b8e951df0e269f",
     "semantic_hash": ""
   },
   "resources/views/components/layouts/guest.blade.php": {
@@ -965,8 +965,8 @@
     "semantic_hash": "3e7f8f8c0aa5b35568f45c05356368d7"
   },
   "resources/views/components/sidebar.blade.php": {
-    "mtime": 1788827362.2019627,
-    "ast_hash": "14cc18eeaa80b703f2608c7fea7559b5",
+    "mtime": 1788831426.0500312,
+    "ast_hash": "9530f85df52aba0ba316a67c0c3d902d",
     "semantic_hash": ""
   },
   "resources/views/components/stat-card.blade.php": {
@@ -1275,18 +1275,18 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/super-admin/tata-kelola/audit-log.blade.php": {
-    "mtime": 1787923104.9556653,
-    "ast_hash": "9221609fa03d4126ea551e26f43d59c9",
+    "mtime": 1788831557.1419108,
+    "ast_hash": "6dfb8fb1056f19a2943ee14bbaeab3f0",
     "semantic_hash": ""
   },
   "resources/views/livewire/super-admin/tata-kelola/manajemen-guru.blade.php": {
-    "mtime": 1788715483.4717863,
-    "ast_hash": "52d2bf5a93d97c202f82f247c5a9cb20",
+    "mtime": 1788831588.6873944,
+    "ast_hash": "7d6219f132e7669715c7977e8f9b9b4f",
     "semantic_hash": ""
   },
   "resources/views/livewire/super-admin/tata-kelola/manajemen-jadwal.blade.php": {
-    "mtime": 1788757234.1810615,
-    "ast_hash": "36bdbfcc5c062711357b916823c8cf3f",
+    "mtime": 1788831483.416812,
+    "ast_hash": "ff4311624ef409d5758cd8e0b95c8849",
     "semantic_hash": ""
   },
   "resources/views/livewire/super-admin/tata-kelola/manajemen-kelas.blade.php": {
@@ -1310,8 +1310,8 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/super-admin/tata-kelola/manajemen-siswa.blade.php": {
-    "mtime": 1788757472.3567214,
-    "ast_hash": "3e8e32f669dd5fd2030d41ff504a551c",
+    "mtime": 1788833058.4023995,
+    "ast_hash": "eb9e90abca719de085b1736a6f442757",
     "semantic_hash": ""
   },
   "resources/views/livewire/super-admin/tata-kelola/manajemen-user.blade.php": {
@@ -1350,8 +1350,8 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/tata-usaha/manajemen-surat.blade.php": {
-    "mtime": 1788715859.231715,
-    "ast_hash": "ba1d5e7d6e1e46eb77d1f119ae2af64d",
+    "mtime": 1788835234.0456185,
+    "ast_hash": "a23c8554e2d099f31c63cb75f69325c3",
     "semantic_hash": ""
   },
   "resources/views/livewire/tata-usaha/plotting-siswa-kelas.blade.php": {
@@ -1365,8 +1365,8 @@
     "semantic_hash": ""
   },
   "resources/views/pdf/surat-template.blade.php": {
-    "mtime": 1787912789.908895,
-    "ast_hash": "2b57ccc3d3d1a3d6930bf893e8a43784",
+    "mtime": 1788835214.452932,
+    "ast_hash": "b63950a19f0b4115118ce35236000769",
     "semantic_hash": ""
   },
   "resources/views/public/verifikasi-dokumen.blade.php": {
@@ -1375,9 +1375,9 @@
     "semantic_hash": ""
   },
   "resources/views/verifikasi/dokumen.blade.php": {
-    "mtime": 1785734342.6674285,
-    "ast_hash": "aecf32cf9b1530d0cad11be4108046f3",
-    "semantic_hash": "aecf32cf9b1530d0cad11be4108046f3"
+    "mtime": 1788835025.8047159,
+    "ast_hash": "21490d9add1ac7a04a01515cf29e7ec5",
+    "semantic_hash": ""
   },
   "resources/views/welcome.blade.php": {
     "mtime": 1779750712.0,
@@ -1390,8 +1390,8 @@
     "semantic_hash": "0f0dcce9bcaf5b632002f559796f5beb"
   },
   "routes/web.php": {
-    "mtime": 1788827348.2778475,
-    "ast_hash": "2c3f36952786b978bef8e9cf50e2a7cb",
+    "mtime": 1788833642.3337295,
+    "ast_hash": "3d44d717d967f1a51759f01db398cc92",
     "semantic_hash": ""
   },
   "tests/Feature/AuthTest.php": {
@@ -1920,8 +1920,8 @@
     "semantic_hash": ""
   },
   "database/seeders/ProductionAccountsSeeder.php": {
-    "mtime": 1788714563.9187274,
-    "ast_hash": "530f5607603e5c60a817bede34e2a2e8",
+    "mtime": 1788833609.579111,
+    "ast_hash": "42acf777759df39f43543ba91c3d29c2",
     "semantic_hash": ""
   },
   "tests/Feature/ProductionAccountsSeederTest.php": {
@@ -1930,8 +1930,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/AllRoutesIntegrityTest.php": {
-    "mtime": 1788827540.7613413,
-    "ast_hash": "1471576436b5bb6acec1a96a7ef8f319",
+    "mtime": 1788831906.9243953,
+    "ast_hash": "b5b5b69579ee1bf3491a1c21e1e805ee",
     "semantic_hash": ""
   },
   "tests/Feature/TataUsahaModuleTest.php": {
@@ -2450,8 +2450,8 @@
     "semantic_hash": ""
   },
   "app/Livewire/Guru/Ekstrakurikuler.php": {
-    "mtime": 1788757753.8545287,
-    "ast_hash": "564cdc659303568ef13bd7e6a8310040",
+    "mtime": 1788831496.9490085,
+    "ast_hash": "71043d43f40d82af6655cc5202b4c624",
     "semantic_hash": ""
   },
   "database/migrations/2026_09_07_000002_add_shadow_teacher_id_to_siswa_table.php": {
@@ -2465,8 +2465,8 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/guru/ekstrakurikuler.blade.php": {
-    "mtime": 1788757277.297764,
-    "ast_hash": "34994c7a01a65c60db66a4769064a099",
+    "mtime": 1788831520.1443517,
+    "ast_hash": "7866ced19efd3e95832a839749421585",
     "semantic_hash": ""
   },
   "tests/Feature/AcademicAndFinanceEnhancementsTest.php": {
@@ -2495,18 +2495,88 @@
     "semantic_hash": ""
   },
   "app/Livewire/SuperAdmin/MonitoringAkademik.php": {
-    "mtime": 1788827477.822873,
-    "ast_hash": "c5cd06e92a2cfcdd1ce2c13acbc6ffb1",
+    "mtime": 1788831820.293783,
+    "ast_hash": "9d909b6b245408c9fccb89d4cd5fd644",
     "semantic_hash": ""
   },
   "resources/views/livewire/super-admin/monitoring-akademik.blade.php": {
-    "mtime": 1788827336.5777495,
-    "ast_hash": "793d3e1653aefe6e742089e9fe5686d0",
+    "mtime": 1788831382.2755408,
+    "ast_hash": "788c846aa9be4708678e4785fd1c318c",
     "semantic_hash": ""
   },
   "tests/Feature/MonitoringAkademikTest.php": {
-    "mtime": 1788827451.9256756,
-    "ast_hash": "08d5d26454ffa3d71f65a672fb46774f",
+    "mtime": 1788831953.352803,
+    "ast_hash": "58d897c662e8f09cf79e13c85a588275",
+    "semantic_hash": ""
+  },
+  "app/Livewire/TataUsaha/ManajemenEkstrakurikuler.php": {
+    "mtime": 1788831391.7366347,
+    "ast_hash": "6d67aa1c5ef44d365645f54a2f99f078",
+    "semantic_hash": ""
+  },
+  "app/Models/KegiatanEkstrakurikuler.php": {
+    "mtime": 1788831330.3992226,
+    "ast_hash": "85b0171bbf8b3aacef1bcaa56eb32e6e",
+    "semantic_hash": ""
+  },
+  "app/Models/PresensiEkstrakurikuler.php": {
+    "mtime": 1788831333.6752295,
+    "ast_hash": "dfc5fbddc0340e7e678e79ff0e05cc9f",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_09_08_000001_enhance_ekstrakurikuler_schedule_and_sessions.php": {
+    "mtime": 1788831317.0192206,
+    "ast_hash": "4619e9f95621f9159fdb8e798ad6cef9",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/tata-usaha/manajemen-ekstrakurikuler.blade.php": {
+    "mtime": 1788831408.849823,
+    "ast_hash": "4327505aa98e6bd7b59aea7ae3560fb6",
+    "semantic_hash": ""
+  },
+  "tests/Feature/EkstrakurikulerModuleTest.php": {
+    "mtime": 1788831776.8333232,
+    "ast_hash": "f86930ec94abb3b4418742e7f3c9802b",
+    "semantic_hash": ""
+  },
+  "tests/Feature/RoleFilterAuditAndGuruTest.php": {
+    "mtime": 1788831729.4575832,
+    "ast_hash": "c44db3fb2bccdb77303791705813440b",
+    "semantic_hash": ""
+  },
+  "tests/Feature/SuperAdmin2MonitoringGuruTest.php": {
+    "mtime": 1788831829.7508388,
+    "ast_hash": "50316a5fe36ba85639361811cdb12f63",
+    "semantic_hash": ""
+  },
+  "tests/Feature/TataUsahaShadowTeacherTest.php": {
+    "mtime": 1788832676.072009,
+    "ast_hash": "89ee0233795a2336aeffd7c098259575",
+    "semantic_hash": ""
+  },
+  "database/seeders/SuperAdmin2ProductionSeeder.php": {
+    "mtime": 1788833984.8519187,
+    "ast_hash": "5fe9ec95e38ddb21a6e4de6ef7138c4f",
+    "semantic_hash": ""
+  },
+  "resources/views/components/quran-audio-player.blade.php": {
+    "mtime": 1788833654.9319658,
+    "ast_hash": "b4191fc4f37cc353eab02e08cc0984e4",
+    "semantic_hash": ""
+  },
+  "tests/Feature/SuperAdmin2ProductionSeederAndMurottalTest.php": {
+    "mtime": 1788833670.3002532,
+    "ast_hash": "c18b693725f6d3257dafdb3cb6ee572e",
+    "semantic_hash": ""
+  },
+  "public/audio/murottal.mp3": {
+    "mtime": 1788833544.2218587,
+    "ast_hash": "dcb9669b455b148f9a7cda9d933ce5cb",
+    "semantic_hash": ""
+  },
+  "tests/Feature/PersuratanOfficialQrCodeTest.php": {
+    "mtime": 1788834697.165927,
+    "ast_hash": "6582c3ef88b08be05b02eced9f5e18e2",
     "semantic_hash": ""
   }
 }

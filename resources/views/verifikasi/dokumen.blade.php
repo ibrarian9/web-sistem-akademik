@@ -13,7 +13,7 @@
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
-    <div class="max-w-md w-full bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 sm:p-8 relative overflow-hidden">
+    <div class="max-w-lg sm:max-w-xl w-full bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 sm:p-8 relative overflow-hidden">
         <!-- Accent Glow -->
         <div class="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl"></div>
         <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-emerald-600/20 rounded-full blur-3xl"></div>
@@ -26,38 +26,52 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
-                <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-bold uppercase tracking-widest rounded-full border border-emerald-500/30">
-                    DOKUMEN RESMI SAH & TERVERIFIKASI SISTEM
-                </span>
-                <h1 class="text-xl font-bold text-white mt-3">Portal Pengesahan Digital</h1>
-                <p class="text-slate-400 text-sm mt-1">Keabsahan dokumen ini telah divalidasi langsung oleh sistem resmi sekolah.</p>
+                <div>
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500/15 border border-emerald-500/30 rounded-full text-emerald-300 text-xs font-bold uppercase tracking-wide mb-2 shadow-xs">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                        <span>DOKUMEN RESMI SAH & TERVERIFIKASI</span>
+                    </div>
+                </div>
+                <h1 class="text-xl sm:text-2xl font-bold text-white mt-2">Portal Pengesahan Digital</h1>
+                <p class="text-slate-400 text-xs sm:text-sm mt-1 max-w-sm mx-auto leading-relaxed">Keabsahan dokumen ini telah divalidasi langsung oleh sistem informasi akademik resmi sekolah.</p>
             </div>
 
             <!-- Details Card -->
-            <div class="bg-slate-900/80 border border-slate-700/60 rounded-xl p-4 space-y-3 text-sm mb-6">
-                <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                    <span class="text-slate-400">Jenis Dokumen</span>
+            <div class="bg-slate-900/80 border border-slate-700/60 rounded-xl p-4 sm:p-5 space-y-3 text-xs sm:text-sm mb-6">
+                @if(!empty($nomorSurat))
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2.5 gap-4">
+                    <span class="text-slate-400 font-medium shrink-0">Nomor Surat</span>
+                    <span class="font-bold text-emerald-400 text-right font-mono">{{ $nomorSurat }}</span>
+                </div>
+                @endif
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2.5 gap-4">
+                    <span class="text-slate-400 font-medium shrink-0">Jenis Dokumen</span>
                     <span class="font-semibold text-emerald-400 text-right">{{ $jenisDokumen }}</span>
                 </div>
-                <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                    <span class="text-slate-400">Nama Siswa</span>
-                    <span class="font-semibold text-white text-right">{{ $namaSiswa }}</span>
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2.5 gap-4">
+                    <span class="text-slate-400 font-medium shrink-0">{{ !empty($nomorSurat) ? 'Nama Penerima' : 'Nama Siswa' }}</span>
+                    <span class="font-bold text-white text-right uppercase tracking-wide">{{ $namaSiswa }}</span>
                 </div>
-                <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                    <span class="text-slate-400">NISN</span>
-                    <span class="font-semibold text-slate-300">{{ $nisn }}</span>
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2.5 gap-4">
+                    <span class="text-slate-400 font-medium shrink-0">{{ !empty($nomorSurat) ? 'NISN / NIY / NIK' : 'NISN' }}</span>
+                    <span class="font-semibold text-slate-300 text-right">{{ !empty($nisn) && $nisn !== '-' ? $nisn : '-' }}</span>
                 </div>
-                <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                    <span class="text-slate-400">Kelas / TA</span>
-                    <span class="font-semibold text-slate-300">{{ $kelas }} ({{ $tahunAjaran }})</span>
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2.5 gap-4">
+                    <span class="text-slate-400 font-medium shrink-0">{{ !empty($nomorSurat) ? 'Keterangan / Posisi' : 'Kelas / TA' }}</span>
+                    <span class="font-semibold text-slate-300 text-right">{{ $kelas }} @if(!empty($tahunAjaran) && $tahunAjaran !== '-') <span class="text-slate-500 font-normal">({{ $tahunAjaran }})</span> @endif</span>
                 </div>
-                <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                    <span class="text-slate-400">Tanggal Terbit</span>
-                    <span class="font-semibold text-slate-300">{{ $tanggalTerbit }}</span>
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2.5 gap-4">
+                    <span class="text-slate-400 font-medium shrink-0">Tanggal Terbit</span>
+                    <span class="font-semibold text-slate-300 text-right">{{ $tanggalTerbit }}</span>
                 </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-slate-400">Pengesah Resmi</span>
-                    <span class="font-semibold text-emerald-300">{{ $pejabatPengesah }}</span>
+                <div class="flex justify-between items-start pt-1 gap-4">
+                    <span class="text-slate-400 font-medium shrink-0 pt-0.5">Pengesah Resmi</span>
+                    <div class="text-right max-w-xs">
+                        <span class="font-bold text-emerald-300 block text-xs sm:text-sm">{{ $pejabatNama ?? $pejabatPengesah }}</span>
+                        @if(!empty($pejabatJabatan))
+                            <span class="text-[11px] sm:text-xs text-slate-400 font-medium block mt-0.5">{{ $pejabatJabatan }}</span>
+                        @endif
+                    </div>
                 </div>
             </div>
 

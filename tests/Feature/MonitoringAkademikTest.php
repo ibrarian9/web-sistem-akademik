@@ -181,6 +181,7 @@ class MonitoringAkademikTest extends TestCase
         $this->actingAs($this->adminUser);
 
         Livewire::test(MonitoringAkademik::class)
+            ->call('setTab', 'nilai')
             ->set('selectedKelasId', $this->kelas->id)
             ->set('selectedMapelId', $this->mapel->id)
             ->set('selectedSemesterId', $this->semester->id)

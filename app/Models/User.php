@@ -66,17 +66,17 @@ class User extends Authenticatable
 
     public function isSuperAdmin2(): bool
     {
-        return $this->role?->nama === 'super_admin_2';
+        return in_array($this->role?->nama, ['super_admin_2', 'pengawas']);
     }
 
     public function isReadOnlyAdmin(): bool
     {
-        return $this->role?->nama === 'super_admin_2';
+        return in_array($this->role?->nama, ['super_admin_2', 'pengawas']);
     }
 
     public function canApproveFinancial(): bool
     {
-        return in_array($this->role?->nama, ['super_admin', 'super_admin_2', 'founder']);
+        return in_array($this->role?->nama, ['super_admin', 'super_admin_2', 'founder', 'pengawas']);
     }
 
     public function isKepalaSekolah(): bool

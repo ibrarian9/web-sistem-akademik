@@ -151,6 +151,9 @@
     <!-- Accessibility Menu -->
     <x-accessibility-menu />
 
+    <!-- Dashboard Quran Audio Recitation Player -->
+    <x-quran-audio-player />
+
     @livewireScripts
 </body>
 </html>

@@ -26,6 +26,7 @@ class VerifikasiDokumenController extends Controller
             $providedHash = $parts[3];
 
             $typeMap = [
+                'SUR' => 'Surat Resmi / Surat Keterangan Sekolah',
                 'RAP' => 'Rapor Hasil Belajar Siswa',
                 'RES' => 'Kuitansi Resi Pembayaran Keuangan',
                 'SLI' => 'Slip Gaji Guru & Karyawan',
@@ -49,6 +50,17 @@ class VerifikasiDokumenController extends Controller
             if ($isFinancial) {
                 $signerName = Pengaturan::getValue('bendahara_nama', 'Siti Aminah, S.E.');
                 $signerRole = Pengaturan::getValue('bendahara_jabatan', 'Bendahara Keuangan Yayasan');
+            } elseif ($typeCode === 'SUR') {
+                $surat = \App\Models\RiwayatSurat::find($docId);
+                if ($surat) {
+                    $payload = $surat->payload_json ?? [];
+                    $signerName = $payload['penandatangan_nama'] ?? Pengaturan::getValue('kepala_sekolah_nama', 'Drs. H. Ahmad Fauzi, M.Pd.');
+                    $signerRole = $payload['penandatangan_jabatan'] ?? Pengaturan::getValue('kepala_sekolah_jabatan', 'Kepala Sekolah / Madrasah');
+                    $issueDate = $surat->tanggal_surat ? $surat->tanggal_surat->format('d F Y') : date('d F Y');
+                } else {
+                    $signerName = Pengaturan::getValue('kepala_sekolah_nama', 'Drs. H. Ahmad Fauzi, M.Pd.');
+                    $signerRole = Pengaturan::getValue('kepala_sekolah_jabatan', 'Kepala Sekolah / Madrasah');
+                }
             } else {
                 $signerName = Pengaturan::getValue('kepala_sekolah_nama', 'Drs. H. Ahmad Fauzi, M.Pd.');
                 $signerRole = Pengaturan::getValue('kepala_sekolah_jabatan', 'Kepala Sekolah / Madrasah');

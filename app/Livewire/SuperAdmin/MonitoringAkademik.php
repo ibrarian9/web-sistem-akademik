@@ -22,7 +22,7 @@ use Livewire\Component;
 
 class MonitoringAkademik extends Component
 {
-    public string $activeTab = 'nilai'; // 'nilai', 'kurikulum', 'absen'
+    public string $activeTab = 'progres_guru'; // 'progres_guru', 'nilai', 'kurikulum', 'absen'
 
     // KPI Header Properties
     public float $avgNilaiSekolah = 0.0;
@@ -31,6 +31,11 @@ class MonitoringAkademik extends Component
     public float $persenHadirSiswaToday = 0.0;
     public int $guruHadirToday = 0;
     public int $totalGuruAktif = 0;
+
+    // Filter Tab Progres Guru
+    public ?int $progresKelasId = null;
+    public ?int $progresMapelId = null;
+    public string $searchProgresGuru = '';
 
     // Filter Tab 1: Nilai
     public ?int $selectedKelasId = null;
@@ -50,6 +55,11 @@ class MonitoringAkademik extends Component
 
     public function mount()
     {
+        $user = auth()->user();
+        if (!$user || !in_array($user->role->nama ?? '', ['super_admin', 'super_admin_2'])) {
+            abort(403, 'Akses khusus Super Administrator.');
+        }
+
         $this->selectedTanggal = Carbon::today()->toDateString();
 
         // Get Active Semester
@@ -82,9 +92,16 @@ class MonitoringAkademik extends Component
 
     public function setTab(string $tab): void
     {
-        if (in_array($tab, ['nilai', 'kurikulum', 'absen'])) {
+        if (in_array($tab, ['progres_guru', 'nilai', 'kurikulum', 'absen'])) {
             $this->activeTab = $tab;
         }
+    }
+
+    public function inspectNilai(int $kelasId, int $mapelId): void
+    {
+        $this->selectedKelasId = $kelasId;
+        $this->selectedMapelId = $mapelId;
+        $this->activeTab = 'nilai';
     }
 
     public function setAbsenSubTab(string $subTab): void
@@ -400,6 +417,75 @@ class MonitoringAkademik extends Component
         ];
     }
 
+    public function getProgresGuruProperty()
+    {
+        $query = GuruMapelKelas::with(['guru.user', 'kelas', 'mapel'])
+            ->when($this->selectedSemesterId, function ($q) {
+                $q->where('semester_id', $this->selectedSemesterId);
+            })
+            ->when($this->progresKelasId, function ($q) {
+                $q->where('kelas_id', $this->progresKelasId);
+            })
+            ->when($this->progresMapelId, function ($q) {
+                $q->where('mapel_id', $this->progresMapelId);
+            })
+            ->when($this->searchProgresGuru, function ($q) {
+                $search = $this->searchProgresGuru;
+                $q->where(function ($sub) use ($search) {
+                    $sub->whereHas('guru.user', function ($u) use ($search) {
+                        $u->where('nama', 'like', '%' . $search . '%');
+                    })->orWhereHas('mapel', function ($m) use ($search) {
+                        $m->where('nama_mapel', 'like', '%' . $search . '%');
+                    });
+                });
+            })
+            ->get();
+
+        return $query->map(function ($gmk) {
+            $totalBab = LingkupMateri::where('mapel_id', $gmk->mapel_id)->count();
+            $tpIds = TujuanPembelajaran::whereHas('lingkupMateri', fn($lm) => $lm->where('mapel_id', $gmk->mapel_id))->pluck('id');
+            $totalTp = $tpIds->count();
+
+            $totalSiswa = Siswa::where('kelas_id', $gmk->kelas_id)->where('siswa.status', 'aktif')->count();
+            
+            $gradedSiswaCount = 0;
+            if ($totalSiswa > 0) {
+                $gradedSiswaCount = Siswa::where('kelas_id', $gmk->kelas_id)
+                    ->where('siswa.status', 'aktif')
+                    ->where(function ($q) use ($tpIds, $gmk) {
+                        if ($tpIds->isNotEmpty()) {
+                            $q->whereHas('nilaiSumatifTp', function ($ntp) use ($tpIds) {
+                                $ntp->whereIn('tp_id', $tpIds)
+                                    ->where('semester_id', $this->selectedSemesterId);
+                            });
+                        }
+                        $q->orWhereHas('nilaiSas', function ($nsas) use ($gmk) {
+                            $nsas->where('mapel_id', $gmk->mapel_id)
+                                ->where('semester_id', $this->selectedSemesterId);
+                        });
+                    })->count();
+            }
+
+            $persenNilai = $totalSiswa > 0 ? round(($gradedSiswaCount / $totalSiswa) * 100, 1) : 0;
+
+            return [
+                'id' => $gmk->id,
+                'kelas_id' => $gmk->kelas_id,
+                'mapel_id' => $gmk->mapel_id,
+                'nama_kelas' => $gmk->kelas->nama_kelas ?? '-',
+                'tingkat' => $gmk->kelas->tingkat ?? '-',
+                'nama_mapel' => $gmk->mapel->nama_mapel ?? '-',
+                'nama_guru' => $gmk->guru->user->nama ?? 'Belum Ditentukan',
+                'nip_guru' => $gmk->guru->nip ?? ($gmk->guru->niy ?? '-'),
+                'total_bab' => $totalBab,
+                'total_tp' => $totalTp,
+                'total_siswa' => $totalSiswa,
+                'graded_siswa_count' => $gradedSiswaCount,
+                'persen_nilai' => $persenNilai,
+            ];
+        });
+    }
+
     public function render()
     {
         $classes = Kelas::orderBy('tingkat')->orderBy('nama_kelas')->get();
@@ -412,6 +498,7 @@ class MonitoringAkademik extends Component
             'classes' => $classes,
             'mapels' => $mapels,
             'semesters' => $semesters,
+            'progresGuruData' => $this->getProgresGuruProperty(),
             'matrixNilai' => $this->getMatrixNilaiProperty(),
             'kurikulumData' => $this->getKurikulumDataProperty(),
             'absenSiswaData' => $this->getAbsensiSiswaDataProperty(),

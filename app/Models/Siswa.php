@@ -108,4 +108,14 @@ class Siswa extends Model
     {
         return $this->hasOne(Tabungan::class, 'siswa_id')->latestOfMany('id');
     }
+
+    public function nilaiSumatifTp()
+    {
+        return $this->hasMany(NilaiSumatifTp::class, 'siswa_id');
+    }
+
+    public function nilaiSas()
+    {
+        return $this->hasMany(NilaiSas::class, 'siswa_id');
+    }
 }

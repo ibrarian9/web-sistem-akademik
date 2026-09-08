@@ -15,6 +15,7 @@ class ManajemenGuru extends Component
     use WithPagination;
 
     public string $search = '';
+    public string $filterRole = '';
     public int $perPage = 10;
 
     // Form fields
@@ -39,9 +40,17 @@ class ManajemenGuru extends Component
 
     public bool $isFormOpen = false;
 
-    protected $queryString = ['search' => ['except' => '']];
+    protected $queryString = [
+        'search' => ['except' => ''],
+        'filterRole' => ['except' => ''],
+    ];
 
     public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterRole()
     {
         $this->resetPage();
     }
@@ -289,22 +298,32 @@ class ManajemenGuru extends Component
 
     public function render()
     {
-        $gurus = Guru::with('user')
-            ->where(function ($query) {
-                $query->where('nip', 'like', '%' . $this->search . '%')
-                    ->orWhere('nik', 'like', '%' . $this->search . '%')
-                    ->orWhere('grade_guru', 'like', '%' . $this->search . '%')
-                    ->orWhere('pendidikan', 'like', '%' . $this->search . '%')
-                    ->orWhereHas('user', function ($q) {
-                        $q->where('nama', 'like', '%' . $this->search . '%')
-                          ->orWhere('username', 'like', '%' . $this->search . '%');
-                    });
+        $gurus = Guru::with(['user.role'])
+            ->when($this->search, function ($query) {
+                $query->where(function ($q) {
+                    $q->where('nip', 'like', '%' . $this->search . '%')
+                        ->orWhere('nik', 'like', '%' . $this->search . '%')
+                        ->orWhere('grade_guru', 'like', '%' . $this->search . '%')
+                        ->orWhere('pendidikan', 'like', '%' . $this->search . '%')
+                        ->orWhereHas('user', function ($uq) {
+                            $uq->where('nama', 'like', '%' . $this->search . '%')
+                              ->orWhere('username', 'like', '%' . $this->search . '%');
+                        });
+                });
+            })
+            ->when($this->filterRole, function ($query) {
+                $query->whereHas('user.role', function ($q) {
+                    $q->where('nama', $this->filterRole);
+                });
             })
             ->latest()
             ->paginate($this->perPage);
 
+        $roles = Role::orderBy('nama')->get();
+
         return view('livewire.super-admin.tata-kelola.manajemen-guru', [
             'gurus' => $gurus,
+            'roles' => $roles,
         ])->layout('components.layouts.app', ['title' => 'Manajemen Guru']);
     }
 }

@@ -194,6 +194,7 @@ test('authenticated users can access all authorized module routes with HTTP 200/
         route('tata-usaha.guru'),
         route('tata-usaha.kelas'),
         route('tata-usaha.plotting-kelas'),
+        route('tata-usaha.ekstrakurikuler'),
         route('tata-usaha.surat'),
         route('tata-usaha.jadwal'),
         route('tata-usaha.kalender-akademik'),

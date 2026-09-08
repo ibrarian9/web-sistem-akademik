@@ -35,8 +35,16 @@
     <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
         <!-- Toolbar & Filter -->
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-            <div class="max-w-md w-full">
-                <x-search-input wire:model.live.debounce.300ms="search" placeholder="Cari NIY, NIK, nama, grade, atau pendidikan..." />
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:max-w-xl">
+                <div class="w-full flex-1">
+                    <x-search-input wire:model.live.debounce.300ms="search" placeholder="Cari NIY, NIK, nama, grade, atau pendidikan..." />
+                </div>
+                <select wire:model.live="filterRole" class="bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold px-3.5 py-2.5 focus:ring-2 focus:ring-emerald-600 shadow-2xs">
+                    <option value="">Semua Role Akun</option>
+                    @foreach ($roles as $r)
+                        <option value="{{ $r->nama }}">{{ ucwords(str_replace('_', ' ', $r->nama)) }}</option>
+                    @endforeach
+                </select>
             </div>
             
             <div class="flex items-center gap-2">
@@ -50,11 +58,11 @@
         </div>
 
         <!-- Data Table -->
-        <x-table loadingTarget="search, perPage">
+        <x-table loadingTarget="search, filterRole, perPage">
             <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
                 <tr>
                     <x-table.th class="w-36">NIY / NIK</x-table.th>
-                    <x-table.th class="min-w-[180px]">Nama Guru</x-table.th>
+                    <x-table.th class="min-w-[180px]">Nama Guru & Role</x-table.th>
                     <x-table.th class="min-w-[150px]">Pendidikan & Grade</x-table.th>
                     <x-table.th align="center" class="w-32">Status Nikah</x-table.th>
                     <x-table.th class="min-w-[150px]">TTL & Tgl Masuk</x-table.th>
@@ -87,7 +95,14 @@
                         </td>
                         <td class="p-3.5 border-r border-stone-200">
                             <div class="font-extrabold text-stone-900 text-xs">{{ strtoupper($guru->user->nama ?? '-') }}</div>
-                            <div class="text-[10px] text-stone-500 font-medium">Username: {{ $guru->user->username ?? '-' }}</div>
+                            <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                                <span class="text-[10px] text-stone-500 font-medium">Username: {{ $guru->user->username ?? '-' }}</span>
+                                @if ($guru->user && $guru->user->role)
+                                    <span class="inline-block px-1.5 py-0.2 rounded text-[9px] font-black uppercase bg-stone-100 text-stone-700 border border-stone-200">
+                                        {{ str_replace('_', ' ', $guru->user->role->nama) }}
+                                    </span>
+                                @endif
+                            </div>
                         </td>
                         <td class="p-3.5 border-r border-stone-200">
                             <div class="font-bold text-emerald-950">{{ $guru->pendidikan ?: '-' }}</div>

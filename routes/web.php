@@ -73,7 +73,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('finance.pengajuan-dana');
 
     // Super Admin Group — Oversight, Keuangan, User Management, Audit
-    Route::middleware(['role:super_admin,super_admin_2'])->prefix('super-admin')->name('super-admin.')->group(function () {
+    Route::middleware(['role:super_admin,super_admin_2,founder,pengawas'])->prefix('super-admin')->name('super-admin.')->group(function () {
         Route::get('/dashboard', \App\Livewire\SuperAdmin\Dashboard::class)->name('dashboard');
         Route::get('/approval-keuangan', \App\Livewire\Finance\ApprovalKeuanganIndex::class)->name('approval-keuangan');
         Route::get('/audit-log', \App\Livewire\SuperAdmin\TataKelola\AuditLog::class)->name('audit-log');
@@ -113,6 +113,7 @@ Route::middleware(['auth'])->group(function () {
         Route::match(['get', 'post'], '/alumni', \App\Livewire\TataUsaha\DataAlumni::class)->name('alumni');
         Route::match(['get', 'post'], '/kelas', \App\Livewire\SuperAdmin\TataKelola\ManajemenKelas::class)->name('kelas');
         Route::match(['get', 'post'], '/plotting-kelas', \App\Livewire\TataUsaha\PlottingSiswaKelas::class)->name('plotting-kelas');
+        Route::match(['get', 'post'], '/ekstrakurikuler', \App\Livewire\TataUsaha\ManajemenEkstrakurikuler::class)->name('ekstrakurikuler');
         Route::match(['get', 'post'], '/surat', \App\Livewire\TataUsaha\ManajemenSurat::class)->name('surat');
         Route::match(['get', 'post'], '/jadwal', \App\Livewire\SuperAdmin\TataKelola\ManajemenJadwal::class)->name('jadwal');
         Route::match(['get', 'post'], '/mapel', \App\Livewire\SuperAdmin\TataKelola\ManajemenMapel::class)->name('mapel');
@@ -130,7 +131,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Pengawas Group (Renamed from Koordinator) — Supervisi Guru, Rekap Akademik & Monitoring
-    Route::middleware(['role:pengawas,koordinator,super_admin'])->prefix('pengawas')->name('pengawas.')->group(function () {
+    Route::middleware(['role:pengawas,koordinator,super_admin,super_admin_2'])->prefix('pengawas')->name('pengawas.')->group(function () {
         Route::get('/dashboard', \App\Livewire\KepalaSekolah\Dashboard::class)->name('dashboard');
         Route::get('/capaian-guru', \App\Livewire\SuperAdmin\TataKelola\CapaianPengembanganGuru::class)->name('capaian-guru');
         Route::get('/koreksi-nilai', \App\Livewire\Pengawas\ManajemenKoreksiNilai::class)->name('koreksi-nilai');
@@ -146,7 +147,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Alias legacy Koordinator routes to Pengawas dashboard
-    Route::middleware(['role:pengawas,koordinator,super_admin'])->prefix('koordinator')->name('koordinator.')->group(function () {
+    Route::middleware(['role:pengawas,koordinator,super_admin,super_admin_2'])->prefix('koordinator')->name('koordinator.')->group(function () {
         Route::get('/dashboard', \App\Livewire\KepalaSekolah\Dashboard::class)->name('dashboard');
         Route::get('/capaian-guru', \App\Livewire\SuperAdmin\TataKelola\CapaianPengembanganGuru::class)->name('capaian-guru');
         Route::get('/koreksi-nilai', \App\Livewire\Pengawas\ManajemenKoreksiNilai::class)->name('koreksi-nilai');

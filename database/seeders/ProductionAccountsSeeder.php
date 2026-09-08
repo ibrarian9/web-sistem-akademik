@@ -59,6 +59,18 @@ class ProductionAccountsSeeder extends Seeder
             ]
         );
 
+        User::updateOrCreate(
+            ['email' => 'Ina724152@gmail.com'],
+            [
+                'nama'       => 'Rina',
+                'username'   => 'rina',
+                'password'   => Hash::make('724152'),
+                'role_id'    => $roleSuperAdmin2->id,
+                'status'     => 'aktif',
+                'jabatan'    => 'Super Admin 2',
+            ]
+        );
+
         // 3. Akun Tata Usaha
         User::updateOrCreate(
             ['username' => 'tatausaha'],

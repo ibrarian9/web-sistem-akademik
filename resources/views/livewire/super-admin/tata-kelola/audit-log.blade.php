@@ -55,6 +55,14 @@
                         <option value="{{ $evt }}">{{ ucfirst($evt) }}</option>
                     @endforeach
                 </select>
+
+                <!-- Role selector -->
+                <select wire:model.live="filterRole" class="bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold px-3.5 py-2.5 focus:ring-2 focus:ring-emerald-600 shadow-2xs">
+                    <option value="">Semua Role</option>
+                    @foreach ($roles as $r)
+                        <option value="{{ $r->nama }}">{{ ucwords(str_replace('_', ' ', $r->nama)) }}</option>
+                    @endforeach
+                </select>
             </div>
             
             <div class="flex items-center gap-2">
@@ -68,11 +76,11 @@
         </div>
 
         <!-- Table -->
-        <x-table loadingTarget="filterEvent, filterPeriode, perPage, search">
+        <x-table loadingTarget="filterEvent, filterRole, filterPeriode, perPage, search">
             <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
                 <tr>
                     <x-table.th class="w-52">Hari & Waktu</x-table.th>
-                    <x-table.th class="min-w-[180px]">Nama User (Pelaku)</x-table.th>
+                    <x-table.th class="min-w-[180px]">Nama User (Pelaku & Role)</x-table.th>
                     <x-table.th class="w-28 text-center">Event</x-table.th>
                     <x-table.th class="min-w-[220px]">Deskripsi Aktivitas</x-table.th>
                     <x-table.th class="min-w-[180px]">IP Address & Perangkat</x-table.th>
@@ -96,9 +104,16 @@
                         </td>
                         <td class="p-3.5 border-r border-stone-200">
                             <div class="font-extrabold text-stone-900 text-xs">{{ $log->causer_name ?? 'Sistem / Guest' }}</div>
-                            @if ($log->causer_username)
-                                <div class="text-[10px] text-stone-500 font-mono">@ {{ $log->causer_username }}</div>
-                            @endif
+                            <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                                @if ($log->causer_username)
+                                    <span class="text-[10px] text-stone-500 font-mono">@ {{ $log->causer_username }}</span>
+                                @endif
+                                @if (!empty($log->causer_role))
+                                    <span class="inline-block px-1.5 py-0.2 rounded text-[9px] font-black uppercase bg-stone-100 text-stone-700 border border-stone-200">
+                                        {{ str_replace('_', ' ', $log->causer_role) }}
+                                    </span>
+                                @endif
+                            </div>
                         </td>
                         <td class="p-3.5 text-center border-r border-stone-200">
                             @if ($log->event === 'created')

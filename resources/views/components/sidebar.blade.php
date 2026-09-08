@@ -164,6 +164,7 @@
             ['title' => 'Data Guru', 'route' => 'tata-usaha.guru', 'icon' => 'user-check'],
             ['title' => 'Kelas & Mapel', 'route' => 'tata-usaha.kelas', 'icon' => 'layers'],
             ['title' => 'Plotting Siswa Kelas', 'route' => 'tata-usaha.plotting-kelas', 'icon' => 'users'],
+            ['title' => 'Kelola Ekstrakurikuler', 'route' => 'tata-usaha.ekstrakurikuler', 'icon' => 'award'],
             ['title' => 'Layanan Persuratan', 'route' => 'tata-usaha.surat', 'icon' => 'file-text'],
             ['title' => 'Jadwal & Akademik', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Jadwal Pelajaran', 'route' => 'tata-usaha.jadwal', 'icon' => 'calendar'],

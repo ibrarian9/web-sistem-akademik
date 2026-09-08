@@ -123,9 +123,6 @@
             width: 250px;
             text-align: center;
         }
-        .signature-space {
-            height: 75px;
-        }
         .clear {
             clear: both;
         }
@@ -134,6 +131,42 @@
 <body>
 
     @php
+        $jenis_surat = $jenis_surat ?? 'aktif_sekolah';
+        $nomor_surat = $nomor_surat ?? '-';
+        $tanggal_surat = $tanggal_surat ?? date('Y-m-d');
+        $kota_surat = $kota_surat ?? 'Pekanbaru';
+        $penandatangan_nama = $penandatangan_nama ?? 'Kepala Sekolah';
+        $penandatangan_jabatan = $penandatangan_jabatan ?? 'Kepala Sekolah';
+        $penandatangan_niy = $penandatangan_niy ?? '';
+        $qr_code = $qr_code ?? '';
+        $verification_code = $verification_code ?? '';
+        $penerima_nama = $penerima_nama ?? '-';
+        $penerima_gender = $penerima_gender ?? 'Laki-Laki';
+        $penerima_nisn = $penerima_nisn ?? '-';
+        $penerima_nis = $penerima_nis ?? '-';
+        $penerima_ttl = $penerima_ttl ?? '-';
+        $penerima_kelas = $penerima_kelas ?? '-';
+        $penerima_alamat = $penerima_alamat ?? '-';
+        $penerima_niy = $penerima_niy ?? '-';
+        $penerima_nik = $penerima_nik ?? '-';
+        $penerima_pendidikan = $penerima_pendidikan ?? '-';
+        $posisi_kerja = $posisi_kerja ?? '-';
+        $periode_kerja = $periode_kerja ?? '-';
+        $ortu_nama = $ortu_nama ?? '-';
+        $ortu_hubungan = $ortu_hubungan ?? '-';
+        $ortu_pekerjaan = $ortu_pekerjaan ?? '-';
+        $alasan_pindah = $alasan_pindah ?? '-';
+        $sekolah_tujuan = $sekolah_tujuan ?? '-';
+
+        // Pastikan QR Code resmi selalu tersedia (tanpa tanda tangan manual)
+        if (empty($qr_code)) {
+            $tglStr = !empty($tanggal_surat) ? date('Ymd', strtotime($tanggal_surat)) : date('Ymd');
+            $vCode = !empty($verification_code) ? $verification_code : \App\Services\ESignatureService::generateCode('SUR', $suratId ?? 1, $tglStr);
+            $vUrl = \App\Services\ESignatureService::getVerificationUrl($vCode);
+            $qr_code = \App\Services\ESignatureService::generateQrCode($vUrl);
+            $verification_code = $vCode;
+        }
+
         $logoYayasanPath = public_path('images/logo_yayasan.png');
         if (!file_exists($logoYayasanPath)) {
             $logoYayasanPath = public_path('images/logo_yayasan.jpeg');
@@ -286,14 +319,29 @@
         <p>Demikian surat keterangan pindah sekolah ini dibuat dengan sebenarnya, agar diketahui bersama dan dapat digunakan sebagaimana mestinya.</p>
     @endif
 
-    <!-- SIGNATURE BLOCK -->
+    <!-- OFFICIAL QR CODE VERIFICATION & E-SIGNATURE BLOCK -->
     <div class="signature-container">
         <div class="signature-box">
             <p>{{ $kota_surat }}, {{ \Carbon\Carbon::parse($tanggal_surat)->format('d F Y') }}</p>
             <p style="font-weight: bold;">{{ $penandatangan_jabatan }},</p>
-            <div class="signature-space"></div>
-            <p style="font-weight: bold; text-decoration: underline; text-transform: uppercase;">{{ $penandatangan_nama }}</p>
-            <p style="font-size: 10pt;">NIY : {{ $penandatangan_niy }}</p>
+            
+            <div style="margin: 8px auto 6px auto; text-align: center;">
+                <img src="{{ $qr_code }}" alt="QR Code Verifikasi Resmi" style="width: 78px; height: 78px; display: inline-block; margin-bottom: 2px;" />
+                <div style="font-size: 6.5pt; font-weight: bold; color: #065f46; text-transform: uppercase; letter-spacing: 0.3px; line-height: 1.1;">
+                    DITANDATANGANI SECARA ELEKTRONIK
+                </div>
+                <div style="font-size: 5.5pt; color: #4b5563; line-height: 1.1; margin-top: 1px;">
+                    Scan QR Code untuk Verifikasi Keaslian Dokumen
+                </div>
+                @if(!empty($verification_code))
+                    <div style="font-size: 5.5pt; color: #6b7280; font-family: monospace; line-height: 1.1; margin-top: 1px;">
+                        {{ $verification_code }}
+                    </div>
+                @endif
+            </div>
+
+            <p style="font-weight: bold; text-decoration: underline; text-transform: uppercase; margin-top: 4px;">{{ $penandatangan_nama }}</p>
+            <p style="font-size: 9.5pt;">{{ !empty($penandatangan_niy) ? 'NIP / NIY : ' . $penandatangan_niy : '' }}</p>
         </div>
         <div class="clear"></div>
     </div>

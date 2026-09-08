@@ -345,6 +345,9 @@ class ManajemenSiswa extends Component
                     ->orWhereHas('user', function ($q) {
                         $q->where('nama', 'like', '%' . $this->search . '%')
                           ->orWhere('username', 'like', '%' . $this->search . '%');
+                    })
+                    ->orWhereHas('shadowTeacher.user', function ($q) {
+                        $q->where('nama', 'like', '%' . $this->search . '%');
                     });
             })
             ->latest()

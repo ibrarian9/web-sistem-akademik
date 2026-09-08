@@ -12,6 +12,7 @@ class AuditLog extends Component
 
     public string $search = '';
     public string $filterEvent = '';
+    public string $filterRole = '';
     public string $filterPeriode = ''; // '', 'today', 'yesterday', 'this_week', 'this_month'
     public int $perPage = 20;
 
@@ -22,6 +23,7 @@ class AuditLog extends Component
     protected $queryString = [
         'search' => ['except' => ''],
         'filterEvent' => ['except' => ''],
+        'filterRole' => ['except' => ''],
         'filterPeriode' => ['except' => ''],
     ];
 
@@ -31,6 +33,11 @@ class AuditLog extends Component
     }
 
     public function updatingFilterEvent()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterRole()
     {
         $this->resetPage();
     }
@@ -50,11 +57,13 @@ class AuditLog extends Component
     {
         $log = DB::table('activity_log')
             ->leftJoin('users', 'activity_log.causer_id', '=', 'users.id')
+            ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
             ->select(
                 'activity_log.*',
                 'users.nama as causer_name',
                 'users.username as causer_username',
-                'users.email as causer_email'
+                'users.email as causer_email',
+                'roles.nama as causer_role'
             )
             ->where('activity_log.id', $id)
             ->first();
@@ -104,10 +113,12 @@ class AuditLog extends Component
         // Query directly using DB builder for maximum compatibility and speed
         $logs = DB::table('activity_log')
             ->leftJoin('users', 'activity_log.causer_id', '=', 'users.id')
+            ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
             ->select(
                 'activity_log.*',
                 'users.nama as causer_name',
-                'users.username as causer_username'
+                'users.username as causer_username',
+                'roles.nama as causer_role'
             )
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
@@ -121,6 +132,9 @@ class AuditLog extends Component
             })
             ->when($this->filterEvent, function ($query) {
                 $query->where('activity_log.event', $this->filterEvent);
+            })
+            ->when($this->filterRole, function ($query) {
+                $query->where('roles.nama', $this->filterRole);
             })
             ->when($this->filterPeriode, function ($query) {
                 match($this->filterPeriode) {
@@ -140,9 +154,12 @@ class AuditLog extends Component
             ->distinct()
             ->pluck('event');
 
+        $roles = DB::table('roles')->orderBy('nama')->get();
+
         return view('livewire.super-admin.tata-kelola.audit-log', [
             'logs' => $logs,
             'events' => $events,
+            'roles' => $roles,
         ])->layout('components.layouts.app', ['title' => 'Audit Log Sistem']);
     }
 }
