@@ -161,11 +161,29 @@ class AcademicAndFinanceEnhancementsTest extends TestCase
     {
         $this->actingAs($this->guruUser);
 
+        // Verify direct page access
         $response = $this->get(route('guru.ekskul'));
         $response->assertStatus(200);
 
         Livewire::test(Ekstrakurikuler::class)
             ->assertSee('Ekstrakurikuler');
+
+        // Verify sidebar menu displays Ekstrakurikuler for Guru Umum
+        $dashboardResponse = $this->get(route('guru.dashboard'));
+        $dashboardResponse->assertStatus(200);
+        $dashboardResponse->assertSee(route('guru.ekskul'));
+
+        // Verify sidebar menu displays Ekstrakurikuler for Guru Tahfizh
+        $this->guru->update(['jenis_guru' => 'tahfidz']);
+        $tahfidzResponse = $this->get(route('guru.dashboard'));
+        $tahfidzResponse->assertStatus(200);
+        $tahfidzResponse->assertSee(route('guru.ekskul'));
+
+        // Verify Super Admin sidebar has Kelola Ekstrakurikuler
+        $this->actingAs($this->superAdmin);
+        $adminResponse = $this->get(route('super-admin.dashboard'));
+        $adminResponse->assertStatus(200);
+        $adminResponse->assertSee(route('tata-usaha.ekstrakurikuler'));
     }
 
     /** Test 4: Timetable Form closeForm method exists and handles reset */

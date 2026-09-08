@@ -1,16 +1,16 @@
 # Graph Report - web-sistem-akademik  (2026-09-08)
 
 ## Corpus Check
-- 472 files · ~371,409 words
+- 472 files · ~371,487 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2568 nodes · 5363 edges · 320 communities (242 shown, 78 thin omitted)
+- 2568 nodes · 5363 edges · 321 communities (242 shown, 79 thin omitted)
 - Extraction: 85% EXTRACTED · 15% INFERRED · 0% AMBIGUOUS · INFERRED: 819 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `18c7d4b8`
+- Built from commit: `5bbd60e2`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -174,10 +174,11 @@
 - Kelas
 - Notifikasi
 - monitoring-akademik.blade.php
-- keywords
+- .save
 - DimensiP5
+- autoload-dev
 - TagihanSpp
-- post-create-project-cmd
+- dev
 
 ## God Nodes (most connected - your core abstractions)
 1. `Siswa` - 135 edges
@@ -206,7 +207,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (320 total, 78 thin omitted)
+## Communities (321 total, 79 thin omitted)
 
 ### Community 0 - "Livewire\Component"
 Cohesion: 0.06
@@ -225,8 +226,8 @@ Cohesion: 0.06
 Nodes (32): 1.10 Manajemen Pengaturan Sistem & TTD, 1.1 Dashboard Super Admin, 1.2 Manajemen User, 1.3 Manajemen Siswa, 1.4 Manajemen Guru, 1.5 Manajemen Kelas, 1.6 Manajemen Jadwal, 1.7 Manajemen Mata Pelajaran (+24 more)
 
 ### Community 8 - "scripts"
-Cohesion: 0.14
-Nodes (14): scripts, dev, post-autoload-dump, post-update-cmd, pre-package-uninstall, test, Composer\\Config::disableProcessTimeout, Illuminate\\Foundation\\ComposerScripts::postAutoloadDump (+6 more)
+Cohesion: 0.13
+Nodes (15): scripts, post-autoload-dump, post-create-project-cmd, post-update-cmd, pre-package-uninstall, test, Illuminate\\Foundation\\ComposerScripts::postAutoloadDump, Illuminate\\Foundation\\ComposerScripts::prePackageUninstall (+7 more)
 
 ### Community 10 - "5. Finance / Keuangan"
 Cohesion: 0.06
@@ -322,7 +323,7 @@ Nodes (10): closeEkskulSchedule, closeForm, delete({{ $jadwal->id }}), delete({{
 
 ### Community 50 - "composer.json"
 Cohesion: 0.14
-Nodes (13): autoload-dev, psr-4, description, extra, laravel, dont-discover, license, minimum-stability (+5 more)
+Nodes (13): description, extra, laravel, keywords, dont-discover, license, minimum-stability, name (+5 more)
 
 ### Community 52 - "config"
 Cohesion: 0.29
@@ -540,18 +541,18 @@ Nodes (4): NotificationsList, Notifikasi, AuditLogger, bootAuditable()
 Cohesion: 0.50
 Nodes (3): inspectNilai({{ $p[, setTab(, setAbsenSubTab(
 
-### Community 314 - "keywords"
+### Community 317 - "autoload-dev"
 Cohesion: 0.67
-Nodes (3): keywords, framework, laravel
+Nodes (3): autoload-dev, psr-4, Tests\\
 
-### Community 321 - "post-create-project-cmd"
-Cohesion: 0.50
-Nodes (4): post-create-project-cmd, @php artisan key:generate --ansi, @php artisan migrate --graceful --ansi, @php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\
+### Community 320 - "dev"
+Cohesion: 0.67
+Nodes (3): dev, Composer\\Config::disableProcessTimeout, npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1 --timeout=0\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite --kill-others
 
 ## Knowledge Gaps
 - **586 isolated node(s):** `$schema`, `name`, `type`, `description`, `laravel` (+581 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **78 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **79 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_

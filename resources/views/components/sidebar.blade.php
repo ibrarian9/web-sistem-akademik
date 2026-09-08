@@ -28,6 +28,7 @@
 
             ['title' => 'Rapor & Bimbingan', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Cetak & Kelola Rapor', 'route' => 'guru.kelola-rapor', 'icon' => 'book-open'],
+            ['title' => 'Ekstrakurikuler', 'route' => 'guru.ekskul', 'icon' => 'star'],
             ['title' => 'Pengembangan Diri', 'route' => 'guru.pengembangan-diri', 'icon' => 'user-check'],
 
             ['title' => 'Presensi Saya & Info', 'route' => null, 'icon' => null, 'section' => true],
@@ -59,6 +60,7 @@
 
             ['title' => 'Rapor & Wali Kelas', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Cetak & Kelola Rapor', 'route' => 'guru.kelola-rapor', 'icon' => 'book-open'],
+            ['title' => 'Ekstrakurikuler', 'route' => 'guru.ekskul', 'icon' => 'star'],
             ['title' => 'Pengembangan Diri', 'route' => 'guru.pengembangan-diri', 'icon' => 'user-check'],
 
             ['title' => 'Presensi Saya & Info', 'route' => null, 'icon' => null, 'section' => true],
@@ -134,6 +136,7 @@
             ['title' => 'Direktori Karyawan', 'route' => 'super-admin.karyawan', 'icon' => 'users'],
             ['title' => 'Kelas & Mapel', 'route' => 'super-admin.kelas', 'icon' => 'layers'],
             ['title' => 'Plotting Siswa Kelas', 'route' => 'super-admin.plotting-kelas', 'icon' => 'users'],
+            ['title' => 'Kelola Ekstrakurikuler', 'route' => 'tata-usaha.ekstrakurikuler', 'icon' => 'award'],
             ['title' => 'Layanan Persuratan', 'route' => 'super-admin.surat', 'icon' => 'file-text'],
             ['title' => 'Jadwal Pelajaran', 'route' => 'super-admin.jadwal', 'icon' => 'calendar'],
             ['title' => 'Kalender Akademik', 'route' => 'super-admin.kalender-akademik', 'icon' => 'calendar'],

@@ -7436,8 +7436,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_murid_kehadiransaya_kehadiransaya_render",
-      "community": 30,
-      "community_name": "AbsensiSiswa",
+      "community": 275,
+      "community_name": "KehadiranSaya",
       "norm_label": ".render()"
     },
     {
@@ -9164,8 +9164,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenjadwal_manajemenjadwal_save",
-      "community": 1,
-      "community_name": "ManajemenJadwal",
+      "community": 314,
+      "community_name": ".save",
       "norm_label": ".save()"
     },
     {
@@ -15439,8 +15439,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_services_jadwalservice",
-      "community": 1,
-      "community_name": "ManajemenJadwal",
+      "community": 314,
+      "community_name": ".save",
       "norm_label": "jadwalservice.php"
     },
     {
@@ -15452,8 +15452,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_services_jadwalservice_jadwalservice",
-      "community": 1,
-      "community_name": "ManajemenJadwal",
+      "community": 314,
+      "community_name": ".save",
       "norm_label": "jadwalservice"
     },
     {
@@ -15464,8 +15464,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_services_jadwalservice_jadwalservice_checkconflict",
-      "community": 1,
-      "community_name": "ManajemenJadwal",
+      "community": 314,
+      "community_name": ".save",
       "norm_label": ".checkconflict()"
     },
     {
@@ -15717,8 +15717,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "composer_keywords",
-      "community": 314,
-      "community_name": "keywords",
+      "community": 50,
+      "community_name": "composer.json",
       "norm_label": "keywords"
     },
     {
@@ -15728,8 +15728,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "ref_laravel",
-      "community": 314,
-      "community_name": "keywords",
+      "community": 50,
+      "community_name": "composer.json",
       "norm_label": "laravel"
     },
     {
@@ -15739,8 +15739,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "ref_framework",
-      "community": 314,
-      "community_name": "keywords",
+      "community": 50,
+      "community_name": "composer.json",
       "norm_label": "framework"
     },
     {
@@ -16058,8 +16058,8 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "composer_autoload_dev",
-      "community": 50,
-      "community_name": "composer.json",
+      "community": 317,
+      "community_name": "autoload-dev",
       "norm_label": "autoload-dev"
     },
     {
@@ -16069,8 +16069,8 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "composer_autoload_dev_psr_4",
-      "community": 50,
-      "community_name": "composer.json",
+      "community": 317,
+      "community_name": "autoload-dev",
       "norm_label": "psr-4"
     },
     {
@@ -16080,8 +16080,8 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "composer_psr_4_tests",
-      "community": 50,
-      "community_name": "composer.json",
+      "community": 317,
+      "community_name": "autoload-dev",
       "norm_label": "tests\\\\"
     },
     {
@@ -16179,8 +16179,8 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "composer_scripts_dev",
-      "community": 8,
-      "community_name": "scripts",
+      "community": 320,
+      "community_name": "dev",
       "norm_label": "dev"
     },
     {
@@ -16190,8 +16190,8 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "ref_composer_config_disableprocesstimeout",
-      "community": 8,
-      "community_name": "scripts",
+      "community": 320,
+      "community_name": "dev",
       "norm_label": "composer\\\\config::disableprocesstimeout"
     },
     {
@@ -16201,8 +16201,8 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "ref_npx_concurrently_c_93c5fd_c4b5fd_fb7185_fdba74_php_artisan_serve_php_artisan_queue_listen_tries_1_timeout_0_php_artisan_pail_timeout_0_npm_run_dev_names_server_queue_logs_vite_kill_others",
-      "community": 8,
-      "community_name": "scripts",
+      "community": 320,
+      "community_name": "dev",
       "norm_label": "npx concurrently -c \\\"#93c5fd,#c4b5fd,#fb7185,#fdba74\\\" \\\"php artisan serve\\\" \\\"php artisan queue:listen --tries=1 --timeout=0\\\" \\\"php artisan pail --timeout=0\\\" \\\"npm run dev\\\" --names=server,queue,logs,vite --kill-others"
     },
     {
@@ -16311,8 +16311,8 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "composer_scripts_post_create_project_cmd",
-      "community": 321,
-      "community_name": "post-create-project-cmd",
+      "community": 8,
+      "community_name": "scripts",
       "norm_label": "post-create-project-cmd"
     },
     {
@@ -16322,8 +16322,8 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "ref_php_artisan_key_generate_ansi",
-      "community": 321,
-      "community_name": "post-create-project-cmd",
+      "community": 8,
+      "community_name": "scripts",
       "norm_label": "@php artisan key:generate --ansi"
     },
     {
@@ -16333,8 +16333,8 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "ref_php_r_file_exists_database_database_sqlite_touch_database_database_sqlite",
-      "community": 321,
-      "community_name": "post-create-project-cmd",
+      "community": 8,
+      "community_name": "scripts",
       "norm_label": "@php -r \\\"file_exists('database/database.sqlite') || touch('database/database.sqlite');\\"
     },
     {
@@ -16344,8 +16344,8 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "ref_php_artisan_migrate_graceful_ansi",
-      "community": 321,
-      "community_name": "post-create-project-cmd",
+      "community": 8,
+      "community_name": "scripts",
       "norm_label": "@php artisan migrate --graceful --ansi"
     },
     {
@@ -24235,7 +24235,7 @@
       "label": ".test_manajemen_jadwal_close_form()",
       "file_type": "code",
       "source_file": "tests/Feature/AcademicAndFinanceEnhancementsTest.php",
-      "source_location": "L172",
+      "source_location": "L190",
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_academicandfinanceenhancementstest_academicandfinanceenhancementstest_test_manajemen_jadwal_close_form",
@@ -24247,7 +24247,7 @@
       "label": ".test_manajemen_siswa_handles_shadow_teacher()",
       "file_type": "code",
       "source_file": "tests/Feature/AcademicAndFinanceEnhancementsTest.php",
-      "source_location": "L183",
+      "source_location": "L201",
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_academicandfinanceenhancementstest_academicandfinanceenhancementstest_test_manajemen_siswa_handles_shadow_teacher",
@@ -24259,7 +24259,7 @@
       "label": ".test_gaji_guru_edit_period_and_syncs_pengeluaran()",
       "file_type": "code",
       "source_file": "tests/Feature/AcademicAndFinanceEnhancementsTest.php",
-      "source_location": "L206",
+      "source_location": "L224",
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_academicandfinanceenhancementstest_academicandfinanceenhancementstest_test_gaji_guru_edit_period_and_syncs_pengeluaran",
@@ -24271,7 +24271,7 @@
       "label": ".test_finance_batch_delete_handles_draft_and_submits_approval()",
       "file_type": "code",
       "source_file": "tests/Feature/AcademicAndFinanceEnhancementsTest.php",
-      "source_location": "L254",
+      "source_location": "L272",
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_academicandfinanceenhancementstest_academicandfinanceenhancementstest_test_finance_batch_delete_handles_draft_and_submits_approval",
@@ -24283,7 +24283,7 @@
       "label": ".test_arus_kas_creates_custom_category_on_the_fly()",
       "file_type": "code",
       "source_file": "tests/Feature/AcademicAndFinanceEnhancementsTest.php",
-      "source_location": "L302",
+      "source_location": "L320",
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_academicandfinanceenhancementstest_academicandfinanceenhancementstest_test_arus_kas_creates_custom_category_on_the_fly",
@@ -24295,7 +24295,7 @@
       "label": ".test_detail_gaji_guru_batch_delete_works_for_finance()",
       "file_type": "code",
       "source_file": "tests/Feature/AcademicAndFinanceEnhancementsTest.php",
-      "source_location": "L326",
+      "source_location": "L344",
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_academicandfinanceenhancementstest_academicandfinanceenhancementstest_test_detail_gaji_guru_batch_delete_works_for_finance",
@@ -61677,7 +61677,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/Feature/AcademicAndFinanceEnhancementsTest.php",
-      "source_location": "L330",
+      "source_location": "L348",
       "weight": 1.0,
       "_origin": "ast",
       "source": "tests_feature_academicandfinanceenhancementstest_academicandfinanceenhancementstest_test_detail_gaji_guru_batch_delete_works_for_finance",
@@ -61689,7 +61689,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/Feature/AcademicAndFinanceEnhancementsTest.php",
-      "source_location": "L258",
+      "source_location": "L276",
       "weight": 1.0,
       "_origin": "ast",
       "source": "tests_feature_academicandfinanceenhancementstest_academicandfinanceenhancementstest_test_finance_batch_delete_handles_draft_and_submits_approval",
@@ -61701,7 +61701,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/Feature/AcademicAndFinanceEnhancementsTest.php",
-      "source_location": "L220",
+      "source_location": "L238",
       "weight": 1.0,
       "_origin": "ast",
       "source": "tests_feature_academicandfinanceenhancementstest_academicandfinanceenhancementstest_test_gaji_guru_edit_period_and_syncs_pengeluaran",
@@ -64445,7 +64445,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/Feature/AcademicAndFinanceEnhancementsTest.php",
-      "source_location": "L210",
+      "source_location": "L228",
       "weight": 1.0,
       "_origin": "ast",
       "source": "tests_feature_academicandfinanceenhancementstest_academicandfinanceenhancementstest_test_gaji_guru_edit_period_and_syncs_pengeluaran",
@@ -69517,7 +69517,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/Feature/AcademicAndFinanceEnhancementsTest.php",
-      "source_location": "L212",
+      "source_location": "L230",
       "weight": 1.0,
       "_origin": "ast",
       "source": "tests_feature_academicandfinanceenhancementstest_academicandfinanceenhancementstest_test_gaji_guru_edit_period_and_syncs_pengeluaran",
@@ -86160,7 +86160,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "tests/Feature/AcademicAndFinanceEnhancementsTest.php",
-      "source_location": "L302",
+      "source_location": "L320",
       "weight": 1.0,
       "_origin": "ast",
       "source": "tests_feature_academicandfinanceenhancementstest_academicandfinanceenhancementstest",
@@ -86171,7 +86171,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "tests/Feature/AcademicAndFinanceEnhancementsTest.php",
-      "source_location": "L326",
+      "source_location": "L344",
       "weight": 1.0,
       "_origin": "ast",
       "source": "tests_feature_academicandfinanceenhancementstest_academicandfinanceenhancementstest",
@@ -86182,7 +86182,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "tests/Feature/AcademicAndFinanceEnhancementsTest.php",
-      "source_location": "L254",
+      "source_location": "L272",
       "weight": 1.0,
       "_origin": "ast",
       "source": "tests_feature_academicandfinanceenhancementstest_academicandfinanceenhancementstest",
@@ -86193,7 +86193,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "tests/Feature/AcademicAndFinanceEnhancementsTest.php",
-      "source_location": "L206",
+      "source_location": "L224",
       "weight": 1.0,
       "_origin": "ast",
       "source": "tests_feature_academicandfinanceenhancementstest_academicandfinanceenhancementstest",
@@ -86226,7 +86226,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "tests/Feature/AcademicAndFinanceEnhancementsTest.php",
-      "source_location": "L172",
+      "source_location": "L190",
       "weight": 1.0,
       "_origin": "ast",
       "source": "tests_feature_academicandfinanceenhancementstest_academicandfinanceenhancementstest",
@@ -86248,7 +86248,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "tests/Feature/AcademicAndFinanceEnhancementsTest.php",
-      "source_location": "L183",
+      "source_location": "L201",
       "weight": 1.0,
       "_origin": "ast",
       "source": "tests_feature_academicandfinanceenhancementstest_academicandfinanceenhancementstest",
@@ -91788,5 +91788,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "18c7d4b880c4c4153bdc289acb33cad52db565fe"
+  "built_at_commit": "5bbd60e2def2aad9147363a9eaf56a311ecd872b"
 }
