@@ -41,30 +41,46 @@
         <x-stat-card 
             title="Total Seluruh Kas Masuk" 
             :value="'Rp ' . number_format($totalInflowAll, 0, ',', '.')" 
-            subtitle="Akumulasi seluruh penerimaan kas masuk terpilih"
+            subtitle="Akumulasi seluruh penerimaan kas masuk (Klik tampilkan semua)"
             icon="trending-up" 
             variant="emerald" 
+            wire:click="selectStream('semua')"
+            role="button"
+            tabindex="0"
+            class="cursor-pointer select-none hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 {{ $stream === 'semua' ? 'ring-4 ring-emerald-400 ring-offset-2 shadow-md' : '' }}"
         />
         <x-stat-card 
             title="Setoran SPP & Tagihan Siswa" 
             :value="'Rp ' . number_format($totalTagihanSpp, 0, ',', '.')" 
-            subtitle="SPP bulanan, gedung, tahunan, seragam, dsb."
+            subtitle="SPP bulanan, gedung, tahunan (Klik filter)"
             icon="credit-card" 
             variant="white" 
+            wire:click="selectStream('pembayaran_spp')"
+            role="button"
+            tabindex="0"
+            class="cursor-pointer select-none hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 {{ $stream === 'pembayaran_spp' ? 'ring-4 ring-emerald-600 ring-offset-2 shadow-md bg-emerald-50/50' : '' }}"
         />
         <x-stat-card 
             title="Kas Masuk Yayasan (Infaq & Donasi)" 
             :value="'Rp ' . number_format($totalKasYayasan, 0, ',', '.')" 
-            subtitle="Infaq, sedekah subuh, donatur, sponsor"
+            subtitle="Infaq, sedekah subuh, donatur (Klik filter)"
             icon="heart-handshake" 
             variant="white" 
+            wire:click="selectStream('kas_yayasan')"
+            role="button"
+            tabindex="0"
+            class="cursor-pointer select-none hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 {{ $stream === 'kas_yayasan' ? 'ring-4 ring-amber-500 ring-offset-2 shadow-md bg-amber-50/50' : '' }}"
         />
         <x-stat-card 
             title="Setoran Tabungan Siswa" 
             :value="'Rp ' . number_format($totalTabunganSetor, 0, ',', '.')" 
-            subtitle="Dana tabungan masuk kas sekolah"
+            subtitle="Dana tabungan masuk kas sekolah (Klik filter)"
             icon="wallet" 
             variant="white" 
+            wire:click="selectStream('tabungan')"
+            role="button"
+            tabindex="0"
+            class="cursor-pointer select-none hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 {{ $stream === 'tabungan' ? 'ring-4 ring-purple-600 ring-offset-2 shadow-md bg-purple-50/50' : '' }}"
         />
     </div>
 
@@ -386,13 +402,23 @@
 
             <!-- Kategori Penerimaan -->
             <div>
-                <label for="income_kategori" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">Kategori Penerimaan</label>
-                <select id="income_kategori" wire:model="kategori" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs">
-                    @foreach ($kategoriOptions as $kat)
-                        <option value="{{ $kat }}">{{ $kat }}</option>
-                    @endforeach
-                </select>
-                @error('kategori') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
+                <div class="flex items-center justify-between mb-1.5">
+                    <label for="income_kategori" class="block text-xs font-bold text-stone-600 uppercase tracking-wider">Kategori Penerimaan</label>
+                    <button type="button" wire:click="$toggle('is_kategori_kustom')" class="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 hover:underline cursor-pointer">
+                        {{ $is_kategori_kustom ? '← Pilih dari Daftar Kategori' : '+ Tambah Kategori Baru' }}
+                    </button>
+                </div>
+                @if(!$is_kategori_kustom)
+                    <select id="income_kategori" wire:model="kategori" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs">
+                        @foreach ($kategoriOptions as $kat)
+                            <option value="{{ $kat }}">{{ $kat }}</option>
+                        @endforeach
+                    </select>
+                    @error('kategori') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
+                @else
+                    <input type="text" id="income_kategori_kustom" wire:model="kategori_kustom" placeholder="Ketik nama kategori penerimaan baru..." class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs" />
+                    @error('kategori_kustom') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
+                @endif
             </div>
 
             <!-- Nominal Penerimaan -->

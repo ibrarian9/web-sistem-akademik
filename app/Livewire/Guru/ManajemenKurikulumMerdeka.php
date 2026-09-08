@@ -93,16 +93,28 @@ class ManajemenKurikulumMerdeka extends Component
 
     public function openLmModal($id = null)
     {
+        if (!$this->mapel_id) {
+            $firstMapel = MataPelajaran::orderBy('id', 'asc')->first();
+            $this->mapel_id = $firstMapel?->id;
+            if ($this->mapel_id) {
+                $this->loadMapelData();
+            }
+        }
+
         $this->editingLmId = $id;
         if ($id) {
             $lm = LingkupMateri::findOrFail($id);
             $this->nama_lingkup_materi = $lm->nama_lingkup_materi;
             $this->kategori_lm = $lm->kategori;
             $this->urutan_lm = $lm->urutan;
+            if (!$this->mapel_id) {
+                $this->mapel_id = $lm->mapel_id;
+                $this->loadMapelData();
+            }
         } else {
             $this->nama_lingkup_materi = '';
             $this->kategori_lm = 'sumatif';
-            $this->urutan_lm = (LingkupMateri::where('mapel_id', $this->mapel_id)->max('urutan') ?? 0) + 1;
+            $this->urutan_lm = $this->mapel_id ? ((LingkupMateri::where('mapel_id', $this->mapel_id)->max('urutan') ?? 0) + 1) : 1;
         }
         $this->showLmModal = true;
     }
@@ -121,7 +133,25 @@ class ManajemenKurikulumMerdeka extends Component
 
     public function saveLm()
     {
-        $this->validate(['nama_lingkup_materi' => 'required|string|max:255']);
+        // Fallback jika mapel_id masih belum terisi
+        if ($this->editingLmId && !$this->mapel_id) {
+            $existing = LingkupMateri::find($this->editingLmId);
+            $this->mapel_id = $existing?->mapel_id;
+        }
+
+        if (!$this->mapel_id) {
+            $firstMapel = MataPelajaran::orderBy('id', 'asc')->first();
+            $this->mapel_id = $firstMapel?->id;
+        }
+
+        $this->validate([
+            'mapel_id' => 'required|exists:mata_pelajaran,id',
+            'nama_lingkup_materi' => 'required|string|max:255',
+        ], [
+            'mapel_id.required' => 'Mata pelajaran wajib dipilih sebelum menyimpan Bab.',
+            'mapel_id.exists' => 'Mata pelajaran tidak valid.',
+            'nama_lingkup_materi.required' => 'Nama Lingkup Materi / Bab wajib diisi.',
+        ]);
 
         LingkupMateri::updateOrCreate(
             ['id' => $this->editingLmId],
@@ -129,7 +159,7 @@ class ManajemenKurikulumMerdeka extends Component
                 'mapel_id' => $this->mapel_id,
                 'nama_lingkup_materi' => $this->nama_lingkup_materi,
                 'kategori' => $this->kategori_lm ?: 'sumatif',
-                'urutan' => $this->urutan_lm,
+                'urutan' => $this->urutan_lm ?: 1,
             ]
         );
 
@@ -157,8 +187,23 @@ class ManajemenKurikulumMerdeka extends Component
 
     public function openTpModal($lmId = null, $tpId = null)
     {
-        if (!$lmId) {
-            $lm = LingkupMateri::where('mapel_id', $this->mapel_id)->first();
+        if (!$this->mapel_id) {
+            $firstMapel = MataPelajaran::orderBy('id', 'asc')->first();
+            $this->mapel_id = $firstMapel?->id;
+            if ($this->mapel_id) {
+                $this->loadMapelData();
+            }
+        }
+
+        $availableLms = $this->mapel_id ? LingkupMateri::where('mapel_id', $this->mapel_id)->count() : 0;
+        if ($availableLms === 0) {
+            session()->flash('error', 'Belum ada Bab (Lingkup Materi) pada mata pelajaran ini. Silakan tambahkan Bab terlebih dahulu sebelum membuat TP.');
+            $this->openLmModal();
+            return;
+        }
+
+        if (!$lmId && $this->mapel_id) {
+            $lm = LingkupMateri::where('mapel_id', $this->mapel_id)->orderBy('urutan', 'asc')->first();
             $lmId = $lm ? $lm->id : null;
         }
 
@@ -169,6 +214,7 @@ class ManajemenKurikulumMerdeka extends Component
             $tp = TujuanPembelajaran::findOrFail($tpId);
             $this->deskripsi_tp = $tp->deskripsi_tp;
             $this->urutan_tp = $tp->urutan;
+            $this->lingkup_materi_id = $tp->lingkup_materi_id;
         } else {
             $this->deskripsi_tp = '';
             $this->urutan_tp = $lmId ? ((TujuanPembelajaran::where('lingkup_materi_id', $lmId)->max('urutan') ?? 0) + 1) : 1;
@@ -187,19 +233,47 @@ class ManajemenKurikulumMerdeka extends Component
     {
         $this->showTpModal = false;
         $this->editingTpId = null;
+        $this->lingkup_materi_id = null;
         $this->deskripsi_tp = '';
+        $this->resetValidation();
     }
 
     public function saveTp()
     {
-        $this->validate(['deskripsi_tp' => 'required|string']);
+        // 1. Fallback jika sedang edit TP dan lingkup_materi_id kosong
+        if ($this->editingTpId && !$this->lingkup_materi_id) {
+            $existing = TujuanPembelajaran::find($this->editingTpId);
+            $this->lingkup_materi_id = $existing?->lingkup_materi_id;
+        }
+
+        // 2. Fallback jika lingkup_materi_id belum terpilih tapi mapel aktif memiliki bab
+        if (!$this->lingkup_materi_id && $this->mapel_id) {
+            $lm = LingkupMateri::where('mapel_id', $this->mapel_id)->orderBy('urutan', 'asc')->first();
+            $this->lingkup_materi_id = $lm?->id;
+        }
+
+        // 3. Fallback jika mapel belum diset namun ada Bab di database
+        if (!$this->lingkup_materi_id) {
+            $lm = LingkupMateri::orderBy('id', 'asc')->first();
+            $this->lingkup_materi_id = $lm?->id;
+        }
+
+        // 4. Validasi ketat untuk menjamin lingkup_materi_id tidak pernah NULL
+        $this->validate([
+            'lingkup_materi_id' => 'required|exists:lingkup_materi,id',
+            'deskripsi_tp' => 'required|string',
+        ], [
+            'lingkup_materi_id.required' => 'Bab (Lingkup Materi) target wajib dipilih sebelum menyimpan TP.',
+            'lingkup_materi_id.exists' => 'Bab target yang dipilih tidak valid.',
+            'deskripsi_tp.required' => 'Deskripsi TP wajib diisi.',
+        ]);
 
         TujuanPembelajaran::updateOrCreate(
             ['id' => $this->editingTpId],
             [
                 'lingkup_materi_id' => $this->lingkup_materi_id,
                 'deskripsi_tp' => $this->deskripsi_tp,
-                'urutan' => $this->urutan_tp,
+                'urutan' => $this->urutan_tp ?: 1,
             ]
         );
 

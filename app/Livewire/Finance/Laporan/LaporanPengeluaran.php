@@ -8,10 +8,11 @@ use App\Models\KategoriPengeluaran;
 use App\Models\Pengaturan;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 
 class LaporanPengeluaran extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     // Date & Period Filter State (Global Presets + Custom)
     public string $filterPeriode = 'semua'; // 'semua', 'hari_ini', 'kemarin', 'minggu_ini', 'bulan_ini', 'custom'
@@ -30,6 +31,7 @@ class LaporanPengeluaran extends Component
     public ?int $createKategoriId = null;
     public $createJumlah = 0;
     public string $createKeterangan = '';
+    public $createBukti = null;
 
     // Modal Buat Laporan Keuangan Manual / Kustom
     public bool $showManualReportModal = false;
@@ -139,12 +141,14 @@ class LaporanPengeluaran extends Component
 
         $this->createJumlah = 0;
         $this->createKeterangan = '';
+        $this->createBukti = null;
         $this->showCreateModal = true;
     }
 
     public function closeCreateModal()
     {
         $this->showCreateModal = false;
+        $this->createBukti = null;
         $this->resetValidation();
     }
 
@@ -160,23 +164,34 @@ class LaporanPengeluaran extends Component
             'createKategoriId' => 'required|exists:kategori_pengeluaran,id',
             'createJumlah' => 'required|numeric|min:1',
             'createKeterangan' => 'required|string|max:255',
+            'createBukti' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ], [
             'createTanggal.required' => 'Tanggal pengeluaran wajib diisi.',
             'createKategoriId.required' => 'Pilih kategori pengeluaran.',
             'createJumlah.required' => 'Jumlah nominal pengeluaran wajib diisi.',
             'createJumlah.min' => 'Nominal pengeluaran minimal Rp 1.',
             'createKeterangan.required' => 'Keterangan pengeluaran wajib diisi.',
+            'createBukti.image' => 'File bukti pengeluaran harus berupa foto/gambar.',
+            'createBukti.mimes' => 'Format foto hanya boleh JPG, JPEG, PNG, atau WEBP.',
+            'createBukti.max' => 'Ukuran file foto bukti pengeluaran maksimal 2MB.',
         ]);
+
+        $buktiPath = null;
+        if ($this->createBukti) {
+            $buktiPath = $this->createBukti->store('bukti_pengeluaran', 'public');
+        }
 
         Pengeluaran::create([
             'tanggal' => $this->createTanggal,
             'kategori_pengeluaran_id' => $this->createKategoriId,
             'jumlah' => floatval($this->createJumlah),
             'keterangan' => $this->createKeterangan,
+            'bukti' => $buktiPath,
             'petugas_id' => auth()->id(),
         ]);
 
         $this->showCreateModal = false;
+        $this->createBukti = null;
         $this->resetPage();
         session()->flash('message', 'Pengeluaran kas manual berhasil dicatat ke dalam pembukuan yayasan.');
     }

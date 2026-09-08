@@ -9,12 +9,14 @@ use App\Models\GajiGuru;
 use App\Models\Peminjaman;
 use App\Traits\WithDateFilter;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ArusKasKeluar extends Component
 {
-    use WithPagination, WithDateFilter;
+    use WithPagination, WithDateFilter, WithFileUploads;
 
     // Stream selector: 'semua', 'operasional', 'gaji', 'peminjaman' (Dana BOS dipisah)
     public string $stream = 'semua';
@@ -37,6 +39,22 @@ class ArusKasKeluar extends Component
     public float $jumlah = 0.00;
     public string $tanggal = '';
     public string $keterangan = '';
+    public $bukti_foto = null;
+
+    // Edit Expense Modal properties
+    public bool $showEditModal = false;
+    public ?int $editingPengeluaranId = null;
+    public ?int $edit_kategori_pengeluaran_id = null;
+    public float $edit_jumlah = 0.00;
+    public string $edit_tanggal = '';
+    public string $edit_keterangan = '';
+    public ?string $edit_existing_bukti = null;
+    public $edit_bukti_foto = null;
+
+    // Lightbox Preview Modal
+    public bool $showPreviewBuktiModal = false;
+    public ?string $previewBuktiUrl = null;
+    public ?string $previewBuktiTitle = null;
 
     public array $categories = [];
 
@@ -54,6 +72,16 @@ class ArusKasKeluar extends Component
         'jumlah' => 'required|numeric|min:1000',
         'tanggal' => 'required|date',
         'keterangan' => 'nullable|string|max:500',
+        'bukti_foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+    ];
+
+    protected $messages = [
+        'bukti_foto.image' => 'File bukti pengeluaran harus berupa foto/gambar.',
+        'bukti_foto.mimes' => 'Format foto hanya boleh JPG, JPEG, PNG, atau WEBP.',
+        'bukti_foto.max' => 'Ukuran file foto bukti pengeluaran maksimal 2MB.',
+        'edit_bukti_foto.image' => 'File bukti pengeluaran harus berupa foto/gambar.',
+        'edit_bukti_foto.mimes' => 'Format foto hanya boleh JPG, JPEG, PNG, atau WEBP.',
+        'edit_bukti_foto.max' => 'Ukuran file foto bukti pengeluaran maksimal 2MB.',
     ];
 
     public function mount()
@@ -124,7 +152,7 @@ class ArusKasKeluar extends Component
         }
 
         $this->resetValidation();
-        $this->reset(['jumlah', 'keterangan', 'kategori_keluar_kustom', 'is_kategori_kustom']);
+        $this->reset(['jumlah', 'keterangan', 'kategori_keluar_kustom', 'is_kategori_kustom', 'bukti_foto']);
         $this->tanggal = date('Y-m-d');
         if (!empty($this->categories)) {
             $this->kategori_pengeluaran_id = $this->categories[0]['id'];
@@ -135,6 +163,8 @@ class ArusKasKeluar extends Component
     public function closeCreateModal()
     {
         $this->showCreateModal = false;
+        $this->bukti_foto = null;
+        $this->resetValidation();
     }
 
     public function saveExpense()
@@ -150,6 +180,7 @@ class ArusKasKeluar extends Component
                 'jumlah' => 'required|numeric|min:1000',
                 'tanggal' => 'required|date',
                 'keterangan' => 'nullable|string|max:500',
+                'bukti_foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             ]);
 
             $kategori = KategoriPengeluaran::firstOrCreate([
@@ -163,7 +194,13 @@ class ArusKasKeluar extends Component
                 'jumlah' => 'required|numeric|min:1000',
                 'tanggal' => 'required|date',
                 'keterangan' => 'nullable|string|max:500',
+                'bukti_foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             ]);
+        }
+
+        $pathBukti = null;
+        if ($this->bukti_foto) {
+            $pathBukti = $this->bukti_foto->store('bukti_pengeluaran', 'public');
         }
 
         Pengeluaran::create([
@@ -171,15 +208,113 @@ class ArusKasKeluar extends Component
             'jumlah' => $this->jumlah,
             'tanggal' => $this->tanggal,
             'keterangan' => $this->keterangan,
+            'bukti' => $pathBukti,
             'petugas_id' => auth()->id(),
         ]);
 
         session()->flash('message', 'Pengeluaran kas operasional yayasan berhasil dicatat.');
 
         $this->showCreateModal = false;
-        $this->reset(['jumlah', 'keterangan', 'kategori_keluar_kustom', 'is_kategori_kustom']);
+        $this->reset(['jumlah', 'keterangan', 'kategori_keluar_kustom', 'is_kategori_kustom', 'bukti_foto']);
         $this->tanggal = date('Y-m-d');
         $this->resetPage();
+    }
+
+    public function openEditModal(int $id)
+    {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $this->resetValidation();
+        $exp = Pengeluaran::findOrFail($id);
+        $this->editingPengeluaranId = $exp->id;
+        $this->edit_kategori_pengeluaran_id = $exp->kategori_pengeluaran_id;
+        $this->edit_jumlah = (float) $exp->jumlah;
+        $this->edit_tanggal = $exp->tanggal ? $exp->tanggal->format('Y-m-d') : date('Y-m-d');
+        $this->edit_keterangan = $exp->keterangan ?: '';
+        $this->edit_existing_bukti = $exp->bukti;
+        $this->edit_bukti_foto = null;
+        $this->showEditModal = true;
+    }
+
+    public function closeEditModal()
+    {
+        $this->showEditModal = false;
+        $this->editingPengeluaranId = null;
+        $this->edit_bukti_foto = null;
+        $this->resetValidation();
+    }
+
+    public function updateExpense()
+    {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $this->validate([
+            'edit_kategori_pengeluaran_id' => 'required|exists:kategori_pengeluaran,id',
+            'edit_jumlah' => 'required|numeric|min:1000',
+            'edit_tanggal' => 'required|date',
+            'edit_keterangan' => 'nullable|string|max:500',
+            'edit_bukti_foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ]);
+
+        $exp = Pengeluaran::findOrFail($this->editingPengeluaranId);
+
+        $pathBukti = $exp->bukti;
+        if ($this->edit_bukti_foto) {
+            if ($exp->bukti && Storage::disk('public')->exists($exp->bukti)) {
+                Storage::disk('public')->delete($exp->bukti);
+            }
+            $pathBukti = $this->edit_bukti_foto->store('bukti_pengeluaran', 'public');
+        }
+
+        $exp->update([
+            'kategori_pengeluaran_id' => $this->edit_kategori_pengeluaran_id,
+            'jumlah' => $this->edit_jumlah,
+            'tanggal' => $this->edit_tanggal,
+            'keterangan' => $this->edit_keterangan,
+            'bukti' => $pathBukti,
+        ]);
+
+        session()->flash('message', 'Catatan pengeluaran & bukti pembayaran berhasil diperbarui.');
+        $this->closeEditModal();
+        $this->resetPage();
+    }
+
+    public function deleteEditBukti()
+    {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        if ($this->editingPengeluaranId) {
+            $exp = Pengeluaran::findOrFail($this->editingPengeluaranId);
+            if ($exp->bukti && Storage::disk('public')->exists($exp->bukti)) {
+                Storage::disk('public')->delete($exp->bukti);
+            }
+            $exp->update(['bukti' => null]);
+            $this->edit_existing_bukti = null;
+            session()->flash('message', 'Foto bukti pengeluaran berhasil dihapus.');
+        }
+    }
+
+    public function openPreviewBukti(?string $path, ?string $title = 'Bukti Pengeluaran')
+    {
+        $this->previewBuktiUrl = $path ? asset('storage/' . $path) : null;
+        $this->previewBuktiTitle = $title;
+        $this->showPreviewBuktiModal = true;
+    }
+
+    public function closePreviewBukti()
+    {
+        $this->showPreviewBuktiModal = false;
+        $this->previewBuktiUrl = null;
+        $this->previewBuktiTitle = null;
     }
 
     public function deleteExpense(int $id, ?string $alasan = null)
@@ -445,6 +580,8 @@ class ArusKasKeluar extends Component
                     'keterangan' => $item->keterangan ?: 'Beban operasional kas yayasan',
                     'nominal' => (float) $item->jumlah,
                     'petugas' => $item->petugas->nama ?? 'Bendahara',
+                    'bukti' => $item->bukti,
+                    'can_edit' => true,
                     'can_delete' => true,
                 ]);
             }
@@ -472,6 +609,8 @@ class ArusKasKeluar extends Component
                     'keterangan' => 'Gaji ' . ($item->guru->user->nama ?? 'Guru') . ' (' . $item->bulan . ' ' . $item->tahun . ')',
                     'nominal' => (float) $item->total_diterima,
                     'petugas' => 'Sistem Payroll',
+                    'bukti' => null,
+                    'can_edit' => false,
                     'can_delete' => false,
                 ]);
             }
@@ -499,6 +638,8 @@ class ArusKasKeluar extends Component
                     'keterangan' => 'Pencairan kasbon: ' . ($item->guru->user->nama ?? 'Guru') . ' (Tenor ' . $item->tenor_bulan . ' Bln)',
                     'nominal' => (float) $item->nominal,
                     'petugas' => 'Finance',
+                    'bukti' => null,
+                    'can_edit' => false,
                     'can_delete' => false,
                 ]);
             }

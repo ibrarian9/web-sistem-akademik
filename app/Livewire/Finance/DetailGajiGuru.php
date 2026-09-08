@@ -4,15 +4,17 @@ namespace App\Livewire\Finance;
 
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use App\Models\GajiGuru;
 use App\Models\Guru;
 use App\Models\Peminjaman;
 use App\Models\Pengeluaran;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class DetailGajiGuru extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     public int $guruId;
     public ?Guru $guru = null;
@@ -30,6 +32,7 @@ class DetailGajiGuru extends Component
     // Modals
     public bool $showDetailModal = false;
     public ?GajiGuru $selectedSalaryDetail = null;
+    public $detailBuktiFoto = null;
 
     public bool $showPreviewModal = false;
     public ?int $previewSalaryId = null;
@@ -99,6 +102,64 @@ class DetailGajiGuru extends Component
     {
         $this->showDetailModal = false;
         $this->selectedSalaryDetail = null;
+        $this->detailBuktiFoto = null;
+    }
+
+    public function updateSalaryBuktiFoto(int $salaryId)
+    {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $this->validate([
+            'detailBuktiFoto' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ], [
+            'detailBuktiFoto.required' => 'Silakan pilih file foto bukti terlebih dahulu.',
+            'detailBuktiFoto.image' => 'File bukti harus berupa gambar/foto.',
+            'detailBuktiFoto.mimes' => 'Format foto hanya boleh JPG, JPEG, PNG, atau WEBP.',
+            'detailBuktiFoto.max' => 'Ukuran foto maksimal 2MB.',
+        ]);
+
+        $salary = GajiGuru::with('pengeluaran')->findOrFail($salaryId);
+
+        if ($salary->bukti_bayar && Storage::disk('public')->exists($salary->bukti_bayar)) {
+            Storage::disk('public')->delete($salary->bukti_bayar);
+        }
+
+        $path = $this->detailBuktiFoto->store('bukti-gaji', 'public');
+
+        $salary->update(['bukti_bayar' => $path]);
+        if ($salary->pengeluaran) {
+            $salary->pengeluaran->update(['bukti' => $path]);
+        }
+
+        $this->detailBuktiFoto = null;
+        $this->selectedSalaryDetail = $salary->fresh(['guru.user', 'pengeluaran']);
+        session()->flash('message', 'Foto bukti transfer/struk pembayaran berhasil diperbarui.');
+    }
+
+    public function deleteSalaryBuktiFoto(int $salaryId)
+    {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $salary = GajiGuru::with('pengeluaran')->findOrFail($salaryId);
+
+        if ($salary->bukti_bayar && Storage::disk('public')->exists($salary->bukti_bayar)) {
+            Storage::disk('public')->delete($salary->bukti_bayar);
+        }
+
+        $salary->update(['bukti_bayar' => null]);
+        if ($salary->pengeluaran) {
+            $salary->pengeluaran->update(['bukti' => null]);
+        }
+
+        $this->detailBuktiFoto = null;
+        $this->selectedSalaryDetail = $salary->fresh(['guru.user', 'pengeluaran']);
+        session()->flash('message', 'Foto bukti transfer/struk berhasil dihapus.');
     }
 
     public function openPreview(int $id)

@@ -44,6 +44,20 @@ class Siswa extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function getNamaPanggilanAttribute()
+    {
+        if (!empty($this->attributes['nama_panggilan'])) {
+            return $this->attributes['nama_panggilan'];
+        }
+
+        if ($this->relationLoaded('user') && $this->user) {
+            $parts = explode(' ', trim($this->user->nama));
+            return $parts[0] ?? $this->user->nama;
+        }
+
+        return $this->user?->nama ? explode(' ', trim($this->user->nama))[0] : null;
+    }
+
     public function kelas()
     {
         return $this->belongsTo(Kelas::class, 'kelas_id');

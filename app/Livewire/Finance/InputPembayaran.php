@@ -10,10 +10,11 @@ use App\Models\Pembayaran;
 use App\Models\Notifikasi;
 use Illuminate\Support\Facades\DB;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 
 class InputPembayaran extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     // Filters
     public string $search = '';
@@ -29,6 +30,7 @@ class InputPembayaran extends Component
     public string $tanggal_bayar = '';
     public string $metode_bayar = 'Tunai';
     public ?string $bukti_bayar = null;
+    public $bukti_foto = null;
     public ?int $lastPembayaranId = null;
 
     // Selected Invoice details summary
@@ -48,8 +50,15 @@ class InputPembayaran extends Component
             'nominal_dibayar' => 'required|numeric|min:1',
             'tanggal_bayar' => 'required|date',
             'metode_bayar' => 'required|string|in:Tunai,Transfer Bank,E-Wallet,Deposit',
+            'bukti_foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ];
     }
+
+    protected $messages = [
+        'bukti_foto.image' => 'File bukti pembayaran harus berupa foto/gambar.',
+        'bukti_foto.mimes' => 'Format foto hanya boleh JPG, JPEG, PNG, atau WEBP.',
+        'bukti_foto.max' => 'Ukuran file foto bukti pembayaran maksimal 2MB.',
+    ];
 
     public function mount(?int $siswa_id = null)
     {
@@ -122,7 +131,13 @@ class InputPembayaran extends Component
 
     public function resetSelection()
     {
-        $this->reset(['siswa_id', 'tagihan_id', 'nominal_dibayar', 'selectedInvoiceInfo', 'siswaDeposit']);
+        $this->reset(['siswa_id', 'tagihan_id', 'nominal_dibayar', 'selectedInvoiceInfo', 'siswaDeposit', 'bukti_foto']);
+        $this->resetValidation();
+    }
+
+    public function removeBuktiFoto()
+    {
+        $this->bukti_foto = null;
     }
 
     public function savePayment()
@@ -147,7 +162,13 @@ class InputPembayaran extends Component
             }
         }
 
-        DB::transaction(function () {
+        // Simpan file bukti pembayaran jika ada (max 2MB, format gambar)
+        $pathBukti = $this->bukti_bayar;
+        if ($this->bukti_foto) {
+            $pathBukti = $this->bukti_foto->store('bukti_pembayaran', 'public');
+        }
+
+        DB::transaction(function () use ($pathBukti) {
             // Lock tagihan row for update
             $tagihan = Tagihan::lockForUpdate()->find($this->tagihan_id);
             if (!$tagihan) return;
@@ -166,7 +187,7 @@ class InputPembayaran extends Component
                 'nominal_dibayar' => $this->nominal_dibayar,
                 'kelebihan_bayar' => $kelebihan,
                 'metode_bayar' => $this->metode_bayar,
-                'bukti_bayar' => $this->bukti_bayar,
+                'bukti_bayar' => $pathBukti,
                 'is_void' => false,
                 'petugas_id' => auth()->id(),
             ]);

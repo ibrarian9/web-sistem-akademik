@@ -22,6 +22,14 @@ class ApprovalKeuanganIndex extends Component
     public bool $showApproveModal = false;
     public bool $showRejectModal = false;
     public bool $showCancelModal = false;
+    public bool $showBulkApproveModal = false;
+    public bool $showBulkCancelModal = false;
+
+    // Bulk selection state
+    public array $selectedIds = [];
+    public bool $selectAll = false;
+    public string $bulkApprovalNote = '';
+    public string $bulkCancelReason = '';
 
     public ?int $selectedId = null;
     public ?ApprovalKeuangan $selectedApproval = null;
@@ -36,24 +44,48 @@ class ApprovalKeuanganIndex extends Component
         'search' => ['except' => ''],
     ];
 
+    public function updatedSelectAll($value)
+    {
+        if ($value) {
+            $this->selectedIds = $this->getCurrentPageActionableIds();
+        } else {
+            $this->selectedIds = [];
+        }
+    }
+
+    public function resetSelection()
+    {
+        $this->selectedIds = [];
+        $this->selectAll = false;
+    }
+
+    public function updatingPage()
+    {
+        $this->resetSelection();
+    }
+
     public function updatingSearch()
     {
         $this->resetPage();
+        $this->resetSelection();
     }
 
     public function updatingFilterStatus()
     {
         $this->resetPage();
+        $this->resetSelection();
     }
 
     public function updatingFilterTipe()
     {
         $this->resetPage();
+        $this->resetSelection();
     }
 
     public function updatingFilterFitur()
     {
         $this->resetPage();
+        $this->resetSelection();
     }
 
     public function openDetail(int $id)
@@ -222,11 +254,171 @@ class ApprovalKeuanganIndex extends Component
         $this->closeDetail();
     }
 
-    public function render()
+    public function getCurrentPageActionableIds(): array
     {
-        $userRole = auth()->user()->role->nama ?? '';
-        $canApprove = in_array($userRole, ['super_admin', 'super_admin_2', 'founder']);
+        $query = $this->getFilteredQuery();
+        $query->where('status', 'menunggu');
 
+        $user = auth()->user();
+        $role = $user->role->nama ?? '';
+        $canApprove = in_array($role, ['super_admin', 'super_admin_2', 'founder']);
+
+        if (!$canApprove && $role !== 'finance') {
+            $query->where('pemohon_id', $user->id);
+        }
+
+        return $query->paginate(15)->pluck('id')->map(fn($id) => (int) $id)->toArray();
+    }
+
+    public function getSelectedApprovalsProperty()
+    {
+        if (empty($this->selectedIds)) {
+            return collect();
+        }
+        return ApprovalKeuangan::with('pemohon')
+            ->whereIn('id', $this->selectedIds)
+            ->get();
+    }
+
+    public function openBulkApproveModal()
+    {
+        $this->canPerformApprovalCheck();
+
+        if (empty($this->selectedIds)) {
+            session()->flash('error', 'Silakan pilih setidaknya satu permohonan persetujuan terlebih dahulu.');
+            return;
+        }
+
+        $this->bulkApprovalNote = '';
+        $this->showBulkApproveModal = true;
+    }
+
+    public function closeBulkApproveModal()
+    {
+        $this->showBulkApproveModal = false;
+        $this->bulkApprovalNote = '';
+    }
+
+    public function bulkApprove()
+    {
+        $this->canPerformApprovalCheck();
+
+        if (empty($this->selectedIds)) {
+            session()->flash('error', 'Tidak ada permohonan yang dipilih.');
+            $this->closeBulkApproveModal();
+            return;
+        }
+
+        $approvals = ApprovalKeuangan::whereIn('id', $this->selectedIds)
+            ->where('status', 'menunggu')
+            ->get();
+
+        if ($approvals->isEmpty()) {
+            session()->flash('error', 'Tidak ada permohonan berstatus menunggu yang dapat disetujui.');
+            $this->closeBulkApproveModal();
+            $this->resetSelection();
+            return;
+        }
+
+        $successCount = 0;
+        $failCount = 0;
+
+        foreach ($approvals as $approval) {
+            try {
+                FinancialApprovalService::approve($approval, auth()->user(), $this->bulkApprovalNote ?: 'Disetujui massal');
+                $successCount++;
+            } catch (\Exception $e) {
+                $failCount++;
+            }
+        }
+
+        $this->closeBulkApproveModal();
+        $this->resetSelection();
+
+        if ($failCount === 0) {
+            session()->flash('success', "Berhasil menyetujui {$successCount} permohonan keuangan sekaligus.");
+        } else {
+            session()->flash('warning', "Persetujuan massal selesai: {$successCount} berhasil disetujui, {$failCount} gagal.");
+        }
+
+        $this->dispatch('show-alert', [
+            'title' => 'Persetujuan Massal Selesai',
+            'message' => "{$successCount} permohonan berhasil disetujui.",
+            'type' => 'success',
+        ]);
+    }
+
+    public function openBulkCancelModal()
+    {
+        if (empty($this->selectedIds)) {
+            session()->flash('error', 'Silakan pilih setidaknya satu permohonan persetujuan terlebih dahulu.');
+            return;
+        }
+
+        $this->bulkCancelReason = '';
+        $this->showBulkCancelModal = true;
+    }
+
+    public function closeBulkCancelModal()
+    {
+        $this->showBulkCancelModal = false;
+        $this->bulkCancelReason = '';
+    }
+
+    public function bulkCancel()
+    {
+        if (empty($this->selectedIds)) {
+            session()->flash('error', 'Tidak ada permohonan yang dipilih.');
+            $this->closeBulkCancelModal();
+            return;
+        }
+
+        $approvals = ApprovalKeuangan::whereIn('id', $this->selectedIds)
+            ->where('status', 'menunggu')
+            ->get();
+
+        if ($approvals->isEmpty()) {
+            session()->flash('error', 'Tidak ada permohonan berstatus menunggu yang dapat dibatalkan.');
+            $this->closeBulkCancelModal();
+            $this->resetSelection();
+            return;
+        }
+
+        $successCount = 0;
+        $failCount = 0;
+
+        foreach ($approvals as $approval) {
+            if (!$this->canCancelApproval($approval)) {
+                $failCount++;
+                continue;
+            }
+
+            try {
+                FinancialApprovalService::cancel($approval, auth()->user(), $this->bulkCancelReason ?: 'Dibatalkan secara massal');
+                $successCount++;
+            } catch (\Exception $e) {
+                $failCount++;
+            }
+        }
+
+        $this->closeBulkCancelModal();
+        $this->resetSelection();
+
+        if ($failCount === 0) {
+            session()->flash('success', "Berhasil membatalkan {$successCount} permohonan persetujuan.");
+        } else {
+            session()->flash('warning', "Pembatalan massal: {$successCount} berhasil dibatalkan, {$failCount} tidak dapat dibatalkan.");
+        }
+
+        $this->dispatch('show-alert', [
+            'title' => 'Pembatalan Massal Selesai',
+            'message' => "{$successCount} permohonan berhasil dibatalkan.",
+            'type' => 'info',
+        ]);
+    }
+
+    protected function getFilteredQuery()
+    {
         $query = ApprovalKeuangan::with(['pemohon', 'approver'])->latest();
 
         if ($this->filterStatus !== 'semua') {
@@ -251,6 +443,15 @@ class ApprovalKeuanganIndex extends Component
             });
         }
 
+        return $query;
+    }
+
+    public function render()
+    {
+        $userRole = auth()->user()->role->nama ?? '';
+        $canApprove = in_array($userRole, ['super_admin', 'super_admin_2', 'founder']);
+
+        $query = $this->getFilteredQuery();
         $approvals = $query->paginate(15);
 
         $counts = [

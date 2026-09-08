@@ -285,7 +285,17 @@
                         </td>
                         <td class="p-3.5 text-center border-b border-r border-stone-200">
                             @if ($sal->status === 'dibayar')
-                                <x-badge variant="emerald" size="xs" :dot="true">Dibayar</x-badge>
+                                <div class="inline-flex flex-col items-center gap-1">
+                                    <x-badge variant="emerald" size="xs" :dot="true">Dibayar</x-badge>
+                                    @if ($sal->bukti_bayar)
+                                        <a href="{{ asset('storage/' . $sal->bukti_bayar) }}" target="_blank" 
+                                           class="inline-flex items-center gap-1 text-[10px] text-emerald-700 hover:text-emerald-900 font-bold hover:underline"
+                                           title="Lihat Foto Bukti Struk/TF">
+                                            <x-lucide-camera class="w-3 h-3" />
+                                            <span>Struk/TF</span>
+                                        </a>
+                                    @endif
+                                </div>
                             @else
                                 <x-badge variant="amber" size="xs" :dot="true">Draft</x-badge>
                             @endif
@@ -510,6 +520,70 @@
                             <span class="text-sm font-black text-rose-950 font-mono">-Rp {{ number_format($sd->total_potongan, 0, ',', '.') }}</span>
                         </div>
                     </div>
+                <!-- Bukti Pembayaran / Struk / TF Section -->
+                <div class="p-4 bg-white border border-stone-200 rounded-2xl space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="p-1.5 rounded-lg bg-emerald-100 text-emerald-800">
+                                <x-lucide-camera class="w-4 h-4" />
+                            </span>
+                            <span class="text-xs font-black text-stone-800 uppercase tracking-wider">Foto Bukti Transfer / Struk Pembayaran</span>
+                        </div>
+                        @if ($sd->bukti_bayar)
+                            <x-badge variant="emerald" size="xs">Terlampir</x-badge>
+                        @elseif ($sd->status === 'dibayar')
+                            <x-badge variant="stone" size="xs">Belum Diunggah</x-badge>
+                        @endif
+                    </div>
+
+                    @if ($sd->bukti_bayar)
+                        <div class="flex flex-col sm:flex-row items-center gap-4 p-3 bg-stone-50 rounded-xl border border-stone-200">
+                            <a href="{{ asset('storage/' . $sd->bukti_bayar) }}" target="_blank" class="group relative block shrink-0">
+                                <img src="{{ asset('storage/' . $sd->bukti_bayar) }}" alt="Bukti Transfer" class="w-20 h-20 object-cover rounded-xl border border-stone-300 group-hover:opacity-90 shadow-2xs" />
+                                <div class="absolute inset-0 bg-black/30 rounded-xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                                    <x-lucide-external-link class="w-5 h-5 text-white" />
+                                </div>
+                            </a>
+                            <div class="flex-1 space-y-1">
+                                <div class="text-xs font-bold text-stone-800">Bukti Pembayaran Tersimpan</div>
+                                <div class="text-[11px] text-stone-500 font-mono">{{ basename($sd->bukti_bayar) }}</div>
+                                <div class="pt-1 flex items-center gap-2">
+                                    <a href="{{ asset('storage/' . $sd->bukti_bayar) }}" target="_blank" class="text-xs font-bold text-emerald-700 hover:text-emerald-900 hover:underline flex items-center gap-1">
+                                        <x-lucide-eye class="w-3.5 h-3.5" />
+                                        <span>Buka Ukuran Penuh</span>
+                                    </a>
+                                    @if (!auth()->user()->isSuperAdmin2())
+                                        <span class="text-stone-300">&bull;</span>
+                                        <button type="button" wire:click="deleteSalaryBuktiFoto({{ $sd->id }})" data-confirm="Hapus file foto bukti transfer/struk ini?" class="text-xs font-semibold text-rose-600 hover:text-rose-800 hover:underline flex items-center gap-1">
+                                            <x-lucide-trash-2 class="w-3.5 h-3.5" />
+                                            <span>Hapus Foto</span>
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if ($sd->status === 'dibayar' && !auth()->user()->isSuperAdmin2())
+                        <div class="pt-2 border-t border-stone-100">
+                            <label class="block text-[11px] font-bold text-stone-600 mb-1.5">
+                                {{ $sd->bukti_bayar ? 'Ganti Foto Bukti Pembayaran:' : 'Unggah Foto Bukti Transfer / Struk:' }}
+                            </label>
+                            <div class="flex flex-col sm:flex-row items-center gap-3">
+                                <input type="file" wire:model="detailBuktiFoto" accept="image/jpeg,image/png,image/jpg,image/webp" 
+                                       class="text-xs text-stone-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer border border-stone-300 rounded-xl bg-white p-1" />
+                                @if ($detailBuktiFoto)
+                                    <x-button variant="primary" size="xs" icon="upload" wire:click="updateSalaryBuktiFoto({{ $sd->id }})">
+                                        Simpan Foto
+                                    </x-button>
+                                @endif
+                            </div>
+                            <div wire:loading wire:target="detailBuktiFoto" class="text-xs text-emerald-600 font-semibold mt-1">
+                                Mengunggah gambar...
+                            </div>
+                            @error('detailBuktiFoto') <span class="text-xs text-rose-600 font-medium block mt-1">{{ $message }}</span> @enderror
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Grand Total Take Home Pay Banner -->

@@ -13,12 +13,14 @@ use App\Models\Peminjaman;
 use App\Models\Pengaturan;
 use App\Traits\WithDateFilter;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ArusKas extends Component
 {
-    use WithPagination, WithDateFilter;
+    use WithPagination, WithDateFilter, WithFileUploads;
 
     // Active Tab: 'semua', 'masuk', 'keluar'
     public string $tab = 'semua';
@@ -35,8 +37,26 @@ class ArusKas extends Component
     public bool $showIncomeModal = false;
     public bool $showExpenseModal = false;
 
+    // Proof file and preview
+    public $bukti_keluar = null;
+    public bool $showPreviewBuktiModal = false;
+    public ?string $previewBuktiUrl = null;
+    public ?string $previewBuktiTitle = null;
+
+    // Edit Expense Modal
+    public bool $showEditExpenseModal = false;
+    public ?int $editingPengeluaranId = null;
+    public ?int $edit_kategori_pengeluaran_id = null;
+    public float $edit_jumlah = 0.00;
+    public string $edit_tanggal = '';
+    public string $edit_keterangan = '';
+    public ?string $edit_existing_bukti = null;
+    public $edit_bukti_keluar = null;
+
     // Form: Kas Masuk Yayasan
     public string $kategori_masuk = 'Infaq';
+    public bool $is_kategori_masuk_kustom = false;
+    public string $kategori_masuk_kustom = '';
     public float $jumlah_masuk = 0.00;
     public string $tanggal_masuk = '';
     public string $keterangan_masuk = '';
@@ -87,6 +107,10 @@ class ArusKas extends Component
         if (!empty($this->kategoriKeluarOptions)) {
             $this->kategori_pengeluaran_id = $this->kategoriKeluarOptions[0]['id'];
         }
+
+        $distinctMasuk = PemasukanKas::distinct()->pluck('kategori')->filter()->toArray();
+        $this->kategoriMasukOptions = array_values(array_unique(array_merge($this->kategoriMasukOptions, $distinctMasuk)));
+
         $this->tanggal_masuk = date('Y-m-d');
         $this->tanggal_keluar = date('Y-m-d');
         $this->tanggal = date('Y-m-d');
@@ -95,6 +119,17 @@ class ArusKas extends Component
     public function selectTab(string $tab)
     {
         $this->tab = $tab;
+        $this->stream = 'semua';
+        $this->resetPage();
+    }
+
+    public function filterByCard(string $targetTab)
+    {
+        if ($this->tab === $targetTab) {
+            $this->tab = 'semua';
+        } else {
+            $this->tab = $targetTab;
+        }
         $this->stream = 'semua';
         $this->resetPage();
     }
@@ -129,15 +164,17 @@ class ArusKas extends Component
         }
 
         $this->resetValidation();
-        $this->reset(['jumlah_masuk', 'keterangan_masuk']);
+        $this->reset(['jumlah_masuk', 'keterangan_masuk', 'is_kategori_masuk_kustom', 'kategori_masuk_kustom']);
         $this->tanggal_masuk = date('Y-m-d');
-        $this->kategori_masuk = 'Infaq';
+        $this->kategori_masuk = $this->kategoriMasukOptions[0] ?? 'Infaq';
         $this->showIncomeModal = true;
     }
 
     public function closeIncomeModal()
     {
         $this->showIncomeModal = false;
+        $this->is_kategori_masuk_kustom = false;
+        $this->kategori_masuk_kustom = '';
     }
 
     public function saveIncome()
@@ -147,22 +184,36 @@ class ArusKas extends Component
             return;
         }
 
-        $kat = $this->kategori_masuk ?: $this->kategori;
+        if ($this->is_kategori_masuk_kustom) {
+            $this->validate([
+                'kategori_masuk_kustom' => 'required|string|max:100',
+                'jumlah_masuk' => 'required|numeric|min:1000',
+                'tanggal_masuk' => 'required|date',
+                'keterangan_masuk' => 'nullable|string|max:500',
+            ], [
+                'kategori_masuk_kustom.required' => 'Nama kategori penerimaan baru wajib diisi.',
+                'kategori_masuk_kustom.max' => 'Nama kategori maksimal 100 karakter.',
+                'jumlah_masuk.required' => 'Nominal penerimaan wajib diisi.',
+                'jumlah_masuk.min' => 'Nominal penerimaan minimal Rp 1.000.',
+            ]);
+            $kat = trim($this->kategori_masuk_kustom);
+        } else {
+            $this->validate([
+                'kategori_masuk' => 'required|string|max:100',
+                'jumlah_masuk' => 'required|numeric|min:1000',
+                'tanggal_masuk' => 'required|date',
+                'keterangan_masuk' => 'nullable|string|max:500',
+            ], [
+                'kategori_masuk.required' => 'Kategori penerimaan wajib dipilih.',
+                'jumlah_masuk.required' => 'Nominal penerimaan wajib diisi.',
+                'jumlah_masuk.min' => 'Nominal penerimaan minimal Rp 1.000.',
+            ]);
+            $kat = $this->kategori_masuk ?: 'Infaq';
+        }
+
         $amount = $this->jumlah_masuk ?: $this->jumlah;
         $date = $this->tanggal_masuk ?: ($this->tanggal ?: date('Y-m-d'));
         $desc = $this->keterangan_masuk ?: $this->keterangan;
-
-        $this->kategori_masuk = $kat;
-        $this->jumlah_masuk = $amount;
-        $this->tanggal_masuk = $date;
-        $this->keterangan_masuk = $desc;
-
-        $this->validate([
-            'kategori_masuk' => 'required|string',
-            'jumlah_masuk' => 'required|numeric|min:1000',
-            'tanggal_masuk' => 'required|date',
-            'keterangan_masuk' => 'nullable|string|max:500',
-        ]);
 
         PemasukanKas::create([
             'kategori' => $kat,
@@ -172,9 +223,13 @@ class ArusKas extends Component
             'petugas_id' => auth()->id(),
         ]);
 
-        session()->flash('message', 'Pemasukan kas yayasan berhasil dicatat.');
+        if (!in_array($kat, $this->kategoriMasukOptions)) {
+            $this->kategoriMasukOptions[] = $kat;
+        }
+
+        session()->flash('message', 'Pemasukan kas yayasan (' . $kat . ') berhasil dicatat.');
         $this->showIncomeModal = false;
-        $this->reset(['jumlah_masuk', 'keterangan_masuk', 'jumlah', 'keterangan']);
+        $this->reset(['jumlah_masuk', 'keterangan_masuk', 'jumlah', 'keterangan', 'is_kategori_masuk_kustom', 'kategori_masuk_kustom']);
         $this->resetPage();
     }
 
@@ -227,7 +282,7 @@ class ArusKas extends Component
         }
 
         $this->resetValidation();
-        $this->reset(['jumlah_keluar', 'keterangan_keluar', 'jumlah', 'keterangan', 'kategori_keluar_kustom', 'is_kategori_kustom']);
+        $this->reset(['jumlah_keluar', 'keterangan_keluar', 'jumlah', 'keterangan', 'kategori_keluar_kustom', 'is_kategori_kustom', 'bukti_keluar']);
         $this->tanggal_keluar = date('Y-m-d');
         $this->tanggal = date('Y-m-d');
         if (!empty($this->kategoriKeluarOptions)) {
@@ -239,6 +294,7 @@ class ArusKas extends Component
     public function closeExpenseModal()
     {
         $this->showExpenseModal = false;
+        $this->bukti_keluar = null;
     }
 
     public function saveExpense()
@@ -256,13 +312,22 @@ class ArusKas extends Component
         $this->tanggal_keluar = $date;
         $this->keterangan_keluar = $desc;
 
+        $rules = [
+            'jumlah_keluar' => 'required|numeric|min:1000',
+            'tanggal_keluar' => 'required|date',
+            'keterangan_keluar' => 'nullable|string|max:500',
+            'bukti_keluar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ];
+
+        $messages = [
+            'bukti_keluar.image' => 'File bukti pengeluaran harus berupa foto/gambar.',
+            'bukti_keluar.mimes' => 'Format foto hanya boleh JPG, JPEG, PNG, atau WEBP.',
+            'bukti_keluar.max' => 'Ukuran file foto bukti pengeluaran maksimal 2MB.',
+        ];
+
         if ($this->is_kategori_kustom && !empty(trim($this->kategori_keluar_kustom))) {
-            $this->validate([
-                'kategori_keluar_kustom' => 'required|string|max:100',
-                'jumlah_keluar' => 'required|numeric|min:1000',
-                'tanggal_keluar' => 'required|date',
-                'keterangan_keluar' => 'nullable|string|max:500',
-            ]);
+            $rules['kategori_keluar_kustom'] = 'required|string|max:100';
+            $this->validate($rules, $messages);
 
             $kategori = KategoriPengeluaran::firstOrCreate([
                 'nama' => trim($this->kategori_keluar_kustom)
@@ -270,12 +335,13 @@ class ArusKas extends Component
             $this->kategori_pengeluaran_id = $kategori->id;
             $this->kategoriKeluarOptions = KategoriPengeluaran::orderBy('nama')->get()->toArray();
         } else {
-            $this->validate([
-                'kategori_pengeluaran_id' => 'required|exists:kategori_pengeluaran,id',
-                'jumlah_keluar' => 'required|numeric|min:1000',
-                'tanggal_keluar' => 'required|date',
-                'keterangan_keluar' => 'nullable|string|max:500',
-            ]);
+            $rules['kategori_pengeluaran_id'] = 'required|exists:kategori_pengeluaran,id';
+            $this->validate($rules, $messages);
+        }
+
+        $buktiPath = null;
+        if ($this->bukti_keluar) {
+            $buktiPath = $this->bukti_keluar->store('bukti_pengeluaran', 'public');
         }
 
         Pengeluaran::create([
@@ -283,13 +349,111 @@ class ArusKas extends Component
             'jumlah' => $amount,
             'tanggal' => $date,
             'keterangan' => $desc,
+            'bukti' => $buktiPath,
             'petugas_id' => auth()->id(),
         ]);
 
         session()->flash('message', 'Pengeluaran kas operasional yayasan berhasil dicatat.');
         $this->showExpenseModal = false;
-        $this->reset(['jumlah_keluar', 'keterangan_keluar', 'jumlah', 'keterangan', 'kategori_keluar_kustom', 'is_kategori_kustom']);
+        $this->reset(['jumlah_keluar', 'keterangan_keluar', 'jumlah', 'keterangan', 'kategori_keluar_kustom', 'is_kategori_kustom', 'bukti_keluar']);
         $this->resetPage();
+    }
+
+    public function openEditExpenseModal(int $id)
+    {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $item = Pengeluaran::findOrFail($id);
+        $this->editingPengeluaranId = $item->id;
+        $this->edit_kategori_pengeluaran_id = $item->kategori_pengeluaran_id;
+        $this->edit_jumlah = (float) $item->jumlah;
+        $this->edit_tanggal = $item->tanggal ? $item->tanggal->format('Y-m-d') : date('Y-m-d');
+        $this->edit_keterangan = $item->keterangan ?? '';
+        $this->edit_existing_bukti = $item->bukti;
+        $this->edit_bukti_keluar = null;
+        $this->resetValidation();
+        $this->showEditExpenseModal = true;
+    }
+
+    public function closeEditExpenseModal()
+    {
+        $this->showEditExpenseModal = false;
+        $this->editingPengeluaranId = null;
+        $this->edit_bukti_keluar = null;
+        $this->resetValidation();
+    }
+
+    public function updateExpense()
+    {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        if (!$this->editingPengeluaranId) return;
+
+        $this->validate([
+            'edit_kategori_pengeluaran_id' => 'required|exists:kategori_pengeluaran,id',
+            'edit_jumlah' => 'required|numeric|min:1000',
+            'edit_tanggal' => 'required|date',
+            'edit_keterangan' => 'nullable|string|max:500',
+            'edit_bukti_keluar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ], [
+            'edit_bukti_keluar.image' => 'File bukti pengeluaran harus berupa foto/gambar.',
+            'edit_bukti_keluar.mimes' => 'Format foto hanya boleh JPG, JPEG, PNG, atau WEBP.',
+            'edit_bukti_keluar.max' => 'Ukuran file foto bukti pengeluaran maksimal 2MB.',
+        ]);
+
+        $item = Pengeluaran::findOrFail($this->editingPengeluaranId);
+
+        $path = $item->bukti;
+        if ($this->edit_bukti_keluar) {
+            if ($item->bukti && Storage::disk('public')->exists($item->bukti)) {
+                Storage::disk('public')->delete($item->bukti);
+            }
+            $path = $this->edit_bukti_keluar->store('bukti_pengeluaran', 'public');
+        }
+
+        $item->update([
+            'kategori_pengeluaran_id' => $this->edit_kategori_pengeluaran_id,
+            'jumlah' => $this->edit_jumlah,
+            'tanggal' => $this->edit_tanggal,
+            'keterangan' => $this->edit_keterangan,
+            'bukti' => $path,
+        ]);
+
+        session()->flash('message', 'Catatan pengeluaran & bukti pembayaran berhasil diperbarui.');
+        $this->closeEditExpenseModal();
+    }
+
+    public function deleteEditBukti()
+    {
+        if (auth()->user()->isSuperAdmin2() || !$this->editingPengeluaranId) return;
+
+        $item = Pengeluaran::findOrFail($this->editingPengeluaranId);
+        if ($item->bukti && Storage::disk('public')->exists($item->bukti)) {
+            Storage::disk('public')->delete($item->bukti);
+        }
+        $item->update(['bukti' => null]);
+        $this->edit_existing_bukti = null;
+        session()->flash('message', 'Foto bukti pengeluaran berhasil dihapus.');
+    }
+
+    public function openPreviewBukti(string $url, ?string $title = null)
+    {
+        $this->previewBuktiUrl = $url;
+        $this->previewBuktiTitle = $title ?: 'Foto Bukti Transaksi';
+        $this->showPreviewBuktiModal = true;
+    }
+
+    public function closePreviewBukti()
+    {
+        $this->showPreviewBuktiModal = false;
+        $this->previewBuktiUrl = null;
+        $this->previewBuktiTitle = null;
     }
 
     public function deleteExpense(int $id, ?string $alasan = null)
@@ -377,6 +541,8 @@ class ArusKas extends Component
                         'no_resi' => $item->no_resi,
                         'petugas' => $item->petugas->nama ?? 'Kasir',
                         'can_delete' => false,
+                        'can_edit' => false,
+                        'bukti' => $item->bukti_bayar,
                     ]);
                 }
             }
@@ -479,6 +645,8 @@ class ArusKas extends Component
                         'no_resi' => null,
                         'petugas' => $item->petugas->nama ?? 'Bendahara',
                         'can_delete' => true,
+                        'can_edit' => true,
+                        'bukti' => $item->bukti,
                     ]);
                 }
             }

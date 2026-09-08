@@ -54,6 +54,16 @@
         </div>
     @endif
 
+    @if (session()->has('error'))
+        <div class="bg-rose-50 border border-rose-300 text-rose-800 p-4 rounded-2xl text-xs font-bold flex items-center justify-between shadow-2xs">
+            <div class="flex items-center gap-2.5">
+                <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>{{ session('error') }}</span>
+            </div>
+            <span class="px-2.5 py-0.5 bg-rose-200 text-rose-900 rounded-lg font-black text-[10px]">Perhatian</span>
+        </div>
+    @endif
+
     <!-- Template Frasa Auto-Narasi Capaian -->
     <div class="bg-white border border-stone-200 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
         <form wire:submit.prevent="saveTemplate" class="space-y-4">
@@ -227,8 +237,36 @@
     >
         <form wire:submit.prevent="saveLingkupMateri" class="space-y-3 text-xs">
             <div>
+                <label class="block text-xs font-bold text-stone-700 mb-1">Mata Pelajaran</label>
+                @if($selectedMapel)
+                    <div class="flex items-center justify-between p-2.5 bg-emerald-50/80 border border-emerald-200 rounded-xl">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-2xs">
+                                {{ substr($selectedMapel->nama_mapel, 0, 1) }}
+                            </span>
+                            <span class="font-extrabold text-xs text-emerald-950">{{ $selectedMapel->nama_mapel }}</span>
+                        </div>
+                        <span class="text-[10px] font-bold text-emerald-700 bg-white px-2 py-0.5 rounded-md border border-emerald-200 shadow-2xs">Mapel Aktif</span>
+                    </div>
+                @else
+                    <select wire:model.live="mapel_id" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white shadow-2xs">
+                        <option value="">-- Pilih Mata Pelajaran --</option>
+                        @foreach($mapels as $m)
+                            <option value="{{ $m->id }}">{{ $m->nama_mapel }}</option>
+                        @endforeach
+                    </select>
+                @endif
+                @error('mapel_id')
+                    <p class="mt-1 text-xs text-rose-600 font-semibold">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
                 <label class="block text-xs font-bold text-stone-700 mb-1">Nama Lingkup Materi / Bab</label>
                 <input type="text" wire:model="nama_lingkup_materi" placeholder="misal: Bab 1 Bilangan Bulat" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white shadow-2xs">
+                @error('nama_lingkup_materi')
+                    <p class="mt-1 text-xs text-rose-600 font-semibold">{{ $message }}</p>
+                @enderror
             </div>
             <div class="grid grid-cols-2 gap-3">
                 <div>
@@ -263,16 +301,29 @@
         <form wire:submit.prevent="saveTp" class="space-y-3 text-xs">
             <div>
                 <label class="block text-xs font-bold text-stone-700 mb-1">Pilih Bab Target</label>
-                <select wire:model="lingkup_materi_id" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white shadow-2xs">
-                    <option value="">-- Pilih Bab --</option>
-                    @foreach($lingkupMateris as $lm)
-                        <option value="{{ $lm->id }}">Bab {{ $lm->urutan }}: {{ $lm->nama_lingkup_materi }}</option>
-                    @endforeach
-                </select>
+                @if(count($lingkupMateris) === 0)
+                    <div class="p-3 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl text-xs font-semibold flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <span>Belum ada Bab pada mapel ini. Silakan buat Bab terlebih dahulu.</span>
+                    </div>
+                @else
+                    <select wire:model="lingkup_materi_id" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white shadow-2xs">
+                        <option value="">-- Pilih Bab --</option>
+                        @foreach($lingkupMateris as $lm)
+                            <option value="{{ $lm->id }}">Bab {{ $lm->urutan }}: {{ $lm->nama_lingkup_materi }}</option>
+                        @endforeach
+                    </select>
+                @endif
+                @error('lingkup_materi_id')
+                    <p class="mt-1 text-xs text-rose-600 font-semibold">{{ $message }}</p>
+                @enderror
             </div>
             <div>
                 <label class="block text-xs font-bold text-stone-700 mb-1">Deskripsi Capaian TP</label>
                 <textarea wire:model="deskripsi_tp" rows="3" placeholder="misal: membaca dan menulis bilangan bulat positif dan negatif" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 focus:bg-white shadow-2xs resize-none"></textarea>
+                @error('deskripsi_tp')
+                    <p class="mt-1 text-xs text-rose-600 font-semibold">{{ $message }}</p>
+                @enderror
             </div>
             <div>
                 <label class="block text-xs font-bold text-stone-700 mb-1">Urutan TP</label>

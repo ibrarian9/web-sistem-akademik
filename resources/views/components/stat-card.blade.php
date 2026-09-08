@@ -25,7 +25,7 @@
     $iconBg = $isGradient ? 'bg-white/10 text-white' : 'bg-stone-50 text-stone-600 border border-stone-200';
 @endphp
 
-<div class="{{ $cardClasses }} rounded-2xl p-5 space-y-2 transition duration-200">
+<div {{ $attributes->merge(['class' => "$cardClasses rounded-2xl p-5 space-y-2 transition duration-200"]) }}>
     <div class="flex items-center justify-between gap-3">
         <span class="text-xs font-bold uppercase tracking-wider block {{ $titleColor }}">{{ $title }}</span>
         @if ($icon)

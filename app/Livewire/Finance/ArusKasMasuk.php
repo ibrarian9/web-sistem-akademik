@@ -31,6 +31,8 @@ class ArusKasMasuk extends Component
 
     // Create Income Form properties (Kas Masuk Yayasan)
     public string $kategori = 'Infaq';
+    public bool $is_kategori_kustom = false;
+    public string $kategori_kustom = '';
     public float $jumlah = 0.00;
     public string $tanggal = '';
     public string $keterangan = '';
@@ -63,6 +65,8 @@ class ArusKasMasuk extends Component
 
     public function mount()
     {
+        $distinct = PemasukanKas::distinct()->pluck('kategori')->filter()->toArray();
+        $this->kategoriOptions = array_values(array_unique(array_merge($this->kategoriOptions, $distinct)));
         $this->tanggal = date('Y-m-d');
     }
 
@@ -128,15 +132,17 @@ class ArusKasMasuk extends Component
         }
 
         $this->resetValidation();
-        $this->reset(['jumlah', 'keterangan']);
+        $this->reset(['jumlah', 'keterangan', 'is_kategori_kustom', 'kategori_kustom']);
         $this->tanggal = date('Y-m-d');
-        $this->kategori = 'Infaq';
+        $this->kategori = $this->kategoriOptions[0] ?? 'Infaq';
         $this->showCreateModal = true;
     }
 
     public function closeCreateModal()
     {
         $this->showCreateModal = false;
+        $this->is_kategori_kustom = false;
+        $this->kategori_kustom = '';
     }
 
     public function saveIncome()
@@ -146,20 +152,49 @@ class ArusKasMasuk extends Component
             return;
         }
 
-        $this->validate();
+        if ($this->is_kategori_kustom) {
+            $this->validate([
+                'kategori_kustom' => 'required|string|max:100',
+                'jumlah' => 'required|numeric|min:1000',
+                'tanggal' => 'required|date',
+                'keterangan' => 'nullable|string|max:500',
+            ], [
+                'kategori_kustom.required' => 'Nama kategori penerimaan baru wajib diisi.',
+                'kategori_kustom.max' => 'Nama kategori maksimal 100 karakter.',
+                'jumlah.required' => 'Nominal penerimaan wajib diisi.',
+                'jumlah.min' => 'Nominal penerimaan minimal Rp 1.000.',
+            ]);
+            $kategori = trim($this->kategori_kustom);
+        } else {
+            $this->validate([
+                'kategori' => 'required|string|max:100',
+                'jumlah' => 'required|numeric|min:1000',
+                'tanggal' => 'required|date',
+                'keterangan' => 'nullable|string|max:500',
+            ], [
+                'kategori.required' => 'Kategori penerimaan wajib dipilih.',
+                'jumlah.required' => 'Nominal penerimaan wajib diisi.',
+                'jumlah.min' => 'Nominal penerimaan minimal Rp 1.000.',
+            ]);
+            $kategori = $this->kategori;
+        }
 
         PemasukanKas::create([
-            'kategori' => $this->kategori,
+            'kategori' => $kategori,
             'jumlah' => $this->jumlah,
             'tanggal' => $this->tanggal,
             'keterangan' => $this->keterangan,
             'petugas_id' => auth()->id(),
         ]);
 
-        session()->flash('message', 'Pemasukan kas yayasan berhasil dicatat.');
+        if (!in_array($kategori, $this->kategoriOptions)) {
+            $this->kategoriOptions[] = $kategori;
+        }
+
+        session()->flash('message', 'Pemasukan kas yayasan (' . $kategori . ') berhasil dicatat.');
 
         $this->showCreateModal = false;
-        $this->reset(['jumlah', 'keterangan']);
+        $this->reset(['jumlah', 'keterangan', 'is_kategori_kustom', 'kategori_kustom']);
         $this->tanggal = date('Y-m-d');
         $this->resetPage();
     }

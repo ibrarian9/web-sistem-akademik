@@ -35,27 +35,62 @@
 
     <!-- 3 Core Metric Cards (Cash Inflow, Cash Outflow, Net Balance) -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <x-stat-card 
-            title="Total Kas Masuk" 
-            :value="'Rp ' . number_format($totalInflow, 0, ',', '.')" 
-            subtitle="SPP, infaq yayasan, & setoran tabungan"
-            icon="trending-up" 
-            variant="emerald" 
-        />
-        <x-stat-card 
-            title="Total Kas Keluar" 
-            :value="'Rp ' . number_format($totalOutflow, 0, ',', '.')" 
-            subtitle="Beban operasional, gaji guru, & kasbon"
-            icon="trending-down" 
-            variant="rose" 
-        />
-        <x-stat-card 
-            title="Surplus / Saldo Kas Bersih" 
-            :value="($netCashFlow < 0 ? '- Rp ' : 'Rp ') . number_format(abs($netCashFlow), 0, ',', '.')" 
-            :subtitle="$netCashFlow >= 0 ? 'Surplus kas periode ini' : 'Defisit kas periode ini'"
-            icon="wallet" 
-            :variant="$netCashFlow >= 0 ? 'white' : 'rose'" 
-        />
+        <div class="relative group">
+            <x-stat-card 
+                title="Total Kas Masuk" 
+                :value="'Rp ' . number_format($totalInflow, 0, ',', '.')" 
+                :subtitle="$tab === 'masuk' ? '✓ Filter aktif (Klik untuk reset)' : 'SPP, infaq yayasan, & tabungan (Klik filter)'"
+                icon="trending-up" 
+                variant="emerald" 
+                wire:click="filterByCard('masuk')"
+                role="button"
+                tabindex="0"
+                class="cursor-pointer select-none hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 {{ $tab === 'masuk' ? 'ring-4 ring-emerald-400 ring-offset-2 shadow-md' : '' }}"
+            />
+            @if ($tab === 'masuk')
+                <span class="absolute top-2 right-2 px-2 py-0.5 bg-white text-emerald-800 text-[10px] font-black rounded-full shadow-2xs uppercase tracking-wider">
+                    Aktif
+                </span>
+            @endif
+        </div>
+
+        <div class="relative group">
+            <x-stat-card 
+                title="Total Kas Keluar" 
+                :value="'Rp ' . number_format($totalOutflow, 0, ',', '.')" 
+                :subtitle="$tab === 'keluar' ? '✓ Filter aktif (Klik untuk reset)' : 'Beban operasional, gaji, kasbon (Klik filter)'"
+                icon="trending-down" 
+                variant="rose" 
+                wire:click="filterByCard('keluar')"
+                role="button"
+                tabindex="0"
+                class="cursor-pointer select-none hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 {{ $tab === 'keluar' ? 'ring-4 ring-rose-400 ring-offset-2 shadow-md' : '' }}"
+            />
+            @if ($tab === 'keluar')
+                <span class="absolute top-2 right-2 px-2 py-0.5 bg-white text-rose-800 text-[10px] font-black rounded-full shadow-2xs uppercase tracking-wider">
+                    Aktif
+                </span>
+            @endif
+        </div>
+
+        <div class="relative group">
+            <x-stat-card 
+                title="Surplus / Saldo Kas Bersih" 
+                :value="($netCashFlow < 0 ? '- Rp ' : 'Rp ') . number_format(abs($netCashFlow), 0, ',', '.')" 
+                :subtitle="$tab === 'semua' ? ($netCashFlow >= 0 ? 'Surplus kas periode ini (Semua Arus Kas)' : 'Defisit kas periode ini (Semua Arus Kas)') : 'Klik untuk tampilkan semua arus kas'"
+                icon="wallet" 
+                :variant="$netCashFlow >= 0 ? 'white' : 'rose'" 
+                wire:click="selectTab('semua')"
+                role="button"
+                tabindex="0"
+                class="cursor-pointer select-none hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 {{ $tab === 'semua' ? 'ring-2 ring-stone-400 ring-offset-1 shadow-xs' : '' }}"
+            />
+            @if ($tab === 'semua')
+                <span class="absolute top-2 right-2 px-2 py-0.5 bg-stone-100 text-stone-700 text-[10px] font-black rounded-full border border-stone-300 shadow-2xs uppercase tracking-wider">
+                    Semua
+                </span>
+            @endif
+        </div>
     </div>
 
     <!-- VISUAL ANALYTICS: DUAL BAR MONTHLY INFLOW VS OUTFLOW CHART -->
@@ -267,7 +302,8 @@
                     <x-table.th align="right" class="w-36">Kas Keluar (Rp)</x-table.th>
                     <x-table.th class="min-w-[180px]">Keterangan / Rincian</x-table.th>
                     <x-table.th align="center" class="w-32">Metode / Resi</x-table.th>
-                    <x-table.th align="center" class="w-20">Aksi</x-table.th>
+                    <x-table.th align="center" class="w-24">Bukti</x-table.th>
+                    <x-table.th align="center" class="w-24">Aksi</x-table.th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-stone-200 bg-white">
@@ -313,28 +349,50 @@
                                 <span class="text-[10px] font-mono text-stone-400 block">{{ $item->no_resi }}</span>
                             @endif
                         </td>
-                        <td class="p-3.5 text-center">
-                            @if ($item->can_delete && !auth()->user()->isSuperAdmin2())
-                                @if ($item->type === 'masuk')
-                                    <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="deleteIncome({{ $item->raw_id }})" data-confirm="{{ auth()->user()->role?->nama === 'finance' ? 'Ajukan permohonan penghapusan catatan penerimaan kas ini ke Super Admin / Super Admin 2?' : 'Hapus catatan penerimaan kas ini?' }}" title="Hapus Kas Masuk">
-                                        Hapus
-                                    </x-button>
-                                @else
-                                    <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="deleteExpense({{ $item->raw_id }})" data-confirm="{{ auth()->user()->role?->nama === 'finance' ? 'Ajukan permohonan penghapusan catatan pengeluaran kas ini ke Super Admin / Super Admin 2?' : 'Hapus catatan pengeluaran kas ini?' }}" title="Hapus Kas Keluar">
-                                        Hapus
-                                    </x-button>
-                                @endif
-                            @elseif ($item->stream === 'spp' && $item->raw_id)
-                                <a href="{{ route('finance.cetak-resi', $item->raw_id) }}" target="_blank" class="p-1.5 bg-stone-100 hover:bg-emerald-100 text-stone-700 hover:text-emerald-900 rounded-lg inline-flex items-center justify-center border border-stone-300 transition" title="Cetak Resi">
-                                    <x-lucide-printer class="w-3.5 h-3.5" />
-                                </a>
+                        <td class="p-3.5 text-center text-xs border-r border-stone-200">
+                            @if (!empty($item->bukti))
+                                <button type="button" 
+                                    wire:click="openPreviewBukti('{{ asset('storage/' . $item->bukti) }}', 'Bukti {{ $item->kategori }} ({{ $item->tanggal->format('d/m/Y') }})')"
+                                    class="group inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition shadow-2xs text-[11px] font-bold cursor-pointer"
+                                    title="Klik untuk melihat foto bukti">
+                                    <x-lucide-image class="w-3.5 h-3.5 text-emerald-600" />
+                                    <span>Lihat</span>
+                                </button>
                             @else
-                                <span class="text-[10px] text-stone-400 font-mono italic">Sistem</span>
+                                <span class="text-[11px] text-stone-400 italic">-</span>
                             @endif
+                        </td>
+                        <td class="p-3.5 text-center">
+                            <div class="flex items-center justify-center gap-1">
+                                @if (isset($item->can_edit) && $item->can_edit && !auth()->user()->isSuperAdmin2())
+                                    <button type="button" 
+                                        wire:click="openEditExpenseModal({{ $item->raw_id }})" 
+                                        class="p-1.5 bg-stone-100 hover:bg-amber-100 text-stone-700 hover:text-amber-900 rounded-lg inline-flex items-center justify-center border border-stone-300 transition shadow-2xs cursor-pointer" 
+                                        title="Edit Transaksi & Bukti">
+                                        <x-lucide-edit-3 class="w-3.5 h-3.5 text-amber-600" />
+                                    </button>
+                                @endif
+
+                                @if ($item->can_delete && !auth()->user()->isSuperAdmin2())
+                                    @if ($item->type === 'masuk')
+                                        <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="deleteIncome({{ $item->raw_id }})" data-confirm="{{ auth()->user()->role?->nama === 'finance' ? 'Ajukan permohonan penghapusan catatan penerimaan kas ini ke Super Admin / Super Admin 2?' : 'Hapus catatan penerimaan kas ini?' }}" title="Hapus Kas Masuk">
+                                        </x-button>
+                                    @else
+                                        <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="deleteExpense({{ $item->raw_id }})" data-confirm="{{ auth()->user()->role?->nama === 'finance' ? 'Ajukan permohonan penghapusan catatan pengeluaran kas ini ke Super Admin / Super Admin 2?' : 'Hapus catatan pengeluaran kas ini?' }}" title="Hapus Kas Keluar">
+                                        </x-button>
+                                    @endif
+                                @elseif ($item->stream === 'spp' && $item->raw_id)
+                                    <a href="{{ route('finance.cetak-resi', $item->raw_id) }}" target="_blank" class="p-1.5 bg-stone-100 hover:bg-emerald-100 text-stone-700 hover:text-emerald-900 rounded-lg inline-flex items-center justify-center border border-stone-300 transition" title="Cetak Resi">
+                                        <x-lucide-printer class="w-3.5 h-3.5" />
+                                    </a>
+                                @else
+                                    <span class="text-[10px] text-stone-400 font-mono italic">Sistem</span>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                 @empty
-                    <x-table.empty :colspan="9" title="Belum ada catatan arus kas" message="Tidak ada transaksi pembukuan kas yang sesuai dengan filter yang dipilih." />
+                    <x-table.empty :colspan="10" title="Belum ada catatan arus kas" message="Tidak ada transaksi pembukuan kas yang sesuai dengan filter yang dipilih." />
                 @endforelse
             </tbody>
         </x-table>
@@ -364,13 +422,23 @@
             </div>
 
             <div>
-                <label for="income_kat" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">Kategori Penerimaan</label>
-                <select id="income_kat" wire:model="kategori_masuk" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs">
-                    @foreach ($kategoriMasukOptions as $kat)
-                        <option value="{{ $kat }}">{{ $kat }}</option>
-                    @endforeach
-                </select>
-                @error('kategori_masuk') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
+                <div class="flex items-center justify-between mb-1.5">
+                    <label for="income_kat" class="block text-xs font-bold text-stone-600 uppercase tracking-wider">Kategori Penerimaan</label>
+                    <button type="button" wire:click="$toggle('is_kategori_masuk_kustom')" class="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 hover:underline cursor-pointer">
+                        {{ $is_kategori_masuk_kustom ? '← Pilih dari Daftar Kategori' : '+ Tambah Kategori Baru' }}
+                    </button>
+                </div>
+                @if(!$is_kategori_masuk_kustom)
+                    <select id="income_kat" wire:model="kategori_masuk" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs">
+                        @foreach ($kategoriMasukOptions as $kat)
+                            <option value="{{ $kat }}">{{ $kat }}</option>
+                        @endforeach
+                    </select>
+                    @error('kategori_masuk') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
+                @else
+                    <input type="text" id="income_kat_kustom" wire:model="kategori_masuk_kustom" placeholder="Ketik nama kategori penerimaan baru..." class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs" />
+                    @error('kategori_masuk_kustom') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
+                @endif
             </div>
 
             <div>
@@ -446,6 +514,37 @@
                 @error('keterangan_keluar') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
             </div>
 
+            <!-- Upload Foto Bukti Pengeluaran (Opsional, Maks 2MB) -->
+            <div>
+                <label for="expense_bukti" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                    <span>Foto Bukti Pengeluaran (Struk / Bon / Nota)</span>
+                    <span class="text-[10px] text-stone-500 normal-case font-semibold">Opsional • Maks 2MB (JPG, PNG, WEBP)</span>
+                </label>
+                <div class="relative">
+                    <input type="file" id="expense_bukti" wire:model="bukti_keluar" accept="image/jpeg,image/png,image/jpg,image/webp" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-stone-900 text-xs font-medium file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-rose-50 file:text-rose-700 hover:file:bg-rose-100 transition shadow-2xs cursor-pointer" />
+                </div>
+                <div wire:loading wire:target="bukti_keluar" class="text-xs text-rose-600 font-bold mt-1.5 flex items-center gap-1.5">
+                    <x-lucide-loader-2 class="w-3.5 h-3.5 animate-spin" />
+                    <span>Sedang mengunggah file foto...</span>
+                </div>
+                @error('bukti_keluar') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
+
+                @if ($bukti_keluar)
+                    <div class="mt-2.5 p-2.5 bg-stone-50 rounded-xl border border-stone-200 flex items-center justify-between gap-3 shadow-2xs">
+                        <div class="flex items-center gap-3">
+                            <img src="{{ $bukti_keluar->temporaryUrl() }}" alt="Pratinjau Foto Bukti" class="w-12 h-12 object-cover rounded-lg border border-stone-300 shadow-2xs" />
+                            <div class="text-xs">
+                                <span class="font-bold text-stone-800 block">Pratinjau Foto Terpilih</span>
+                                <span class="text-stone-500 text-[11px]">Foto siap disimpan ke sistem</span>
+                            </div>
+                        </div>
+                        <button type="button" wire:click="$set('bukti_keluar', null)" class="px-2.5 py-1 text-xs font-bold text-rose-700 bg-white hover:bg-rose-50 border border-rose-200 rounded-lg shadow-2xs transition shrink-0 cursor-pointer">
+                            Batal / Hapus
+                        </button>
+                    </div>
+                @endif
+            </div>
+
             <div class="flex items-center justify-end gap-3 pt-3 border-t border-stone-100">
                 <x-button type="button" variant="secondary" size="sm" wire:click="closeExpenseModal">
                     Batal
@@ -456,4 +555,133 @@
             </div>
         </form>
     </x-floating-card>
+
+    <!-- MODAL 3: Edit Pengeluaran & Bukti Pembayaran -->
+    <x-floating-card 
+        :show="$showEditExpenseModal" 
+        title="Edit Pengeluaran & Bukti Pembayaran" 
+        subtitle="Perbarui nominal, keterangan, atau lampirkan foto bukti transaksi baru."
+        badge="EDIT PENGELUARAN"
+        badgeVariant="amber"
+        icon="edit-3"
+        maxWidth="max-w-lg"
+        closeAction="closeEditExpenseModal"
+    >
+        <form wire:submit.prevent="updateExpense" class="space-y-4">
+            <div>
+                <label for="edit_exp_tgl" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">Tanggal Transaksi</label>
+                <input type="date" id="edit_exp_tgl" wire:model="edit_tanggal" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs" />
+                @error('edit_tanggal') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
+            </div>
+
+            <div>
+                <label for="edit_exp_kat" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">Kategori Pengeluaran</label>
+                <select id="edit_exp_kat" wire:model="edit_kategori_pengeluaran_id" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs">
+                    @foreach ($kategoriKeluarOptions as $c)
+                        <option value="{{ $c['id'] }}">{{ $c['nama'] }}</option>
+                    @endforeach
+                </select>
+                @error('edit_kategori_pengeluaran_id') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
+            </div>
+
+            <div>
+                <label for="edit_exp_nom" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">Nominal Pengeluaran (Rp)</label>
+                <input type="number" id="edit_exp_nom" wire:model="edit_jumlah" min="1000" step="1000" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs" />
+                @error('edit_jumlah') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
+            </div>
+
+            <div>
+                <label for="edit_exp_ket" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">Keterangan / Uraian Belanja</label>
+                <textarea id="edit_exp_ket" wire:model="edit_keterangan" rows="3" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs"></textarea>
+                @error('edit_keterangan') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
+            </div>
+
+            <!-- Existing Photo or Upload New -->
+            <div>
+                <label class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                    <span>Foto Bukti Transaksi (Struk / Bon)</span>
+                    <span class="text-[10px] text-stone-500 normal-case font-semibold">Opsional • Maks 2MB (JPG, PNG, WEBP)</span>
+                </label>
+
+                @if ($edit_existing_bukti && !$edit_bukti_keluar)
+                    <div class="p-3 bg-stone-50 rounded-xl border border-stone-200 flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                            <img src="{{ asset('storage/' . $edit_existing_bukti) }}" alt="Bukti Tersimpan" class="w-12 h-12 object-cover rounded-lg border border-stone-300 shadow-2xs" />
+                            <div>
+                                <span class="text-xs font-bold text-stone-900 block">Bukti Foto Tersimpan</span>
+                                <a href="{{ asset('storage/' . $edit_existing_bukti) }}" target="_blank" class="text-[11px] text-emerald-700 hover:underline font-semibold flex items-center gap-1">
+                                    <x-lucide-external-link class="w-3 h-3" /> Buka Resolusi Penuh
+                                </a>
+                            </div>
+                        </div>
+                        <button type="button" wire:click="deleteEditBukti" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer" title="Hapus foto ini">
+                            <x-lucide-trash-2 class="w-4 h-4" />
+                        </button>
+                    </div>
+                @endif
+
+                <input type="file" wire:model="edit_bukti_keluar" accept="image/jpeg,image/png,image/jpg,image/webp" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-stone-900 text-xs font-medium file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-50 file:text-amber-800 hover:file:bg-amber-100 transition shadow-2xs cursor-pointer" />
+
+                <div wire:loading wire:target="edit_bukti_keluar" class="text-xs text-amber-700 font-bold mt-1.5 flex items-center gap-1.5">
+                    <x-lucide-loader-2 class="w-3.5 h-3.5 animate-spin" />
+                    <span>Sedang mengunggah file foto baru...</span>
+                </div>
+                @error('edit_bukti_keluar') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
+
+                @if ($edit_bukti_keluar)
+                    <div class="mt-2.5 p-2.5 bg-amber-50/60 rounded-xl border border-amber-200 flex items-center justify-between gap-3 shadow-2xs">
+                        <div class="flex items-center gap-3">
+                            <img src="{{ $edit_bukti_keluar->temporaryUrl() }}" alt="Pratinjau Foto Baru" class="w-12 h-12 object-cover rounded-lg border border-amber-300 shadow-2xs" />
+                            <div class="text-xs">
+                                <span class="font-bold text-stone-800 block">Foto Baru Terpilih</span>
+                                <span class="text-stone-500 text-[11px]">Akan menggantikan foto saat disimpan</span>
+                            </div>
+                        </div>
+                        <button type="button" wire:click="$set('edit_bukti_keluar', null)" class="px-2.5 py-1 text-xs font-bold text-rose-700 bg-white hover:bg-rose-50 border border-rose-200 rounded-lg shadow-2xs transition shrink-0 cursor-pointer">
+                            Batal
+                        </button>
+                    </div>
+                @endif
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-stone-100">
+                <x-button type="button" variant="secondary" size="sm" wire:click="closeEditExpenseModal">
+                    Batal
+                </x-button>
+                <x-button type="submit" variant="primary" size="sm" icon="check">
+                    Simpan Perubahan
+                </x-button>
+            </div>
+        </form>
+    </x-floating-card>
+
+    <!-- LIGHTBOX PREVIEW MODAL -->
+    @if ($showPreviewBuktiModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/80 backdrop-blur-xs transition-opacity animate-fade-in" wire:keydown.escape="closePreviewBukti">
+            <div class="relative max-w-3xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden border border-stone-200">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-stone-200 bg-stone-50">
+                    <div class="flex items-center gap-2">
+                        <x-lucide-image class="w-4 h-4 text-emerald-600" />
+                        <h4 class="text-sm font-extrabold text-stone-900">{{ $previewBuktiTitle ?: 'Foto Bukti Transaksi' }}</h4>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <a href="{{ $previewBuktiUrl }}" target="_blank" download class="p-1.5 bg-stone-200/70 hover:bg-emerald-100 text-stone-700 hover:text-emerald-800 rounded-lg transition" title="Buka Gambar Asli">
+                            <x-lucide-external-link class="w-4 h-4" />
+                        </a>
+                        <button type="button" wire:click="closePreviewBukti" class="p-1.5 bg-stone-200/70 hover:bg-rose-100 text-stone-700 hover:text-rose-800 rounded-lg transition" title="Tutup">
+                            <x-lucide-x class="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+                <div class="p-4 bg-stone-900 flex items-center justify-center max-h-[75vh] overflow-auto">
+                    <img src="{{ $previewBuktiUrl }}" alt="Foto Bukti" class="max-w-full max-h-[70vh] rounded-lg object-contain shadow-lg" />
+                </div>
+                <div class="px-5 py-3 bg-stone-50 border-t border-stone-200 text-right">
+                    <x-button type="button" variant="secondary" size="sm" wire:click="closePreviewBukti">
+                        Tutup
+                    </x-button>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

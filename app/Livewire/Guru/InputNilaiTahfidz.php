@@ -405,7 +405,7 @@ class InputNilaiTahfidz extends Component
                 $q = $this->search;
                 $siswaQuery->where(function ($sq) use ($q) {
                     $sq->where('nisn', 'like', "%{$q}%")
-                      ->orWhere('nama_panggilan', 'like', "%{$q}%")
+                      ->orWhere('nis', 'like', "%{$q}%")
                       ->orWhereHas('user', function ($uq) use ($q) {
                           $uq->where('nama', 'like', "%{$q}%");
                       });

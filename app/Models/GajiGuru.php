@@ -33,10 +33,16 @@ class GajiGuru extends Model
         'total_diterima',
         'tanggal_bayar',
         'status',
+        'bukti_bayar',
         'sumber_dana',
         'jam_kerja',
         'jabatan',
     ];
+
+    public function getBuktiBayarAttribute($value)
+    {
+        return $value ?: $this->pengeluaran?->bukti;
+    }
 
     protected $casts = [
         'gaji_pokok' => 'decimal:2',

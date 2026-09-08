@@ -145,6 +145,7 @@
                     <x-table.th class="min-w-[200px]">Keterangan & Rincian</x-table.th>
                     <x-table.th align="center" class="w-36">Petugas</x-table.th>
                     <x-table.th align="right" class="w-44">Jumlah Pengeluaran</x-table.th>
+                    <x-table.th align="center" class="w-24">Bukti</x-table.th>
                     <x-table.th align="center" class="w-20">Aksi</x-table.th>
                 </tr>
             </thead>
@@ -162,6 +163,16 @@
                         <td class="p-3.5 text-xs text-stone-700 font-medium border-r border-stone-200">{{ $e->keterangan ?? '-' }}</td>
                         <td class="p-3.5 text-xs font-semibold text-stone-600 text-center border-r border-stone-200">{{ $e->petugas->nama ?? '-' }}</td>
                         <td class="p-3.5 text-xs font-black text-rose-700 text-right border-r border-stone-200">Rp {{ number_format($e->jumlah, 0, ',', '.') }}</td>
+                        <td class="p-3.5 text-center text-xs border-r border-stone-200">
+                            @if (!empty($e->bukti))
+                                <a href="{{ asset('storage/' . $e->bukti) }}" target="_blank" class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition text-[11px] font-bold" title="Lihat Foto Bukti">
+                                    <x-lucide-image class="w-3.5 h-3.5 text-emerald-600" />
+                                    <span>Bukti</span>
+                                </a>
+                            @else
+                                <span class="text-[11px] text-stone-400 italic">-</span>
+                            @endif
+                        </td>
                         <td class="p-3.5 text-center">
                             @if (!$e->gajiGuru && !auth()->user()->isSuperAdmin2())
                                 <x-button 
@@ -183,7 +194,7 @@
                         </td>
                     </tr>
                 @empty
-                    <x-table.empty :colspan="6" title="Tidak ada data pengeluaran" message="Tidak ditemukan transaksi pengeluaran pada kriteria filter terpilih." />
+                    <x-table.empty :colspan="7" title="Belum ada data pengeluaran" message="Tidak ada catatan transaksi belanja pengeluaran kas pada filter yang dipilih." />
                 @endforelse
             </tbody>
         </x-table>
@@ -276,6 +287,40 @@
                     class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-rose-500 shadow-2xs"
                 ></textarea>
                 @error('createKeterangan') <span class="text-rose-600 text-xs font-semibold mt-1 block">{{ $message }}</span> @enderror
+            </div>
+
+            <!-- Upload Foto Bukti Pengeluaran (Opsional, Maks 2MB) -->
+            <div>
+                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1 flex items-center justify-between">
+                    <span>Foto Bukti Pengeluaran (Struk / Nota)</span>
+                    <span class="text-[10px] text-stone-500 normal-case font-semibold">Opsional • Maks 2MB (JPG, PNG, WEBP)</span>
+                </label>
+                <input 
+                    type="file" 
+                    wire:model="createBukti" 
+                    accept="image/jpeg,image/png,image/jpg,image/webp" 
+                    class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-medium file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-rose-50 file:text-rose-700 hover:file:bg-rose-100 transition shadow-2xs cursor-pointer"
+                />
+                <div wire:loading wire:target="createBukti" class="text-xs text-rose-600 font-bold mt-1.5 flex items-center gap-1.5">
+                    <x-lucide-loader-2 class="w-3.5 h-3.5 animate-spin" />
+                    <span>Sedang mengunggah foto bukti...</span>
+                </div>
+                @error('createBukti') <span class="text-rose-600 text-xs font-semibold mt-1 block">{{ $message }}</span> @enderror
+
+                @if ($createBukti)
+                    <div class="mt-2.5 p-2.5 bg-rose-50/50 rounded-xl border border-rose-200 flex items-center justify-between gap-3 shadow-2xs">
+                        <div class="flex items-center gap-3">
+                            <img src="{{ $createBukti->temporaryUrl() }}" alt="Pratinjau Foto Bukti" class="w-12 h-12 object-cover rounded-lg border border-rose-300 shadow-2xs" />
+                            <div class="text-xs">
+                                <span class="font-bold text-stone-800 block">Foto Siap Disimpan</span>
+                                <span class="text-stone-500 text-[11px]">Foto bukti transaksi valid</span>
+                            </div>
+                        </div>
+                        <button type="button" wire:click="$set('createBukti', null)" class="px-2.5 py-1 text-xs font-bold text-rose-700 bg-white hover:bg-rose-50 border border-rose-200 rounded-lg shadow-2xs transition shrink-0 cursor-pointer">
+                            Batal / Hapus
+                        </button>
+                    </div>
+                @endif
             </div>
 
             <div class="flex items-center justify-end gap-2 pt-3 border-t border-stone-200">

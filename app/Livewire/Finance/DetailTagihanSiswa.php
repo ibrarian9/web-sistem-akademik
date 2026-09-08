@@ -9,11 +9,13 @@ use App\Models\JenisTagihan;
 use App\Models\TahunAjaran;
 use App\Models\Pembayaran;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 
 class DetailTagihanSiswa extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     public int $siswaId;
     public ?Siswa $siswa = null;
@@ -31,6 +33,12 @@ class DetailTagihanSiswa extends Component
     public ?int $filterBayarJenis = null;
     public string $filterBayarMetode = '';
     public ?int $filterBayarTahunAjaran = null;
+
+    // Bukti Pembayaran Modal & Properties
+    public bool $showBuktiModal = false;
+    public ?int $selectedPembayaranId = null;
+    public ?Pembayaran $selectedPembayaran = null;
+    public $edit_bukti_foto = null;
 
     // Create Tagihan Modal for this student
     public bool $showCreateModal = false;
@@ -453,6 +461,73 @@ class DetailTagihanSiswa extends Component
 
             session()->flash('success', "Riwayat pembayaran ({$noResi}) berhasil dihapus dan saldo tagihan telah disesuaikan.");
         });
+    }
+
+    public function openBuktiModal(int $pembayaranId)
+    {
+        $this->resetValidation();
+        $this->edit_bukti_foto = null;
+        $this->selectedPembayaranId = $pembayaranId;
+        $this->selectedPembayaran = Pembayaran::with(['tagihan.jenisTagihan', 'petugas'])->findOrFail($pembayaranId);
+        $this->showBuktiModal = true;
+    }
+
+    public function closeBuktiModal()
+    {
+        $this->showBuktiModal = false;
+        $this->selectedPembayaranId = null;
+        $this->selectedPembayaran = null;
+        $this->edit_bukti_foto = null;
+        $this->resetValidation();
+    }
+
+    public function saveBuktiFoto()
+    {
+        if (auth()->user()->role?->nama === 'super_admin_2') {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $this->validate([
+            'edit_bukti_foto' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ], [
+            'edit_bukti_foto.required' => 'Silakan pilih file foto bukti pembayaran terlebih dahulu.',
+            'edit_bukti_foto.image' => 'File bukti pembayaran harus berupa foto/gambar.',
+            'edit_bukti_foto.mimes' => 'Format foto hanya boleh JPG, JPEG, PNG, atau WEBP.',
+            'edit_bukti_foto.max' => 'Ukuran file foto bukti pembayaran maksimal 2MB.',
+        ]);
+
+        $pembayaran = Pembayaran::findOrFail($this->selectedPembayaranId);
+
+        // Hapus file bukti lama dari storage jika ada
+        if ($pembayaran->bukti_bayar && Storage::disk('public')->exists($pembayaran->bukti_bayar)) {
+            Storage::disk('public')->delete($pembayaran->bukti_bayar);
+        }
+
+        $path = $this->edit_bukti_foto->store('bukti_pembayaran', 'public');
+        $pembayaran->update(['bukti_bayar' => $path]);
+
+        $this->selectedPembayaran = $pembayaran->fresh(['tagihan.jenisTagihan', 'petugas']);
+        $this->edit_bukti_foto = null;
+        session()->flash('success', 'Foto bukti pembayaran berhasil diperbarui.');
+    }
+
+    public function deleteBuktiFoto()
+    {
+        if (auth()->user()->role?->nama === 'super_admin_2') {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $pembayaran = Pembayaran::findOrFail($this->selectedPembayaranId);
+
+        if ($pembayaran->bukti_bayar && Storage::disk('public')->exists($pembayaran->bukti_bayar)) {
+            Storage::disk('public')->delete($pembayaran->bukti_bayar);
+        }
+
+        $pembayaran->update(['bukti_bayar' => null]);
+        $this->selectedPembayaran = $pembayaran->fresh(['tagihan.jenisTagihan', 'petugas']);
+        session()->flash('success', 'Foto bukti pembayaran berhasil dihapus.');
     }
 
     public function render()

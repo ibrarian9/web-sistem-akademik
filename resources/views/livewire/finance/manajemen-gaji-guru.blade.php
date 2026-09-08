@@ -341,7 +341,17 @@
                             @if (in_array($sal->id, $pendingApprovalIds ?? []))
                                 <x-badge variant="amber" size="xs" :dot="true">Menunggu Approval Hapus</x-badge>
                             @elseif ($sal->status === 'dibayar')
-                                <x-badge variant="emerald" size="xs" :dot="true">Dibayar</x-badge>
+                                <div class="inline-flex flex-col items-center gap-1">
+                                    <x-badge variant="emerald" size="xs" :dot="true">Dibayar</x-badge>
+                                    @if ($sal->bukti_bayar)
+                                        <a href="{{ asset('storage/' . $sal->bukti_bayar) }}" target="_blank" 
+                                           class="inline-flex items-center gap-1 text-[10px] text-emerald-700 hover:text-emerald-900 font-bold hover:underline"
+                                           title="Lihat Foto Bukti Struk/TF">
+                                            <x-lucide-camera class="w-3 h-3" />
+                                            <span>Struk/TF</span>
+                                        </a>
+                                    @endif
+                                </div>
                             @else
                                 <x-badge variant="amber" size="xs" :dot="true">Draft</x-badge>
                             @endif
@@ -353,7 +363,7 @@
                                     @if(!auth()->user()->isSuperAdmin2())
                                     <button 
                                         type="button" 
-                                        wire:click="paySalary({{ $sal->id }})" 
+                                        wire:click="openPayModal({{ $sal->id }})" 
                                         class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs hover:shadow-md transition"
                                         title="Bayar / Cairkan Gaji Ini"
                                     >
@@ -915,12 +925,38 @@
                 </div>
                 <div>
                     <label class="block text-[10px] font-extrabold text-stone-600 uppercase tracking-wider mb-1">Status Awal</label>
-                    <select wire:model="createStatus" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
+                    <select wire:model.live="createStatus" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
                         <option value="draft">Draf (Belum Bayar)</option>
                         <option value="dibayar">Langsung Dibayar</option>
                     </select>
                 </div>
             </div>
+
+            @if ($createStatus === 'dibayar')
+                <div class="p-4 bg-emerald-50/60 border border-emerald-200 rounded-2xl space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <x-lucide-camera class="w-4 h-4 text-emerald-700" />
+                            <span class="text-xs font-black text-emerald-900 uppercase tracking-wider">Foto Bukti Transfer / Struk (Opsional)</span>
+                        </div>
+                        <span class="text-[10px] text-stone-500 font-semibold">Maks 2MB (JPG/PNG/WEBP)</span>
+                    </div>
+                    <div class="flex flex-col sm:flex-row items-center gap-4">
+                        <input type="file" wire:model="createBuktiFoto" accept="image/jpeg,image/png,image/jpg,image/webp" 
+                               class="w-full text-xs text-stone-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer border border-stone-300 rounded-xl bg-white p-1" />
+                        @if ($createBuktiFoto)
+                            <div class="flex items-center gap-2 shrink-0 bg-white p-1.5 rounded-xl border border-emerald-300">
+                                <img src="{{ $createBuktiFoto->temporaryUrl() }}" alt="Pratinjau" class="w-12 h-12 rounded-lg object-cover" />
+                                <button type="button" wire:click="$set('createBuktiFoto', null)" class="text-xs text-rose-600 font-bold hover:underline px-1">Hapus</button>
+                            </div>
+                        @endif
+                    </div>
+                    <div wire:loading wire:target="createBuktiFoto" class="text-xs text-emerald-600 font-semibold">
+                        Mengunggah foto bukti...
+                    </div>
+                    @error('createBuktiFoto') <span class="text-xs text-rose-600 font-medium block">{{ $message }}</span> @enderror
+                </div>
+            @endif
 
             <!-- Two-Column Breakdown: Penerimaan vs Potongan -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -1832,7 +1868,7 @@
 
                     <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
                         @if ($selectedSalaryDetail->status === 'draft')
-                            <x-button variant="primary" size="sm" icon="credit-card" wire:click="paySalary({{ $selectedSalaryDetail->id }})">
+                            <x-button variant="primary" size="sm" icon="credit-card" wire:click="openPayModal({{ $selectedSalaryDetail->id }})">
                                 Bayar Sekarang
                             </x-button>
                         @else
@@ -1841,6 +1877,72 @@
                             </x-button>
                         @endif
                     </div>
+                </div>
+
+                <!-- Bukti Pembayaran / Struk / TF Section -->
+                <div class="p-4 bg-white border border-stone-200 rounded-2xl space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="p-1.5 rounded-lg bg-emerald-100 text-emerald-800">
+                                <x-lucide-camera class="w-4 h-4" />
+                            </span>
+                            <span class="text-xs font-black text-stone-800 uppercase tracking-wider">Foto Bukti Transfer / Struk Pembayaran</span>
+                        </div>
+                        @if ($selectedSalaryDetail->bukti_bayar)
+                            <x-badge variant="emerald" size="xs">Terlampir</x-badge>
+                        @elseif ($selectedSalaryDetail->status === 'dibayar')
+                            <x-badge variant="stone" size="xs">Belum Diunggah</x-badge>
+                        @endif
+                    </div>
+
+                    @if ($selectedSalaryDetail->bukti_bayar)
+                        <div class="flex flex-col sm:flex-row items-center gap-4 p-3 bg-stone-50 rounded-xl border border-stone-200">
+                            <a href="{{ asset('storage/' . $selectedSalaryDetail->bukti_bayar) }}" target="_blank" class="group relative block shrink-0">
+                                <img src="{{ asset('storage/' . $selectedSalaryDetail->bukti_bayar) }}" alt="Bukti Transfer" class="w-20 h-20 object-cover rounded-xl border border-stone-300 group-hover:opacity-90 shadow-2xs" />
+                                <div class="absolute inset-0 bg-black/30 rounded-xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                                    <x-lucide-external-link class="w-5 h-5 text-white" />
+                                </div>
+                            </a>
+                            <div class="flex-1 space-y-1">
+                                <div class="text-xs font-bold text-stone-800">Bukti Pembayaran Tersimpan</div>
+                                <div class="text-[11px] text-stone-500 font-mono">{{ basename($selectedSalaryDetail->bukti_bayar) }}</div>
+                                <div class="pt-1 flex items-center gap-2">
+                                    <a href="{{ asset('storage/' . $selectedSalaryDetail->bukti_bayar) }}" target="_blank" class="text-xs font-bold text-emerald-700 hover:text-emerald-900 hover:underline flex items-center gap-1">
+                                        <x-lucide-eye class="w-3.5 h-3.5" />
+                                        <span>Buka Ukuran Penuh</span>
+                                    </a>
+                                    @if (!auth()->user()->isSuperAdmin2())
+                                        <span class="text-stone-300">&bull;</span>
+                                        <button type="button" wire:click="deleteSalaryBuktiFoto({{ $selectedSalaryDetail->id }})" data-confirm="Hapus file foto bukti transfer/struk ini?" class="text-xs font-semibold text-rose-600 hover:text-rose-800 hover:underline flex items-center gap-1">
+                                            <x-lucide-trash-2 class="w-3.5 h-3.5" />
+                                            <span>Hapus Foto</span>
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if ($selectedSalaryDetail->status === 'dibayar' && !auth()->user()->isSuperAdmin2())
+                        <div class="pt-2 border-t border-stone-100">
+                            <label class="block text-[11px] font-bold text-stone-600 mb-1.5">
+                                {{ $selectedSalaryDetail->bukti_bayar ? 'Ganti Foto Bukti Pembayaran:' : 'Unggah Foto Bukti Transfer / Struk:' }}
+                            </label>
+                            <div class="flex flex-col sm:flex-row items-center gap-3">
+                                <input type="file" wire:model="detailBuktiFoto" accept="image/jpeg,image/png,image/jpg,image/webp" 
+                                       class="text-xs text-stone-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer border border-stone-300 rounded-xl bg-white p-1" />
+                                @if ($detailBuktiFoto)
+                                    <x-button variant="primary" size="xs" icon="upload" wire:click="updateSalaryBuktiFoto({{ $selectedSalaryDetail->id }})">
+                                        Simpan Foto
+                                    </x-button>
+                                @endif
+                            </div>
+                            <div wire:loading wire:target="detailBuktiFoto" class="text-xs text-emerald-600 font-semibold mt-1">
+                                Mengunggah gambar...
+                            </div>
+                            @error('detailBuktiFoto') <span class="text-xs text-rose-600 font-medium block mt-1">{{ $message }}</span> @enderror
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Footer Action Buttons -->
@@ -1908,6 +2010,101 @@
                     <x-button variant="secondary" size="md" wire:click="closePreview">Tutup</x-button>
                 </div>
             </div>
+        </x-floating-card>
+    @endif
+
+    <!-- 6. Modal Konfirmasi Pembayaran Gaji Pegawai (Input Bukti Struk / TF) -->
+    @if ($showPayModal && $paySalaryRecord)
+        <x-floating-card 
+            :show="true" 
+            :title="'Input Pembayaran Gaji — ' . ($paySalaryRecord->guru->user->nama ?? 'Pegawai')" 
+            :subtitle="'Periode: ' . $paySalaryRecord->bulan . ' ' . $paySalaryRecord->tahun . ' • Jabatan: ' . ($paySalaryRecord->jabatan ?: 'Guru')" 
+            badge="PEMBAYARAN GAJI" 
+            badgeVariant="emerald" 
+            icon="credit-card" 
+            maxWidth="max-w-xl" 
+            closeAction="closePayModal"
+            zIndex="z-[99995]"
+        >
+            <form wire:submit.prevent="confirmPaySalary" class="space-y-4 font-sans">
+                <!-- Nominal Card -->
+                <div class="p-4 bg-emerald-900 text-white rounded-2xl flex items-center justify-between shadow-sm">
+                    <div>
+                        <span class="text-[10px] font-black uppercase tracking-wider text-emerald-300 block">Total Gaji Yang Dibayarkan (THP)</span>
+                        <span class="text-2xl font-black text-white block mt-0.5 font-mono">
+                            Rp {{ number_format($paySalaryRecord->total_diterima, 0, ',', '.') }}
+                        </span>
+                    </div>
+                    <div class="p-2.5 bg-emerald-800 rounded-xl text-emerald-200 shrink-0">
+                        <x-lucide-wallet class="w-6 h-6" />
+                    </div>
+                </div>
+
+                <!-- Tanggal Bayar -->
+                <div>
+                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+                        Tanggal Pembayaran <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="date" wire:model="payTanggalBayar" 
+                           class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" required />
+                    @error('payTanggalBayar') <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span> @enderror
+                </div>
+
+                <!-- Input Foto Bukti TF / Struk Nota -->
+                <div class="p-4 bg-stone-50 border border-stone-200 rounded-2xl space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-xs font-black text-stone-800 uppercase tracking-wider">
+                            Foto Bukti Transfer / Struk Nota <span class="text-stone-400 font-normal lowercase">(opsional)</span>
+                        </label>
+                        <span class="text-[10px] text-stone-500 font-semibold">Maks 2MB (JPG/PNG/WEBP)</span>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center gap-4">
+                        <div class="relative flex-1 w-full">
+                            <input type="file" wire:model="payBuktiFoto" accept="image/jpeg,image/png,image/jpg,image/webp" 
+                                   class="w-full text-xs text-stone-600 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer border border-stone-300 rounded-xl bg-white p-1" />
+                        </div>
+
+                        @if ($payBuktiFoto)
+                            <div class="flex items-center gap-2 shrink-0 bg-white p-1.5 rounded-xl border border-emerald-300">
+                                <img src="{{ $payBuktiFoto->temporaryUrl() }}" alt="Pratinjau" class="w-12 h-12 rounded-lg object-cover" />
+                                <button type="button" wire:click="$set('payBuktiFoto', null)" class="text-xs text-rose-600 font-bold hover:underline px-1">
+                                    Hapus
+                                </button>
+                            </div>
+                        @endif
+                    </div>
+
+                    <div wire:loading wire:target="payBuktiFoto" class="text-xs text-emerald-600 font-semibold flex items-center gap-1.5">
+                        <x-lucide-loader-2 class="w-3.5 h-3.5 animate-spin" />
+                        <span>Mengunggah foto bukti...</span>
+                    </div>
+
+                    @error('payBuktiFoto') <span class="text-xs text-rose-600 font-medium block">{{ $message }}</span> @enderror
+                </div>
+
+                <!-- Catatan Pembayaran -->
+                <div>
+                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+                        Catatan / Referensi Pembayaran <span class="text-stone-400 font-normal lowercase">(opsional)</span>
+                    </label>
+                    <input type="text" wire:model="payCatatan" placeholder="Contoh: Transfer BSI Rekening Guru / Tunai / Kwitansi no. 123" 
+                           class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
+                    @error('payCatatan') <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span> @enderror
+                </div>
+
+                <!-- Footer Buttons -->
+                <div class="flex items-center justify-end gap-2 pt-3 border-t border-stone-200">
+                    <x-button type="button" variant="secondary" size="md" wire:click="closePayModal">
+                        Batal
+                    </x-button>
+
+                    <x-button type="submit" variant="primary" size="md" icon="check-circle" wire:loading.attr="disabled">
+                        <span wire:loading.remove wire:target="confirmPaySalary">Konfirmasi & Simpan Pembayaran</span>
+                        <span wire:loading wire:target="confirmPaySalary">Memproses...</span>
+                    </x-button>
+                </div>
+            </form>
         </x-floating-card>
     @endif
 
