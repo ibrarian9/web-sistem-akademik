@@ -61,6 +61,56 @@
         <div wire:loading.delay wire:target="kelas_id, proyek_id, semester_id" class="w-full">
             <x-loading-state type="bar" target="kelas_id, proyek_id, semester_id" />
         </div>
+
+        <!-- Kokurikuler Title & Rating Legend Box -->
+        <div class="p-4 bg-cyan-50/60 border border-cyan-200 rounded-xl space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-cyan-200/80 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-cyan-200 text-cyan-900 border border-cyan-300">
+                        PROJEK KOKURIKULER AKTIF
+                    </span>
+                    <h3 class="text-sm font-extrabold text-stone-900">
+                        {{ $selectedProyek->nama_proyek ?? 'Lintas Disiplin Ilmu' }}
+                    </h3>
+                </div>
+                <span class="text-xs text-cyan-800 font-semibold">Tahun Ajaran & Semester Aktif</span>
+            </div>
+
+            <!-- Rating Legend Options -->
+            <div>
+                <span class="text-[10px] font-extrabold text-stone-600 uppercase tracking-wider block mb-1.5">Opsi & Skala Rating Penilaian:</span>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                    <div class="flex items-center gap-2 p-2 bg-white rounded-lg border border-stone-200 shadow-2xs">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-black bg-rose-600 text-white shrink-0">BB (1)</span>
+                        <div class="min-w-0">
+                            <span class="font-bold text-stone-900 block truncate text-[11px]">Belum Berkembang</span>
+                            <span class="text-[10px] text-stone-500 block truncate">Perlu bimbingan penuh</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 p-2 bg-white rounded-lg border border-stone-200 shadow-2xs">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-500 text-white shrink-0">MB (2)</span>
+                        <div class="min-w-0">
+                            <span class="font-bold text-stone-900 block truncate text-[11px]">Mulai Berkembang</span>
+                            <span class="text-[10px] text-stone-500 block truncate">Mulai konsisten</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 p-2 bg-white rounded-lg border border-stone-200 shadow-2xs">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-600 text-white shrink-0">BSH (3)</span>
+                        <div class="min-w-0">
+                            <span class="font-bold text-stone-900 block truncate text-[11px]">Sesuai Harapan</span>
+                            <span class="text-[10px] text-stone-500 block truncate">Tercapai mandiri</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 p-2 bg-white rounded-lg border border-stone-200 shadow-2xs">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-black bg-cyan-700 text-white shrink-0">SB (4)</span>
+                        <div class="min-w-0">
+                            <span class="font-bold text-stone-900 block truncate text-[11px]">Sangat Berkembang</span>
+                            <span class="text-[10px] text-stone-500 block truncate">Melampaui target</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     @if (session()->has('message'))

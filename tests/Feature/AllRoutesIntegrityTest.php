@@ -162,6 +162,7 @@ test('authenticated users can access all authorized module routes with HTTP 200/
         route('super-admin.laporan.absensi-guru'),
         route('super-admin.laporan.rekap-nilai'),
         route('super-admin.user'),
+        route('super-admin.monitoring-akademik'),
         route('super-admin.audit-log'),
         route('super-admin.error-log'),
         route('super-admin.pengaturan'),
@@ -289,7 +290,7 @@ test('authenticated users can access all authorized module routes with HTTP 200/
         route('kepala-sekolah.laporan.absensi-siswa'),
         route('kepala-sekolah.laporan.absensi-guru'),
         route('kepala-sekolah.laporan.rekap-nilai'),
-        route('kepala-sekolah.audit-log'),
+        route('kepala-sekolah.laporan.tunggakan'),
         route('kepala-sekolah.kalender-akademik'),
     ];
 
@@ -310,7 +311,12 @@ test('authenticated users can access all authorized module routes with HTTP 200/
     $this->actingAs($pengawasUser);
     $pengawasRoutes = [
         route('pengawas.dashboard'),
+        route('pengawas.capaian-guru'),
         route('pengawas.koreksi-nilai'),
+        route('pengawas.laporan.absensi-siswa'),
+        route('pengawas.laporan.absensi-guru'),
+        route('pengawas.laporan.rekap-nilai'),
+        route('pengawas.laporan.tunggakan'),
         route('pengawas.kalender-akademik'),
     ];
 

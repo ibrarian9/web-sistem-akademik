@@ -8,6 +8,7 @@
         icon="trending-down"
     >
         <x-slot:actions>
+            @if(!auth()->user()->isSuperAdmin2())
             <x-button 
                 variant="primary" 
                 size="sm" 
@@ -17,6 +18,7 @@
             >
                 Catat Pengeluaran
             </x-button>
+            @endif
 
             <x-button 
                 variant="secondary" 
@@ -161,20 +163,22 @@
                         <td class="p-3.5 text-xs font-semibold text-stone-600 text-center border-r border-stone-200">{{ $e->petugas->nama ?? '-' }}</td>
                         <td class="p-3.5 text-xs font-black text-rose-700 text-right border-r border-stone-200">Rp {{ number_format($e->jumlah, 0, ',', '.') }}</td>
                         <td class="p-3.5 text-center">
-                            @if (!$e->gajiGuru)
+                            @if (!$e->gajiGuru && !auth()->user()->isSuperAdmin2())
                                 <x-button 
                                     type="button" 
                                     variant="danger" 
                                     size="xs" 
                                     icon="trash-2" 
                                     wire:click="deletePengeluaran({{ $e->id }})" 
-                                    data-confirm="Hapus catatan pengeluaran kas ini?" 
+                                    data-confirm="{{ auth()->user()->role?->nama === 'finance' ? 'Ajukan permohonan penghapusan catatan pengeluaran kas ini ke Super Admin / Super Admin 2?' : 'Hapus catatan pengeluaran kas ini?' }}" 
                                     title="Hapus Pengeluaran"
                                 >
                                     Hapus
                                 </x-button>
-                            @else
+                            @elseif ($e->gajiGuru)
                                 <span class="text-[10px] text-stone-400 font-mono italic">Gaji Pegawai</span>
+                            @else
+                                <span class="text-[10px] text-stone-400 font-mono italic">Lihat Saja</span>
                             @endif
                         </td>
                     </tr>

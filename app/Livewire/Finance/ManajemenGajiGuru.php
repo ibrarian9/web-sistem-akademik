@@ -65,6 +65,8 @@ class ManajemenGajiGuru extends Component
     public ?string $editSumberDana = 'Yayasan';
     public string $editStatus = 'draft';
     public ?string $editTanggalBayar = '';
+    public string $editBulan = 'Januari';
+    public int $editTahun = 2026;
 
     // Earnings
     public float $editGajiPokok = 0.00;
@@ -85,6 +87,7 @@ class ManajemenGajiGuru extends Component
 
     // Net THP
     public float $editTotalDiterima = 0.00;
+    public string $edit_alasan = '';
 
     // Detail Modal State
     public bool $showDetailModal = false;
@@ -169,6 +172,11 @@ class ManajemenGajiGuru extends Component
     // =========================================================================
     public function openGenerateModal()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->loadGeneratePreview();
         $this->showGenerateModal = true;
     }
@@ -291,6 +299,11 @@ class ManajemenGajiGuru extends Component
 
     public function generateDrafts()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         if (empty($this->generateItems)) {
             $this->loadGeneratePreview();
         }
@@ -366,6 +379,11 @@ class ManajemenGajiGuru extends Component
     // ==========================================
     public function openCreateModal()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $firstGuru = Guru::with('user')->where('status_aktif', true)->first();
         $this->createGuruId = $firstGuru?->id;
         $this->createBulan = $this->listBulan[intval(date('n')) - 1] ?? 'Januari';
@@ -443,6 +461,11 @@ class ManajemenGajiGuru extends Component
 
     public function saveCreate()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->validate([
             'createGuruId' => 'required|exists:guru,id',
             'createBulan' => 'required|string',
@@ -546,10 +569,18 @@ class ManajemenGajiGuru extends Component
     // ==========================================
     public function openEditModal(int $id)
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $gaji = GajiGuru::with('guru.user')->findOrFail($id);
 
         $this->editingId = $id;
+        $this->edit_alasan = '';
         $this->editGuruNama = $gaji->guru->user->nama ?? '';
+        $this->editBulan = $gaji->bulan;
+        $this->editTahun = intval($gaji->tahun);
         $this->editJabatan = $gaji->jabatan ?: ($gaji->guru->jabatan ?? 'Guru');
         $this->editJamKerja = $gaji->jam_kerja ?: '07.00-14.00';
         $this->editSumberDana = $gaji->sumber_dana ?: 'Yayasan';
@@ -579,6 +610,7 @@ class ManajemenGajiGuru extends Component
         $this->showEditModal = false;
         $this->reset([
             'editingId', 'editGuruNama', 'editJabatan', 'editJamKerja', 'editSumberDana',
+            'editBulan', 'editTahun',
             'editGajiPokok', 'editGajiBerkala', 'editJumlahEkskul', 'editHonorEkskul',
             'editInsentif', 'editInsentifBpjs', 'editInsentifMaghrib', 'editTotalBruto',
             'editPotonganSosial', 'editPotonganPinjaman', 'editPotonganBpjstk', 'editPotonganLainnya', 'editTotalPotongan',
@@ -605,7 +637,14 @@ class ManajemenGajiGuru extends Component
 
     public function saveEdit()
     {
-        $this->validate([
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $rules = [
+            'editBulan' => 'required|string|in:' . implode(',', $this->listBulan),
+            'editTahun' => 'required|integer|min:2020|max:2035',
             'editGajiPokok' => 'required|numeric|min:0',
             'editGajiBerkala' => 'required|numeric|min:0',
             'editJumlahEkskul' => 'required|integer|min:0',
@@ -618,15 +657,62 @@ class ManajemenGajiGuru extends Component
             'editPotonganBpjstk' => 'required|numeric|min:0',
             'editPotonganLainnya' => 'required|numeric|min:0',
             'editSumberDana' => 'required|string|max:100',
+        ];
+
+        $userRole = auth()->user()->role->nama ?? '';
+        if ($userRole === 'finance') {
+            $rules['edit_alasan'] = 'required|string|min:5|max:500';
+        }
+
+        $this->validate($rules, [
+            'edit_alasan.required' => 'Alasan perubahan rincian gaji wajib diisi untuk permohonan persetujuan Super Admin / Super Admin 2.',
         ]);
 
-        $gaji = GajiGuru::findOrFail($this->editingId);
-        $oldPotonganPinjaman = floatval($gaji->potongan_peminjaman);
-
+        $gaji = GajiGuru::with('guru.user')->findOrFail($this->editingId);
         $this->calculateEditTotal();
+
+        if ($userRole === 'finance') {
+            \App\Services\FinancialApprovalService::createRequest(
+                auth()->user(),
+                'edit',
+                'gaji_guru',
+                $gaji,
+                [
+                    'bulan' => $this->editBulan,
+                    'tahun' => $this->editTahun,
+                    'jabatan' => $this->editJabatan,
+                    'jam_kerja' => $this->editJamKerja,
+                    'sumber_dana' => $this->editSumberDana,
+                    'gaji_pokok' => $this->editGajiPokok,
+                    'gaji_berkala' => $this->editGajiBerkala,
+                    'jumlah_ekskul' => $this->editJumlahEkskul,
+                    'honor_ekskul' => $this->editHonorEkskul,
+                    'insentif' => $this->editInsentif,
+                    'insentif_bpjs' => $this->editInsentifBpjs,
+                    'insentif_maghrib_mengaji' => $this->editInsentifMaghrib,
+                    'potongan_sosial' => $this->editPotonganSosial,
+                    'potongan_peminjaman' => $this->editPotonganPinjaman,
+                    'potongan_bpjstk' => $this->editPotonganBpjstk,
+                    'potongan_lainnya' => $this->editPotonganLainnya,
+                    'total_bruto' => $this->editTotalBruto,
+                    'total_diterima' => $this->editTotalDiterima,
+                    'tanggal_bayar' => $this->editTanggalBayar ?: $gaji->tanggal_bayar,
+                ],
+                $this->edit_alasan,
+                "Edit Gaji Guru: " . ($gaji->guru->user->nama ?? 'Guru') . " - {$this->editBulan} {$this->editTahun} (THP: Rp " . number_format($this->editTotalDiterima, 0, ',', '.') . ")"
+            );
+
+            session()->flash('message', 'Permohonan edit gaji guru telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.');
+            $this->closeEditModal();
+            return;
+        }
+
+        $oldPotonganPinjaman = floatval($gaji->potongan_peminjaman);
 
         DB::transaction(function () use ($gaji, $oldPotonganPinjaman) {
             $gaji->update([
+                'bulan' => $this->editBulan,
+                'tahun' => $this->editTahun,
                 'jabatan' => $this->editJabatan,
                 'jam_kerja' => $this->editJamKerja,
                 'sumber_dana' => $this->editSumberDana,
@@ -650,6 +736,7 @@ class ManajemenGajiGuru extends Component
                 $pengeluaran = Pengeluaran::find($gaji->pengeluaran_id);
                 if ($pengeluaran) {
                     $pengeluaran->update([
+                        'keterangan' => "Pembayaran Gaji " . ($gaji->guru->user->nama ?? 'Guru') . " ({$this->editBulan} {$this->editTahun})",
                         'jumlah' => $gaji->total_diterima,
                         'tanggal' => $this->editTanggalBayar ?: $pengeluaran->tanggal,
                     ]);
@@ -682,6 +769,11 @@ class ManajemenGajiGuru extends Component
     // ==========================================
     public function paySalary(int $id)
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $gaji = GajiGuru::with('guru.user')->findOrFail($id);
 
         if ($gaji->status === 'dibayar') {
@@ -745,6 +837,16 @@ class ManajemenGajiGuru extends Component
     // ==========================================
     public function revertToDraft(int $id)
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        if (auth()->user()->role?->nama === 'finance') {
+            session()->flash('error', 'Akses Ditolak: Pembatalan status gaji yang telah dibayarkan hanya dapat dilakukan oleh Super Admin.');
+            return;
+        }
+
         $gaji = GajiGuru::findOrFail($id);
 
         if ($gaji->status !== 'dibayar') {
@@ -782,9 +884,34 @@ class ManajemenGajiGuru extends Component
     // ==========================================
     // 6. HAPUS GAJI
     // ==========================================
-    public function deleteSalary(int $id)
+    public function deleteSalary(int $id, ?string $alasan = null)
     {
-        $gaji = GajiGuru::findOrFail($id);
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $gaji = GajiGuru::with('guru.user')->findOrFail($id);
+        $userRole = auth()->user()->role->nama ?? '';
+
+        if ($userRole === 'finance' && $gaji->status === 'dibayar') {
+            $reason = $alasan ?: 'Penghapusan data gaji diajukan oleh staf keuangan';
+            \App\Services\FinancialApprovalService::createRequest(
+                auth()->user(),
+                'hapus',
+                'gaji_guru',
+                $gaji,
+                null,
+                $reason,
+                "Hapus Gaji Guru: " . ($gaji->guru->user->nama ?? 'Guru') . " - {$gaji->bulan} {$gaji->tahun} (THP: Rp " . number_format($gaji->total_diterima, 0, ',', '.') . ")"
+            );
+
+            $msg = 'Permohonan penghapusan data gaji telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.';
+            session()->flash('message', $msg);
+            $this->dispatch('notify', ['type' => 'success', 'message' => $msg]);
+            $this->dispatch('modal-alert', ['type' => 'create', 'title' => 'Permohonan Diajukan', 'message' => $msg]);
+            return;
+        }
 
         DB::transaction(function () use ($gaji) {
             if ($gaji->status === 'dibayar') {
@@ -809,7 +936,10 @@ class ManajemenGajiGuru extends Component
             $gaji->delete();
         });
 
-        session()->flash('message', 'Data gaji berhasil dihapus.');
+        $msg = 'Data gaji berhasil dihapus.';
+        session()->flash('message', $msg);
+        $this->dispatch('notify', ['type' => 'success', 'message' => $msg]);
+        $this->dispatch('modal-alert', ['type' => 'delete', 'title' => 'Data Dihapus', 'message' => $msg]);
     }
 
     public function deleteDraft(int $id)
@@ -819,12 +949,63 @@ class ManajemenGajiGuru extends Component
 
     public function deleteSelected()
     {
-        if (empty($this->selectedGajiIds)) {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            $this->dispatch('notify', ['type' => 'error', 'message' => 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.']);
             return;
         }
 
-        $salaries = GajiGuru::whereIn('id', $this->selectedGajiIds)->get();
+        if (empty($this->selectedGajiIds)) {
+            session()->flash('error', 'Silakan pilih data gaji yang ingin dihapus terlebih dahulu.');
+            $this->dispatch('notify', ['type' => 'warning', 'message' => 'Silakan pilih data gaji yang ingin dihapus terlebih dahulu.']);
+            return;
+        }
+
+        $salaries = GajiGuru::with('guru.user')->whereIn('id', $this->selectedGajiIds)->get();
         $count = $salaries->count();
+        $userRole = auth()->user()->role->nama ?? '';
+
+        if ($userRole === 'finance') {
+            $submittedCount = 0;
+            $deletedDraftCount = 0;
+
+            DB::transaction(function () use ($salaries, &$submittedCount, &$deletedDraftCount) {
+                foreach ($salaries as $gaji) {
+                    if ($gaji->status === 'dibayar') {
+                        \App\Services\FinancialApprovalService::createRequest(
+                            auth()->user(),
+                            'hapus',
+                            'gaji_guru',
+                            $gaji,
+                            null,
+                            'Penghapusan batch diajukan oleh staf keuangan',
+                            "Hapus Gaji Guru: " . ($gaji->guru->user->nama ?? 'Guru') . " - {$gaji->bulan} {$gaji->tahun} (THP: Rp " . number_format($gaji->total_diterima, 0, ',', '.') . ")"
+                        );
+                        $submittedCount++;
+                    } else {
+                        $gaji->delete();
+                        $deletedDraftCount++;
+                    }
+                }
+            });
+
+            $this->selectedGajiIds = [];
+            $this->selectAll = false;
+
+            $msg = [];
+            if ($deletedDraftCount > 0) {
+                $msg[] = "{$deletedDraftCount} data draf gaji berhasil dihapus.";
+            }
+            if ($submittedCount > 0) {
+                $msg[] = "{$submittedCount} permohonan hapus gaji berstatus dibayar diajukan ke Super Admin untuk disetujui.";
+            }
+
+            $messageText = implode(' ', $msg) ?: 'Aksi batch selesai.';
+            session()->flash('message', $messageText);
+            $this->dispatch('notify', ['type' => 'success', 'message' => $messageText]);
+            $this->dispatch('modal-alert', ['type' => 'create', 'title' => 'Permohonan Berhasil Diajukan', 'message' => $messageText]);
+            return;
+        }
 
         DB::transaction(function () use ($salaries) {
             foreach ($salaries as $gaji) {
@@ -853,7 +1034,10 @@ class ManajemenGajiGuru extends Component
 
         $this->selectedGajiIds = [];
         $this->selectAll = false;
-        session()->flash('message', "Berhasil menghapus {$count} data gaji terpilih.");
+        $messageText = "Berhasil menghapus {$count} data gaji terpilih.";
+        session()->flash('message', $messageText);
+        $this->dispatch('notify', ['type' => 'success', 'message' => $messageText]);
+        $this->dispatch('modal-alert', ['type' => 'delete', 'title' => 'Data Berhasil Dihapus', 'message' => $messageText]);
     }
 
     public function openDetailModal(int $id)
@@ -955,8 +1139,14 @@ class ManajemenGajiGuru extends Component
             $totalHistoryBulan = $paidHistories->count();
         }
 
+        $pendingApprovalIds = \App\Models\ApprovalKeuangan::where('model_type', GajiGuru::class)
+            ->where('status', 'menunggu')
+            ->pluck('model_id')
+            ->toArray();
+
         return view('livewire.finance.manajemen-gaji-guru', [
             'salaries' => $salaries,
+            'pendingApprovalIds' => $pendingApprovalIds,
             'activeGurusList' => $activeGurusList,
             'historySalaries' => $historySalaries,
             'totalHistoryDibayarkan' => $totalHistoryDibayarkan,

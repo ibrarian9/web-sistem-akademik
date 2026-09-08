@@ -132,6 +132,11 @@ class LaporanPengeluaran extends Component
         $this->resetValidation();
         $this->createTanggal = now()->toDateString();
         $this->createKategoriId = KategoriPengeluaran::first()?->id;
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->createJumlah = 0;
         $this->createKeterangan = '';
         $this->showCreateModal = true;
@@ -145,6 +150,11 @@ class LaporanPengeluaran extends Component
 
     public function savePengeluaran()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->validate([
             'createTanggal' => 'required|date',
             'createKategoriId' => 'required|exists:kategori_pengeluaran,id',
@@ -171,12 +181,34 @@ class LaporanPengeluaran extends Component
         session()->flash('message', 'Pengeluaran kas manual berhasil dicatat ke dalam pembukuan yayasan.');
     }
 
-    public function deletePengeluaran(int $id)
+    public function deletePengeluaran(int $id, ?string $alasan = null)
     {
-        $p = Pengeluaran::with('gajiGuru')->findOrFail($id);
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $p = Pengeluaran::with(['kategoriPengeluaran', 'gajiGuru'])->findOrFail($id);
 
         if ($p->gajiGuru) {
             session()->flash('error', 'Pengeluaran ini terkait dengan data penggajian guru dan tidak dapat dihapus manual dari menu ini.');
+            return;
+        }
+
+        $userRole = auth()->user()->role->nama ?? '';
+        if ($userRole === 'finance') {
+            $reason = $alasan ?: 'Penghapusan catatan pengeluaran kas diajukan oleh staf keuangan';
+            \App\Services\FinancialApprovalService::createRequest(
+                auth()->user(),
+                'hapus',
+                'arus_kas',
+                $p,
+                null,
+                $reason,
+                "Hapus Pengeluaran Kas: " . ($p->kategoriPengeluaran->nama ?? 'Pengeluaran') . " - Rp " . number_format($p->jumlah, 0, ',', '.') . " (" . ($p->tanggal ? $p->tanggal->format('d/m/Y') : '-') . ")"
+            );
+
+            session()->flash('message', 'Permohonan penghapusan pengeluaran kas telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.');
             return;
         }
 

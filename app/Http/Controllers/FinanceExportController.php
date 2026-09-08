@@ -337,6 +337,11 @@ class FinanceExportController extends Controller
      */
     public function exportDanaBos(Request $request)
     {
+        $userRole = auth()->user()?->role?->nama;
+        if (!in_array($userRole, ['finance', 'super_admin', 'super_admin_2', 'founder', 'kepala_sekolah'])) {
+            abort(403, 'Anda tidak memiliki hak akses untuk mengekspor data Dana BOS.');
+        }
+
         $filterPeriode = $request->query('filter_periode');
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');

@@ -12,12 +12,14 @@ class Dashboard extends Component
     public int $totalSiswa = 0;
     public int $totalGuru = 0;
     public int $totalKelas = 0;
+    public int $totalJadwal = 0;
 
     public function mount(): void
     {
         $this->totalSiswa = Siswa::where('status', 'aktif')->count();
         $this->totalGuru = Guru::where('status_aktif', true)->count();
         $this->totalKelas = Kelas::count();
+        $this->totalJadwal = \App\Models\JadwalPelajaran::count();
     }
 
     public function render()

@@ -9,6 +9,7 @@ use App\Models\Guru;
 use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class ManajemenKaryawan extends Component
 {
@@ -48,6 +49,11 @@ class ManajemenKaryawan extends Component
 
     public function openCreate()
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('error', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
         $this->resetForm();
         $defaultRole = Role::where('nama', 'guru')->first();
         if ($defaultRole) {
@@ -58,6 +64,11 @@ class ManajemenKaryawan extends Component
 
     public function openEdit(int $id)
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('error', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
         $this->resetForm();
         $user = User::with(['role', 'guru'])->findOrFail($id);
 
@@ -87,20 +98,33 @@ class ManajemenKaryawan extends Component
 
     public function save()
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('error', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
+        $userId = $this->karyawanId;
         $rules = [
-            'nama' => 'required|string|max:255',
-            'username' => 'required|string|max:50|unique:users,username,' . ($this->karyawanId ?? 'NULL'),
+            'nama' => 'required|string|max:100',
+            'username' => ['required', 'string', 'max:50', 'alpha_dash', Rule::unique('users', 'username')->ignore($userId)],
+            'email' => ['nullable', 'email', 'max:100', Rule::unique('users', 'email')->ignore($userId)],
             'role_id' => 'required|exists:roles,id',
+            'no_hp' => 'nullable|string|max:20',
+            'alamat' => 'nullable|string|max:255',
             'status' => 'required|in:aktif,nonaktif',
+            'jenis_guru' => 'required|in:umum,tahfidz',
+            'status_kepegawaian' => 'required|in:tetap,honorer',
         ];
 
-        if ($this->email) {
-            $rules['email'] = 'email|unique:users,email,' . ($this->karyawanId ?? 'NULL');
+        if (!$userId) {
+            $rules['password'] = 'required|string|min:6';
+        } else {
+            $rules['password'] = 'nullable|string|min:6';
         }
 
-        if (!$this->karyawanId) {
-            $rules['password'] = 'required|string|min:6';
-        }
+        $this->validate($rules);
+
+        $selectedRole = Role::findOrFail($this->role_id);
 
         $userForGuru = $this->karyawanId ? User::find($this->karyawanId) : null;
         $guruId = $userForGuru?->guru?->id;
@@ -109,7 +133,6 @@ class ManajemenKaryawan extends Component
             $rules['nip'] = 'unique:guru,nip,' . ($guruId ?? 'NULL');
         }
 
-        $this->validate($rules);
 
         $selectedRole = Role::find($this->role_id);
         if (!$selectedRole) {
@@ -207,6 +230,11 @@ class ManajemenKaryawan extends Component
 
     public function delete(int $id)
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('error', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
         if ($id === auth()->id()) {
             session()->flash('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
             $this->dispatch('show-alert', ['title' => 'Peringatan Akses', 'message' => 'Anda tidak dapat menghapus akun Anda sendiri.', 'type' => 'danger']);

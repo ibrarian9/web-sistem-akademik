@@ -45,6 +45,21 @@ beforeEach(function () {
         ]);
     }
 
+    $this->userAdmin = User::whereHas('role', function ($q) {
+        $q->where('nama', 'super_admin');
+    })->first();
+
+    if (!$this->userAdmin) {
+        $roleAdmin = Role::where('nama', 'super_admin')->first();
+        $this->userAdmin = User::create([
+            'nama' => 'Super Administrator',
+            'username' => 'admin_test_comp',
+            'email' => 'admin_comp@test.com',
+            'password' => bcrypt('password'),
+            'role_id' => $roleAdmin->id,
+        ]);
+    }
+
     $this->kelas = Kelas::first() ?? Kelas::create([
         'nama_kelas' => '7A',
         'tingkat' => 7,
@@ -83,7 +98,7 @@ test('finance user can access all finance pages successfully', function () {
 });
 
 test('it can manage kas masuk yayasan with date filters and bulk delete', function () {
-    $this->actingAs($this->userFinance);
+    $this->actingAs($this->userAdmin);
 
     // Create 2 records
     PemasukanKas::create([
@@ -91,7 +106,7 @@ test('it can manage kas masuk yayasan with date filters and bulk delete', functi
         'jumlah' => 150000,
         'tanggal' => date('Y-m-d'),
         'keterangan' => 'Infaq 1',
-        'petugas_id' => $this->userFinance->id,
+        'petugas_id' => $this->userAdmin->id,
     ]);
 
     PemasukanKas::create([
@@ -99,7 +114,7 @@ test('it can manage kas masuk yayasan with date filters and bulk delete', functi
         'jumlah' => 350000,
         'tanggal' => date('Y-m-d'),
         'keterangan' => 'Donasi 1',
-        'petugas_id' => $this->userFinance->id,
+        'petugas_id' => $this->userAdmin->id,
     ]);
 
     $items = PemasukanKas::all();
@@ -125,7 +140,7 @@ test('it can manage kas masuk yayasan with date filters and bulk delete', functi
 });
 
 test('it can manage kas keluar yayasan with date filters and bulk delete', function () {
-    $this->actingAs($this->userFinance);
+    $this->actingAs($this->userAdmin);
 
     $cat = KategoriPengeluaran::first() ?? KategoriPengeluaran::create(['nama' => 'Operasional']);
 
@@ -134,7 +149,7 @@ test('it can manage kas keluar yayasan with date filters and bulk delete', funct
         'jumlah' => 200000,
         'tanggal' => date('Y-m-d'),
         'keterangan' => 'Belanja ATK',
-        'petugas_id' => $this->userFinance->id,
+        'petugas_id' => $this->userAdmin->id,
     ]);
 
     Livewire::test(\App\Livewire\Finance\ArusKasKeluar::class)
@@ -157,7 +172,7 @@ test('it can manage kas keluar yayasan with date filters and bulk delete', funct
 });
 
 test('it can manage dana bos with tabs date filters and bulk delete', function () {
-    $this->actingAs($this->userFinance);
+    $this->actingAs($this->userAdmin);
 
     Livewire::test(\App\Livewire\Finance\DanaBos::class)
         ->call('selectTab', 'masuk')

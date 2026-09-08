@@ -97,7 +97,7 @@ class InputNilaiSumatif extends Component
             ->get();
 
         foreach ($sumatifTps as $sTp) {
-            $this->nilaiTpMatrix[$sTp->siswa_id][$sTp->tujuan_pembelajaran_id] = round($sTp->nilai);
+            $this->nilaiTpMatrix[$sTp->siswa_id][$sTp->tp_id] = round($sTp->nilai);
         }
 
         // Load Nilai SAS Matrix
@@ -108,7 +108,7 @@ class InputNilaiSumatif extends Component
                 ->get();
 
             foreach ($nilaiSases as $sas) {
-                $this->nilaiSasMatrix[$sas->siswa_id] = round($sas->nilai_sas);
+                $this->nilaiSasMatrix[$sas->siswa_id] = $sas->nilai_sas !== null ? round($sas->nilai_sas) : ($sas->nilai !== null ? round($sas->nilai) : '');
             }
         }
     }
@@ -144,7 +144,7 @@ class InputNilaiSumatif extends Component
                     NilaiSumatifTp::updateOrCreate(
                         [
                             'siswa_id' => $siswaId,
-                            'tujuan_pembelajaran_id' => $tpId,
+                            'tp_id' => $tpId,
                             'semester_id' => $this->semester_id,
                         ],
                         [
@@ -157,8 +157,22 @@ class InputNilaiSumatif extends Component
 
         // Save Nilai SAS & Sync Rapor Detail + Auto Narasi
         if ($this->mapel_id) {
-            foreach ($this->nilaiSasMatrix as $siswaId => $sasVal) {
-                if ($sasVal !== '' && $sasVal !== null && is_numeric($sasVal)) {
+            $siswas = Siswa::where(function ($q) {
+                $q->where('kelas_id', $this->kelas_id)
+                  ->orWhere('kelas_tahfidz_id', $this->kelas_id);
+            })->pluck('id');
+
+            $allSiswaIds = array_unique(array_merge(
+                array_keys($this->nilaiTpMatrix),
+                array_keys($this->nilaiSasMatrix),
+                $siswas->toArray()
+            ));
+
+            foreach ($allSiswaIds as $siswaId) {
+                $sasVal = $this->nilaiSasMatrix[$siswaId] ?? null;
+                $hasSas = ($sasVal !== '' && $sasVal !== null && is_numeric($sasVal));
+
+                if ($hasSas) {
                     NilaiSas::updateOrCreate(
                         [
                             'siswa_id' => $siswaId,
@@ -166,13 +180,14 @@ class InputNilaiSumatif extends Component
                             'semester_id' => $this->semester_id,
                         ],
                         [
+                            'nilai' => (float)$sasVal,
                             'nilai_sas' => (float)$sasVal,
                         ]
                     );
-
-                    // Sync to Rapor Detail
-                    $this->syncRaporDetailForSiswa($siswaId);
                 }
+
+                // Sync to Rapor Detail (from TP & SAS without weights/formula)
+                $this->syncRaporDetailForSiswa($siswaId);
             }
         }
 
@@ -190,29 +205,8 @@ class InputNilaiSumatif extends Component
         $siswa = Siswa::find($siswaId);
         if (!$siswa || !$this->mapel_id || !$this->semester_id) return;
 
-        // Calculate Average Sumatif TP
-        $tpScores = NilaiSumatifTp::where('siswa_id', $siswaId)
-            ->where('semester_id', $this->semester_id)
-            ->whereHas('tujuanPembelajaran.lingkupMateri', function ($q) {
-                $q->where('mapel_id', $this->mapel_id);
-            })
-            ->pluck('nilai');
-
-        $avgTp = $tpScores->count() > 0 ? $tpScores->avg() : 0;
-
-        // Get Nilai SAS
-        $sas = NilaiSas::where('siswa_id', $siswaId)
-            ->where('mapel_id', $this->mapel_id)
-            ->where('semester_id', $this->semester_id)
-            ->first();
-
-        $nilaiSasVal = $sas ? (float)$sas->nilai_sas : $avgTp;
-
-        // Calculate Nilai Akhir
-        $nilaiAkhir = ($avgTp + $nilaiSasVal) / 2;
-
-        // Generate Auto Narasi
-        $narasi = AutoNarasiService::generateNarasiRapor($siswaId, $this->mapel_id, $this->semester_id);
+        $autoNarasiService = app(AutoNarasiService::class);
+        $res = $autoNarasiService->generateForMapel((int)$siswaId, (int)$this->mapel_id, (int)$this->semester_id);
 
         $rapor = Rapor::firstOrCreate(
             [
@@ -234,10 +228,13 @@ class InputNilaiSumatif extends Component
                 'mapel_id' => $this->mapel_id,
             ],
             [
-                'nilai_pengetahuan' => $avgTp,
-                'nilai_keterampilan' => $nilaiSasVal,
-                'nilai_akhir' => $nilaiAkhir,
-                'predikat' => AutoNarasiService::getPredikatFormatted($nilaiAkhir),
+                'nilai_pengetahuan' => $res['nilai_akhir'],
+                'nilai_keterampilan' => $res['nilai_akhir'],
+                'nilai_akhir' => $res['nilai_akhir'],
+                'predikat' => $res['predikat'],
+                'deskripsi_tertinggi' => $res['deskripsi_tertinggi'] ?: null,
+                'deskripsi_terendah' => $res['deskripsi_terendah'] ?: null,
+                'narasi_capaian_full' => $res['narasi_capaian_full'] ?: null,
             ]
         );
     }

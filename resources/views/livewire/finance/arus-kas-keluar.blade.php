@@ -14,9 +14,11 @@
             <x-button variant="outline" size="sm" icon="file-spreadsheet" wire:click="exportExcel" :disabled="$paginatedOutflows->total() === 0" title="{{ $paginatedOutflows->total() === 0 ? 'Tidak ada catatan pengeluaran untuk diekspor' : 'Ekspor Spreadsheet Excel Sesuai Filter' }}">
                 Ekspor Excel
             </x-button>
+            @if(!auth()->user()->isSuperAdmin2())
             <x-button variant="danger-solid" size="sm" icon="plus" wire:click="openCreateModal">
                 Catat Kas Keluar
             </x-button>
+            @endif
         </x-slot:actions>
     </x-page-header>
 
@@ -262,7 +264,7 @@
                 <x-date-filter model="filterPeriode" startDateModel="startDate" endDateModel="endDate" />
             </div>
 
-            @if (count($selectedIds) > 0)
+            @if (count($selectedIds) > 0 && !auth()->user()->isSuperAdmin2() && auth()->user()->role?->nama !== 'finance')
                 <div class="flex items-center gap-2">
                     <span class="text-xs font-bold text-rose-700 bg-rose-50 px-3 py-1.5 rounded-xl border border-rose-200">
                         {{ count($selectedIds) }} pengeluaran dipilih
@@ -324,8 +326,8 @@
                             {{ $item->petugas }}
                         </td>
                         <td class="p-3.5 text-center">
-                            @if ($item->can_delete)
-                                <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="deleteExpense({{ $item->raw_id }})" data-confirm="Apakah Anda yakin ingin menghapus catatan pengeluaran ini?" title="Hapus Pengeluaran">
+                            @if ($item->can_delete && !auth()->user()->isSuperAdmin2())
+                                <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="deleteExpense({{ $item->raw_id }})" data-confirm="{{ auth()->user()->role?->nama === 'finance' ? 'Ajukan permohonan penghapusan catatan pengeluaran ini ke Super Admin / Super Admin 2?' : 'Apakah Anda yakin ingin menghapus catatan pengeluaran ini?' }}" title="Hapus Pengeluaran">
                                     Hapus
                                 </x-button>
                             @else
@@ -366,13 +368,23 @@
 
             <!-- Kategori Pengeluaran -->
             <div>
-                <label for="kategori_pengeluaran_id" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">Kategori Pengeluaran</label>
-                <select id="kategori_pengeluaran_id" wire:model="kategori_pengeluaran_id" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs">
-                    @foreach ($categories as $c)
-                        <option value="{{ $c['id'] }}">{{ $c['nama'] }}</option>
-                    @endforeach
-                </select>
-                @error('kategori_pengeluaran_id') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
+                <div class="flex items-center justify-between mb-1.5">
+                    <label for="kategori_pengeluaran_id" class="block text-xs font-bold text-stone-600 uppercase tracking-wider">Kategori Pengeluaran</label>
+                    <button type="button" wire:click="$toggle('is_kategori_kustom')" class="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 hover:underline cursor-pointer">
+                        {{ $is_kategori_kustom ? '← Pilih dari Daftar Kategori' : '+ Tambah Kategori Baru' }}
+                    </button>
+                </div>
+                @if(!$is_kategori_kustom)
+                    <select id="kategori_pengeluaran_id" wire:model="kategori_pengeluaran_id" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs">
+                        @foreach ($categories as $c)
+                            <option value="{{ $c['id'] }}">{{ $c['nama'] }}</option>
+                        @endforeach
+                    </select>
+                    @error('kategori_pengeluaran_id') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
+                @else
+                    <input type="text" id="kategori_keluar_kustom" wire:model="kategori_keluar_kustom" placeholder="Ketik nama kategori pengeluaran baru..." class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs" />
+                    @error('kategori_keluar_kustom') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
+                @endif
             </div>
 
             <!-- Nominal Pengeluaran -->

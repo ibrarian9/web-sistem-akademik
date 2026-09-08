@@ -48,10 +48,13 @@ class Login extends Component
         $role = $user->role->nama ?? '';
 
         return match ($role) {
-            'super_admin' => redirect()->intended(route('super-admin.dashboard')),
+            'super_admin', 'super_admin_2', 'founder' => redirect()->intended(route('super-admin.dashboard')),
+            'tata_usaha' => redirect()->intended(route('tata-usaha.dashboard')),
             'guru' => redirect()->intended(route('guru.dashboard')),
             'murid' => redirect()->intended(route('murid.dashboard')),
             'finance' => redirect()->intended(route('finance.dashboard')),
+            'kepala_sekolah' => redirect()->intended(route('kepala-sekolah.dashboard')),
+            'pengawas', 'koordinator' => redirect()->intended(route('pengawas.dashboard')),
             default => redirect()->to('/'),
         };
     }

@@ -121,9 +121,11 @@
                     @endif
                 @endif
             </div>
-            <x-button type="button" variant="primary" size="md" icon="check" wire:click="prosesKenaikan" :disabled="count($selectedSiswa) === 0" loadingTarget="prosesKenaikan" data-confirm="Apakah Anda yakin ingin memproses aksi pemindahan/kenaikan untuk santri/siswa terpilih ini?">
-                Proses {{ $tipeKenaikan === 'tahfidz' ? 'Pemindahan Halaqah Tahfizh' : ($aksiTujuan === 'naik_kelas' ? 'Kenaikan Kelas' : 'Kelulusan') }}
-            </x-button>
+            @if (!auth()->user()?->isSuperAdmin2())
+                <x-button type="button" variant="primary" size="md" icon="check" wire:click="prosesKenaikan" :disabled="count($selectedSiswa) === 0" loadingTarget="prosesKenaikan" data-confirm="Apakah Anda yakin ingin memproses aksi pemindahan/kenaikan untuk santri/siswa terpilih ini?">
+                    Proses {{ $tipeKenaikan === 'tahfidz' ? 'Pemindahan Halaqah Tahfizh' : ($aksiTujuan === 'naik_kelas' ? 'Kenaikan Kelas' : 'Kelulusan') }}
+                </x-button>
+            @endif
         </div>
     </div>
 

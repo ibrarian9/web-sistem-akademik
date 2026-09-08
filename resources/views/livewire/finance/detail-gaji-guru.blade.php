@@ -177,15 +177,17 @@
                         Unduh ({{ count($selectedGajiIds) }}) Slip PDF
                     </x-button>
 
+                    @if(!auth()->user()->isSuperAdmin2())
                     <x-button 
                         variant="danger" 
                         size="sm" 
                         icon="trash-2" 
                         wire:click="deleteSelected"
-                        data-confirm="Apakah Anda yakin ingin menghapus {{ count($selectedGajiIds) }} riwayat gaji yang dipilih? Data pengeluaran kas terkait juga akan disinkronkan."
+                        data-confirm="Apakah Anda yakin ingin memproses penghapusan {{ count($selectedGajiIds) }} riwayat gaji yang dipilih? Untuk data berstatus dibayar, staf keuangan akan mengajukan permohonan persetujuan ke Super Admin."
                     >
                         Hapus ({{ count($selectedGajiIds) }}) Terpilih
                     </x-button>
+                    @endif
 
                     <button 
                         type="button" 
@@ -320,15 +322,17 @@
                                     </a>
                                 @endif
 
+                                @if(!auth()->user()->isSuperAdmin2())
                                 <button 
                                     type="button" 
                                     wire:click="deleteSalary({{ $sal->id }})" 
-                                    data-confirm="Apakah Anda yakin ingin menghapus data gaji periode {{ $sal->bulan }} {{ $sal->tahun }}?"
+                                    data-confirm="{{ auth()->user()->role?->nama === 'finance' ? 'Ajukan permohonan penghapusan data gaji periode ' . $sal->bulan . ' ' . $sal->tahun . ' ke Super Admin / Super Admin 2?' : 'Apakah Anda yakin ingin menghapus data gaji periode ' . $sal->bulan . ' ' . $sal->tahun . '?' }}"
                                     class="p-1.5 rounded-xl text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 shadow-2xs transition cursor-pointer"
                                     title="Hapus Data Gaji"
                                 >
                                     <x-lucide-trash-2 class="w-4 h-4" />
                                 </button>
+                                @endif
                             </div>
                         </td>
                     </tr>

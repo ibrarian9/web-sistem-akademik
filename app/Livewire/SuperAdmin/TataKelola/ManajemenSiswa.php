@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Siswa;
 use App\Models\Kelas;
+use App\Models\Guru;
 use App\Models\User;
 use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
@@ -34,6 +35,7 @@ class ManajemenSiswa extends Component
     public string $no_hp_wali = '';
     public ?int $kelas_id = null; // Kelas Umum
     public ?int $kelas_tahfidz_id = null; // Kelas Tahfizh
+    public ?int $shadow_teacher_id = null; // Guru Pendamping Khusus (Shadow Teacher)
     public ?string $tanggal_masuk = null;
     public string $status = 'aktif';
 
@@ -47,7 +49,7 @@ class ManajemenSiswa extends Component
 
     public function openDetail(int $id)
     {
-        $siswa = Siswa::with(['user', 'kelas.guruUmum.user', 'kelasTahfidz.guruTahfidz.user'])->findOrFail($id);
+        $siswa = Siswa::with(['user', 'kelas.guruUmum.user', 'kelasTahfidz.guruTahfidz.user', 'shadowTeacher.user'])->findOrFail($id);
         $this->selectedSiswaDetail = $siswa;
         $this->showDetailModal = true;
     }
@@ -65,12 +67,22 @@ class ManajemenSiswa extends Component
 
     public function openCreate()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->resetForm();
         $this->isFormOpen = true;
     }
 
     public function openEdit(int $id)
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->resetForm();
         $siswa = Siswa::with('user')->findOrFail($id);
         $this->siswaId = $siswa->id;
@@ -87,6 +99,7 @@ class ManajemenSiswa extends Component
         $this->no_hp_wali = $siswa->no_hp_wali ?? '';
         $this->kelas_id = $siswa->kelas_id;
         $this->kelas_tahfidz_id = $siswa->kelas_tahfidz_id;
+        $this->shadow_teacher_id = $siswa->shadow_teacher_id;
         $this->tanggal_masuk = $siswa->tanggal_masuk ? $siswa->tanggal_masuk->format('Y-m-d') : null;
         $this->status = $siswa->status;
 
@@ -95,6 +108,11 @@ class ManajemenSiswa extends Component
 
     public function save()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $userId = $this->siswaId ? Siswa::find($this->siswaId)?->user_id : null;
 
         $rules = [
@@ -106,6 +124,7 @@ class ManajemenSiswa extends Component
             'jenis_kelamin' => 'required|in:L,P',
             'kelas_id' => 'nullable|exists:kelas,id',
             'kelas_tahfidz_id' => 'nullable|exists:kelas,id',
+            'shadow_teacher_id' => 'nullable|exists:guru,id',
             'tanggal_masuk' => 'required|date',
             'status' => 'required|in:aktif,lulus,pindah,keluar',
         ];
@@ -162,6 +181,7 @@ class ManajemenSiswa extends Component
                         'no_hp_wali' => $this->no_hp_wali ?: null,
                         'kelas_id' => $this->kelas_id ?: null,
                         'kelas_tahfidz_id' => $this->kelas_tahfidz_id ?: null,
+                        'shadow_teacher_id' => $this->shadow_teacher_id ?: null,
                         'tanggal_masuk' => $this->tanggal_masuk,
                         'status' => $this->status,
                     ]);
@@ -203,6 +223,7 @@ class ManajemenSiswa extends Component
                         'no_hp_wali' => $this->no_hp_wali ?: null,
                         'kelas_id' => $this->kelas_id ?: null,
                         'kelas_tahfidz_id' => $this->kelas_tahfidz_id ?: null,
+                        'shadow_teacher_id' => $this->shadow_teacher_id ?: null,
                         'tanggal_masuk' => $this->tanggal_masuk,
                         'status' => 'aktif',
                     ]);
@@ -252,6 +273,11 @@ class ManajemenSiswa extends Component
 
     public function delete(int $id)
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         try {
             DB::transaction(function () use ($id) {
                 $siswa = Siswa::findOrFail($id);
@@ -306,13 +332,14 @@ class ManajemenSiswa extends Component
         $this->no_hp_wali = '';
         $this->kelas_id = null;
         $this->kelas_tahfidz_id = null;
+        $this->shadow_teacher_id = null;
         $this->tanggal_masuk = date('Y-m-d');
         $this->status = 'aktif';
     }
 
     public function render()
     {
-        $siswas = Siswa::with(['user', 'kelas', 'kelasTahfidz'])
+        $siswas = Siswa::with(['user', 'kelas', 'kelasTahfidz', 'shadowTeacher.user'])
             ->where(function ($query) {
                 $query->where('nis', 'like', '%' . $this->search . '%')
                     ->orWhereHas('user', function ($q) {
@@ -329,10 +356,13 @@ class ManajemenSiswa extends Component
 
         $kelasesTahfidz = Kelas::where('jenis_kelas', 'tahfidz')->get();
 
+        $gurus = Guru::where('status_aktif', true)->with('user')->get();
+
         return view('livewire.super-admin.tata-kelola.manajemen-siswa', [
             'siswas' => $siswas,
             'kelasesUmum' => $kelasesUmum,
             'kelasesTahfidz' => $kelasesTahfidz,
+            'gurus' => $gurus,
         ])->layout('components.layouts.app', ['title' => 'Manajemen Siswa']);
     }
 }

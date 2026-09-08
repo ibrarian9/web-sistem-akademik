@@ -160,13 +160,15 @@
                                     Detail
                                 </x-button>
 
-                                <x-button type="button" variant="primary" size="xs" icon="edit-3" wire:click="openEvaluateModal({{ $item->id }})">
-                                    {{ $item->status_penilaian === 'dinilai' ? 'Nilai' : 'Beri Nilai' }}
-                                </x-button>
+                                @if (!auth()->user()?->isSuperAdmin2())
+                                    <x-button type="button" variant="primary" size="xs" icon="edit-3" wire:click="openEvaluateModal({{ $item->id }})">
+                                        {{ $item->status_penilaian === 'dinilai' ? 'Nilai' : 'Beri Nilai' }}
+                                    </x-button>
 
-                                <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="delete({{ $item->id }})" data-confirm="Apakah Anda yakin ingin menghapus data pengajuan ini?">
-                                    Hapus
-                                </x-button>
+                                    <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="delete({{ $item->id }})" data-confirm="Apakah Anda yakin ingin menghapus data pengajuan ini?">
+                                        Hapus
+                                    </x-button>
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -320,9 +322,11 @@
                         Tutup
                     </x-button>
 
-                    <x-button type="button" variant="primary" size="md" icon="edit-3" wire:click="openEvaluateFromDetail">
-                        {{ $detailCapaian->status_penilaian === 'dinilai' ? 'Ubah Penilaian' : 'Beri Nilai Sekarang' }}
-                    </x-button>
+                    @if (!auth()->user()?->isSuperAdmin2())
+                        <x-button type="button" variant="primary" size="md" icon="edit-3" wire:click="openEvaluateFromDetail">
+                            {{ $detailCapaian->status_penilaian === 'dinilai' ? 'Ubah Penilaian' : 'Beri Nilai Sekarang' }}
+                        </x-button>
+                    @endif
                 </div>
             </div>
         @endif

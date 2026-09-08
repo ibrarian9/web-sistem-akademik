@@ -58,6 +58,11 @@ class PlottingSiswaKelas extends Component
 
     public function openAddModal()
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('error', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
         $this->selected_siswa_ids = [];
         $this->search_candidates = '';
         $this->showAddModal = true;
@@ -71,6 +76,11 @@ class PlottingSiswaKelas extends Component
 
     public function assignSiswaToKelas()
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('error', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
         if (!$this->selected_kelas_id) {
             session()->flash('error', 'Silakan pilih kelas target terlebih dahulu.');
             return;
@@ -101,6 +111,11 @@ class PlottingSiswaKelas extends Component
 
     public function unassignSiswa($siswaId)
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('error', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
         if (!$this->selected_kelas_id) {
             return;
         }

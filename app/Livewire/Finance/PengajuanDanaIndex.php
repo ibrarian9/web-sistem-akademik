@@ -108,7 +108,7 @@ class PengajuanDanaIndex extends Component
     public function approveByKoordinator(int $id)
     {
         $userRole = auth()->user()->role->nama ?? '';
-        if (!in_array($userRole, ['pengawas', 'koordinator', 'super_admin'])) {
+        if (!in_array($userRole, ['pengawas', 'koordinator', 'super_admin', 'super_admin_2'])) {
             session()->flash('error', 'Anda tidak memiliki hak akses persetujuan pengajuan dana.');
             return;
         }
@@ -138,6 +138,12 @@ class PengajuanDanaIndex extends Component
 
     public function approveByKepalaYayasan(int $id)
     {
+        $userRole = auth()->user()->role->nama ?? '';
+        if (!in_array($userRole, ['kepala_sekolah', 'super_admin', 'super_admin_2'])) {
+            session()->flash('error', 'Anda tidak memiliki hak akses persetujuan Kepala Yayasan.');
+            return;
+        }
+
         $pengajuan = PengajuanDana::findOrFail($id);
 
         if ($pengajuan->status !== 'menunggu_kepala_yayasan') {
@@ -179,6 +185,11 @@ class PengajuanDanaIndex extends Component
 
     public function realisasikanDana(int $id)
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $pengajuan = PengajuanDana::findOrFail($id);
 
         if ($pengajuan->status !== 'disetujui') {

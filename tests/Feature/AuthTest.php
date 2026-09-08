@@ -83,3 +83,52 @@ it('denies access to unauthorized dashboards based on role', function () {
     // Should redirect to murid default dashboard since role is murid
     $response->assertRedirect(route('murid.dashboard'));
 });
+
+it('redirects kepala sekolah to kepala-sekolah dashboard upon login and from root', function () {
+    $roleKepala = Role::where('nama', 'kepala_sekolah')->first();
+    $user = User::create([
+        'nama' => 'Dr. H. M. Yusuf, M.A.',
+        'username' => 'kepala_test',
+        'email' => 'kepala@yayasan.or.id',
+        'password' => Hash::make('secret123'),
+        'role_id' => $roleKepala->id,
+        'status' => 'aktif',
+    ]);
+
+    // Test Livewire Login
+    Livewire::test(Login::class)
+        ->set('username', 'kepala_test')
+        ->set('password', 'secret123')
+        ->call('login')
+        ->assertRedirect(route('kepala-sekolah.dashboard'));
+
+    // Test Root / Redirect
+    $this->actingAs($user);
+    $response = $this->get('/');
+    $response->assertRedirect(route('kepala-sekolah.dashboard'));
+});
+
+it('redirects pengawas to pengawas dashboard upon login and from root', function () {
+    $rolePengawas = Role::where('nama', 'pengawas')->first();
+    $user = User::create([
+        'nama' => 'Ustadz Ahmad Fauzi',
+        'username' => 'pengawas_test',
+        'email' => 'pengawas@yayasan.or.id',
+        'password' => Hash::make('secret123'),
+        'role_id' => $rolePengawas->id,
+        'status' => 'aktif',
+    ]);
+
+    // Test Livewire Login
+    Livewire::test(Login::class)
+        ->set('username', 'pengawas_test')
+        ->set('password', 'secret123')
+        ->call('login')
+        ->assertRedirect(route('pengawas.dashboard'));
+
+    // Test Root / Redirect
+    $this->actingAs($user);
+    $response = $this->get('/');
+    $response->assertRedirect(route('pengawas.dashboard'));
+});
+

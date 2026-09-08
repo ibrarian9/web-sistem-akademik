@@ -44,6 +44,8 @@ class TabunganSiswa extends Component
     public string $edit_tanggal = '';
     public string $edit_keterangan = '';
     public string $edit_siswa_nama = '';
+    public string $edit_alasan = '';
+    public string $delete_alasan = '';
 
     // Modal History 1 Siswa State
     public $showHistoryModal = false;
@@ -62,7 +64,7 @@ class TabunganSiswa extends Component
     public function mount()
     {
         $user = auth()->user();
-        if (!$user || !in_array($user->role->nama ?? '', ['finance', 'super_admin', 'founder', 'kepala_sekolah'])) {
+        if (!$user || !in_array($user->role->nama ?? '', ['finance', 'super_admin', 'super_admin_2', 'founder', 'kepala_sekolah'])) {
             abort(403, 'Akses Ditolak: Fitur Manajemen Tabungan khusus untuk Bendahara / Finance & Founder.');
         }
 
@@ -117,6 +119,11 @@ class TabunganSiswa extends Component
 
     public function openTransactionModal($siswaId, $jenis = 'setor')
     {
+        if (auth()->user()->role?->nama === 'super_admin_2') {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->resetValidation();
         $siswa = Siswa::with('user')->find($siswaId);
         if (!$siswa) {
@@ -164,6 +171,11 @@ class TabunganSiswa extends Component
 
     public function saveTransaction()
     {
+        if (auth()->user()->role?->nama === 'super_admin_2') {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->validate([
             'siswa_id' => 'required|exists:siswa,id',
             'jenis' => 'required|in:setor,tarik',
@@ -209,6 +221,11 @@ class TabunganSiswa extends Component
 
     public function openEditTransaction(int $tabunganId)
     {
+        if (auth()->user()->role?->nama === 'super_admin_2') {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $tx = Tabungan::with('siswa.user')->findOrFail($tabunganId);
         
         $this->resetValidation();
@@ -218,6 +235,7 @@ class TabunganSiswa extends Component
         $this->edit_tanggal = $tx->tanggal ? $tx->tanggal->format('Y-m-d') : date('Y-m-d');
         $this->edit_keterangan = $tx->keterangan ?? '';
         $this->edit_siswa_nama = $tx->siswa->user->nama ?? ('Siswa #' . $tx->siswa->nis);
+        $this->edit_alasan = '';
 
         $this->showEditTransactionModal = true;
     }
@@ -226,21 +244,64 @@ class TabunganSiswa extends Component
     {
         $this->showEditTransactionModal = false;
         $this->editingTabunganId = null;
+        $this->edit_alasan = '';
         $this->resetValidation();
     }
 
     public function saveEditTransaction()
     {
-        $this->validate([
+        if (auth()->user()->role?->nama === 'super_admin_2') {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $rules = [
             'editingTabunganId' => 'required|exists:tabungans,id',
             'edit_jenis' => 'required|in:setor,tarik',
             'edit_nominal' => 'required|numeric|min:1000',
             'edit_tanggal' => 'required|date',
             'edit_keterangan' => 'nullable|string|max:255',
+        ];
+
+        $userRole = auth()->user()->role->nama ?? '';
+        if ($userRole === 'finance') {
+            $rules['edit_alasan'] = 'required|string|min:5|max:500';
+        }
+
+        $this->validate($rules, [
+            'edit_alasan.required' => 'Alasan perubahan wajib diisi untuk permohonan persetujuan Super Admin / Super Admin 2.',
         ]);
 
-        $tx = Tabungan::findOrFail($this->editingTabunganId);
+        $tx = Tabungan::with('siswa.user')->findOrFail($this->editingTabunganId);
         $siswaId = $tx->siswa_id;
+
+        if ($userRole === 'finance') {
+            \App\Services\FinancialApprovalService::createRequest(
+                auth()->user(),
+                'edit',
+                'tabungan_siswa',
+                $tx,
+                [
+                    'jenis' => $this->edit_jenis,
+                    'nominal' => $this->edit_nominal,
+                    'tanggal' => $this->edit_tanggal,
+                    'keterangan' => $this->edit_keterangan,
+                ],
+                $this->edit_alasan,
+                "Edit Transaksi Tabungan {$tx->kode_transaksi}: " . ($tx->siswa->user->nama ?? 'Siswa') . " (" . strtoupper($tx->jenis) . " Rp " . number_format($tx->nominal, 0, ',', '.') . " -> " . strtoupper($this->edit_jenis) . " Rp " . number_format($this->edit_nominal, 0, ',', '.') . ")"
+            );
+
+            $msg = 'Permohonan edit transaksi tabungan telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.';
+            session()->flash('success', $msg);
+            $this->dispatch('show-alert', [
+                'title' => 'Menunggu Approval',
+                'message' => $msg,
+                'type' => 'info',
+            ]);
+
+            $this->closeEditTransactionModal();
+            return;
+        }
 
         DB::transaction(function () use ($tx, $siswaId) {
             $tx->update([
@@ -268,8 +329,39 @@ class TabunganSiswa extends Component
         }
     }
 
-    public function deleteTransaction(int $id)
+    public function deleteTransaction(int $id, ?string $alasan = null)
     {
+        if (auth()->user()->role?->nama === 'super_admin_2') {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $tx = Tabungan::with('siswa.user')->findOrFail($id);
+        $userRole = auth()->user()->role->nama ?? '';
+
+        if ($userRole === 'finance') {
+            $reason = $alasan ?: ($this->delete_alasan ?: 'Penghapusan transaksi tabungan diajukan oleh staf keuangan');
+            \App\Services\FinancialApprovalService::createRequest(
+                auth()->user(),
+                'hapus',
+                'tabungan_siswa',
+                $tx,
+                null,
+                $reason,
+                "Hapus Transaksi Tabungan {$tx->kode_transaksi}: " . ($tx->siswa->user->nama ?? 'Siswa') . " (" . strtoupper($tx->jenis) . " Rp " . number_format($tx->nominal, 0, ',', '.') . ")"
+            );
+
+            $msg = 'Permohonan penghapusan transaksi tabungan telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.';
+            session()->flash('success', $msg);
+            $this->dispatch('show-alert', [
+                'title' => 'Menunggu Approval',
+                'message' => $msg,
+                'type' => 'info',
+            ]);
+
+            return;
+        }
+
         if (!$this->isFounder()) {
             session()->flash('error', 'Akses Ditolak: Hanya Founder / Super Admin yang berhak menghapus catatan transaksi tabungan.');
             $this->dispatch('show-alert', [
@@ -280,7 +372,6 @@ class TabunganSiswa extends Component
             return;
         }
 
-        $tx = Tabungan::findOrFail($id);
         $siswaId = $tx->siswa_id;
 
         DB::transaction(function () use ($tx, $siswaId) {

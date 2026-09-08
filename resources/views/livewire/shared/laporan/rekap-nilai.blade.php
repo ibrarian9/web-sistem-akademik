@@ -4,8 +4,8 @@
         title="Petunjuk Laporan Rekap Nilai Akademik Siswa"
         :steps="[
             ['title' => 'Pilih Kelas, Mapel & Semester', 'desc' => 'Gunakan filter di atas untuk menentukan rombel kelas, mata pelajaran, serta semester berjalan.'],
-            ['title' => 'Perhitungan Otomatis', 'desc' => 'Nilai akhir dihitung secara otomatis dari pembobotan persentase tiap komponen (UH, UTS, UAS, Tahfizh).'],
-            ['title' => 'Predikat Rapor', 'desc' => 'Tabel langsung mengonversi nilai akhir menjadi predikat mutu A, B, C, D, atau E.']
+            ['title' => 'Perhitungan Otomatis', 'desc' => 'Nilai akhir dihitung secara otomatis dari rata-rata Nilai Sumatif Lingkup Materi (Bab) dan Nilai Sumatif Akhir Semester (SAS).'],
+            ['title' => 'Predikat Rapor', 'desc' => 'Tabel langsung mengonversi nilai akhir menjadi predikat mutu A, B, C, atau D sesuai standar Kurikulum Merdeka.']
         ]"
     />
 
@@ -85,12 +85,15 @@
                     <tr>
                         <x-table.th align="center" class="w-12">No</x-table.th>
                         <x-table.th class="w-56">Nama Siswa</x-table.th>
-                        @foreach ($components as $comp)
+                        @foreach ($babs as $index => $bab)
                             <x-table.th align="center" class="w-28">
-                                {{ $comp->nama }}
-                                <div class="text-[9px] text-emerald-200 font-semibold mt-0.5">Bobot: {{ intval($comp->bobot) }}%</div>
+                                Bab {{ $bab->urutan ?? ($index + 1) }}
+                                <div class="text-[9px] text-emerald-200 font-medium mt-0.5 truncate max-w-[100px]" title="{{ $bab->nama_lingkup_materi ?? $bab->judul_lingkup_materi }}">
+                                    {{ \Illuminate\Support\Str::limit($bab->nama_lingkup_materi ?? $bab->judul_lingkup_materi, 14) }}
+                                </div>
                             </x-table.th>
                         @endforeach
+                        <x-table.th align="center" class="w-24 bg-emerald-850 text-white font-bold">SAS</x-table.th>
                         <x-table.th align="center" class="w-28 bg-emerald-900 text-white font-black">Nilai Akhir</x-table.th>
                         <x-table.th align="center" class="w-20 bg-emerald-950 text-white font-black">Predikat</x-table.th>
                     </tr>
@@ -103,14 +106,17 @@
                                 {{ $row['siswa']->user->nama }}
                                 <div class="text-[10px] text-stone-400 font-semibold mt-0.5">NIS: {{ $row['siswa']->nis }}</div>
                             </td>
-                            @foreach ($components as $comp)
+                            @foreach ($babs as $bab)
                                 @php
-                                    $val = $row['compGrades'][$comp->id];
+                                    $val = $row['babGrades'][$bab->id] ?? null;
                                     $cellClass = is_null($val) ? 'text-stone-300' : 'text-stone-700 font-bold';
                                     $cellText = is_null($val) ? '•' : $val;
                                 @endphp
                                 <td class="p-3.5 text-center border-r border-stone-200 text-xs {{ $cellClass }}">{{ $cellText }}</td>
                             @endforeach
+                            <td class="p-3.5 text-center border-r border-stone-200 text-xs {{ is_null($row['nilaiSas']) ? 'text-stone-300' : 'text-stone-800 font-bold' }}">
+                                {{ is_null($row['nilaiSas']) ? '•' : $row['nilaiSas'] }}
+                            </td>
                             <td class="p-3.5 text-center border-r border-stone-200 bg-emerald-50/50 text-emerald-800 font-black text-sm">{{ $row['finalGrade'] }}</td>
                             <td class="p-3.5 text-center bg-stone-50 font-black text-sm">
                                 @php
@@ -126,7 +132,7 @@
                             </td>
                         </tr>
                     @empty
-                        <x-table.empty :colspan="$components->count() + 4" title="Belum ada data nilai" message="Tidak ada data siswa aktif atau penilaian pada rombel kelas ini." />
+                        <x-table.empty :colspan="$babs->count() + 5" title="Belum ada data nilai" message="Tidak ada data siswa aktif atau penilaian pada rombel kelas ini." />
                     @endforelse
                 </tbody>
             </x-table>
@@ -134,8 +140,8 @@
             <!-- Calculation Note Panel -->
             <div class="p-6 border-t border-stone-200 bg-stone-50/30 text-xs text-stone-500 space-y-1">
                 <p class="font-bold text-stone-700">Keterangan Rumus Nilai Akhir:</p>
-                <p>• Nilai Akhir dihitung berdasarkan penjumlahan dari: <span class="font-semibold text-stone-700">Rata-rata Nilai per Komponen x (Bobot Komponen / 100)</span>.</p>
-                <p>• Klasifikasi Predikat: <span class="font-semibold text-green-700">A (>= 90)</span>, <span class="font-semibold text-blue-700">B (80-89)</span>, <span class="font-semibold text-orange-700">C (70-79)</span>, <span class="font-semibold text-yellow-700">D (60-69)</span>, <span class="font-semibold text-red-700">E (< 60)</span>.</p>
+                <p>• Nilai Akhir dihitung berdasarkan <span class="font-semibold text-stone-700">Rata-rata Nilai Sumatif Lingkup Materi (Bab) dan Nilai Sumatif Akhir Semester (SAS)</span> sesuai kaidah Kurikulum Merdeka.</p>
+                <p>• Klasifikasi Predikat: <span class="font-semibold text-green-700">A (>= 90)</span>, <span class="font-semibold text-blue-700">B (80-89)</span>, <span class="font-semibold text-orange-700">C (70-79)</span>, <span class="font-semibold text-red-700">D (< 70)</span>.</p>
             </div>
         @else
             <!-- Empty State -->

@@ -14,12 +14,14 @@
                 <x-button variant="secondary" size="md" icon="arrow-left" href="{{ route('finance.tagihan') }}">
                     Kembali
                 </x-button>
-                <x-button variant="primary" size="md" icon="credit-card" href="{{ route('finance.input-pembayaran', ['siswa_id' => $siswa->id]) }}">
-                    Buka Kasir Siswa Ini
-                </x-button>
-                <x-button variant="primary" size="md" icon="plus-circle" wire:click="openCreateModal">
-                    + Tambah Tagihan
-                </x-button>
+                @if (!auth()->user()->isSuperAdmin2())
+                    <x-button variant="primary" size="md" icon="credit-card" href="{{ route('finance.input-pembayaran', ['siswa_id' => $siswa->id]) }}">
+                        Buka Kasir Siswa Ini
+                    </x-button>
+                    <x-button variant="primary" size="md" icon="plus-circle" wire:click="openCreateModal">
+                        + Tambah Tagihan
+                    </x-button>
+                @endif
             </div>
         </x-slot:actions>
     </x-page-header>
@@ -220,29 +222,31 @@
                         </td>
                         <td class="p-3.5 text-center">
                             <div class="flex items-center justify-center gap-1.5 flex-wrap">
-                                <!-- Edit Button -->
-                                <x-button 
-                                    type="button" 
-                                    variant="secondary" 
-                                    size="xs" 
-                                    icon="edit-3" 
-                                    wire:click="openEditModal({{ $item->id }})" 
-                                    title="Edit Tagihan">
-                                    Edit
-                                </x-button>
-
-                                <!-- Delete Button (Finance & Founder) -->
-                                @if ($this->isFinanceOrAdmin())
+                                @if (!auth()->user()->isSuperAdmin2())
+                                    <!-- Edit Button -->
                                     <x-button 
                                         type="button" 
-                                        variant="danger" 
+                                        variant="secondary" 
                                         size="xs" 
-                                        icon="trash-2" 
-                                        wire:click="deleteTagihan({{ $item->id }})" 
-                                        wire:confirm="Apakah Anda yakin ingin menghapus tagihan ini?{{ $item->total_dibayar > 0 ? ' Riwayat pembayaran terkait tagihan ini juga akan dibatalkan/dihapus otomatis.' : '' }}" 
-                                        title="Hapus Tagihan">
-                                        Hapus
+                                        icon="edit-3" 
+                                        wire:click="openEditModal({{ $item->id }})" 
+                                        title="Edit Tagihan">
+                                        Edit
                                     </x-button>
+
+                                    <!-- Delete Button (Finance & Founder) -->
+                                    @if ($this->isFinanceOrAdmin())
+                                        <x-button 
+                                            type="button" 
+                                            variant="danger" 
+                                            size="xs" 
+                                            icon="trash-2" 
+                                            wire:click="deleteTagihan({{ $item->id }})" 
+                                            wire:confirm="{{ auth()->user()->role?->nama === 'finance' ? 'Aksi penghapusan oleh Keuangan membutuhkan persetujuan Super Admin atau Super Admin 2. Ajukan penghapusan tagihan ini?' : 'Apakah Anda yakin ingin menghapus tagihan ini?' }}" 
+                                            title="Hapus Tagihan">
+                                            Hapus
+                                        </x-button>
+                                    @endif
                                 @endif
 
                                 <!-- Print Receipt if paid -->
@@ -396,14 +400,14 @@
                                 <x-button variant="outline" size="xs" icon="printer" href="{{ route('finance.pembayaran.resi', $rp->id) }}" target="_blank" title="Cetak Kuitansi Resi">
                                     Resi
                                 </x-button>
-                                @if ($this->isFinanceOrAdmin())
+                                @if ($this->isFinanceOrAdmin() && !auth()->user()->isSuperAdmin2())
                                     <x-button 
                                         type="button" 
                                         variant="danger" 
                                         size="xs" 
                                         icon="trash-2" 
                                         wire:click="deletePembayaran({{ $rp->id }})" 
-                                        wire:confirm="Yakin ingin membatalkan dan menghapus transaksi pembayaran ini? Total terbayar dan status tagihan akan disesuaikan otomatis." 
+                                        wire:confirm="{{ auth()->user()->role?->nama === 'finance' ? 'Aksi pembatalan pembayaran oleh Keuangan membutuhkan persetujuan Super Admin atau Super Admin 2. Ajukan pembatalan pembayaran ini?' : 'Yakin ingin membatalkan dan menghapus transaksi pembayaran ini? Total terbayar dan status tagihan akan disesuaikan otomatis.' }}" 
                                         title="Hapus / Batalkan Transaksi Pembayaran">
                                         Hapus
                                     </x-button>
@@ -538,12 +542,25 @@
                 @error('edit_nominal') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror
             </div>
 
+            @if (auth()->user()->role?->nama === 'finance')
+                <div class="space-y-1.5 p-3.5 bg-amber-50/70 border border-amber-200 rounded-xl">
+                    <label class="block text-xs font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+                        <x-lucide-shield-alert class="w-4 h-4 text-amber-600" />
+                        Alasan Perubahan Tagihan (Wajib Persetujuan) <span class="text-rose-500">*</span>
+                    </label>
+                    <p class="text-[11px] text-amber-700">Perubahan oleh bagian Keuangan membutuhkan persetujuan dari Super Admin atau Super Admin 2.</p>
+                    <textarea wire:model="edit_alasan" rows="2" placeholder="Tuliskan alasan pengajuan perubahan nominal/tagihan ini..."
+                              class="w-full px-3 py-2 text-xs bg-white border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-stone-800"></textarea>
+                    @error('edit_alasan') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror
+                </div>
+            @endif
+
             <div class="flex justify-end gap-2 pt-3 border-t border-stone-200">
                 <x-button type="button" variant="secondary" size="md" wire:click="closeEditModal">
                     Batal
                 </x-button>
                 <x-button type="submit" variant="primary" size="md" icon="check" loadingTarget="updateTagihan">
-                    Simpan Perubahan
+                    {{ auth()->user()->role?->nama === 'finance' ? 'Ajukan Perubahan (Butuh Approval)' : 'Simpan Perubahan' }}
                 </x-button>
             </div>
         </form>

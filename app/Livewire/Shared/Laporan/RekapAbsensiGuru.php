@@ -17,7 +17,7 @@ class RekapAbsensiGuru extends Component
     public function mount()
     {
         $roleName = auth()->user()->role->nama ?? '';
-        if (!in_array($roleName, ['super_admin', 'tata_usaha'])) {
+        if (!in_array($roleName, ['super_admin', 'tata_usaha', 'kepala_sekolah', 'pengawas', 'koordinator'])) {
             abort(403, 'Unauthorized.');
         }
 
@@ -89,6 +89,17 @@ class RekapAbsensiGuru extends Component
                     break;
                 }
             }
+
+            // Automatically recognize Sundays and official Indonesian national holidays (Tanggal Merah)
+            if (!$isHoliday) {
+                try {
+                    $isSunday = \Carbon\Carbon::createFromDate((int) $this->tahun, (int) $this->bulan, $d)->isSunday();
+                } catch (\Throwable $e) {
+                    $isSunday = false;
+                }
+                $isHoliday = $isSunday || KalenderAkademik::isNationalHoliday($dStr);
+            }
+
             $holidayDayMap[$d] = $isHoliday;
         }
 
@@ -140,6 +151,101 @@ class RekapAbsensiGuru extends Component
             'matrix' => $matrix,
             'daysInMonth' => $daysInMonth
         ];
+    }
+
+    public function downloadExcel()
+    {
+        $data = $this->getMatrixData();
+        if (empty($data['matrix'])) {
+            session()->flash('error', 'Tidak ada data absensi guru untuk diekspor ke Excel.');
+            return;
+        }
+
+        $bulanNames = [
+            '01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April',
+            '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus',
+            '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
+        ];
+
+        $monthKey = sprintf('%02d', intval($this->bulan));
+        $namaBulan = $bulanNames[$monthKey] ?? 'Bulan ' . $this->bulan;
+        $tahun = $this->tahun;
+        $daysInMonth = $data['daysInMonth'];
+        $matrix = $data['matrix'];
+
+        $filename = 'rekap-absensi-guru-' . $this->bulan . '-' . $this->tahun . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        $callback = function () use ($matrix, $daysInMonth, $namaBulan, $tahun) {
+            $file = fopen('php://output', 'w');
+            // Write UTF-8 BOM for Microsoft Excel
+            fputs($file, "\xEF\xBB\xBF");
+
+            // Title & Metadata
+            fputcsv($file, ['REKAPITULASI ABSENSI GURU & TENAGA PENDIDIK']);
+            fputcsv($file, ['Periode', $namaBulan . ' ' . $tahun]);
+            fputcsv($file, ['Tanggal Ekspor', date('d/m/Y H:i')]);
+            fputcsv($file, []);
+
+            // Build Header Row
+            $headerRow = ['No', 'NIP', 'Nama Guru'];
+            for ($d = 1; $d <= $daysInMonth; $d++) {
+                $headerRow[] = (string)$d;
+            }
+            $headerRow[] = 'Hadir (H)';
+            $headerRow[] = 'Terlambat (T)';
+            $headerRow[] = 'Izin (I)';
+            $headerRow[] = 'Alpa (A)';
+            $headerRow[] = 'Kehadiran (%)';
+
+            fputcsv($file, $headerRow);
+
+            // Data Rows
+            $no = 1;
+            $statusCodes = [
+                'hadir' => 'H',
+                'telat' => 'T',
+                'izin' => 'I',
+                'tidak_hadir' => 'A',
+                'libur' => 'L',
+            ];
+
+            foreach ($matrix as $row) {
+                $nip = $row['guru']->nip ? '="' . $row['guru']->nip . '"' : '-';
+                $nama = $row['guru']->user->nama ?? '-';
+
+                $dataRow = [$no++, $nip, $nama];
+
+                for ($d = 1; $d <= $daysInMonth; $d++) {
+                    $dayStatus = $row['days'][$d] ?? null;
+                    $code = $dayStatus ? ($statusCodes[$dayStatus] ?? strtoupper($dayStatus)) : '-';
+                    $dataRow[] = $code;
+                }
+
+                $dataRow[] = $row['hadir'];
+                $dataRow[] = $row['telat'];
+                $dataRow[] = $row['izin'];
+                $dataRow[] = $row['tidak_hadir'];
+                $dataRow[] = $row['rate'] . '%';
+
+                fputcsv($file, $dataRow);
+            }
+
+            fputcsv($file, []);
+            fputcsv($file, ['Keterangan Status:']);
+            fputcsv($file, ['H = Hadir Tepat Waktu', 'T = Hadir Terlambat', 'I = Izin / Sakit', 'A = Alpa / Tanpa Keterangan', 'L = Hari Libur', '- = Belum Diinput']);
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function downloadPdf()

@@ -30,12 +30,22 @@ class ManajemenMapel extends Component
 
     public function openCreate()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->resetForm();
         $this->isFormOpen = true;
     }
 
     public function openEdit(int $id)
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->resetForm();
         $mapel = MataPelajaran::findOrFail($id);
         $this->mapelId = $mapel->id;
@@ -48,6 +58,11 @@ class ManajemenMapel extends Component
 
     public function save()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->validate([
             'kode_mapel' => 'required|string|max:20|unique:mata_pelajaran,kode_mapel,' . ($this->mapelId ?? 'NULL'),
             'nama_mapel' => 'required|string|max:100',
@@ -70,6 +85,11 @@ class ManajemenMapel extends Component
 
     public function delete(int $id)
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $mapel = MataPelajaran::findOrFail($id);
         
         // Safety check: has assignments?

@@ -41,6 +41,11 @@ class ManajemenUser extends Component
 
     public function openCreate()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->resetForm();
         if ($this->isTuUser()) {
             $guruRole = Role::where('nama', 'guru')->first();
@@ -53,6 +58,11 @@ class ManajemenUser extends Component
 
     public function openEdit(int $id)
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->resetForm();
         $user = User::with('role')->findOrFail($id);
 
@@ -74,6 +84,11 @@ class ManajemenUser extends Component
 
     public function save()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $rules = [
             'nama' => 'required|string|max:255',
             'username' => 'required|string|max:50|unique:users,username,' . ($this->userId ?? 'NULL'),
@@ -121,6 +136,11 @@ class ManajemenUser extends Component
 
     public function delete(int $id)
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         // Don't delete self
         if ($id === auth()->id()) {
             session()->flash('error', 'Anda tidak dapat menghapus akun Anda sendiri.');

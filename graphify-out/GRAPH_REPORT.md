@@ -1,37 +1,37 @@
-# Graph Report - web-sistem-akademik  (2026-09-03)
+# Graph Report - web-sistem-akademik  (2026-09-08)
 
 ## Corpus Check
-- 432 files · ~321,825 words
+- 452 files · ~347,714 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2176 nodes · 4236 edges · 298 communities (229 shown, 69 thin omitted)
-- Extraction: 85% EXTRACTED · 15% INFERRED · 0% AMBIGUOUS · INFERRED: 651 edges (avg confidence: 0.8)
+- 2363 nodes · 4822 edges · 315 communities (238 shown, 77 thin omitted)
+- Extraction: 84% EXTRACTED · 16% INFERRED · 0% AMBIGUOUS · INFERRED: 760 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `eb4b0d71`
+- Built from commit: `c57cc364`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- Pengeluaran.php
+- Notifikasi
 - ManajemenJadwal
 - Illuminate\Http\Request
-- User.php
-- Tagihan
+- Livewire\Component
+- Pembayaran
 - 1. Super Admin
 - DetailTagihanSiswa
 - Illuminate\Database\Seeder
 - scripts
 - ManajemenKalenderAkademik
 - 5. Finance / Keuangan
-- AbsensiGuru
-- Kelas
+- InputAbsensiKaryawan
+- ApprovalKeuangan
 - 4. Model Data (Entitas & Field)
-- DetailGajiGuru
+- GajiGuru
 - ManajemenSurat
-- GuruMapelKelas
+- LingkupMateri
 - ManajemenGajiGuru
 - package.json
 - LaporanPengeluaran
@@ -40,23 +40,22 @@
 - 1. Super Admin
 - Perencanaan Sistem Informasi Akademik (Kurikulum Merdeka & Tahfizh) & Keuangan Yayasan
 - Auditable.php
-- NilaiTahfidz
 - AREA AUDIT & ASPEK EVALUASI
-- Semester
+- ManajemenRemedial
 - Prompt: Review Logika Bisnis — Sistem Informasi Akademik (Kurikulum Merdeka & Tahfizh) & Keuangan Yayasan
 - PengaturanBobotNilai
 - TabunganSiswa
-- InputNilaiSumatif.php
+- Pengeluaran
 - PengajuanDana
 - require
 - CapaianGuru
-- TahunAjaran
+- KepalaSekolahDanaBosMonitoringTest
 - Standar Desain UI Komponen (Buttons, Cards, Modals & Alerts) — SIAKAD
-- PenilaianP5.php
-- Pengeluaran
-- Notifikasi
+- NilaiP5
+- MataPelajaran.php
+- AbsensiGuru
 - LaporanPemasukan
-- ManajemenRemedial
+- LaporanTunggakan
 - pengajuan-dana.blade.php
 - manajemen-gaji-guru.blade.php
 - manajemen-kurikulum-merdeka.blade.php
@@ -67,25 +66,25 @@
 - composer.json
 - ArusKas
 - config
-- .run
+- RekapAbsensiSiswa
 - ProsesKenaikanKelas
 - AppServiceProvider
 - manajemen-komponen-nilai.blade.php
 - manajemen-surat.blade.php
-- ManajemenKurikulumMerdeka
+- RiwayatAktivitas
 - setup
 - kirimReminder({{ $item[
 - psr-4
 - manajemen-kalender-akademik.blade.php
 - manajemen-mapel.blade.php
-- InputNilaiSiswa
-- OverviewPembayaran
+- KomponenNilai
+- ManajemenKelas
 - data-alumni.blade.php
 - UserFactory.php
 - notifications-list.blade.php
 - input-pembayaran.blade.php
 - README.md
-- Pengaturan.php
+- NilaiTahfidz
 - manajemen-koreksi-nilai.blade.php
 - setoran-tahfidz.blade.php
 - InputPembayaran
@@ -118,20 +117,21 @@
 - manajemen-karyawan.blade.php
 - dana-bos.blade.php
 - manajemen-peminjaman.blade.php
+- riwayat-aktivitas.blade.php
 - audit-log.blade.php
 - rules/graphify.md
 - workflows/graphify.md
 - bulk-actions.blade.php
-- MataPelajaran
+- ArusKasMasuk
 - Guru
-- KomponenNilai
+- Tagihan
 - slip-gaji-saya.blade.php
 - detail-tagihan-siswa.blade.php
-- RaporNilai
+- .run
 - manajemen-remedial.blade.php
 - JadwalPiketGuru
 - TutorialDanFaq
-- Livewire\Component
+- RoleMiddleware.php
 - tabungan-siswa.blade.php
 - {{ $closeAction }}
 - ManajemenPeminjaman
@@ -142,100 +142,117 @@
 - system-error-log.blade.php
 - User
 - detail-gaji-guru.blade.php
-- ArusKasMasuk
-- JadwalPelajaran
+- InputNilaiSiswa
+- ManajemenSiswa
 - TagihanSpp
 - Pengaturan
-- auth.php
-- KelolaRapor
-- RekapAbsensiSiswa
+- approval-keuangan.blade.php
+- post-autoload-dump
+- NilaiSas
 - Siswa
 - bootstrap.blade.php
-- ManajemenUser
+- AbsensiDiri
 - simple-bootstrap.blade.php
 - ESignatureService
-- LaporanTunggakan
+- Semester
 - Controller
-- RoleMiddleware.php
-- ManajemenPengaturan
-- .getMatrixData
+- Rapor
+- MataPelajaran
 - livewire/simple-tailwind.blade.php
 - livewire/tailwind.blade.php
-- post-create-project-cmd
-- keywords
+- ManajemenUser
+- KelolaRapor
+- GuruMapelKelas
+- ekstrakurikuler.blade.php
+- ManajemenKaryawan
+- KehadiranSaya
+- OverviewPembayaran
+- Dashboard
+- Nilai
+- ProductionDataSeeder.php
+- User.php
+- Kelas
+- TahunAjaran
+- autoload-dev
+- PengaturanSeeder.php
+- monitoring-akademik.blade.php
 
 ## God Nodes (most connected - your core abstractions)
-1. `Siswa` - 104 edges
-2. `TahunAjaran` - 84 edges
-3. `Kelas` - 69 edges
-4. `Guru` - 64 edges
-5. `Tagihan` - 54 edges
-6. `User` - 53 edges
-7. `JenisTagihan` - 46 edges
-8. `ManajemenGajiGuru` - 41 edges
-9. `GajiGuru` - 41 edges
-10. `Semester` - 40 edges
+1. `Siswa` - 122 edges
+2. `Tagihan` - 106 edges
+3. `User` - 84 edges
+4. `Kelas` - 83 edges
+5. `Guru` - 78 edges
+6. `TahunAjaran` - 61 edges
+7. `Semester` - 57 edges
+8. `Role` - 46 edges
+9. `GajiGuru` - 44 edges
+10. `ManajemenGajiGuru` - 41 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `KepalaSekolahDanaBosMonitoringTest` --references--> `DanaBos`  [EXTRACTED]
+  tests/Feature/KepalaSekolahDanaBosMonitoringTest.php → app/Models/DanaBos.php
+- `AcademicAndFinanceEnhancementsTest` --references--> `Guru`  [EXTRACTED]
+  tests/Feature/AcademicAndFinanceEnhancementsTest.php → app/Models/Guru.php
+- `MonitoringAkademikTest` --references--> `Guru`  [EXTRACTED]
+  tests/Feature/MonitoringAkademikTest.php → app/Models/Guru.php
+- `PenilaianTpDanSasTest` --references--> `Guru`  [EXTRACTED]
+  tests/Feature/PenilaianTpDanSasTest.php → app/Models/Guru.php
 - `TagihanZeroNominalAndPaymentDeletionTest` --references--> `JenisTagihan`  [EXTRACTED]
   tests/Feature/TagihanZeroNominalAndPaymentDeletionTest.php → app/Models/JenisTagihan.php
-- `createUserWithRole()` --calls--> `Role`  [INFERRED]
-  tests/Feature/RbacAndNavigationTest.php → app/Models/Role.php
-- `TagihanZeroNominalAndPaymentDeletionTest` --references--> `Siswa`  [EXTRACTED]
-  tests/Feature/TagihanZeroNominalAndPaymentDeletionTest.php → app/Models/Siswa.php
-- `TagihanZeroNominalAndPaymentDeletionTest` --references--> `TahunAjaran`  [EXTRACTED]
-  tests/Feature/TagihanZeroNominalAndPaymentDeletionTest.php → app/Models/TahunAjaran.php
-- `createUserWithRole()` --calls--> `User`  [INFERRED]
-  tests/Feature/RbacAndNavigationTest.php → app/Models/User.php
 
 ## Import Cycles
 - None detected.
 
-## Communities (298 total, 69 thin omitted)
+## Communities (315 total, 77 thin omitted)
+
+### Community 0 - "Notifikasi"
+Cohesion: 0.11
+Nodes (7): NotificationDropdown, NotificationsList, Notifikasi, AuditLogger, FinancialApprovalService, bootAuditable(), FinancialApprovalCancellationTest
+
+### Community 1 - "ManajemenJadwal"
+Cohesion: 0.13
+Nodes (3): JadwalMengajar, JadwalPelajaran, ManajemenJadwal
 
 ### Community 2 - "Illuminate\Http\Request"
 Cohesion: 0.17
 Nodes (3): FinanceExportController, FinanceReportController, Illuminate\Http\Request
 
-### Community 3 - "User.php"
-Cohesion: 0.17
-Nodes (5): Illuminate\Foundation\Testing\RefreshDatabase, Illuminate\Foundation\Testing\TestCase, GuruDashboardTest, TahfidzParentFeedbackTest, TestCase
-
-### Community 4 - "Tagihan"
-Cohesion: 0.11
-Nodes (4): Dashboard, Pembayaran, Tagihan, TagihanZeroNominalAndPaymentDeletionTest
+### Community 3 - "Livewire\Component"
+Cohesion: 0.09
+Nodes (6): Login, ArusMasuk, EkstrakurikulerSaya, TabunganSaya, Livewire\Component, Livewire\WithPagination
 
 ### Community 5 - "1. Super Admin"
 Cohesion: 0.06
 Nodes (32): 1.10 Manajemen Pengaturan Sistem & TTD, 1.1 Dashboard Super Admin, 1.2 Manajemen User, 1.3 Manajemen Siswa, 1.4 Manajemen Guru, 1.5 Manajemen Kelas, 1.6 Manajemen Jadwal, 1.7 Manajemen Mata Pelajaran (+24 more)
 
 ### Community 7 - "Illuminate\Database\Seeder"
-Cohesion: 0.10
-Nodes (14): CapaianGuruSeeder, DatabaseSeeder, DemoDataSeeder, FinanceSeeder, JenisTagihanSeeder, KategoriPengeluaranSeeder, KomponenNilaiSeeder, ProductionAccountsSeeder (+6 more)
+Cohesion: 0.11
+Nodes (13): CapaianGuruSeeder, DatabaseSeeder, DemoDataSeeder, FinanceSeeder, JenisTagihanSeeder, KategoriPengeluaranSeeder, ProductionAccountsSeeder, ProductionDataSeeder (+5 more)
 
 ### Community 8 - "scripts"
-Cohesion: 0.14
-Nodes (14): scripts, dev, post-autoload-dump, post-update-cmd, pre-package-uninstall, test, Composer\\Config::disableProcessTimeout, Illuminate\\Foundation\\ComposerScripts::postAutoloadDump (+6 more)
+Cohesion: 0.13
+Nodes (15): scripts, dev, post-create-project-cmd, post-update-cmd, pre-package-uninstall, test, Composer\\Config::disableProcessTimeout, Illuminate\\Foundation\\ComposerScripts::prePackageUninstall (+7 more)
+
+### Community 9 - "ManajemenKalenderAkademik"
+Cohesion: 0.09
+Nodes (3): RekapAbsensiGuru, ManajemenKalenderAkademik, KalenderAkademik
 
 ### Community 10 - "5. Finance / Keuangan"
 Cohesion: 0.06
 Nodes (32): 4.1 Dashboard Murid, 4.2 Jadwal Pelajaran Saya, 4.3 Kehadiran Saya, 4.4 Rapor & Nilai, 4.5 Tagihan SPP & Keuangan, 4.6 Ekstrakurikuler Saya, 4.7 Riwayat Aktivitas, 4. Murid / Portal Siswa (+24 more)
 
-### Community 11 - "AbsensiGuru"
-Cohesion: 0.11
-Nodes (5): AbsensiDiri, RekapAbsensiGuru, InputAbsensiKaryawan, AbsensiGuru, Livewire\WithFileUploads
-
-### Community 12 - "Kelas"
-Cohesion: 0.09
-Nodes (4): Dashboard, Dashboard, PlottingSiswaKelas, Kelas
-
 ### Community 13 - "4. Model Data (Entitas & Field)"
 Cohesion: 0.06
 Nodes (30): 10. Rekomendasi Tahapan Pengembangan (Roadmap), 1. Ringkasan Sistem Sumber, 2. Peran Pengguna (Aktor) yang Disarankan, 3. Alur Kerja End-to-End, 4.10 `ekstrakurikuler` (dari sheet **EKSKUL**), 4.11 `kehadiran` & `catatan_wali_kelas`, 4.12 `leger` (dari sheet **LEGER**) — VIEW, bukan tabel fisik, 4.13 Output Cetak Rapor (dari sheet **SAMPUL RAPOR**, **ISI SEMESTER 1/2**, **RAPOR INKUL**) (+22 more)
 
-### Community 18 - "ManajemenGajiGuru"
-Cohesion: 0.08
-Nodes (4): ManajemenGajiGuru, GajiGuru, Peminjaman, NotificationService
+### Community 14 - "GajiGuru"
+Cohesion: 0.11
+Nodes (3): DetailGajiGuru, GajiGuru, Peminjaman
+
+### Community 17 - "LingkupMateri"
+Cohesion: 0.13
+Nodes (4): ManajemenKurikulumMerdeka, LingkupMateri, TujuanPembelajaran, MonitoringAkademikTest
 
 ### Community 19 - "package.json"
 Cohesion: 0.09
@@ -259,27 +276,19 @@ Nodes (21): 1.1 Peran Pengguna (Role Aktor), 1.2 Dual Architecture: Kurikulum Me
 
 ### Community 25 - "Auditable.php"
 Cohesion: 0.08
-Nodes (11): AbsensiSiswa, BobotNilaiGuru, DanaBos, JadwalPelajaran, JadwalRemedial, PengajuanKoreksiNilai, SiswaKelas, SubdimensiP5 (+3 more)
-
-### Community 26 - "NilaiTahfidz"
-Cohesion: 0.12
-Nodes (3): InputNilaiTahfidz, SetoranTahfidz, NilaiTahfidz
+Nodes (12): AbsensiSiswa, BobotNilaiGuru, Ekstrakurikuler, JadwalPelajaran, JadwalRemedial, ProyekP5, RaporTahfidzDetail, SiswaKelas (+4 more)
 
 ### Community 27 - "AREA AUDIT & ASPEK EVALUASI"
 Cohesion: 0.14
 Nodes (13): 1. Konsistensi Design System & Visual Aesthetics, 2. Responsivitas Lintas Layar (Cross-Device & Cross-Resolution), 3. Kejelasan Alur Pengguna (User Flow & Micro-Interactions), 4. Efisiensi Form Input Nilai (Ergonomi Kerja Guru), 5. Aksesibilitas (Accessibility / WCAG AA) & Feedback UI, 6. Desain Output Cetak PDF Rapor & Resi STT, AREA AUDIT & ASPEK EVALUASI, BATASAN REVIEW (+5 more)
 
-### Community 28 - "Semester"
-Cohesion: 0.14
-Nodes (4): RaporPdfController, Rapor, RaporTahfidzDetail, Semester
-
 ### Community 29 - "Prompt: Review Logika Bisnis — Sistem Informasi Akademik (Kurikulum Merdeka & Tahfizh) & Keuangan Yayasan"
 Cohesion: 0.15
 Nodes (12): 1. Konsistensi Penilaian Kurikulum Merdeka & Auto-Narasi, 2. Isosiasi & Integrasi Model Tahfizh vs Rombel Umum, 3. Keamanan & Integritas QR Code Keabsahan Dokumen, 4. Trace End-to-End Alur Kritis, 5. Edge Cases & Penanganan Transisi State, AREA AUDIT & TUGAS REVIEW, BATASAN REVIEW, CHECKLIST TITIK RAWAN KHUSUS (Wajib Diverifikasi Statusnya) (+4 more)
 
-### Community 32 - "InputNilaiSumatif.php"
-Cohesion: 0.12
-Nodes (7): InputNilaiSumatif, NilaiSas, NilaiSumatifTp, TemplateDeskripsi, AutoNarasiService, Illuminate\Database\Eloquent\Relations\BelongsTo, Illuminate\Database\Eloquent\Relations\HasMany
+### Community 32 - "Pengeluaran"
+Cohesion: 0.09
+Nodes (5): ArusKasKeluar, Dashboard, KategoriPengeluaran, Pengeluaran, NotificationService
 
 ### Community 34 - "require"
 Cohesion: 0.15
@@ -289,29 +298,17 @@ Nodes (13): require, barryvdh/laravel-dompdf, blade-ui-kit/blade-icons, chillerl
 Cohesion: 0.10
 Nodes (3): CapaianPengembanganDiri, CapaianPengembanganGuru, CapaianGuru
 
-### Community 36 - "TahunAjaran"
-Cohesion: 0.16
-Nodes (6): GenerateMonthlySpp, GenerateMonthlySppCommand, JenisTagihan, TahunAjaran, Command, Illuminate\Console\Command
-
 ### Community 37 - "Standar Desain UI Komponen (Buttons, Cards, Modals & Alerts) — SIAKAD"
 Cohesion: 0.18
 Nodes (10): 1. Standar Desain Kartu (Cards), 2. Standar Desain Tombol (Buttons), 3. Integrasi MicroModal.js untuk Alert & Konfirmasi Dialog, 4. Standar Warna Status (Status Badges), **A. Primary Content Card**, **A. Struktur HTML MicroModal (`resources/views/components/layouts/app.blade.php`)**, **B. Cara Penggunaan di JavaScript / Alpine.js**, **B. Hero / Header Banner Card** (+2 more)
 
-### Community 38 - "PenilaianP5.php"
-Cohesion: 0.15
-Nodes (4): PenilaianP5, DimensiP5, NilaiP5, ProyekP5
-
-### Community 39 - "Pengeluaran"
-Cohesion: 0.14
-Nodes (3): ArusKasKeluar, Dashboard, Pengeluaran
-
-### Community 40 - "Notifikasi"
-Cohesion: 0.13
-Nodes (5): ManajemenKoreksiNilai, ManajemenKoreksiNilai, NotificationDropdown, NotificationsList, Notifikasi
+### Community 38 - "NilaiP5"
+Cohesion: 0.18
+Nodes (3): PenilaianP5, DimensiP5, NilaiP5
 
 ### Community 43 - "pengajuan-dana.blade.php"
 Cohesion: 0.22
-Nodes (8): approveByKepalaYayasan({{ $item->id }}), approveByKoordinator({{ $item->id }}), openModal, openRejectModal({{ $item->id }}), realisasikanDana({{ $item->id }}), rejectPengajuan, closeModal, $set(
+Nodes (8): approveByKepalaYayasan({{ $item->id }}), approveByKoordinator({{ $item->id }}), openModal, realisasikanDana({{ $item->id }}), rejectPengajuan, closeModal, openRejectModal({{ $item->id }}), $set(
 
 ### Community 44 - "manajemen-gaji-guru.blade.php"
 Cohesion: 0.09
@@ -326,20 +323,16 @@ Cohesion: 0.22
 Nodes (9): require-dev, fakerphp/faker, laravel/pail, laravel/pao, laravel/pint, mockery/mockery, nunomaduro/collision, pestphp/pest (+1 more)
 
 ### Community 47 - "manajemen-jadwal.blade.php"
-Cohesion: 0.25
-Nodes (7): delete({{ $jadwal->id }}), delete({{ $sched->id }}), openCreateForDay(, openEdit({{ $jadwal->id }}), openEdit({{ $sched->id }}), openCreate, $set(
+Cohesion: 0.22
+Nodes (8): closeForm, delete({{ $jadwal->id }}), delete({{ $sched->id }}), openCreateForDay(, openEdit({{ $jadwal->id }}), openEdit({{ $sched->id }}), openCreate, $set(
 
 ### Community 50 - "composer.json"
 Cohesion: 0.14
-Nodes (13): autoload-dev, psr-4, description, extra, laravel, dont-discover, license, minimum-stability (+5 more)
+Nodes (13): description, extra, laravel, keywords, dont-discover, license, minimum-stability, name (+5 more)
 
 ### Community 52 - "config"
 Cohesion: 0.29
 Nodes (7): pestphp/pest-plugin, php-http/discovery, config, allow-plugins, optimize-autoloader, preferred-install, sort-packages
-
-### Community 53 - ".run"
-Cohesion: 0.11
-Nodes (5): EkstrakurikulerSaya, Ekstrakurikuler, Nilai, RaporDetail, SiswaEkstrakurikuler
 
 ### Community 56 - "manajemen-komponen-nilai.blade.php"
 Cohesion: 0.33
@@ -348,10 +341,6 @@ Nodes (5): delete({{ $komponen[, openEdit({{ $komponen[, closeModal, openCreate,
 ### Community 57 - "manajemen-surat.blade.php"
 Cohesion: 0.33
 Nodes (5): deleteRiwayat({{ $r->id }}), downloadCurrentPdf, downloadPdfById({{ $r->id }}), loadRiwayatSurat({{ $r->id }}), $set(
-
-### Community 58 - "ManajemenKurikulumMerdeka"
-Cohesion: 0.18
-Nodes (3): ManajemenKurikulumMerdeka, LingkupMateri, TujuanPembelajaran
 
 ### Community 59 - "setup"
 Cohesion: 0.25
@@ -362,12 +351,16 @@ Cohesion: 0.40
 Nodes (5): autoload, psr-4, App\\, Database\\Factories\\, Database\\Seeders\\
 
 ### Community 62 - "manajemen-kalender-akademik.blade.php"
-Cohesion: 0.18
-Nodes (10): delete({{ $event->id }}), deleteTahunAjaran({{ $ta->id }}), openEditModal({{ $event->id }}), openEditSemester({{ $s->id }}), openTahunAjaranModal, closeModal, openCreateModal, $set( (+2 more)
+Cohesion: 0.17
+Nodes (11): delete({{ $event->id }}), deleteTahunAjaran({{ $ta->id }}), openEditModal({{ $event->id }}), openEditSemester({{ $s->id }}), openTahunAjaranModal, closeModal, openCreateModal, $set( (+3 more)
 
 ### Community 63 - "manajemen-mapel.blade.php"
 Cohesion: 0.40
 Nodes (4): delete({{ $mapel->id }}), openEdit({{ $mapel->id }}), openCreate, $set(
+
+### Community 64 - "KomponenNilai"
+Cohesion: 0.21
+Nodes (3): ManajemenKomponenNilai, KomponenNilai, KomponenNilaiSeeder
 
 ### Community 68 - "notifications-list.blade.php"
 Cohesion: 0.50
@@ -381,9 +374,9 @@ Nodes (3): pilihSiswaAndTagihan({{ $t->siswa_id }}, {{ $t->id }}), resetSelectio
 Cohesion: 0.25
 Nodes (7): About Laravel, Agentic Development, Code of Conduct, Contributing, Learning Laravel, License, Security Vulnerabilities
 
-### Community 75 - "AbsensiSiswa"
-Cohesion: 0.15
-Nodes (3): AbsensiSiswa, Dashboard, KehadiranSaya
+### Community 71 - "NilaiTahfidz"
+Cohesion: 0.12
+Nodes (3): InputNilaiTahfidz, SetoranTahfidz, NilaiTahfidz
 
 ### Community 105 - "arus-kas-masuk.blade.php"
 Cohesion: 0.25
@@ -398,16 +391,16 @@ Cohesion: 0.50
 Nodes (3): prosesKenaikan, $set(, toggleTinggalKelas({{ $siswa->id }})
 
 ### Community 115 - "input-nilai-tahfidz.blade.php"
-Cohesion: 0.40
-Nodes (4): openScoreModal({{ $s->id }}), selectTab(, setTanggalToday, setTanggalYesterday
+Cohesion: 0.33
+Nodes (5): openScoreModal({{ $s->id }}), selectTab(, $set(, setTanggalToday, setTanggalYesterday
 
 ### Community 116 - "arus-kas.blade.php"
-Cohesion: 0.18
-Nodes (10): closeExpenseModal, closeIncomeModal, openExpenseModal, openIncomeModal, deleteExpense({{ $item->raw_id }}), deleteIncome({{ $item->raw_id }}), exportExcel, exportPdf (+2 more)
+Cohesion: 0.17
+Nodes (11): closeExpenseModal, closeIncomeModal, openExpenseModal, openIncomeModal, deleteExpense({{ $item->raw_id }}), deleteIncome({{ $item->raw_id }}), exportExcel, exportPdf (+3 more)
 
 ### Community 117 - "arus-kas-keluar.blade.php"
-Cohesion: 0.25
-Nodes (7): bulkDelete, closeCreateModal, deleteExpense({{ $item->raw_id }}), exportExcel, exportPdf, openCreateModal, selectStream(
+Cohesion: 0.22
+Nodes (8): bulkDelete, closeCreateModal, deleteExpense({{ $item->raw_id }}), exportExcel, exportPdf, openCreateModal, selectStream(, $toggle(
 
 ### Community 119 - "laporan-pengeluaran.blade.php"
 Cohesion: 0.25
@@ -417,6 +410,10 @@ Nodes (7): closeManualReportModal, deletePengeluaran({{ $e->id }}), openManualRe
 Cohesion: 0.50
 Nodes (3): setStatusAll(, setPresetDate(, setStatus({{ $index }}, 
 
+### Community 130 - "input-absensi-karyawan.blade.php"
+Cohesion: 0.50
+Nodes (3): downloadTemplate, exportAttendance, setStatusAll(
+
 ### Community 160 - "dana-bos.blade.php"
 Cohesion: 0.33
 Nodes (5): deleteTransaction({{ $t->id }}), closeCreateModal, openCreateModal(, selectTab(, $set(
@@ -425,21 +422,29 @@ Nodes (5): deleteTransaction({{ $t->id }}), closeCreateModal, openCreateModal(, 
 Cohesion: 0.40
 Nodes (4): openDetail({{ $log->id }}), closeDetail, $set(, setPeriodPreset(
 
-### Community 205 - "Guru"
-Cohesion: 0.08
-Nodes (3): ManajemenGuru, ManajemenKelas, Guru
+### Community 204 - "ArusKasMasuk"
+Cohesion: 0.07
+Nodes (5): ArusKasMasuk, DanaBos, PemasukanKas, setPeriode(), updatedFilterPeriode()
+
+### Community 206 - "Tagihan"
+Cohesion: 0.17
+Nodes (4): GenerateMonthlySpp, GenerateMonthlySppCommand, Tagihan, Illuminate\Console\Command
 
 ### Community 209 - "detail-tagihan-siswa.blade.php"
 Cohesion: 0.22
 Nodes (8): deletePembayaran({{ $rp->id }}), deleteTagihan({{ $item->id }}), openEditModal({{ $item->id }}), resetBayarFilters, resetFilters, closeCreateModal, closeEditModal, openCreateModal
 
+### Community 210 - ".run"
+Cohesion: 0.20
+Nodes (3): ManajemenKoreksiNilai, ManajemenKoreksiNilai, PengajuanKoreksiNilai
+
 ### Community 211 - "manajemen-remedial.blade.php"
 Cohesion: 0.33
 Nodes (5): delete({{ $item->id }}), openCreate, openEdit({{ $item->id }}), $set(, updateStatus({{ $item->id }}, 
 
-### Community 215 - "Livewire\Component"
-Cohesion: 0.10
-Nodes (5): ArusMasuk, RiwayatAktivitas, TabunganSaya, Livewire\Component, Livewire\WithPagination
+### Community 215 - "RoleMiddleware.php"
+Cohesion: 0.60
+Nodes (3): RoleMiddleware, Closure, Symfony\Component\HttpFoundation\Response
 
 ### Community 218 - "tabungan-siswa.blade.php"
 Cohesion: 0.22
@@ -458,24 +463,28 @@ Cohesion: 0.50
 Nodes (3): clearLog, closeErrorDetail, openErrorDetail({{ $log[
 
 ### Community 235 - "User"
-Cohesion: 0.09
-Nodes (10): ManajemenKaryawan, Role, User, Illuminate\Foundation\Auth\User, Illuminate\Notifications\Notifiable, GuruRoleAccessTest, GuruStudentClassDisplayTest, KalenderAkademikTest (+2 more)
+Cohesion: 0.06
+Nodes (11): Role, User, Illuminate\Foundation\Auth\User, Illuminate\Notifications\Notifiable, AcademicAndFinanceEnhancementsTest, AutomatedSppGenerationTest, GuruRoleAccessTest, GuruStudentClassDisplayTest (+3 more)
 
 ### Community 252 - "detail-gaji-guru.blade.php"
 Cohesion: 0.25
 Nodes (7): openPreview({{ $sd->id }}), closePreview, deleteSalary({{ $sal->id }}), deleteSelected, openDetailModal({{ $sal->id }}), openPreview({{ $sal->id }}), $set(
 
-### Community 254 - "ArusKasMasuk"
-Cohesion: 0.07
-Nodes (5): ArusKasMasuk, DanaBos, PemasukanKas, setPeriode(), updatedFilterPeriode()
+### Community 259 - "Pengaturan"
+Cohesion: 0.17
+Nodes (3): ProfilSaya, ManajemenPengaturan, Pengaturan
 
-### Community 260 - "auth.php"
-Cohesion: 0.22
-Nodes (3): Login, AuditLogger, bootAuditable()
+### Community 260 - "approval-keuangan.blade.php"
+Cohesion: 0.12
+Nodes (15): approve, cancelApproval, closeApproveModal, closeCancelModal, closeRejectModal, openApproveModal({{ $item->id }}), openApproveModal({{ $selectedApproval->id }}), openCancelModal({{ $item->id }}) (+7 more)
 
-### Community 268 - "Siswa"
-Cohesion: 0.07
-Nodes (4): ManajemenSiswa, DataAlumni, Siswa, AutomatedSppGenerationTest
+### Community 264 - "post-autoload-dump"
+Cohesion: 0.67
+Nodes (3): post-autoload-dump, Illuminate\\Foundation\\ComposerScripts::postAutoloadDump, @php artisan package:discover --ansi
+
+### Community 267 - "NilaiSas"
+Cohesion: 0.11
+Nodes (6): RaporNilai, NilaiSas, NilaiSumatifTp, TemplateDeskripsi, AutoNarasiService, Illuminate\Database\Eloquent\Relations\BelongsTo
 
 ### Community 274 - "bootstrap.blade.php"
 Cohesion: 0.50
@@ -485,13 +494,21 @@ Nodes (3): gotoPage({{ $page }}, , nextPage(, previousPage(
 Cohesion: 0.50
 Nodes (3): nextPage(, previousPage(, setPage(
 
+### Community 278 - "Semester"
+Cohesion: 0.12
+Nodes (4): Ekstrakurikuler, RekapNilai, Semester, SiswaEkstrakurikuler
+
 ### Community 279 - "Controller"
 Cohesion: 0.25
 Nodes (3): Controller, DocumentVerificationController, VerifikasiDokumenController
 
-### Community 280 - "RoleMiddleware.php"
-Cohesion: 0.60
-Nodes (3): RoleMiddleware, Closure, Symfony\Component\HttpFoundation\Response
+### Community 280 - "Rapor"
+Cohesion: 0.18
+Nodes (4): RaporPdfController, Rapor, RaporDetail, PenilaianTpDanSasTest
+
+### Community 281 - "MataPelajaran"
+Cohesion: 0.16
+Nodes (3): InputNilaiSumatif, ManajemenMapel, MataPelajaran
 
 ### Community 283 - "livewire/simple-tailwind.blade.php"
 Cohesion: 0.50
@@ -501,33 +518,49 @@ Nodes (3): nextPage(, previousPage(, setPage(
 Cohesion: 0.50
 Nodes (3): gotoPage({{ $page }}, , nextPage(, previousPage(
 
-### Community 285 - "post-create-project-cmd"
-Cohesion: 0.50
-Nodes (4): post-create-project-cmd, @php artisan key:generate --ansi, @php artisan migrate --graceful --ansi, @php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\
+### Community 299 - "GuruMapelKelas"
+Cohesion: 0.15
+Nodes (3): Dashboard, GuruMapelKelas, JadwalService
 
-### Community 287 - "keywords"
+### Community 305 - "Nilai"
+Cohesion: 0.15
+Nodes (3): Dashboard, Dashboard, Nilai
+
+### Community 308 - "User.php"
+Cohesion: 0.13
+Nodes (5): Illuminate\Foundation\Testing\RefreshDatabase, Illuminate\Foundation\Testing\TestCase, GuruDashboardTest, TahfidzParentFeedbackTest, TestCase
+
+### Community 309 - "Kelas"
+Cohesion: 0.10
+Nodes (3): Dashboard, PlottingSiswaKelas, Kelas
+
+### Community 310 - "TahunAjaran"
+Cohesion: 0.09
+Nodes (5): JenisTagihan, TahunAjaran, Command, KalenderAkademikTest, SuperAdmin2AndFinancialApprovalTest
+
+### Community 311 - "autoload-dev"
 Cohesion: 0.67
-Nodes (3): keywords, framework, laravel
+Nodes (3): autoload-dev, psr-4, Tests\\
 
 ## Knowledge Gaps
-- **504 isolated node(s):** `$schema`, `name`, `type`, `description`, `laravel` (+499 more)
+- **532 isolated node(s):** `$schema`, `name`, `type`, `description`, `laravel` (+527 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **69 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **77 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Siswa` connect `Siswa` to `Pengeluaran.php`, `Illuminate\Http\Request`, `Tagihan`, `DetailTagihanSiswa`, `KelolaRapor`, `RekapAbsensiSiswa`, `Kelas`, `ManajemenSurat`, `Siswa.php`, `GuruMapelKelas`, `Auditable.php`, `NilaiTahfidz`, `.getMatrixData`, `Semester`, `TabunganSiswa`, `InputNilaiSumatif.php`, `TahunAjaran`, `PenilaianP5.php`, `Pengeluaran`, `ManajemenRemedial`, `ManajemenTagihan`, `.run`, `ProsesKenaikanKelas`, `ManajemenKurikulumMerdeka`, `InputNilaiSiswa`, `OverviewPembayaran`, `InputPembayaran`, `AbsensiSiswa`, `User`?**
-  _High betweenness centrality (0.031) - this node is a cross-community bridge._
-- **Why does `Guru` connect `Guru` to `Pengeluaran.php`, `User.php`, `Tagihan`, `AbsensiGuru`, `Kelas`, `DetailGajiGuru`, `ManajemenSurat`, `GuruMapelKelas`, `ManajemenGajiGuru`, `Auditable.php`, `NilaiTahfidz`, `Semester`, `CapaianGuru`, `Pengeluaran`, `ManajemenRemedial`, `.run`, `JadwalPiketGuru`, `ManajemenPeminjaman`, `User`?**
-  _High betweenness centrality (0.026) - this node is a cross-community bridge._
-- **Why does `GuruMapelKelas` connect `GuruMapelKelas` to `InputNilaiSiswa`, `ManajemenJadwal`, `JadwalPelajaran`, `ManajemenRemedial`, `RekapAbsensiSiswa`, `AbsensiSiswa`, `Siswa.php`, `.run`, `Auditable.php`, `.getMatrixData`, `PengaturanBobotNilai`?**
-  _High betweenness centrality (0.023) - this node is a cross-community bridge._
-- **Are the 69 inferred relationships involving `Siswa` (e.g. with `.handle()` and `.handle()`) actually correct?**
-  _`Siswa` has 69 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `Siswa` connect `Siswa` to `ManajemenSiswa`, `Notifikasi`, `Illuminate\Http\Request`, `Pembayaran`, `DetailTagihanSiswa`, `NilaiSas`, `ManajemenSurat`, `Siswa.php`, `LingkupMateri`, `Semester`, `Rapor`, `MataPelajaran`, `Auditable.php`, `ManajemenRemedial`, `KelolaRapor`, `TabunganSiswa`, `PengajuanDana`, `NilaiP5`, `MataPelajaran.php`, `AbsensiGuru`, `GuruMapelKelas`, `OverviewPembayaran`, `ManajemenTagihan`, `Nilai`, `Dashboard`, `ProductionDataSeeder.php`, `User.php`, `RekapAbsensiSiswa`, `TahunAjaran`, `Kelas`, `ProsesKenaikanKelas`, `NilaiTahfidz`, `InputPembayaran`, `AbsensiSiswa`, `Tagihan`, `.run`, `User`, `InputNilaiSiswa`?**
+  _High betweenness centrality (0.040) - this node is a cross-community bridge._
+- **Why does `Tagihan` connect `Tagihan` to `Notifikasi`, `Illuminate\Http\Request`, `TagihanSpp`, `Pembayaran`, `Livewire\Component`, `DetailTagihanSiswa`, `Illuminate\Database\Seeder`, `NilaiSas`, `Siswa.php`, `Semester`, `Auditable.php`, `Pengaturan.php`, `Pengeluaran`, `PengajuanDana`, `MataPelajaran.php`, `LaporanTunggakan`, `OverviewPembayaran`, `ManajemenTagihan`, `Nilai`, `ProductionDataSeeder.php`, `User.php`, `Kelas`, `TahunAjaran`, `InputPembayaran`, `.run`, `User`?**
+  _High betweenness centrality (0.020) - this node is a cross-community bridge._
+- **Why does `ManajemenGajiGuru` connect `ManajemenGajiGuru` to `Pengeluaran`, `Livewire\Component`, `Guru`, `GajiGuru`, `ProductionDataSeeder.php`?**
+  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+- **Are the 74 inferred relationships involving `Siswa` (e.g. with `.handle()` and `.handle()`) actually correct?**
+  _`Siswa` has 74 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `$schema`, `name`, `type` to the rest of the system?**
-  _504 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Tagihan` be split into smaller, more focused modules?**
-  _Cohesion score 0.11264367816091954 - nodes in this community are weakly interconnected._
-- **Should `1. Super Admin` be split into smaller, more focused modules?**
-  _Cohesion score 0.06060606060606061 - nodes in this community are weakly interconnected._
+  _532 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Notifikasi` be split into smaller, more focused modules?**
+  _Cohesion score 0.1103448275862069 - nodes in this community are weakly interconnected._
+- **Should `ManajemenJadwal` be split into smaller, more focused modules?**
+  _Cohesion score 0.12987012987012986 - nodes in this community are weakly interconnected._

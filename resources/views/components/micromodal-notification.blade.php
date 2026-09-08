@@ -51,16 +51,16 @@
 </div>
 
 <script>
-    let modalAutoDismissTimer = null;
-    let modalProgressInterval = null;
+    var modalAutoDismissTimer = window.modalAutoDismissTimer || null;
+    var modalProgressInterval = window.modalProgressInterval || null;
 
     // Override browser native window.confirm to prevent ugly default popups
     window.confirm = function() { return true; };
 
     // Configurable Rounded Corner Classes from Blade Props
-    const MICRO_MODAL_ROUNDED_CARD = @json($rounded);
-    const MICRO_MODAL_ROUNDED_BADGE = @json($badgeRounded);
-    const MICRO_MODAL_ROUNDED_CATEGORY = @json($categoryRounded);
+    var MICRO_MODAL_ROUNDED_CARD = @json($rounded);
+    var MICRO_MODAL_ROUNDED_BADGE = @json($badgeRounded);
+    var MICRO_MODAL_ROUNDED_CATEGORY = @json($categoryRounded);
 
     document.addEventListener('DOMContentLoaded', function() {
         if (typeof MicroModal !== 'undefined') {
@@ -202,7 +202,16 @@
 
             window.showAlert('Konfirmasi Tindakan', message, function() {
                 targetBtn.dataset.micromodalConfirmed = 'true';
-                targetBtn.click();
+                targetBtn.dispatchEvent(new MouseEvent('click', {
+                    bubbles: true,
+                    cancelable: true,
+                    view: window
+                }));
+                // Fallback in case dispatchEvent does not clear the flag
+                if (targetBtn.dataset.micromodalConfirmed === 'true') {
+                    delete targetBtn.dataset.micromodalConfirmed;
+                    targetBtn.click();
+                }
             }, isDelete ? 'delete' : 'warning');
         }
     }, true);

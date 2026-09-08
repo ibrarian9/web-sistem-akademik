@@ -8,6 +8,7 @@
         icon="wallet"
     >
         <x-slot:actions>
+            @if(!auth()->user()->isSuperAdmin2())
             <x-button variant="secondary" size="md" icon="user-plus" wire:click="openCreateModal">
                 Buat Gaji Manual
             </x-button>
@@ -15,6 +16,7 @@
             <x-button variant="primary" size="md" icon="calendar-plus" wire:click="openGenerateModal">
                 Generate Draf Gaji
             </x-button>
+            @endif
         </x-slot:actions>
     </x-page-header>
 
@@ -49,6 +51,13 @@
         ]"
         notes="Gaji berstatus Draf belum memotong arus kas yayasan. Kas keluar baru tercatat otomatis saat status gaji diubah menjadi Dibayar."
     />
+
+    @if (session()->has('message'))
+        <x-alert-banner type="success" :message="session('message')" />
+    @endif
+    @if (session()->has('error'))
+        <x-alert-banner type="danger" :message="session('error')" />
+    @endif
 
     <!-- Summary KPI Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -199,15 +208,17 @@
                         <span>Rekap Excel ({{ count($selectedGajiIds) }})</span>
                     </a>
 
+                    @if(!auth()->user()->isSuperAdmin2())
                     <x-button 
                         variant="danger" 
                         size="sm" 
                         icon="trash-2" 
                         wire:click="deleteSelected"
-                        data-confirm="Apakah Anda yakin ingin menghapus {{ count($selectedGajiIds) }} data gaji yang dipilih? Data pengeluaran kas terkait juga akan disinkronkan."
+                        data-confirm="Apakah Anda yakin ingin memproses penghapusan {{ count($selectedGajiIds) }} data gaji yang dipilih? Untuk data berstatus dibayar, staf keuangan akan mengajukan permohonan persetujuan ke Super Admin."
                     >
                         Hapus ({{ count($selectedGajiIds) }}) Terpilih
                     </x-button>
+                    @endif
 
                     <button 
                         type="button" 
@@ -327,7 +338,9 @@
                             </span>
                         </td>
                         <td class="p-3.5 text-center border-b border-r border-stone-200">
-                            @if ($sal->status === 'dibayar')
+                            @if (in_array($sal->id, $pendingApprovalIds ?? []))
+                                <x-badge variant="amber" size="xs" :dot="true">Menunggu Approval Hapus</x-badge>
+                            @elseif ($sal->status === 'dibayar')
                                 <x-badge variant="emerald" size="xs" :dot="true">Dibayar</x-badge>
                             @else
                                 <x-badge variant="amber" size="xs" :dot="true">Draft</x-badge>
@@ -337,6 +350,7 @@
                             <!-- Clean, Sleek Action Buttons Without Duplication -->
                             @if ($sal->status === 'draft')
                                 <div class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
+                                    @if(!auth()->user()->isSuperAdmin2())
                                     <button 
                                         type="button" 
                                         wire:click="paySalary({{ $sal->id }})" 
@@ -355,6 +369,7 @@
                                     >
                                         <x-lucide-edit class="w-4 h-4" />
                                     </button>
+                                    @endif
 
                                     <button 
                                         type="button" 
@@ -365,15 +380,17 @@
                                         <x-lucide-receipt class="w-4 h-4" />
                                     </button>
 
+                                    @if(!auth()->user()->isSuperAdmin2())
                                     <button 
                                         type="button" 
                                         wire:click="deleteSalary({{ $sal->id }})" 
-                                        data-confirm="Apakah Anda yakin ingin menghapus draf gaji ini?" 
+                                        data-confirm="{{ auth()->user()->role?->nama === 'finance' ? 'Ajukan permohonan penghapusan data gaji ini ke Super Admin / Super Admin 2?' : 'Apakah Anda yakin ingin menghapus draf gaji ini?' }}" 
                                         class="p-1.5 rounded-xl text-stone-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition"
                                         title="Hapus Draf"
                                     >
                                         <x-lucide-trash-2 class="w-4 h-4" />
                                     </button>
+                                    @endif
                                 </div>
                             @else
                                 <div class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
@@ -405,6 +422,7 @@
                                         <x-lucide-receipt class="w-4 h-4" />
                                     </button>
 
+                                    @if(!auth()->user()->isSuperAdmin2())
                                     <button 
                                         type="button" 
                                         wire:click="openEditModal({{ $sal->id }})" 
@@ -414,6 +432,7 @@
                                         <x-lucide-edit class="w-4 h-4" />
                                     </button>
 
+                                    @if(auth()->user()->role?->nama !== 'finance')
                                     <button 
                                         type="button" 
                                         wire:click="revertToDraft({{ $sal->id }})" 
@@ -423,6 +442,8 @@
                                     >
                                         <x-lucide-rotate-ccw class="w-4 h-4" />
                                     </button>
+                                    @endif
+                                    @endif
                                 </div>
                             @endif
                         </td>
@@ -1239,7 +1260,19 @@
                 </div>
             @endif
 
-            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
+            <div class="grid grid-cols-1 sm:grid-cols-6 gap-3 bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
+                <div>
+                    <label class="block text-[10px] font-extrabold text-stone-600 uppercase tracking-wider mb-1">Bulan Gaji</label>
+                    <select wire:model="editBulan" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
+                        @foreach ($listBulan as $bln)
+                            <option value="{{ $bln }}">{{ $bln }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-extrabold text-stone-600 uppercase tracking-wider mb-1">Tahun Gaji</label>
+                    <input type="number" wire:model="editTahun" min="2020" max="2035" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 text-center" />
+                </div>
                 <div>
                     <label class="block text-[10px] font-extrabold text-stone-600 uppercase tracking-wider mb-1">Jabatan</label>
                     <input type="text" wire:model="editJabatan" placeholder="Contoh: Mudir F3 / Guru" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" />
@@ -1568,10 +1601,34 @@
                 </div>
             </div>
 
+            @if(auth()->user()->role?->nama === 'finance')
+                <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-start gap-2">
+                    <x-lucide-alert-circle class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <div>
+                        <span class="font-bold">Persetujuan Diperlukan:</span> Perubahan rincian gaji ini akan diajukan ke Super Admin atau Super Admin 2 untuk disetujui.
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">
+                        Alasan Perubahan <span class="text-rose-500">*</span>
+                    </label>
+                    <textarea 
+                        wire:model="edit_alasan" 
+                        rows="2" 
+                        placeholder="Jelaskan alasan perubahan rincian gaji..." 
+                        class="w-full px-3.5 py-2.5 bg-white border @error('edit_alasan') border-rose-500 ring-1 ring-rose-500 @else border-stone-300 @enderror rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 shadow-2xs resize-none"
+                    ></textarea>
+                    @error('edit_alasan')
+                        <p class="text-xs text-rose-500 font-semibold">{{ $message }}</p>
+                    @enderror
+                </div>
+            @endif
+
             <div class="flex items-center justify-end gap-2 pt-2 border-t border-stone-200">
                 <x-button variant="secondary" size="md" wire:click="closeEditModal">Batal</x-button>
                 <x-button variant="primary" size="md" wire:click="saveEdit" loadingTarget="saveEdit">
-                    Simpan Perubahan
+                    {{ auth()->user()->role?->nama === 'finance' ? 'Ajukan Persetujuan' : 'Simpan Perubahan' }}
                 </x-button>
             </div>
         </div>
@@ -1789,9 +1846,11 @@
                 <!-- Footer Action Buttons -->
                 <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-stone-200">
                     <div class="flex items-center gap-2">
+                        @if(!auth()->user()->isSuperAdmin2())
                         <x-button variant="secondary" size="md" icon="edit" wire:click="openEditModal({{ $selectedSalaryDetail->id }})">
                             Ubah Rincian
                         </x-button>
+                        @endif
                         
                         <x-button variant="secondary" size="md" icon="eye" wire:click="openPreview({{ $selectedSalaryDetail->id }})">
                             Pratinjau Slip

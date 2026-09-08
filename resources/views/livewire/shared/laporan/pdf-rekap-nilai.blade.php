@@ -131,17 +131,18 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th style="width: 30px;">No</th>
-                <th style="width: 70px;">NIS</th>
+                <th style="width: 25px;">No</th>
+                <th style="width: 65px;">NIS</th>
                 <th style="text-align: left; padding-left: 6px;">Nama Siswa</th>
-                @foreach ($components as $comp)
-                    <th style="width: 65px;">
-                        {{ $comp->nama }}
-                        <div style="font-size: 7px; color: #71717a; font-weight: normal;">{{ intval($comp->bobot) }}%</div>
+                @foreach ($babs as $index => $bab)
+                    <th style="width: 55px;">
+                        Bab {{ $bab->urutan ?? ($index + 1) }}
+                        <div style="font-size: 7px; color: #71717a; font-weight: normal;">{{ \Illuminate\Support\Str::limit($bab->nama_lingkup_materi ?? $bab->judul_lingkup_materi, 12) }}</div>
                     </th>
                 @endforeach
-                <th style="width: 65px; background-color: #dcfce7; color: #166534;">Nilai Akhir</th>
-                <th style="width: 45px;">Predikat</th>
+                <th style="width: 45px;">SAS</th>
+                <th style="width: 55px; background-color: #dcfce7; color: #166534;">Nilai Akhir</th>
+                <th style="width: 35px;">Predikat</th>
             </tr>
         </thead>
         <tbody>
@@ -150,22 +151,24 @@
                     <td>{{ $index + 1 }}</td>
                     <td style="font-family: monospace;">{{ $row['siswa']->nis }}</td>
                     <td class="student-name">{{ $row['siswa']->user?->nama ?? '-' }}</td>
-                    @foreach ($components as $comp)
+                    @foreach ($babs as $bab)
                         @php
-                            $val = $row['compGrades'][$comp->id];
+                            $val = $row['babGrades'][$bab->id] ?? null;
                         @endphp
                         <td style="{{ is_null($val) ? 'color: #a1a1aa;' : 'font-weight: 600;' }}">
                             {{ is_null($val) ? '-' : $val }}
                         </td>
                     @endforeach
+                    <td style="{{ is_null($row['nilaiSas']) ? 'color: #a1a1aa;' : 'font-weight: 600;' }}">
+                        {{ is_null($row['nilaiSas']) ? '-' : $row['nilaiSas'] }}
+                    </td>
                     <td class="final-grade">{{ $row['finalGrade'] }}</td>
                     <td>
                         @php
-                            $pClass = 'pred-e';
+                            $pClass = 'pred-d';
                             if ($row['predikat'] === 'A') $pClass = 'pred-a';
                             elseif ($row['predikat'] === 'B') $pClass = 'pred-b';
                             elseif ($row['predikat'] === 'C') $pClass = 'pred-c';
-                            elseif ($row['predikat'] === 'D') $pClass = 'pred-d';
                         @endphp
                         <span class="{{ $pClass }}">{{ $row['predikat'] }}</span>
                     </td>
@@ -175,8 +178,8 @@
     </table>
 
     <div class="legend">
-        <strong>Rumus Nilai Akhir:</strong> Penjumlahan Rata-rata Nilai per Komponen x (Bobot Komponen / 100). |
-        <strong>Predikat:</strong> A (>= 90), B (80-89), C (70-79), D (60-69), E (< 60).
+        <strong>Rumus Nilai Akhir:</strong> Rata-rata Nilai Sumatif Lingkup Materi (Bab) dan Nilai Sumatif Akhir Semester (SAS). |
+        <strong>Predikat:</strong> A (>= 90), B (80-89), C (70-79), D (< 70).
     </div>
 
     <x-ttd-elektronik role="guru" docType="NIL" :docId="$kelas->id . '-' . $mapel->id" />

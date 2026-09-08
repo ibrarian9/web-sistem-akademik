@@ -8,9 +8,11 @@
         icon="book-open"
     >
         <x-slot:actions>
+            @if(!auth()->user()->isSuperAdmin2())
             <x-button type="button" variant="primary" size="md" icon="plus" wire:click="openCreate">
                 Tambah Mapel
             </x-button>
+            @endif
         </x-slot:actions>
     </x-page-header>
 
@@ -84,6 +86,7 @@
                             </x-badge>
                         </td>
                         <td class="p-3.5 text-center">
+                            @if(!auth()->user()->isSuperAdmin2())
                             <div class="flex items-center justify-center gap-1.5">
                                 <x-button type="button" variant="secondary" size="xs" icon="edit" wire:click="openEdit({{ $mapel->id }})">
                                     Edit
@@ -92,6 +95,9 @@
                                     Hapus
                                 </x-button>
                             </div>
+                            @else
+                                <span class="text-[10px] text-stone-400 font-mono italic">Lihat Saja</span>
+                            @endif
                         </td>
                     </tr>
                 @empty

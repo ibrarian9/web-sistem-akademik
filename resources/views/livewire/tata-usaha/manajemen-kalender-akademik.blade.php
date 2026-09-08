@@ -9,6 +9,10 @@
     >
         @if ($canManage)
             <x-slot:actions>
+                <x-button variant="secondary" size="md" icon="calendar" wire:click="syncTanggalMerahNasional" wire:loading.attr="disabled">
+                    <span wire:loading.remove wire:target="syncTanggalMerahNasional">Sinkronkan Tanggal Merah</span>
+                    <span wire:loading wire:target="syncTanggalMerahNasional">Menyinkronkan...</span>
+                </x-button>
                 <x-button variant="secondary" size="md" icon="settings" wire:click="openTahunAjaranModal">
                     Kelola Tahun Ajaran & Semester
                 </x-button>
@@ -23,11 +27,11 @@
     <x-info-tutorial-box 
         title="Petunjuk Pengelolaan Kalender Akademik & Hari Libur"
         :steps="[
-            ['title' => 'Tambah Agenda Libur', 'desc' => 'Klik Tambah Agenda / Hari Libur untuk menginput nama agenda, kategori, serta rentang tanggal pelaksanaan.'],
-            ['title' => 'Bebas Presensi', 'desc' => 'Centang opsi Liburkan Presensi jika pada tanggal tersebut seluruh murid dan guru diliburkan dari absensi harian.'],
-            ['title' => 'Filter Tahun Ajaran', 'desc' => 'Gunakan dropdown filter untuk meninjau kalender akademik pada semester & tahun ajaran berjalan.']
+            ['title' => 'Otomatis Tanggal Merah', 'desc' => 'Seluruh Hari Ahad (Minggu) dan Hari Libur Nasional Resmi otomatis diakui sistem sebagai hari libur bebas presensi.'],
+            ['title' => 'Sinkronisasi 1-Klik', 'desc' => 'Klik \'Sinkronkan Tanggal Merah\' untuk mengimpor seluruh daftar Libur Nasional Republik Indonesia ke kalender tahun ajaran aktif.'],
+            ['title' => 'Tambah Agenda Khusus', 'desc' => 'Gunakan tombol Tambah Agenda untuk menginput libur khusus yayasan/pondok pesantren, libur semester, atau masa ujian.']
         ]"
-        notes="Tanggal yang ditandai Liburkan Presensi tidak akan dihitung sebagai alpa/tanpa keterangan pada rekap presensi bulanan."
+        notes="Hari Ahad dan seluruh tanggal yang bertanda Liburkan Presensi otomatis dikecualikan dari alpa/tanpa keterangan pada rekap presensi guru maupun siswa."
     />
 
     @if (session()->has('message'))
@@ -78,7 +82,14 @@
                 @forelse ($events as $event)
                     <tr class="hover:bg-stone-50 transition">
                         <td class="p-3.5 border-r border-stone-200">
-                            <div class="font-extrabold text-stone-900 text-xs">{{ $event->nama_kegiatan }}</div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-extrabold text-stone-900 text-xs">{{ $event->nama_kegiatan }}</span>
+                                @if (str_contains(strtolower($event->keterangan ?? ''), 'tanggal merah') || str_contains(strtolower($event->keterangan ?? ''), 'libur nasional'))
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-200">
+                                        Tanggal Merah
+                                    </span>
+                                @endif
+                            </div>
                             @if ($event->keterangan)
                                 <div class="text-[11px] text-stone-500 font-medium mt-0.5">{{ $event->keterangan }}</div>
                             @endif

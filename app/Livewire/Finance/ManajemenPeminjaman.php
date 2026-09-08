@@ -36,6 +36,11 @@ class ManajemenPeminjaman extends Component
 
     public function openCreateModal()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->resetValidation();
         $this->reset(['guru_id', 'nominal', 'tenor_bulan']);
         $this->tanggal_pinjam = date('Y-m-d');
@@ -60,6 +65,11 @@ class ManajemenPeminjaman extends Component
 
     public function savePeminjaman()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->validate();
 
         $cicilan = round($this->nominal / $this->tenor_bulan, 2);

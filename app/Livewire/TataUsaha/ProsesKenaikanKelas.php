@@ -113,6 +113,11 @@ class ProsesKenaikanKelas extends Component
 
     public function prosesKenaikan()
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('error', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
         if (empty($this->selectedSiswa)) {
             session()->flash('error', 'Pilih minimal satu siswa/santri untuk diproses.');
             return;

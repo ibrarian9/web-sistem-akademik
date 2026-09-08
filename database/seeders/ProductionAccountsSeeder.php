@@ -16,6 +16,7 @@ class ProductionAccountsSeeder extends Seeder
     {
         // 1. Ensure Roles exist
         $roleSuperAdmin = Role::firstOrCreate(['nama' => 'super_admin']);
+        $roleSuperAdmin2 = Role::firstOrCreate(['nama' => 'super_admin_2']);
         $roleTataUsaha  = Role::firstOrCreate(['nama' => 'tata_usaha']);
         $roleFinance    = Role::firstOrCreate(['nama' => 'finance']);
         $roleGuru       = Role::firstOrCreate(['nama' => 'guru']);
@@ -42,6 +43,19 @@ class ProductionAccountsSeeder extends Seeder
                 'password'   => Hash::make('admin123'),
                 'role_id'    => $roleSuperAdmin->id,
                 'status'     => 'aktif',
+            ]
+        );
+
+        // 2b. Akun Super Admin 2 (Viewer & Approval)
+        User::updateOrCreate(
+            ['username' => 'admin2'],
+            [
+                'nama'       => 'Dra. Hj. Nurul Hidayati (Super Admin 2)',
+                'email'      => 'admin2@yayasan.or.id',
+                'password'   => Hash::make('admin2123'),
+                'role_id'    => $roleSuperAdmin2->id,
+                'status'     => 'aktif',
+                'jabatan'    => 'Super Admin 2 / Viewer & Approval',
             ]
         );
 

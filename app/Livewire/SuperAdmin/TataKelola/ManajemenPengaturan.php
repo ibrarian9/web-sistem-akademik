@@ -25,6 +25,11 @@ class ManajemenPengaturan extends Component
 
     public function save()
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('message', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
         $this->validate();
 
         foreach ($this->settings as $setting) {

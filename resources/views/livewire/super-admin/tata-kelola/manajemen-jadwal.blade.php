@@ -16,9 +16,11 @@
                     Daftar Tabel
                 </x-button>
             </div>
-            <x-button type="button" variant="primary" size="md" icon="plus" wire:click="openCreate">
-                Tambah Jadwal
-            </x-button>
+            @if (!auth()->user()?->isSuperAdmin2())
+                <x-button type="button" variant="primary" size="md" icon="plus" wire:click="openCreate">
+                    Tambah Jadwal
+                </x-button>
+            @endif
         </x-slot:actions>
     </x-page-header>
 
@@ -96,14 +98,16 @@
                                             <x-lucide-clock class="w-3 h-3 text-current shrink-0" />
                                             {{ date('H:i', strtotime($sched->jam_mulai)) }} - {{ date('H:i', strtotime($sched->jam_selesai)) }}
                                         </span>
-                                        <div class="inline-flex items-center gap-1 shrink-0">
-                                            <button type="button" wire:click="openEdit({{ $sched->id }})" class="p-1 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg border border-stone-300 transition cursor-pointer" title="Edit">
-                                                <x-lucide-edit class="w-3.5 h-3.5" />
-                                            </button>
-                                            <button type="button" wire:click="delete({{ $sched->id }})" data-confirm="Apakah Anda yakin ingin menghapus jadwal ini?" class="p-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg border border-rose-200 transition cursor-pointer" title="Hapus">
-                                                <x-lucide-trash-2 class="w-3.5 h-3.5" />
-                                            </button>
-                                        </div>
+                                        @if (!auth()->user()?->isSuperAdmin2())
+                                            <div class="inline-flex items-center gap-1 shrink-0">
+                                                <button type="button" wire:click="openEdit({{ $sched->id }})" class="p-1 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg border border-stone-300 transition cursor-pointer" title="Edit">
+                                                    <x-lucide-edit class="w-3.5 h-3.5" />
+                                                </button>
+                                                <button type="button" wire:click="delete({{ $sched->id }})" data-confirm="Apakah Anda yakin ingin menghapus jadwal ini?" class="p-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg border border-rose-200 transition cursor-pointer" title="Hapus">
+                                                    <x-lucide-trash-2 class="w-3.5 h-3.5" />
+                                                </button>
+                                            </div>
+                                        @endif
                                     </div>
                                     <div class="pt-0.5">
                                         <h4 class="font-extrabold text-stone-900 text-xs leading-snug group-hover:text-emerald-800 transition">
@@ -124,9 +128,11 @@
                         </div>
 
                         <!-- Quick Add Button for this Day -->
-                        <x-button type="button" variant="outline" size="sm" icon="plus" wire:click="openCreateForDay('{{ $day }}', {{ $selectedKelasId }})" class="w-full justify-center">
-                            Tambah {{ ucfirst($day) }}
-                        </x-button>
+                        @if (!auth()->user()?->isSuperAdmin2())
+                            <x-button type="button" variant="outline" size="sm" icon="plus" wire:click="openCreateForDay('{{ $day }}', {{ $selectedKelasId }})" class="w-full justify-center">
+                                Tambah {{ ucfirst($day) }}
+                            </x-button>
+                        @endif
                     </div>
                 @endforeach
             </div>
@@ -181,7 +187,9 @@
                         <x-table.th class="w-32">Kelas</x-table.th>
                         <x-table.th class="min-w-[180px]">Mata Pelajaran</x-table.th>
                         <x-table.th class="min-w-[200px]">Guru Pengampu</x-table.th>
-                        <x-table.th align="center" class="w-36">Aksi</x-table.th>
+                        @if (!auth()->user()?->isSuperAdmin2())
+                            <x-table.th align="center" class="w-36">Aksi</x-table.th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-stone-200 bg-white">
@@ -197,20 +205,22 @@
                             <td class="p-3.5 border-r border-stone-200 font-extrabold text-stone-900">Kelas {{ $jadwal->guruMapelKelas->kelas->nama_kelas ?? '-' }}</td>
                             <td class="p-3.5 border-r border-stone-200 font-extrabold text-stone-900">{{ $jadwal->guruMapelKelas->mapel->nama_mapel ?? '-' }}</td>
                             <td class="p-3.5 border-r border-stone-200 font-bold text-stone-700">{{ $jadwal->guruMapelKelas->guru->user->nama ?? '-' }}</td>
-                            <td class="p-3.5 text-center">
-                                <div class="flex items-center justify-center gap-1.5">
-                                    <x-button type="button" variant="secondary" size="xs" icon="edit" wire:click="openEdit({{ $jadwal->id }})">
-                                        Edit
-                                    </x-button>
-                                    <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="delete({{ $jadwal->id }})" data-confirm="Apakah Anda yakin ingin menghapus jadwal ini?">
-                                        Hapus
-                                    </x-button>
-                                </div>
-                            </td>
+                            @if (!auth()->user()?->isSuperAdmin2())
+                                <td class="p-3.5 text-center">
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <x-button type="button" variant="secondary" size="xs" icon="edit" wire:click="openEdit({{ $jadwal->id }})">
+                                            Edit
+                                        </x-button>
+                                        <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="delete({{ $jadwal->id }})" data-confirm="Apakah Anda yakin ingin menghapus jadwal ini?">
+                                            Hapus
+                                        </x-button>
+                                    </div>
+                                </td>
+                            @endif
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-12 text-center text-stone-400">
+                            <td colspan="{{ auth()->user()?->isSuperAdmin2() ? 5 : 6 }}" class="py-12 text-center text-stone-400">
                                 <x-table.empty title="Belum ada jadwal pelajaran ditemukan" subtitle="Pilih kelas atau tambahkan slot jadwal baru di atas." />
                             </td>
                         </tr>
@@ -234,7 +244,7 @@
         badgeVariant="emerald"
         icon="calendar"
         maxWidth="max-w-lg"
-        closeAction="$set('isFormOpen', false)"
+        closeAction="closeForm"
     >
         <form wire:submit.prevent="save" class="space-y-4 text-xs">
             <!-- Penugasan Mapel & Kelas (Disusun Per Kelas) -->
@@ -317,7 +327,7 @@
 
             <!-- Buttons -->
             <div class="flex items-center justify-end gap-2 border-t border-stone-200 pt-3">
-                <x-button type="button" variant="secondary" size="md" wire:click="$set('isFormOpen', false)">
+                <x-button type="button" variant="secondary" size="md" wire:click="closeForm">
                     Batal
                 </x-button>
                 <x-button type="submit" variant="primary" size="md" icon="save" loadingTarget="save">

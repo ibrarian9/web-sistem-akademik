@@ -32,6 +32,8 @@ class ArusKasKeluar extends Component
 
     // Create Expense Form properties
     public ?int $kategori_pengeluaran_id = null;
+    public string $kategori_keluar_kustom = '';
+    public bool $is_kategori_kustom = false;
     public float $jumlah = 0.00;
     public string $tanggal = '';
     public string $keterangan = '';
@@ -116,8 +118,13 @@ class ArusKasKeluar extends Component
 
     public function openCreateModal()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->resetValidation();
-        $this->reset(['jumlah', 'keterangan']);
+        $this->reset(['jumlah', 'keterangan', 'kategori_keluar_kustom', 'is_kategori_kustom']);
         $this->tanggal = date('Y-m-d');
         if (!empty($this->categories)) {
             $this->kategori_pengeluaran_id = $this->categories[0]['id'];
@@ -132,7 +139,32 @@ class ArusKasKeluar extends Component
 
     public function saveExpense()
     {
-        $this->validate();
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        if ($this->is_kategori_kustom && !empty(trim($this->kategori_keluar_kustom))) {
+            $this->validate([
+                'kategori_keluar_kustom' => 'required|string|max:100',
+                'jumlah' => 'required|numeric|min:1000',
+                'tanggal' => 'required|date',
+                'keterangan' => 'nullable|string|max:500',
+            ]);
+
+            $kategori = KategoriPengeluaran::firstOrCreate([
+                'nama' => trim($this->kategori_keluar_kustom)
+            ]);
+            $this->kategori_pengeluaran_id = $kategori->id;
+            $this->categories = KategoriPengeluaran::orderBy('nama')->get()->toArray();
+        } else {
+            $this->validate([
+                'kategori_pengeluaran_id' => 'required|exists:kategori_pengeluaran,id',
+                'jumlah' => 'required|numeric|min:1000',
+                'tanggal' => 'required|date',
+                'keterangan' => 'nullable|string|max:500',
+            ]);
+        }
 
         Pengeluaran::create([
             'kategori_pengeluaran_id' => $this->kategori_pengeluaran_id,
@@ -145,14 +177,37 @@ class ArusKasKeluar extends Component
         session()->flash('message', 'Pengeluaran kas operasional yayasan berhasil dicatat.');
 
         $this->showCreateModal = false;
-        $this->reset(['jumlah', 'keterangan']);
+        $this->reset(['jumlah', 'keterangan', 'kategori_keluar_kustom', 'is_kategori_kustom']);
         $this->tanggal = date('Y-m-d');
         $this->resetPage();
     }
 
-    public function deleteExpense(int $id)
+    public function deleteExpense(int $id, ?string $alasan = null)
     {
-        $item = Pengeluaran::findOrFail($id);
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $item = Pengeluaran::with('kategoriPengeluaran')->findOrFail($id);
+        $userRole = auth()->user()->role->nama ?? '';
+
+        if ($userRole === 'finance') {
+            $reason = $alasan ?: 'Penghapusan catatan pengeluaran kas diajukan oleh staf keuangan';
+            \App\Services\FinancialApprovalService::createRequest(
+                auth()->user(),
+                'hapus',
+                'arus_kas',
+                $item,
+                null,
+                $reason,
+                "Hapus Pengeluaran Kas: " . ($item->kategoriPengeluaran->nama ?? 'Pengeluaran') . " - Rp " . number_format($item->jumlah, 0, ',', '.') . " (" . ($item->tanggal ? $item->tanggal->format('d/m/Y') : '-') . ")"
+            );
+
+            session()->flash('message', 'Permohonan penghapusan pengeluaran kas telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.');
+            return;
+        }
+
         $item->delete();
 
         session()->flash('message', 'Catatan pengeluaran kas berhasil dihapus.');
@@ -160,6 +215,16 @@ class ArusKasKeluar extends Component
 
     public function bulkDelete()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        if (auth()->user()->role?->nama === 'finance') {
+            session()->flash('error', 'Akses Ditolak: Penghapusan massal tidak diizinkan untuk staf keuangan. Silakan ajukan penghapusan per transaksi agar dapat disetujui Super Admin.');
+            return;
+        }
+
         if (empty($this->selectedIds)) {
             return;
         }

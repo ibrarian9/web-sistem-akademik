@@ -47,6 +47,8 @@ class DetailTagihanSiswa extends Component
     public float $edit_nominal = 0.00;
     public string $edit_jatuh_tempo = '';
     public float $edit_total_dibayar = 0.00;
+    public string $edit_alasan = '';
+    public string $delete_alasan = '';
 
     // Option Lists
     public array $jenisTagihans = [];
@@ -149,6 +151,11 @@ class DetailTagihanSiswa extends Component
 
     public function openCreateModal()
     {
+        if (auth()->user()->role?->nama === 'super_admin_2') {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->resetValidation();
         $this->reset(['nominal']);
         $this->jenis_tagihan_id = $this->jenisTagihans[0]['id'] ?? null;
@@ -175,6 +182,11 @@ class DetailTagihanSiswa extends Component
 
     public function createTagihan()
     {
+        if (auth()->user()->role?->nama === 'super_admin_2') {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->validate([
             'jenis_tagihan_id' => 'required|exists:jenis_tagihan,id',
             'bulan' => 'required|string|max:50',
@@ -219,6 +231,11 @@ class DetailTagihanSiswa extends Component
 
     public function openEditModal(int $tagihanId)
     {
+        if (auth()->user()->role?->nama === 'super_admin_2') {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->resetValidation();
         $t = Tagihan::findOrFail($tagihanId);
         $this->editingTagihanId = $t->id;
@@ -227,6 +244,7 @@ class DetailTagihanSiswa extends Component
         $this->edit_nominal = (float) $t->nominal;
         $this->edit_jatuh_tempo = $t->jatuh_tempo ? date('Y-m-d', strtotime($t->jatuh_tempo)) : '';
         $this->edit_total_dibayar = (float) $t->total_dibayar;
+        $this->edit_alasan = '';
         $this->showEditModal = true;
     }
 
@@ -234,21 +252,57 @@ class DetailTagihanSiswa extends Component
     {
         $this->showEditModal = false;
         $this->editingTagihanId = null;
+        $this->edit_alasan = '';
         $this->resetValidation();
     }
 
     public function updateTagihan()
     {
-        $this->validate([
+        if (auth()->user()->role?->nama === 'super_admin_2') {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $userRole = auth()->user()->role->nama ?? '';
+        $rules = [
             'edit_jenis_tagihan_id' => 'required|exists:jenis_tagihan,id',
             'edit_bulan' => 'required|string|max:50',
             'edit_nominal' => 'required|numeric|min:' . ($this->edit_total_dibayar > 0 ? $this->edit_total_dibayar : 0),
             'edit_jatuh_tempo' => 'required|date',
-        ], [
+        ];
+
+        if ($userRole === 'finance') {
+            $rules['edit_alasan'] = 'required|string|min:5|max:500';
+        }
+
+        $this->validate($rules, [
             'edit_nominal.min' => 'Nominal tagihan tidak boleh lebih kecil dari jumlah yang sudah dibayar (Rp ' . number_format($this->edit_total_dibayar, 0, ',', '.') . ').',
+            'edit_alasan.required' => 'Alasan perubahan wajib diisi untuk persetujuan Super Admin atau Super Admin 2.',
         ]);
 
         $t = Tagihan::findOrFail($this->editingTagihanId);
+
+        // If finance, submit approval request
+        if ($userRole === 'finance') {
+            \App\Services\FinancialApprovalService::createRequest(
+                auth()->user(),
+                'edit',
+                'tagihan',
+                $t,
+                [
+                    'jenis_tagihan_id' => $this->edit_jenis_tagihan_id,
+                    'bulan' => $this->edit_bulan,
+                    'nominal' => $this->edit_nominal,
+                    'jatuh_tempo' => $this->edit_jatuh_tempo,
+                ],
+                $this->edit_alasan,
+                "Edit Tagihan: " . ($this->siswa->user->nama ?? 'Siswa') . " - {$this->edit_bulan} (Rp " . number_format($t->nominal, 0, ',', '.') . " -> Rp " . number_format($this->edit_nominal, 0, ',', '.') . ")"
+            );
+
+            $this->closeEditModal();
+            session()->flash('success', 'Permohonan perubahan tagihan telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.');
+            return;
+        }
 
         $newStatus = 'belum_bayar';
         if ($this->edit_nominal <= 0 || $t->total_dibayar >= $this->edit_nominal) {
@@ -269,14 +323,36 @@ class DetailTagihanSiswa extends Component
         session()->flash('success', 'Data tagihan berhasil diperbarui.');
     }
 
-    public function deleteTagihan(int $id)
+    public function deleteTagihan(int $id, ?string $alasan = null)
     {
+        if (auth()->user()->role?->nama === 'super_admin_2') {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         if (!$this->isFinanceOrAdmin()) {
             session()->flash('error', 'Akses Ditolak: Anda tidak memiliki wewenang untuk menghapus tagihan.');
             return;
         }
 
         $t = Tagihan::with(['pembayarans', 'siswa'])->findOrFail($id);
+        $userRole = auth()->user()->role->nama ?? '';
+
+        if ($userRole === 'finance') {
+            $reason = $alasan ?: ($this->delete_alasan ?: 'Penghapusan tagihan diajukan oleh staf keuangan');
+            \App\Services\FinancialApprovalService::createRequest(
+                auth()->user(),
+                'hapus',
+                'tagihan',
+                $t,
+                null,
+                $reason,
+                "Hapus Tagihan: " . ($this->siswa->user->nama ?? 'Siswa') . " - {$t->bulan} (Rp " . number_format($t->nominal, 0, ',', '.') . ")"
+            );
+
+            session()->flash('success', 'Permohonan penghapusan tagihan telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.');
+            return;
+        }
 
         DB::transaction(function () use ($t) {
             $siswa = $t->siswa ?: Siswa::find($this->siswaId);
@@ -300,10 +376,34 @@ class DetailTagihanSiswa extends Component
         session()->flash('success', 'Data tagihan berhasil dihapus.');
     }
 
-    public function deletePembayaran(int $pembayaranId)
+    public function deletePembayaran(int $pembayaranId, ?string $alasan = null)
     {
+        if (auth()->user()->role?->nama === 'super_admin_2') {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         if (!$this->isFinanceOrAdmin()) {
             session()->flash('error', 'Akses Ditolak: Anda tidak memiliki izin untuk membatalkan riwayat pembayaran.');
+            return;
+        }
+
+        $pembayaran = Pembayaran::with('tagihan')->findOrFail($pembayaranId);
+        $userRole = auth()->user()->role->nama ?? '';
+
+        if ($userRole === 'finance') {
+            $reason = $alasan ?: ($this->delete_alasan ?: 'Pembatalan pembayaran diajukan oleh staf keuangan');
+            \App\Services\FinancialApprovalService::createRequest(
+                auth()->user(),
+                'hapus',
+                'pembayaran',
+                $pembayaran,
+                null,
+                $reason,
+                "Hapus Pembayaran: {$pembayaran->no_resi} - " . ($this->siswa->user->nama ?? 'Siswa') . " (Rp " . number_format($pembayaran->nominal_dibayar, 0, ',', '.') . ")"
+            );
+
+            session()->flash('success', 'Permohonan pembatalan pembayaran telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.');
             return;
         }
 

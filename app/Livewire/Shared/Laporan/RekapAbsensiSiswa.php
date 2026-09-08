@@ -131,6 +131,17 @@ class RekapAbsensiSiswa extends Component
                     break;
                 }
             }
+
+            // Automatically recognize Sundays and official Indonesian national holidays (Tanggal Merah)
+            if (!$isHoliday) {
+                try {
+                    $isSunday = \Carbon\Carbon::createFromDate((int) $this->tahun, (int) $this->bulan, $d)->isSunday();
+                } catch (\Throwable $e) {
+                    $isSunday = false;
+                }
+                $isHoliday = $isSunday || KalenderAkademik::isNationalHoliday($dStr);
+            }
+
             $holidayDayMap[$d] = $isHoliday;
         }
 

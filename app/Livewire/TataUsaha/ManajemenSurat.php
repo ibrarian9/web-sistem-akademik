@@ -153,6 +153,11 @@ class ManajemenSurat extends Component
 
     public function simpanDanCetak()
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('message', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
         $this->validate([
             'nomor_surat' => 'required|string',
             'penerima_nama' => 'required|string',
@@ -236,6 +241,11 @@ class ManajemenSurat extends Component
 
     public function deleteRiwayat($id)
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('message', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
         RiwayatSurat::findOrFail($id)->delete();
         session()->flash('message', 'Riwayat surat berhasil dihapus.');
     }

@@ -127,6 +127,11 @@ class InputPembayaran extends Component
 
     public function savePayment()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->validate();
 
         $tagihan = Tagihan::where('id', $this->tagihan_id)->first();

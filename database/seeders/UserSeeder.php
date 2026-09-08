@@ -17,6 +17,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $roleAdmin = Role::where('nama', 'super_admin')->first();
+        $roleAdmin2 = Role::where('nama', 'super_admin_2')->first();
         $roleTataUsaha = Role::where('nama', 'tata_usaha')->first();
         $roleFinance = Role::where('nama', 'finance')->first();
         $roleGuru = Role::where('nama', 'guru')->first();
@@ -34,6 +35,21 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('admin123'),
                 'role_id' => $roleAdmin->id,
                 'no_hp' => '081234567890',
+                'alamat' => 'Sleman, Yogyakarta',
+                'status' => 'aktif',
+            ]);
+        }
+
+        // 1b. Create Super Admin 2 (Viewer & Approval)
+        if ($roleAdmin2) {
+            User::firstOrCreate([
+                'username' => 'admin2',
+            ], [
+                'nama' => 'Dra. Hj. Nurul Hidayati (Super Admin 2)',
+                'email' => 'admin2@yayasan.or.id',
+                'password' => Hash::make('admin2123'),
+                'role_id' => $roleAdmin2->id,
+                'no_hp' => '081234567899',
                 'alamat' => 'Sleman, Yogyakarta',
                 'status' => 'aktif',
             ]);

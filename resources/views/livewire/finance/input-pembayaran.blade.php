@@ -128,9 +128,13 @@
                             @endif
                         </td>
                         <td class="p-3.5 text-center">
+                            @if(!auth()->user()->isSuperAdmin2())
                             <x-button variant="primary" size="xs" icon="plus" wire:click="pilihSiswaAndTagihan({{ $t->siswa_id }}, {{ $t->id }})">
                                 Bayar Sekarang
                             </x-button>
+                            @else
+                                <span class="text-[10px] text-stone-400 font-mono italic">Lihat Saja</span>
+                            @endif
                         </td>
                     </tr>
                 @empty

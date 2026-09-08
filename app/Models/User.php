@@ -58,4 +58,29 @@ class User extends Authenticatable
     {
         return $this->hasMany(Notifikasi::class);
     }
+
+    public function isSuperAdmin(): bool
+    {
+        return in_array($this->role?->nama, ['super_admin', 'founder']);
+    }
+
+    public function isSuperAdmin2(): bool
+    {
+        return $this->role?->nama === 'super_admin_2';
+    }
+
+    public function isReadOnlyAdmin(): bool
+    {
+        return $this->role?->nama === 'super_admin_2';
+    }
+
+    public function canApproveFinancial(): bool
+    {
+        return in_array($this->role?->nama, ['super_admin', 'super_admin_2', 'founder']);
+    }
+
+    public function isKepalaSekolah(): bool
+    {
+        return $this->role?->nama === 'kepala_sekolah';
+    }
 }

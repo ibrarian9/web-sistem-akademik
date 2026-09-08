@@ -165,6 +165,7 @@
                         </td>
                         <td class="p-3.5 text-center">
                             <div class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
+                                @if (!auth()->user()->isSuperAdmin2())
                                 <button 
                                     type="button" 
                                     wire:click="openTransactionModal({{ $siswa->id }}, 'setor')"
@@ -184,6 +185,7 @@
                                     <x-lucide-minus class="w-3.5 h-3.5" />
                                     <span>Tarik</span>
                                 </button>
+                                @endif
 
                                 <button 
                                     type="button" 
@@ -347,27 +349,29 @@
                         </td>
                         <td class="p-3.5 text-center">
                             <div class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
-                                <x-button 
-                                    type="button" 
-                                    variant="secondary" 
-                                    size="xs" 
-                                    icon="edit-3" 
-                                    wire:click="openEditTransaction({{ $htx->id }})" 
-                                    title="Edit Transaksi Mutasi Ini"
-                                >
-                                    Edit
-                                </x-button>
-
-                                @if ($isFounder)
+                                @if (!auth()->user()->isSuperAdmin2())
                                     <x-button 
                                         type="button" 
-                                        variant="danger" 
+                                        variant="secondary" 
                                         size="xs" 
-                                        icon="trash-2" 
-                                        wire:click="deleteTransaction({{ $htx->id }})" 
-                                        data-confirm="Hapus transaksi mutasi ini? Saldo tabungan santri terkait akan dihitung ulang secara otomatis." 
-                                        title="Hapus Transaksi"
-                                    />
+                                        icon="edit-3" 
+                                        wire:click="openEditTransaction({{ $htx->id }})" 
+                                        title="Edit Transaksi Mutasi Ini"
+                                    >
+                                        Edit
+                                    </x-button>
+
+                                    @if ($isFounder || auth()->user()->role?->nama === 'finance')
+                                        <x-button 
+                                            type="button" 
+                                            variant="danger" 
+                                            size="xs" 
+                                            icon="trash-2" 
+                                            wire:click="deleteTransaction({{ $htx->id }})" 
+                                            data-confirm="{{ auth()->user()->role?->nama === 'finance' ? 'Ajukan permohonan penghapusan transaksi mutasi ini ke Super Admin / Super Admin 2?' : 'Hapus transaksi mutasi ini? Saldo tabungan santri terkait akan dihitung ulang secara otomatis.' }}" 
+                                            title="Hapus Transaksi"
+                                        />
+                                    @endif
                                 @endif
                             </div>
                         </td>
@@ -508,29 +512,31 @@
                                 </td>
                                 <td class="p-3 text-center">
                                     <div class="flex items-center justify-center gap-1.5">
-                                        <!-- Edit Button (Founder & Finance) -->
-                                        <x-button 
-                                            type="button" 
-                                            variant="secondary" 
-                                            size="xs" 
-                                            icon="edit-3" 
-                                            wire:click="openEditTransaction({{ $tx->id }})" 
-                                            title="Edit Transaksi">
-                                            Edit
-                                        </x-button>
-
-                                        <!-- Delete Button (Founder Only) -->
-                                        @if ($isFounder)
+                                        @if (!auth()->user()->isSuperAdmin2())
+                                            <!-- Edit Button (Founder & Finance) -->
                                             <x-button 
                                                 type="button" 
-                                                variant="danger" 
+                                                variant="secondary" 
                                                 size="xs" 
-                                                icon="trash-2" 
-                                                wire:click="deleteTransaction({{ $tx->id }})" 
-                                                data-confirm="Apakah Anda yakin ingin menghapus catatan transaksi tabungan ini? Saldo tabungan siswa akan dihitung ulang secara otomatis." 
-                                                title="Hapus Transaksi">
-                                                Hapus
+                                                icon="edit-3" 
+                                                wire:click="openEditTransaction({{ $tx->id }})" 
+                                                title="Edit Transaksi">
+                                                Edit
                                             </x-button>
+
+                                            <!-- Delete Button (Founder & Finance) -->
+                                            @if ($isFounder || auth()->user()->role?->nama === 'finance')
+                                                <x-button 
+                                                    type="button" 
+                                                    variant="danger" 
+                                                    size="xs" 
+                                                    icon="trash-2" 
+                                                    wire:click="deleteTransaction({{ $tx->id }})" 
+                                                    data-confirm="{{ auth()->user()->role?->nama === 'finance' ? 'Ajukan permohonan penghapusan transaksi tabungan ini ke Super Admin / Super Admin 2?' : 'Apakah Anda yakin ingin menghapus catatan transaksi tabungan ini? Saldo tabungan siswa akan dihitung ulang secara otomatis.' }}" 
+                                                    title="Hapus Transaksi">
+                                                    Hapus
+                                                </x-button>
+                                            @endif
                                         @endif
                                     </div>
                                 </td>
@@ -625,12 +631,36 @@
                 <textarea wire:model="edit_keterangan" rows="2" placeholder="Catatan transaksi tabungan (opsional)..." class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 shadow-2xs resize-none"></textarea>
             </div>
 
+            @if(auth()->user()->role?->nama === 'finance')
+                <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-start gap-2">
+                    <x-lucide-alert-circle class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <div>
+                        <span class="font-bold">Persetujuan Diperlukan:</span> Perubahan catatan mutasi ini akan diajukan ke Super Admin atau Super Admin 2 sebelum saldo dihitung ulang.
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">
+                        Alasan Perubahan <span class="text-rose-500">*</span>
+                    </label>
+                    <textarea 
+                        wire:model="edit_alasan" 
+                        rows="2" 
+                        placeholder="Jelaskan alasan koreksi transaksi tabungan..." 
+                        class="w-full px-3.5 py-2.5 bg-white border @error('edit_alasan') border-rose-500 ring-1 ring-rose-500 @else border-stone-300 @enderror rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 shadow-2xs resize-none"
+                    ></textarea>
+                    @error('edit_alasan')
+                        <p class="text-xs text-rose-500 font-semibold">{{ $message }}</p>
+                    @enderror
+                </div>
+            @endif
+
             <div class="flex items-center justify-end gap-2 pt-3 border-t border-stone-200">
                 <x-button variant="secondary" size="md" wire:click="closeEditTransactionModal">
                     Batal
                 </x-button>
                 <x-button variant="primary" size="md" type="submit" loadingTarget="saveEditTransaction">
-                    Simpan Perubahan
+                    {{ auth()->user()->role?->nama === 'finance' ? 'Ajukan Persetujuan' : 'Simpan Perubahan' }}
                 </x-button>
             </div>
         </form>

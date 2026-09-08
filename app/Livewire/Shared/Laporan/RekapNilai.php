@@ -10,6 +10,10 @@ use App\Models\Semester;
 use App\Models\KomponenNilai;
 use App\Models\Nilai;
 use App\Models\GuruMapelKelas;
+use App\Models\LingkupMateri;
+use App\Models\NilaiSumatifTp;
+use App\Models\NilaiSas;
+use App\Models\RaporDetail;
 use Illuminate\Support\Facades\DB;
 
 class RekapNilai extends Component
@@ -102,7 +106,7 @@ class RekapNilai extends Component
         if (!$this->kelasId || !$this->mapelId || !$this->semesterId) {
             return [
                 'matrix' => [],
-                'components' => [],
+                'babs' => collect(),
                 'kelas' => null,
                 'mapel' => null,
                 'semester' => null
@@ -121,67 +125,76 @@ class RekapNilai extends Component
             ->select('siswa.*')
             ->get();
 
-        $components = KomponenNilai::orderBy('urutan')->get();
-        $nilais = Nilai::where([
-            'kelas_id' => $this->kelasId,
-            'mapel_id' => $this->mapelId,
-            'semester_id' => $this->semesterId,
-        ])->get();
+        $babs = LingkupMateri::where('mapel_id', $this->mapelId)
+            ->with(['tujuanPembelajaran'])
+            ->orderBy('urutan', 'asc')
+            ->get();
 
-        $gmk = GuruMapelKelas::where([
-            'kelas_id' => $this->kelasId,
-            'mapel_id' => $this->mapelId,
-        ])->first();
+        $sumatifTps = NilaiSumatifTp::whereIn('siswa_id', $students->pluck('id'))
+            ->where('semester_id', $this->semesterId)
+            ->get();
 
-        $customBobots = [];
-        if ($gmk) {
-            $customBobots = \App\Models\BobotNilaiGuru::where('guru_mapel_kelas_id', $gmk->id)
-                ->pluck('bobot', 'komponen_nilai_id')
-                ->toArray();
-        }
+        $sasScores = NilaiSas::whereIn('siswa_id', $students->pluck('id'))
+            ->where('mapel_id', $this->mapelId)
+            ->where('semester_id', $this->semesterId)
+            ->get()
+            ->keyBy('siswa_id');
+
+        $raporDetails = RaporDetail::whereHas('rapor', function ($q) use ($students) {
+            $q->whereIn('siswa_id', $students->pluck('id'))
+              ->where('semester_id', $this->semesterId);
+        })
+        ->where('mapel_id', $this->mapelId)
+        ->with('rapor')
+        ->get()
+        ->keyBy(fn($d) => $d->rapor->siswa_id);
 
         $matrix = [];
         foreach ($students as $siswa) {
-            $compGrades = [];
-            $finalGrade = 0.00;
-            $totalWeight = 0.00;
+            $babGrades = [];
+            $allBabScores = [];
 
-            foreach ($components as $comp) {
-                // Get all grades for this student and this component
-                $studentCompNilais = $nilais->where('siswa_id', $siswa->id)
-                    ->where('komponen_nilai_id', $comp->id);
-                
-                if ($studentCompNilais->count() > 0) {
-                    // Average the grades if multiple entries exist
-                    $avg = $studentCompNilais->avg('nilai');
-                    $compGrades[$comp->id] = round($avg, 2);
-                    
-                    // Add to final grade calculation (weighted)
-                    $compBobot = isset($customBobots[$comp->id]) ? floatval($customBobots[$comp->id]) : floatval($comp->bobot);
-                    $finalGrade += $avg * ($compBobot / 100);
-                    $totalWeight += $compBobot;
+            foreach ($babs as $bab) {
+                $tpIds = $bab->tujuanPembelajaran->pluck('id')->toArray();
+                if (!empty($tpIds)) {
+                    $scores = $sumatifTps->where('siswa_id', $siswa->id)->whereIn('tp_id', $tpIds);
+                    if ($scores->isNotEmpty()) {
+                        $avg = round($scores->avg('nilai'), 1);
+                        $babGrades[$bab->id] = $avg;
+                        $allBabScores[] = $avg;
+                    } else {
+                        $babGrades[$bab->id] = null;
+                    }
                 } else {
-                    $compGrades[$comp->id] = null;
+                    $babGrades[$bab->id] = null;
                 }
             }
 
-            $finalScore = $totalWeight > 0 ? round($finalGrade / ($totalWeight / 100), 2) : 0.00;
+            $sasRecord = $sasScores[$siswa->id] ?? null;
+            $sasVal = $sasRecord ? (float) ($sasRecord->nilai_sas !== null ? $sasRecord->nilai_sas : $sasRecord->nilai) : null;
 
-            // Calculate predicate
-            $predikat = 'E';
-            if ($finalScore >= 90) {
-                $predikat = 'A';
-            } elseif ($finalScore >= 80) {
-                $predikat = 'B';
-            } elseif ($finalScore >= 70) {
-                $predikat = 'C';
-            } elseif ($finalScore >= 60) {
+            $detail = $raporDetails[$siswa->id] ?? null;
+
+            if ($detail && $detail->nilai_akhir !== null) {
+                $finalScore = (float) $detail->nilai_akhir;
+                $predikat = $detail->predikat ?? 'D';
+            } else {
+                $comps = $allBabScores;
+                if ($sasVal !== null) {
+                    $comps[] = $sasVal;
+                }
+                $finalScore = count($comps) > 0 ? round(array_sum($comps) / count($comps), 2) : 0.00;
+
                 $predikat = 'D';
+                if ($finalScore >= 90) $predikat = 'A';
+                elseif ($finalScore >= 80) $predikat = 'B';
+                elseif ($finalScore >= 70) $predikat = 'C';
             }
 
             $matrix[] = [
                 'siswa' => $siswa,
-                'compGrades' => $compGrades,
+                'babGrades' => $babGrades,
+                'nilaiSas' => $sasVal,
                 'finalGrade' => $finalScore,
                 'predikat' => $predikat
             ];
@@ -189,7 +202,7 @@ class RekapNilai extends Component
 
         return [
             'matrix' => $matrix,
-            'components' => $components,
+            'babs' => $babs,
             'kelas' => $kelas,
             'mapel' => $mapel,
             'semester' => $semester
@@ -206,7 +219,7 @@ class RekapNilai extends Component
 
         $pdfData = [
             'matrix' => $data['matrix'],
-            'components' => $data['components'],
+            'babs' => $data['babs'],
             'kelas' => $data['kelas'],
             'mapel' => $data['mapel'],
             'semester' => $data['semester'],

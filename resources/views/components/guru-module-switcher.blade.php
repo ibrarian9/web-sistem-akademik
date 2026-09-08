@@ -61,17 +61,6 @@
                 <span class="truncate">Penilaian P5</span>
             </a>
 
-            <!-- 5. Bobot Nilai -->
-            @if(Route::has('guru.bobot-nilai'))
-                <a href="{{ route('guru.bobot-nilai') }}" 
-                   wire:navigate 
-                   class="px-3.5 py-2.5 rounded-xl text-xs border transition flex items-center justify-center sm:justify-start gap-2 text-center sm:text-left {{ $active === 'bobot' ? $activeClass : $inactiveClass }}">
-                    <svg class="w-4 h-4 shrink-0 {{ $active === 'bobot' ? 'text-emerald-100' : 'text-emerald-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
-                    </svg>
-                    <span class="truncate">Bobot Nilai</span>
-                </a>
-            @endif
         @endif
 
         <!-- 6. Lihat Rapor Murid -->

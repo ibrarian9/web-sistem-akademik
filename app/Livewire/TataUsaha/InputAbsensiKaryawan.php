@@ -140,6 +140,114 @@ class InputAbsensiKaryawan extends Component
         $this->loadEmployees();
     }
 
+    public function downloadTemplate()
+    {
+        $filename = 'template-absen-guru-karyawan-' . ($this->tanggal ?: date('Y-m-d')) . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        $data = $this->attendanceData;
+
+        $callback = function () use ($data) {
+            $file = fopen('php://output', 'w');
+            // Write UTF-8 BOM for Microsoft Excel
+            fputs($file, "\xEF\xBB\xBF");
+
+            // Header columns
+            fputcsv($file, [
+                'NIP / Username',
+                'Nama Karyawan',
+                'Peran / Jabatan',
+                'Status Kehadiran',
+                'Jam Datang (HH:MM)',
+                'Jam Pulang (HH:MM)',
+                'Catatan'
+            ]);
+
+            foreach ($data as $item) {
+                fputcsv($file, [
+                    $item['nip'] ?: $item['nama'],
+                    $item['nama'],
+                    $item['role'],
+                    $item['status'] ?: 'hadir',
+                    $item['waktu_datang'] ?: '07:00',
+                    $item['waktu_pulang'] ?: '15:00',
+                    $item['catatan'] ?? ''
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->streamDownload($callback, $filename, $headers);
+    }
+
+    public function exportAttendance()
+    {
+        $filename = 'data-presensi-karyawan-guru-' . ($this->tanggal ?: date('Y-m-d')) . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        $data = $this->attendanceData;
+        $tanggal = $this->tanggal;
+
+        $callback = function () use ($data, $tanggal) {
+            $file = fopen('php://output', 'w');
+            fputs($file, "\xEF\xBB\xBF");
+
+            fputcsv($file, [
+                'No',
+                'NIP / Username',
+                'Nama Karyawan',
+                'Peran / Jabatan',
+                'Tanggal',
+                'Status Kehadiran',
+                'Jam Datang',
+                'Jam Pulang',
+                'Catatan'
+            ]);
+
+            $no = 1;
+            foreach ($data as $item) {
+                $statusLabels = [
+                    'hadir' => 'Hadir',
+                    'telat' => 'Terlambat',
+                    'izin' => 'Izin',
+                    'sakit' => 'Sakit',
+                    'tidak_hadir' => 'Alpa / Tidak Hadir',
+                    'alpa' => 'Alpa / Tidak Hadir',
+                ];
+                $statusText = $statusLabels[$item['status']] ?? ucfirst($item['status']);
+
+                fputcsv($file, [
+                    $no++,
+                    $item['nip'] ?: '-',
+                    $item['nama'],
+                    $item['role'],
+                    $tanggal,
+                    $statusText,
+                    $item['waktu_datang'] ?: '-',
+                    $item['waktu_pulang'] ?: '-',
+                    $item['catatan'] ?? '-'
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->streamDownload($callback, $filename, $headers);
+    }
+
     public function uploadCsv()
     {
         $this->validate([
@@ -147,41 +255,94 @@ class InputAbsensiKaryawan extends Component
         ]);
 
         $path = $this->csvFile->getRealPath();
-        $file = fopen($path, 'r');
+        
+        // Auto-detect delimiter
+        $firstLine = file_exists($path) ? fgets(fopen($path, 'r')) : '';
+        $delimiter = (strpos($firstLine, ';') !== false && strpos($firstLine, ',') === false) ? ';' : ',';
 
-        $header = fgetcsv($file); // Read header line
+        $file = fopen($path, 'r');
+        $header = fgetcsv($file, 0, $delimiter); // Read header line
+        
+        // Clean BOM from first header column if present
+        if ($header && isset($header[0])) {
+            $header[0] = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $header[0]);
+        }
+
         $uploaded = 0;
 
-        while (($row = fgetcsv($file)) !== false) {
-            if (count($row) < 3) continue;
+        // Detect if the file uses 7-column template format or 4-column compact format
+        $isTemplateFormat = false;
+        if ($header && count($header) >= 6) {
+            $headerLower = array_map(fn($h) => strtolower(trim($h)), $header);
+            if (in_array('status kehadiran', $headerLower) || in_array('status', $headerLower) || in_array('nama karyawan', $headerLower)) {
+                $isTemplateFormat = true;
+            }
+        }
 
-            $nipOrUsername = trim($row[0]);
-            $status = strtolower(trim($row[1]));
-            $waktuDatang = isset($row[2]) ? trim($row[2]) : '07:00';
-            $waktuPulang = isset($row[3]) ? trim($row[3]) : '15:00';
+        while (($row = fgetcsv($file, 0, $delimiter)) !== false) {
+            if (count($row) < 2) continue;
+
+            $nipOrUsername = trim($row[0] ?? '');
+            if (empty($nipOrUsername) || strtolower($nipOrUsername) === 'nip / username' || strtolower($nipOrUsername) === 'nip') {
+                continue;
+            }
+
+            if ($isTemplateFormat || count($row) >= 6) {
+                // Template format: NIP, Nama, Peran, Status, JamDatang, JamPulang, Catatan
+                $status = strtolower(trim($row[3] ?? 'hadir'));
+                $waktuDatang = isset($row[4]) ? trim($row[4]) : '07:00';
+                $waktuPulang = isset($row[5]) ? trim($row[5]) : '15:00';
+                $catatan = isset($row[6]) ? trim($row[6]) : null;
+            } else {
+                // Compact format: NIP, Status, JamDatang, JamPulang, Catatan (optional)
+                $status = strtolower(trim($row[1] ?? 'hadir'));
+                $waktuDatang = isset($row[2]) ? trim($row[2]) : '07:00';
+                $waktuPulang = isset($row[3]) ? trim($row[3]) : '15:00';
+                $catatan = isset($row[4]) ? trim($row[4]) : null;
+            }
 
             if (!in_array($status, ['hadir', 'telat', 'sakit', 'izin', 'alpa', 'tidak_hadir'])) {
                 $status = 'hadir';
             }
 
             $user = User::where('username', $nipOrUsername)
+                ->orWhere('nip', $nipOrUsername)
                 ->orWhereHas('guru', fn($q) => $q->where('nip', $nipOrUsername))
                 ->first();
 
-            if ($user && $user->guru && !in_array($user->role?->nama, ['super_admin', 'pengawas', 'koordinator'])) {
-                AbsensiGuru::updateOrCreate(
-                    [
-                        'guru_id' => $user->guru->id,
-                        'tanggal' => $this->tanggal,
-                    ],
-                    [
-                        'waktu_datang' => $waktuDatang ? (strlen($waktuDatang) === 5 ? $waktuDatang . ':00' : $waktuDatang) : null,
-                        'waktu_pulang' => $waktuPulang ? (strlen($waktuPulang) === 5 ? $waktuPulang . ':00' : $waktuPulang) : null,
-                        'status' => $status === 'alpa' ? 'tidak_hadir' : $status,
-                        'diinput_oleh' => auth()->id(),
-                    ]
-                );
-                $uploaded++;
+            if ($user && !in_array($user->role?->nama, ['super_admin', 'pengawas', 'koordinator'])) {
+                $guruId = $user->guru?->id;
+                if (!$guruId && in_array($user->role?->nama, ['tata_usaha', 'finance', 'kepala_sekolah'])) {
+                    $guruRecord = Guru::firstOrCreate(
+                        ['user_id' => $user->id],
+                        [
+                            'nip' => $user->nip ?: 'STAFF-' . $user->id,
+                            'jenis_guru' => 'umum',
+                            'no_hp' => $user->no_hp ?? '-',
+                            'alamat' => $user->alamat ?? '-',
+                            'tanggal_masuk' => date('Y-m-d'),
+                            'status_aktif' => true,
+                        ]
+                    );
+                    $guruId = $guruRecord->id;
+                }
+
+                if ($guruId) {
+                    AbsensiGuru::updateOrCreate(
+                        [
+                            'guru_id' => $guruId,
+                            'tanggal' => $this->tanggal,
+                        ],
+                        [
+                            'waktu_datang' => $waktuDatang ? (strlen($waktuDatang) === 5 ? $waktuDatang . ':00' : $waktuDatang) : null,
+                            'waktu_pulang' => $waktuPulang ? (strlen($waktuPulang) === 5 ? $waktuPulang . ':00' : $waktuPulang) : null,
+                            'status' => $status === 'alpa' ? 'tidak_hadir' : $status,
+                            'catatan' => $catatan ?: null,
+                            'diinput_oleh' => auth()->id(),
+                        ]
+                    );
+                    $uploaded++;
+                }
             }
         }
 

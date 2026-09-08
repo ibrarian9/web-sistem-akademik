@@ -8,9 +8,11 @@
         icon="check-square"
     >
         <x-slot:actions>
-            <x-button type="button" variant="primary" size="md" icon="plus" wire:click="openCreate">
-                Tambah Komponen Nilai
-            </x-button>
+            @if (!auth()->user()?->isSuperAdmin2())
+                <x-button type="button" variant="primary" size="md" icon="plus" wire:click="openCreate">
+                    Tambah Komponen Nilai
+                </x-button>
+            @endif
         </x-slot:actions>
     </x-page-header>
 
@@ -74,21 +76,27 @@
                                     {{ $berlakuText }}
                                 </x-badge>
                             </div>
-                            <div class="text-xs text-stone-500 capitalize">
-                                Kategori Penilaian: <strong class="text-stone-700 font-semibold">{{ $komponen['kategori'] }}</strong>
+                            <div class="text-xs text-stone-500 capitalize flex items-center gap-2">
+                                <span>Kategori: <strong class="text-stone-700 font-semibold">{{ $komponen['kategori'] }}</strong></span>
+                                <span class="text-stone-300">•</span>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 text-[11px] font-black border border-emerald-200">
+                                    Bobot: {{ number_format($komponen['bobot'], 1) }}%
+                                </span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Actions -->
-                    <div class="flex items-center gap-1.5">
-                        <x-button type="button" variant="secondary" size="xs" icon="edit" wire:click="openEdit({{ $komponen['id'] }})">
-                            Edit
-                        </x-button>
-                        <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="delete({{ $komponen['id'] }})" data-confirm="Yakin ingin menghapus komponen nilai ini?">
-                            Hapus
-                        </x-button>
-                    </div>
+                    @if (!auth()->user()?->isSuperAdmin2())
+                        <div class="flex items-center gap-1.5">
+                            <x-button type="button" variant="secondary" size="xs" icon="edit" wire:click="openEdit({{ $komponen['id'] }})">
+                                Edit
+                            </x-button>
+                            <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="delete({{ $komponen['id'] }})" data-confirm="Yakin ingin menghapus komponen nilai ini?">
+                                Hapus
+                            </x-button>
+                        </div>
+                    @endif
                 </div>
             @empty
                 <div class="py-12 text-center text-stone-400 text-xs">
@@ -149,6 +157,16 @@
                     </select>
                     @error('kategori') <span class="text-rose-600 text-[10px] font-bold block mt-1">{{ $message }}</span> @enderror
                 </div>
+            </div>
+
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-stone-700 uppercase">Bobot Persentase (%) <span class="text-rose-600">*</span></label>
+                <div class="relative">
+                    <input wire:model="bobot" type="number" step="0.5" min="0" max="100" placeholder="Contoh: 25" 
+                        class="w-full pl-3.5 pr-8 py-2.5 bg-white border border-stone-300 rounded-xl text-xs text-stone-900 focus:ring-2 focus:ring-emerald-600 font-bold shadow-2xs" required />
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 font-bold text-xs">%</span>
+                </div>
+                @error('bobot') <span class="text-rose-600 text-[10px] font-bold block mt-1">{{ $message }}</span> @enderror
             </div>
 
             <div class="flex items-center justify-end gap-2 pt-3 border-t border-stone-200">

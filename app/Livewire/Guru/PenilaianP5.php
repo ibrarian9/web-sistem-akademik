@@ -178,6 +178,7 @@ class PenilaianP5 extends Component
         return view('livewire.guru.penilaian-p5', [
             'kelases' => $kelases,
             'proyeks' => $proyeks,
+            'selectedProyek' => ProyekP5::find($this->proyek_id),
             'semesters' => $semesters,
             'dimensis' => $dimensis,
             'siswas' => $siswas,

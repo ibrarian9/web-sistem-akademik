@@ -8,9 +8,11 @@
         icon="link"
     >
         <x-slot:actions>
+            @if(!auth()->user()->isSuperAdmin2())
             <x-button variant="primary" size="md" icon="plus" wire:click="openCreateModal">
                 Catat Pinjaman Baru
             </x-button>
+            @endif
         </x-slot:actions>
     </x-page-header>
 

@@ -321,6 +321,72 @@ class ManajemenKalenderAkademik extends Component
         session()->flash('message', 'Agenda kalender akademik berhasil dihapus.');
     }
 
+    public function updatedJenis($val)
+    {
+        if (in_array($val, ['hari_libur', 'libur_semester'])) {
+            $this->liburkan_presensi = true;
+        }
+    }
+
+    /**
+     * Automatically synchronize official Indonesian national public holidays (Tanggal Merah)
+     * into the kalender_akademik database table for the active or selected academic year.
+     */
+    public function syncTanggalMerahNasional(?int $targetTahunAjaranId = null)
+    {
+        if (!$this->canManage()) {
+            session()->flash('error', 'Hanya Tata Usaha dan Super Admin yang dapat menyinkronkan hari libur.');
+            return;
+        }
+
+        $taId = $targetTahunAjaranId ?? $this->filterTahunAjaranId ?: $this->tahun_ajaran_id;
+        $tahunAjaran = $taId ? TahunAjaran::find($taId) : TahunAjaran::where('status_aktif', true)->first();
+
+        if (!$tahunAjaran) {
+            session()->flash('error', 'Tidak ditemukan Tahun Ajaran aktif atau terpilih untuk sinkronisasi tanggal merah.');
+            return;
+        }
+
+        // Determine calendar years from Tahun Ajaran (e.g. "2026/2027" => 2026, 2027)
+        $years = [];
+        if (preg_match('/(\d{4})\/(\d{4})/', $tahunAjaran->nama, $matches)) {
+            $years[] = (int) $matches[1];
+            $years[] = (int) $matches[2];
+        } elseif (preg_match('/(\d{4})/', $tahunAjaran->nama, $matches)) {
+            $years[] = (int) $matches[1];
+            $years[] = ((int) $matches[1]) + 1;
+        } else {
+            $curYear = (int) date('Y');
+            $years = [$curYear, $curYear + 1];
+        }
+
+        $years = array_unique($years);
+        $totalSynced = 0;
+
+        foreach ($years as $yr) {
+            $holidays = KalenderAkademik::getNationalHolidays($yr);
+            foreach ($holidays as $h) {
+                KalenderAkademik::updateOrCreate(
+                    [
+                        'tahun_ajaran_id' => $tahunAjaran->id,
+                        'nama_kegiatan' => $h['nama'],
+                        'tanggal_mulai' => $h['tanggal_mulai'],
+                    ],
+                    [
+                        'tanggal_selesai' => $h['tanggal_selesai'],
+                        'jenis' => 'hari_libur',
+                        'liburkan_presensi' => true,
+                        'keterangan' => 'Libur Nasional Resmi (Tanggal Merah Otomatis)',
+                    ]
+                );
+                $totalSynced++;
+            }
+        }
+
+        session()->flash('message', "Berhasil menyinkronkan {$totalSynced} agenda Tanggal Merah / Libur Nasional Resmi untuk Tahun Ajaran {$tahunAjaran->nama}. Seluruh tanggal merah otomatis berstatus Libur Presensi.");
+        $this->resetPage();
+    }
+
     public function render()
     {
         $query = KalenderAkademik::with('tahunAjaran')

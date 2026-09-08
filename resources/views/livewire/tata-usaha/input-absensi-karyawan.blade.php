@@ -6,7 +6,18 @@
         badge="PRESENSI KARYAWAN & GURU"
         badgeVariant="emerald"
         icon="user-check"
-    />
+    >
+        <x-slot:actions>
+            <div class="flex flex-wrap items-center gap-2">
+                <x-button type="button" variant="outline" size="sm" icon="download" wire:click="downloadTemplate" loadingTarget="downloadTemplate" title="Unduh template Excel / CSV berisi daftar guru dan karyawan aktif">
+                    Unduh Template Excel
+                </x-button>
+                <x-button type="button" variant="outline" size="sm" icon="file-spreadsheet" wire:click="exportAttendance" loadingTarget="exportAttendance" title="Ekspor data presensi tanggal terpilih ke Excel / CSV">
+                    Ekspor Excel
+                </x-button>
+            </div>
+        </x-slot:actions>
+    </x-page-header>
 
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
@@ -14,7 +25,7 @@
         :steps="[
             ['title' => 'Pilih Tanggal Presensi', 'desc' => 'Tentukan tanggal presensi kerja yang ingin diinput atau diperbarui.'],
             ['title' => 'Set Status Harian', 'desc' => 'Pilih status Kehadiran (Hadir, Terlambat, Sakit, Izin, Alpa) dan waktu jam masuk/pulang.'],
-            ['title' => 'Unggah File CSV Batch', 'desc' => 'Gunakan fitur Unggah File CSV untuk mengunggah rekap presensi seluruh karyawan sekaligus.']
+            ['title' => 'Unduh & Unggah Template Excel', 'desc' => 'Klik \'Unduh Template Excel\' untuk mengisi presensi di Microsoft Excel secara offline, lalu unggah kembali file CSV hasil pengisian.']
         ]"
         notes="Seluruh karyawan (Guru, TU, Finance) kecuali Super Admin dan Pengawas wajib didata absensinya secara terpusat oleh Tata Usaha."
     />
@@ -68,7 +79,7 @@
             </div>
         </div>
 
-        <!-- Upload CSV Box -->
+        <!-- Upload CSV Box & Template Actions -->
         <div class="border-t border-stone-100 pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <form wire:submit.prevent="uploadCsv" class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                 <span class="text-xs font-bold text-stone-700 shrink-0">Unggah CSV Presensi:</span>
@@ -77,7 +88,12 @@
                     Upload CSV
                 </x-button>
             </form>
-            <span class="text-[11px] text-stone-400 italic">Format CSV: NIP/Username, Status, JamDatang (HH:MM), JamPulang (HH:MM)</span>
+            <div class="flex items-center gap-2">
+                <x-button type="button" variant="ghost" size="xs" icon="download" wire:click="downloadTemplate" loadingTarget="downloadTemplate" class="text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50">
+                    Unduh Format Template
+                </x-button>
+                <span class="text-[11px] text-stone-400 italic">Format: NIP/Username, Nama, Role, Status, JamDatang, JamPulang, Catatan</span>
+            </div>
         </div>
     </div>
 

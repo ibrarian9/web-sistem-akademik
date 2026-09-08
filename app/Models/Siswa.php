@@ -25,6 +25,7 @@ class Siswa extends Model
         'no_hp_wali',
         'kelas_id',
         'kelas_tahfidz_id',
+        'shadow_teacher_id',
         'saldo_deposit',
         'tanggal_masuk',
         'status',
@@ -56,6 +57,11 @@ class Siswa extends Model
     public function kelasTahfidz()
     {
         return $this->belongsTo(Kelas::class, 'kelas_tahfidz_id');
+    }
+
+    public function shadowTeacher()
+    {
+        return $this->belongsTo(Guru::class, 'shadow_teacher_id');
     }
 
     public function riwayatKelas()

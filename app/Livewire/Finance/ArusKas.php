@@ -43,6 +43,8 @@ class ArusKas extends Component
 
     // Form: Kas Keluar Operasional
     public ?int $kategori_pengeluaran_id = null;
+    public string $kategori_keluar_kustom = '';
+    public bool $is_kategori_kustom = false;
     public float $jumlah_keluar = 0.00;
     public string $tanggal_keluar = '';
     public string $keterangan_keluar = '';
@@ -121,6 +123,11 @@ class ArusKas extends Component
     // Modal Kas Masuk
     public function openIncomeModal()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->resetValidation();
         $this->reset(['jumlah_masuk', 'keterangan_masuk']);
         $this->tanggal_masuk = date('Y-m-d');
@@ -135,6 +142,11 @@ class ArusKas extends Component
 
     public function saveIncome()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $kat = $this->kategori_masuk ?: $this->kategori;
         $amount = $this->jumlah_masuk ?: $this->jumlah;
         $date = $this->tanggal_masuk ?: ($this->tanggal ?: date('Y-m-d'));
@@ -166,18 +178,56 @@ class ArusKas extends Component
         $this->resetPage();
     }
 
-    public function deleteIncome(int $id)
+    public function deleteIncome(int $id, ?string $alasan = null)
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $item = PemasukanKas::findOrFail($id);
+        $userRole = auth()->user()->role->nama ?? '';
+
+        if ($userRole === 'finance') {
+            $reason = $alasan ?: 'Penghapusan catatan pemasukan kas diajukan oleh staf keuangan';
+            \App\Services\FinancialApprovalService::createRequest(
+                auth()->user(),
+                'hapus',
+                'arus_kas',
+                $item,
+                null,
+                $reason,
+                "Hapus Pemasukan Kas: {$item->kategori} - Rp " . number_format($item->jumlah, 0, ',', '.') . " (" . ($item->tanggal ? $item->tanggal->format('d/m/Y') : '-') . ")"
+            );
+
+            session()->flash('message', 'Permohonan penghapusan pemasukan kas telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.');
+            $this->dispatch('show-alert', [
+                'title' => 'Menunggu Approval',
+                'message' => 'Permohonan penghapusan pemasukan kas telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.',
+                'type' => 'info',
+            ]);
+            return;
+        }
+
         $item->delete();
         session()->flash('message', 'Catatan pemasukan kas berhasil dihapus.');
+        $this->dispatch('show-alert', [
+            'title' => 'Berhasil',
+            'message' => 'Catatan pemasukan kas berhasil dihapus.',
+            'type' => 'delete',
+        ]);
     }
 
     // Modal Kas Keluar
     public function openExpenseModal()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->resetValidation();
-        $this->reset(['jumlah_keluar', 'keterangan_keluar', 'jumlah', 'keterangan']);
+        $this->reset(['jumlah_keluar', 'keterangan_keluar', 'jumlah', 'keterangan', 'kategori_keluar_kustom', 'is_kategori_kustom']);
         $this->tanggal_keluar = date('Y-m-d');
         $this->tanggal = date('Y-m-d');
         if (!empty($this->kategoriKeluarOptions)) {
@@ -193,6 +243,11 @@ class ArusKas extends Component
 
     public function saveExpense()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $amount = $this->jumlah_keluar > 0 ? $this->jumlah_keluar : $this->jumlah;
         $date = $this->tanggal_keluar ?: ($this->tanggal ?: date('Y-m-d'));
         $desc = $this->keterangan_keluar ?: $this->keterangan;
@@ -201,12 +256,27 @@ class ArusKas extends Component
         $this->tanggal_keluar = $date;
         $this->keterangan_keluar = $desc;
 
-        $this->validate([
-            'kategori_pengeluaran_id' => 'required|exists:kategori_pengeluaran,id',
-            'jumlah_keluar' => 'required|numeric|min:1000',
-            'tanggal_keluar' => 'required|date',
-            'keterangan_keluar' => 'nullable|string|max:500',
-        ]);
+        if ($this->is_kategori_kustom && !empty(trim($this->kategori_keluar_kustom))) {
+            $this->validate([
+                'kategori_keluar_kustom' => 'required|string|max:100',
+                'jumlah_keluar' => 'required|numeric|min:1000',
+                'tanggal_keluar' => 'required|date',
+                'keterangan_keluar' => 'nullable|string|max:500',
+            ]);
+
+            $kategori = KategoriPengeluaran::firstOrCreate([
+                'nama' => trim($this->kategori_keluar_kustom)
+            ]);
+            $this->kategori_pengeluaran_id = $kategori->id;
+            $this->kategoriKeluarOptions = KategoriPengeluaran::orderBy('nama')->get()->toArray();
+        } else {
+            $this->validate([
+                'kategori_pengeluaran_id' => 'required|exists:kategori_pengeluaran,id',
+                'jumlah_keluar' => 'required|numeric|min:1000',
+                'tanggal_keluar' => 'required|date',
+                'keterangan_keluar' => 'nullable|string|max:500',
+            ]);
+        }
 
         Pengeluaran::create([
             'kategori_pengeluaran_id' => $this->kategori_pengeluaran_id,
@@ -218,15 +288,48 @@ class ArusKas extends Component
 
         session()->flash('message', 'Pengeluaran kas operasional yayasan berhasil dicatat.');
         $this->showExpenseModal = false;
-        $this->reset(['jumlah_keluar', 'keterangan_keluar', 'jumlah', 'keterangan']);
+        $this->reset(['jumlah_keluar', 'keterangan_keluar', 'jumlah', 'keterangan', 'kategori_keluar_kustom', 'is_kategori_kustom']);
         $this->resetPage();
     }
 
-    public function deleteExpense(int $id)
+    public function deleteExpense(int $id, ?string $alasan = null)
     {
-        $item = Pengeluaran::findOrFail($id);
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $item = Pengeluaran::with('kategoriPengeluaran')->findOrFail($id);
+        $userRole = auth()->user()->role->nama ?? '';
+
+        if ($userRole === 'finance') {
+            $reason = $alasan ?: 'Penghapusan catatan pengeluaran kas diajukan oleh staf keuangan';
+            \App\Services\FinancialApprovalService::createRequest(
+                auth()->user(),
+                'hapus',
+                'arus_kas',
+                $item,
+                null,
+                $reason,
+                "Hapus Pengeluaran Kas: " . ($item->kategoriPengeluaran->nama ?? 'Pengeluaran') . " - Rp " . number_format($item->jumlah, 0, ',', '.') . " (" . ($item->tanggal ? $item->tanggal->format('d/m/Y') : '-') . ")"
+            );
+
+            session()->flash('message', 'Permohonan penghapusan pengeluaran kas telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.');
+            $this->dispatch('show-alert', [
+                'title' => 'Menunggu Approval',
+                'message' => 'Permohonan penghapusan pengeluaran kas telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.',
+                'type' => 'info',
+            ]);
+            return;
+        }
+
         $item->delete();
         session()->flash('message', 'Catatan pengeluaran kas berhasil dihapus.');
+        $this->dispatch('show-alert', [
+            'title' => 'Berhasil',
+            'message' => 'Catatan pengeluaran kas berhasil dihapus.',
+            'type' => 'delete',
+        ]);
     }
 
     /**

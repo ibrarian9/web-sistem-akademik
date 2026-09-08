@@ -67,12 +67,22 @@ class ManajemenKelas extends Component
 
     public function openCreate()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->resetForm();
         $this->isFormOpen = true;
     }
 
     public function openEdit(int $id)
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->resetForm();
         $kelas = Kelas::findOrFail($id);
         $this->kelasId = $kelas->id;
@@ -87,6 +97,11 @@ class ManajemenKelas extends Component
 
     public function save()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         try {
             if ($this->jenis_kelas === 'tahfidz') {
                 $rules = [
@@ -185,6 +200,11 @@ class ManajemenKelas extends Component
 
     public function delete(int $id)
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         try {
             $kelas = Kelas::findOrFail($id);
             $namaKelas = $kelas->nama_kelas;

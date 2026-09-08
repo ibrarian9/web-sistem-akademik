@@ -14,9 +14,11 @@
             <x-button variant="outline" size="sm" icon="file-spreadsheet" wire:click="exportExcel" :disabled="$paginatedInflows->total() === 0" title="{{ $paginatedInflows->total() === 0 ? 'Tidak ada catatan pemasukan untuk diekspor' : 'Ekspor Spreadsheet Excel Sesuai Filter' }}">
                 Ekspor Excel
             </x-button>
+            @if(!auth()->user()->isSuperAdmin2())
             <x-button variant="primary" size="sm" icon="plus" wire:click="openCreateModal">
                 Catat Kas Masuk Yayasan
             </x-button>
+            @endif
         </x-slot:actions>
     </x-page-header>
 
@@ -269,7 +271,7 @@
                 <x-date-filter model="filterPeriode" startDateModel="startDate" endDateModel="endDate" />
             </div>
 
-            @if (count($selectedIds) > 0)
+            @if (count($selectedIds) > 0 && !auth()->user()->isSuperAdmin2() && auth()->user()->role?->nama !== 'finance')
                 <div class="flex items-center gap-2">
                     <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
                         {{ count($selectedIds) }} transaksi dipilih
@@ -338,8 +340,8 @@
                             {{ $item->petugas }}
                         </td>
                         <td class="p-3.5 text-center">
-                            @if ($item->can_delete)
-                                <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="deleteIncome({{ $item->raw_id }})" data-confirm="Apakah Anda yakin ingin menghapus catatan penerimaan kas ini?" title="Hapus Penerimaan">
+                            @if ($item->can_delete && !auth()->user()->isSuperAdmin2())
+                                <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="deleteIncome({{ $item->raw_id }})" data-confirm="{{ auth()->user()->role?->nama === 'finance' ? 'Ajukan permohonan penghapusan catatan penerimaan kas ini ke Super Admin / Super Admin 2?' : 'Apakah Anda yakin ingin menghapus catatan penerimaan kas ini?' }}" title="Hapus Penerimaan">
                                     Hapus
                                 </x-button>
                             @elseif ($item->stream === 'pembayaran_spp' && $item->raw_id)

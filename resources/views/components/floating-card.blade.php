@@ -27,11 +27,18 @@
     };
 @endphp
 
+@php
+    $escapeAction = '';
+    if ($closeAction) {
+        $escapeAction = str_starts_with($closeAction, '$') ? "\$wire.{$closeAction}" : "\$wire.{$closeAction}()";
+    }
+@endphp
+
 @if ($show)
     <div class="fixed inset-0 {{ $zIndex }} flex items-center justify-center lg:pl-64 bg-stone-950/65 backdrop-blur-xs p-4 sm:p-6 lg:p-8 overflow-y-auto animate-fade-in"
          x-data
-         @keydown.escape.window="{{ $closeAction ? "\$wire.{$closeAction}()" : '' }}"
-         @click.self="{{ $closeAction ? "\$wire.{$closeAction}()" : '' }}">
+         @keydown.escape.window="{{ $escapeAction }}"
+         @click.self="{{ $escapeAction }}">
         
         <div class="w-full {{ $maxWidthClass }} max-h-[92vh] flex flex-col bg-white border border-stone-200 rounded-3xl shadow-2xl p-5 sm:p-7 space-y-5 my-auto relative transform transition-all duration-200 ease-out scale-100 overflow-y-auto">
             

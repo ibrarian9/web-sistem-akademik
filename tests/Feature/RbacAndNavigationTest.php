@@ -57,22 +57,70 @@ test('kalender akademik route is accessible by all authenticated roles', functio
     }
 });
 
-test('kepala sekolah can access monitoring & audit log routes', function () {
+test('kepala sekolah can access academic, attendance, and tunggakan reports but is restricted from audit log and cashflow reports', function () {
     $kepsek = createUserWithRole('kepala_sekolah');
 
-    $routesToTest = [
+    $allowedRoutes = [
         'kepala-sekolah.dashboard',
-        'kepala-sekolah.audit-log',
-        'finance.overview-pembayaran',
-        'finance.laporan.tunggakan',
+        'kepala-sekolah.laporan.absensi-siswa',
+        'kepala-sekolah.laporan.absensi-guru',
+        'kepala-sekolah.laporan.rekap-nilai',
+        'kepala-sekolah.laporan.tunggakan',
+        'kepala-sekolah.kalender-akademik',
+    ];
+
+    foreach ($allowedRoutes as $routeName) {
+        $response = $this->actingAs($kepsek)->get(route($routeName));
+        $response->assertStatus(200);
+    }
+
+    $restrictedRoutes = [
+        'super-admin.audit-log',
+        'finance.arus-kas',
         'finance.laporan.pemasukan',
         'finance.laporan.pengeluaran',
         'finance.dana-bos',
+        'finance.dashboard',
     ];
 
-    foreach ($routesToTest as $routeName) {
+    foreach ($restrictedRoutes as $routeName) {
         $response = $this->actingAs($kepsek)->get(route($routeName));
+        // Must be redirected back to default dashboard or 403 forbidden
+        expect(in_array($response->status(), [302, 403]))->toBeTrue();
+    }
+});
+
+test('pengawas can access dashboard, teacher evaluation, grading approvals, and academic reports but is restricted from financial cashflow', function () {
+    $pengawas = createUserWithRole('pengawas');
+
+    $allowedRoutes = [
+        'pengawas.dashboard',
+        'pengawas.capaian-guru',
+        'pengawas.koreksi-nilai',
+        'pengawas.laporan.absensi-siswa',
+        'pengawas.laporan.absensi-guru',
+        'pengawas.laporan.rekap-nilai',
+        'pengawas.laporan.tunggakan',
+        'pengawas.kalender-akademik',
+    ];
+
+    foreach ($allowedRoutes as $routeName) {
+        $response = $this->actingAs($pengawas)->get(route($routeName));
         $response->assertStatus(200);
+    }
+
+    $restrictedRoutes = [
+        'super-admin.audit-log',
+        'finance.arus-kas',
+        'finance.laporan.pemasukan',
+        'finance.laporan.pengeluaran',
+        'finance.dana-bos',
+        'finance.dashboard',
+    ];
+
+    foreach ($restrictedRoutes as $routeName) {
+        $response = $this->actingAs($pengawas)->get(route($routeName));
+        expect(in_array($response->status(), [302, 403]))->toBeTrue();
     }
 });
 

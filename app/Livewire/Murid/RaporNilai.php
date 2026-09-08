@@ -2,22 +2,24 @@
 
 namespace App\Livewire\Murid;
 
-use App\Models\Nilai;
+use App\Models\LingkupMateri;
+use App\Models\MataPelajaran;
+use App\Models\NilaiP5;
+use App\Models\NilaiSas;
 use App\Models\NilaiSumatifTp;
 use App\Models\Rapor;
-use App\Models\RaporDetail;
-use App\Models\Siswa;
 use App\Models\Tagihan;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class RaporNilai extends Component
 {
     public bool $hasOutstanding = false;
-    public array $nilaiHarianTp = [];
-    public array $nilaiMidSts = [];
-    public array $rekapMapelUmum = [];
-    public string $activeTab = 'tp'; // 'tp' (Nilai Harian Per-TP), 'mid' (Mid Semester STS)
+    public array $rekapRaporUtama = [];
+    public array $nilaiPerBab = [];
+    public array $nilaiP5 = [];
+    public string $activeTab = 'rekap'; // 'rekap' (Rekap Nilai Rapor), 'bab' (Nilai per-Bab), 'p5' (Kokurikuler P5)
 
     public function mount()
     {
@@ -37,7 +39,7 @@ class RaporNilai extends Component
             ->whereHas('jenisTagihan', function ($q) {
                 $q->where('is_blocking', true);
             })
-            ->whereDate('jatuh_tempo', '<=', \Carbon\Carbon::today())
+            ->whereDate('jatuh_tempo', '<=', Carbon::today())
             ->exists();
 
         if ($this->hasOutstanding) {
@@ -56,94 +58,137 @@ class RaporNilai extends Component
             return;
         }
 
-        // 1. Load Nilai Harian per-TP (Formatif / Sumatif TP Kurikulum Merdeka)
-        $tpScores = NilaiSumatifTp::where('siswa_id', $siswa->id)
+        $mapels = MataPelajaran::where(function ($q) {
+            $q->where('jenis', 'intrakurikuler_umum')->orWhere('jenis', 'umum');
+        })->get();
+
+        // 1. Load Nilai per-Bab (Lingkup Materi Kurikulum Merdeka)
+        // Siswa hanya melihat skor per-Bab, rincian per-TP hanya untuk Guru
+        $sumatifTps = NilaiSumatifTp::where('siswa_id', $siswa->id)
             ->where('semester_id', $activeSemester->id)
-            ->with(['tujuanPembelajaran.lingkupMateri.mapel'])
             ->get();
 
-        $groupedTp = [];
-        foreach ($tpScores as $tp) {
-            $mapel = $tp->tujuanPembelajaran->lingkupMateri->mapel ?? null;
-            if ($mapel && ($mapel->jenis ?? 'umum') === 'umum') {
-                $mapelId = $mapel->id;
-                if (!isset($groupedTp[$mapelId])) {
-                    $groupedTp[$mapelId] = [
-                        'nama_mapel' => $mapel->nama_mapel,
-                        'items' => [],
-                    ];
+        $lingkupMateris = LingkupMateri::whereIn('mapel_id', $mapels->pluck('id'))
+            ->with(['tujuanPembelajaran'])
+            ->orderBy('mapel_id')
+            ->orderBy('urutan', 'asc')
+            ->get();
+
+        $groupedBab = [];
+        $mapelBabAverages = [];
+
+        foreach ($mapels as $mapel) {
+            $babsForMapel = $lingkupMateris->where('mapel_id', $mapel->id);
+            if ($babsForMapel->isEmpty()) {
+                continue;
+            }
+
+            $babList = [];
+            $validBabScores = [];
+
+            foreach ($babsForMapel as $lm) {
+                $tpIds = $lm->tujuanPembelajaran->pluck('id')->toArray();
+                $scores = !empty($tpIds) ? $sumatifTps->whereIn('tp_id', $tpIds) : collect();
+
+                $avgScore = $scores->isNotEmpty() ? round($scores->avg('nilai'), 1) : null;
+                if ($avgScore !== null) {
+                    $validBabScores[] = $avgScore;
                 }
-                $groupedTp[$mapelId]['items'][] = [
-                    'kode_tp' => $tp->tujuanPembelajaran->kode_tp ?? 'TP',
-                    'deskripsi' => $tp->tujuanPembelajaran->deskripsi_tp ?? '-',
-                    'lingkup' => $tp->tujuanPembelajaran->lingkupMateri->judul_lingkup_materi ?? '-',
-                    'nilai' => floatval($tp->nilai),
+
+                $predikatBab = '-';
+                if ($avgScore !== null) {
+                    if ($avgScore >= 90) $predikatBab = 'A';
+                    elseif ($avgScore >= 80) $predikatBab = 'B';
+                    elseif ($avgScore >= 70) $predikatBab = 'C';
+                    else $predikatBab = 'D';
+                }
+
+                $babList[] = [
+                    'urutan' => $lm->urutan ?? (count($babList) + 1),
+                    'judul' => $lm->nama_lingkup_materi ?? $lm->judul_lingkup_materi,
+                    'nilai' => $avgScore,
+                    'predikat' => $predikatBab,
                 ];
             }
-        }
-        $this->nilaiHarianTp = $groupedTp;
 
-        // 2. Load Nilai Mid Semester (STS / PTS) & Nilai Harian Komponen
-        $nilaiRecords = Nilai::where('siswa_id', $siswa->id)
+            $groupedBab[$mapel->id] = [
+                'nama_mapel' => $mapel->nama_mapel,
+                'babs' => $babList,
+                'avg_mapel' => count($validBabScores) > 0 ? round(array_sum($validBabScores) / count($validBabScores), 1) : null,
+            ];
+
+            $mapelBabAverages[$mapel->id] = count($validBabScores) > 0 ? round(array_sum($validBabScores) / count($validBabScores), 1) : null;
+        }
+
+        $this->nilaiPerBab = $groupedBab;
+
+        // 2. Load Rekap Nilai Rapor Utama (Rata-rata Bab, SAS, Nilai Akhir, Predikat)
+        $rapor = Rapor::where('siswa_id', $siswa->id)
             ->where('semester_id', $activeSemester->id)
-            ->with(['mapel', 'komponenNilai'])
+            ->with(['details'])
+            ->first();
+
+        $sasRecords = NilaiSas::where('siswa_id', $siswa->id)
+            ->where('semester_id', $activeSemester->id)
+            ->get()
+            ->keyBy('mapel_id');
+
+        $rekapUtama = [];
+        foreach ($mapels as $mapel) {
+            $sas = $sasRecords[$mapel->id] ?? null;
+            $detail = $rapor?->details?->firstWhere('mapel_id', $mapel->id);
+
+            $avgBab = $mapelBabAverages[$mapel->id] ?? null;
+            $sasVal = $sas?->nilai_sas !== null ? floatval($sas->nilai_sas) : ($sas?->nilai !== null ? floatval($sas->nilai) : null);
+            $nilaiAkhir = $detail?->nilai_akhir !== null ? floatval($detail->nilai_akhir) : null;
+            $predikat = $detail?->predikat ?? '-';
+
+            $rekapUtama[] = [
+                'nama_mapel' => $mapel->nama_mapel,
+                'avg_bab' => $avgBab,
+                'nilai_sas' => $sasVal,
+                'nilai_akhir' => $nilaiAkhir,
+                'predikat' => $predikat,
+            ];
+        }
+
+        $this->rekapRaporUtama = $rekapUtama;
+
+        // 3. Load Capaian Kokurikuler P5
+        $scoresP5 = NilaiP5::where('siswa_id', $siswa->id)
+            ->where('semester_id', $activeSemester->id)
+            ->with(['proyek', 'subdimensiP5.dimensiP5'])
             ->get();
 
-        $groupedMid = [];
-        $groupedAll = [];
-        foreach ($nilaiRecords as $n) {
-            if (($n->mapel->jenis ?? 'umum') === 'umum') {
-                $mapelId = $n->mapel_id;
-                $mapelName = $n->mapel->nama_mapel ?? '-';
-                $komponenName = $n->komponenNilai->nama ?? '-';
+        $groupedP5 = [];
+        foreach ($scoresP5 as $sc) {
+            $pName = $sc->proyek->nama_proyek ?? 'Projek P5';
+            $dName = $sc->subdimensiP5->dimensiP5->nama_dimensi ?? 'Dimensi';
+            $sName = $sc->subdimensiP5->nama_subdimensi ?? 'Sub-Dimensi';
+            $val = intval($sc->nilai);
+            $ratingLabel = match($val) {
+                1 => 'BB (Belum Berkembang)',
+                2 => 'MB (Mulai Berkembang)',
+                3 => 'BSH (Berkembang Sesuai Harapan)',
+                4 => 'SB (Sangat Berkembang)',
+                default => '-'
+            };
 
-                if (!isset($groupedAll[$mapelId])) {
-                    $groupedAll[$mapelId] = [
-                        'nama_mapel' => $mapelName,
-                        'harian' => [],
-                        'mid' => [],
-                        'avg' => 0.0,
-                    ];
-                }
-
-                if (str_contains(strtoupper($komponenName), 'PTS') || str_contains(strtoupper($komponenName), 'STS') || str_contains(strtoupper($komponenName), 'MID')) {
-                    $groupedAll[$mapelId]['mid'][] = [
-                        'komponen' => $komponenName,
-                        'nilai' => floatval($n->nilai),
-                        'catatan' => $n->catatan,
-                    ];
-                    $groupedMid[$mapelId]['nama_mapel'] = $mapelName;
-                    $groupedMid[$mapelId]['items'][] = [
-                        'komponen' => $komponenName,
-                        'nilai' => floatval($n->nilai),
-                        'catatan' => $n->catatan,
-                    ];
-                } else {
-                    $groupedAll[$mapelId]['harian'][] = [
-                        'komponen' => $komponenName,
-                        'nilai' => floatval($n->nilai),
-                        'catatan' => $n->catatan,
-                    ];
-                }
-            }
+            $groupedP5[$pName][] = [
+                'dimensi' => $dName,
+                'subdimensi' => $sName,
+                'nilai' => $val,
+                'label' => $ratingLabel,
+            ];
         }
-
-        foreach ($groupedAll as $mid => $data) {
-            $allScores = array_merge(
-                array_column($data['harian'], 'nilai'),
-                array_column($data['mid'], 'nilai')
-            );
-            $count = count($allScores);
-            $groupedAll[$mid]['avg'] = $count > 0 ? round(array_sum($allScores) / $count, 1) : 0.0;
-        }
-
-        $this->nilaiMidSts = $groupedMid;
-        $this->rekapMapelUmum = $groupedAll;
+        $this->nilaiP5 = $groupedP5;
     }
 
     public function setTab($tab)
     {
-        $this->activeTab = $tab;
+        if (in_array($tab, ['rekap', 'bab', 'p5'])) {
+            $this->activeTab = $tab;
+        }
     }
 
     public function render()

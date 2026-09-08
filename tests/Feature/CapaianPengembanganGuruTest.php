@@ -93,9 +93,48 @@ test('guru can view evaluation feedback and score from super admin', function ()
         ->assertSee('Media pembelajaran sangat interaktif.');
 });
 
-test('non super admin user cannot evaluate teacher achievements', function () {
+test('pengawas and kepala sekolah can evaluate teacher achievements', function () {
+    $rolePengawas = \App\Models\Role::where('nama', 'pengawas')->first();
+    $userPengawas = User::create([
+        'nama' => 'Ustadz Ahmad Fauzi (Pengawas)',
+        'username' => 'pengawas_eval',
+        'email' => 'pengawas_eval@yayasan.or.id',
+        'password' => bcrypt('password'),
+        'role_id' => $rolePengawas->id,
+        'status' => 'aktif',
+    ]);
+
+    $capaian = CapaianGuru::create([
+        'guru_id' => $this->guru->id,
+        'judul' => 'Supervisi Praktik Mengajar Microteaching',
+        'kategori' => 'pelatihan',
+        'link_gdrive' => 'https://drive.google.com/file/d/microteaching123/view',
+        'deskripsi' => 'Penguasaan kelas dan asesmen formatif',
+        'status_penilaian' => 'diajukan',
+    ]);
+
+    $this->actingAs($userPengawas);
+
+    Livewire::test(CapaianPengembanganGuru::class)
+        ->assertStatus(200)
+        ->call('openEvaluateModal', $capaian->id)
+        ->set('skor_nilai', 92.0)
+        ->set('predikat', 'Sangat Baik')
+        ->set('catatan_evaluasi', 'Penguasaan kelas sangat kondusif dan interaktif.')
+        ->set('tanggal_penilaian', date('Y-m-d'))
+        ->call('saveEvaluation')
+        ->assertHasNoErrors();
+
+    $capaian->refresh();
+    expect($capaian->status_penilaian)->toEqual('dinilai');
+    expect((float) $capaian->skor_nilai)->toEqual(92.0);
+    expect($capaian->penilai_id)->toEqual($userPengawas->id);
+});
+
+test('unauthorized user like guru or murid cannot evaluate teacher achievements', function () {
     $this->actingAs($this->userGuru);
 
     Livewire::test(CapaianPengembanganGuru::class)
         ->assertStatus(403);
 });
+

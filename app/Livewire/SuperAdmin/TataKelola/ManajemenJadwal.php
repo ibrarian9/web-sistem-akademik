@@ -71,6 +71,11 @@ class ManajemenJadwal extends Component
 
     public function openCreate()
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('message', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
         $this->resetForm();
         if ($this->selectedKelasId) {
             $firstAsg = GuruMapelKelas::where('kelas_id', $this->selectedKelasId)->first();
@@ -83,6 +88,11 @@ class ManajemenJadwal extends Component
 
     public function openCreateForDay(string $hari, ?int $kelasId = null)
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('message', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
         $this->resetForm();
         $this->hari = strtolower($hari);
         if ($kelasId) {
@@ -96,8 +106,20 @@ class ManajemenJadwal extends Component
         $this->isFormOpen = true;
     }
 
+    public function closeForm()
+    {
+        $this->isFormOpen = false;
+        $this->resetValidation();
+        $this->resetForm();
+    }
+
     public function openEdit(int $id)
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('message', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
         $this->resetForm();
         $jadwal = JadwalPelajaran::with('guruMapelKelas')->findOrFail($id);
         $this->jadwalId = $jadwal->id;
@@ -115,6 +137,11 @@ class ManajemenJadwal extends Component
 
     public function save(JadwalService $jadwalService)
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('message', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
         $this->validate([
             'guru_mapel_kelas_id' => 'required|exists:guru_mapel_kelas,id',
             'hari' => 'required|in:senin,selasa,rabu,kamis,jumat,sabtu',
@@ -156,6 +183,11 @@ class ManajemenJadwal extends Component
 
     public function delete(int $id)
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('message', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
         JadwalPelajaran::findOrFail($id)->delete();
         session()->flash('message', 'Jadwal pelajaran berhasil dihapus.');
     }
@@ -232,8 +264,10 @@ class ManajemenJadwal extends Component
 
         // Fetch options for select: [Kelas] [Mapel] - [Guru] (Current active semester / year)
         $assignments = GuruMapelKelas::with(['kelas', 'mapel', 'guru.user', 'semester.tahunAjaran'])
-            ->whereHas('semester.tahunAjaran', function ($q) {
-                $q->where('status_aktif', true);
+            ->where(function ($query) {
+                $query->whereHas('semester.tahunAjaran', function ($q) {
+                    $q->where('status_aktif', true);
+                })->orWhereDoesntHave('semester');
             })
             ->get();
 

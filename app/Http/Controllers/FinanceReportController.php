@@ -32,7 +32,7 @@ class FinanceReportController extends Controller
             $isOwnSlip = ($user->guru->id === $gaji->guru_id);
         }
 
-        if (!in_array($userRole, ['finance', 'super_admin', 'kepala_sekolah']) && !$isOwnSlip) {
+        if (!in_array($userRole, ['finance', 'super_admin', 'super_admin_2', 'kepala_sekolah']) && !$isOwnSlip) {
             abort(403, 'Anda tidak memiliki akses untuk melihat slip gaji ini.');
         }
 
@@ -73,7 +73,7 @@ class FinanceReportController extends Controller
         $user = auth()->user();
         $userRole = $user->role->nama ?? '';
 
-        if (!in_array($userRole, ['finance', 'super_admin', 'kepala_sekolah'])) {
+        if (!in_array($userRole, ['finance', 'super_admin', 'super_admin_2', 'kepala_sekolah'])) {
             abort(403, 'Anda tidak memiliki hak akses untuk mengunduh slip gaji massal.');
         }
 
@@ -131,7 +131,7 @@ class FinanceReportController extends Controller
             $isOwnReceipt = ($pembayaran->tagihan && $pembayaran->tagihan->siswa_id === $user->siswa->id);
         }
 
-        if (!in_array($userRole, ['finance', 'super_admin', 'tata_usaha', 'kepala_sekolah']) && !$isOwnReceipt) {
+        if (!in_array($userRole, ['finance', 'super_admin', 'super_admin_2', 'tata_usaha', 'kepala_sekolah']) && !$isOwnReceipt) {
             abort(403, 'Anda tidak memiliki akses untuk melihat resi ini.');
         }
 
@@ -180,7 +180,7 @@ class FinanceReportController extends Controller
         $user = auth()->user();
         $userRole = $user->role->nama ?? '';
 
-        if (!in_array($userRole, ['finance', 'super_admin', 'kepala_sekolah'])) {
+        if (!in_array($userRole, ['finance', 'super_admin', 'super_admin_2'])) {
             abort(403, 'Anda tidak memiliki hak akses untuk melihat laporan pengeluaran.');
         }
 
@@ -297,7 +297,7 @@ class FinanceReportController extends Controller
         $user = auth()->user();
         $userRole = $user->role->nama ?? '';
 
-        if (!in_array($userRole, ['finance', 'super_admin', 'kepala_sekolah'])) {
+        if (!in_array($userRole, ['finance', 'super_admin', 'super_admin_2'])) {
             abort(403, 'Anda tidak memiliki hak akses untuk melihat laporan pemasukan.');
         }
 
@@ -412,7 +412,7 @@ class FinanceReportController extends Controller
         $user = auth()->user();
         $userRole = $user->role->nama ?? '';
 
-        if (!in_array($userRole, ['finance', 'super_admin', 'kepala_sekolah'])) {
+        if (!in_array($userRole, ['finance', 'super_admin', 'super_admin_2', 'kepala_sekolah', 'pengawas', 'koordinator'])) {
             abort(403, 'Anda tidak memiliki hak akses untuk melihat laporan tunggakan.');
         }
 
@@ -522,7 +522,7 @@ class FinanceReportController extends Controller
         $user = auth()->user();
         $userRole = $user->role->nama ?? '';
 
-        if (!in_array($userRole, ['finance', 'super_admin', 'kepala_sekolah', 'founder'])) {
+        if (!in_array($userRole, ['finance', 'super_admin', 'super_admin_2', 'founder', 'kepala_sekolah'])) {
             abort(403, 'Anda tidak memiliki hak akses untuk mencetak laporan Dana BOS.');
         }
 
@@ -630,7 +630,7 @@ class FinanceReportController extends Controller
         $user = auth()->user();
         $userRole = $user->role->nama ?? '';
 
-        if (!in_array($userRole, ['finance', 'super_admin', 'kepala_sekolah', 'founder'])) {
+        if (!in_array($userRole, ['finance', 'super_admin', 'super_admin_2', 'kepala_sekolah', 'founder'])) {
             abort(403, 'Anda tidak memiliki hak akses untuk melihat rekapitulasi gaji guru.');
         }
 
@@ -719,7 +719,7 @@ class FinanceReportController extends Controller
         $user = auth()->user();
         $userRole = $user->role->nama ?? '';
 
-        if (!in_array($userRole, ['finance', 'super_admin', 'kepala_sekolah', 'founder'])) {
+        if (!in_array($userRole, ['finance', 'super_admin', 'super_admin_2', 'founder'])) {
             abort(403, 'Anda tidak memiliki hak akses untuk melihat laporan tabungan siswa.');
         }
 
@@ -947,7 +947,7 @@ class FinanceReportController extends Controller
         $user = auth()->user();
         $userRole = $user->role->nama ?? '';
 
-        if (!in_array($userRole, ['finance', 'super_admin', 'kepala_sekolah', 'founder'])) {
+        if (!in_array($userRole, ['finance', 'super_admin', 'super_admin_2', 'founder'])) {
             abort(403, 'Anda tidak memiliki hak akses untuk melihat laporan arus kas.');
         }
 

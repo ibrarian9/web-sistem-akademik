@@ -41,12 +41,22 @@ class ManajemenKomponenNilai extends Component
 
     public function openCreate()
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('error', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
         $this->resetForm();
         $this->isModalOpen = true;
     }
 
     public function openEdit(int $id)
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('error', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
         $this->resetForm();
         $item = KomponenNilai::findOrFail($id);
         $this->editingId = $item->id;
@@ -65,10 +75,16 @@ class ManajemenKomponenNilai extends Component
 
     public function saveForm()
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('error', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
         $this->validate([
             'nama' => 'required|string|max:100',
             'kategori' => 'required|in:pengetahuan,keterampilan,keagamaan,sikap',
             'berlaku_untuk' => 'required|in:umum,tahfidz,semua',
+            'bobot' => 'required|numeric|min:0|max:100',
         ]);
 
         if ($this->editingId) {
@@ -77,6 +93,7 @@ class ManajemenKomponenNilai extends Component
                 'nama' => $this->nama,
                 'kategori' => $this->kategori,
                 'berlaku_untuk' => $this->berlaku_untuk,
+                'bobot' => $this->bobot,
             ]);
             session()->flash('message', "Komponen nilai '{$this->nama}' berhasil diperbarui.");
         } else {
@@ -85,7 +102,7 @@ class ManajemenKomponenNilai extends Component
                 'nama' => $this->nama,
                 'kategori' => $this->kategori,
                 'berlaku_untuk' => $this->berlaku_untuk,
-                'bobot' => 0,
+                'bobot' => $this->bobot,
                 'urutan' => $maxUrutan + 1,
             ]);
             session()->flash('message', "Komponen nilai baru '{$this->nama}' berhasil ditambahkan.");
@@ -97,6 +114,11 @@ class ManajemenKomponenNilai extends Component
 
     public function delete(int $id)
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('error', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
         $item = KomponenNilai::findOrFail($id);
         
         // Check if used in nilais table
@@ -112,6 +134,11 @@ class ManajemenKomponenNilai extends Component
 
     public function saveQuickWeights()
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            session()->flash('error', 'Akses ditolak: Akun Super Admin 2 hanya memiliki hak akses lihat.');
+            return;
+        }
+
         foreach ($this->komponens as $k) {
             KomponenNilai::where('id', $k['id'])->update([
                 'nama' => $k['nama'],

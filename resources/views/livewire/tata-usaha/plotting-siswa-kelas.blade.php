@@ -30,7 +30,7 @@
         badgeVariant="emerald"
         icon="users"
     >
-        @if($selectedKelas)
+        @if($selectedKelas && !auth()->user()?->isSuperAdmin2())
             <x-slot:actions>
                 <x-button variant="primary" size="md" icon="user-plus" wire:click.prevent="openAddModal">
                     Masukkan Murid Ke {{ $selectedKelas->nama_kelas }}
@@ -142,7 +142,9 @@
                     <x-table.th class="min-w-[180px]">
                         {{ ($selectedKelas && $selectedKelas->jenis_kelas === 'tahfidz') ? 'KELAS UMUM' : 'KELAS TAHFIZH' }}
                     </x-table.th>
-                    <x-table.th align="center" class="w-32">AKSI</x-table.th>
+                    @if (!auth()->user()?->isSuperAdmin2())
+                        <x-table.th align="center" class="w-32">AKSI</x-table.th>
+                    @endif
                 </tr>
             </thead>
             <tbody class="divide-y divide-stone-200 bg-white">
@@ -152,11 +154,11 @@
                             {{ $roster->firstItem() + $index }}
                         </td>
                         <td class="p-3.5 border-r border-stone-200">
-                            <div class="font-bold text-stone-900">{{ $s->nis }}</div>
-                            <div class="text-[10px] text-stone-500">NISN: {{ $s->nisn ?: '-' }}</div>
+                            <span class="font-extrabold text-stone-900 text-xs">{{ $s->nis ?: '-' }}</span>
+                            <div class="text-[10px] text-stone-500 font-medium">NISN: {{ $s->nisn ?: '-' }}</div>
                         </td>
                         <td class="p-3.5 border-r border-stone-200">
-                            <div class="font-extrabold text-stone-900 text-xs">{{ strtoupper($s->user->nama ?? '-') }}</div>
+                            <div class="font-bold text-stone-900 text-xs">{{ $s->user->nama ?? '-' }}</div>
                             <div class="text-[10px] text-stone-500 font-medium">Username: {{ $s->user->username ?? '-' }}</div>
                         </td>
                         <td class="p-3.5 text-center font-bold text-stone-700 border-r border-stone-200">
@@ -177,15 +179,17 @@
                                 @endif
                             @endif
                         </td>
-                        <td class="p-3.5 text-center">
-                            <x-button type="button" variant="danger" size="xs" icon="user-minus" wire:click.prevent="unassignSiswa({{ $s->id }})" data-confirm="Apakah Anda yakin ingin mengeluarkan {{ $s->user->nama ?? 'siswa ini' }} dari {{ $selectedKelas->nama_kelas }}?">
-                                Keluarkan
-                            </x-button>
-                        </td>
+                        @if (!auth()->user()?->isSuperAdmin2())
+                            <td class="p-3.5 text-center">
+                                <x-button type="button" variant="danger" size="xs" icon="user-minus" wire:click.prevent="unassignSiswa({{ $s->id }})" data-confirm="Apakah Anda yakin ingin mengeluarkan {{ $s->user->nama ?? 'siswa ini' }} dari {{ $selectedKelas->nama_kelas }}?">
+                                    Keluarkan
+                                </x-button>
+                            </td>
+                        @endif
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="py-12 text-center text-stone-400">
+                        <td colspan="{{ auth()->user()?->isSuperAdmin2() ? 5 : 6 }}" class="py-12 text-center text-stone-400">
                             <x-table.empty title="Belum ada murid terdaftar di {{ $selectedKelas->nama_kelas ?? 'kelas ini' }}" subtitle="Gunakan tombol Masukkan Murid di atas untuk menambahkan siswa." />
                         </td>
                     </tr>

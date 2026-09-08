@@ -92,6 +92,11 @@ class DanaBos extends Component
 
     public function openCreateModal(string $defaultJenis = 'masuk')
     {
+        if (auth()->user()->isSuperAdmin2() || auth()->user()->isKepalaSekolah()) {
+            session()->flash('error', 'Akses Ditolak: Anda hanya memiliki hak akses pemantauan (Lihat Saja).');
+            return;
+        }
+
         $this->resetValidation();
         $this->jenis = in_array($defaultJenis, ['masuk', 'keluar']) ? $defaultJenis : 'masuk';
         $this->reset(['nominal', 'kategori', 'keterangan']);
@@ -113,6 +118,11 @@ class DanaBos extends Component
 
     public function saveTransaction()
     {
+        if (auth()->user()->isSuperAdmin2() || auth()->user()->isKepalaSekolah()) {
+            session()->flash('error', 'Akses Ditolak: Anda hanya memiliki hak akses pemantauan (Lihat Saja).');
+            return;
+        }
+
         $this->validate();
 
         $activeTA = TahunAjaran::where('status_aktif', true)->first() ?? TahunAjaran::latest()->first();
@@ -138,9 +148,32 @@ class DanaBos extends Component
         $this->resetPage();
     }
 
-    public function deleteTransaction(int $id)
+    public function deleteTransaction(int $id, ?string $alasan = null)
     {
+        if (auth()->user()->isSuperAdmin2() || auth()->user()->isKepalaSekolah()) {
+            session()->flash('error', 'Akses Ditolak: Anda hanya memiliki hak akses pemantauan (Lihat Saja).');
+            return;
+        }
+
         $tx = BosModel::findOrFail($id);
+        $userRole = auth()->user()->role->nama ?? '';
+
+        if ($userRole === 'finance') {
+            $reason = $alasan ?: 'Penghapusan catatan transaksi Dana BOS diajukan oleh staf keuangan';
+            \App\Services\FinancialApprovalService::createRequest(
+                auth()->user(),
+                'hapus',
+                'dana_bos',
+                $tx,
+                null,
+                $reason,
+                "Hapus Transaksi BOS: {$tx->kategori} (" . strtoupper($tx->jenis) . ") - Rp " . number_format($tx->nominal, 0, ',', '.') . " (" . ($tx->tanggal ? $tx->tanggal->format('d/m/Y') : '-') . ")"
+            );
+
+            session()->flash('message', 'Permohonan penghapusan transaksi Dana BOS telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.');
+            return;
+        }
+
         $tx->delete();
 
         session()->flash('message', 'Catatan transaksi Dana BOS berhasil dihapus.');
@@ -148,6 +181,16 @@ class DanaBos extends Component
 
     public function bulkDelete()
     {
+        if (auth()->user()->isSuperAdmin2() || auth()->user()->isKepalaSekolah()) {
+            session()->flash('error', 'Akses Ditolak: Anda hanya memiliki hak akses pemantauan (Lihat Saja).');
+            return;
+        }
+
+        if (auth()->user()->role?->nama === 'finance') {
+            session()->flash('error', 'Akses Ditolak: Penghapusan massal tidak diizinkan untuk staf keuangan. Silakan ajukan penghapusan per transaksi agar dapat disetujui Super Admin.');
+            return;
+        }
+
         if (empty($this->selectedIds)) {
             return;
         }

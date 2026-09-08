@@ -6,6 +6,13 @@
         $jenisGuru = 'tahfizh';
     }
 
+    $pendingApprovalsCount = 0;
+    if (in_array($role, ['super_admin', 'super_admin_2', 'finance'])) {
+        $pendingApprovalsCount = \Illuminate\Support\Facades\Schema::hasTable('approval_keuangan')
+            ? \App\Models\ApprovalKeuangan::where('status', 'menunggu')->count()
+            : 0;
+    }
+
     $guruMenuItems = match ($jenisGuru) {
         'tahfizh' => [
             ['title' => 'Dashboard Guru', 'route' => 'guru.dashboard', 'icon' => 'home'],
@@ -48,7 +55,6 @@
             ['title' => 'Setup Bab & TP', 'route' => 'guru.kurikulum-merdeka', 'icon' => 'layers'],
             ['title' => 'Nilai Sumatif TP & SAS', 'route' => 'guru.input-sumatif', 'icon' => 'edit-3'],
             ['title' => 'Penilaian Kokurikuler P5', 'route' => 'guru.penilaian-p5', 'icon' => 'star'],
-            ['title' => 'Bobot & Formula Nilai', 'route' => 'guru.bobot-nilai', 'icon' => 'sliders'],
             ['title' => 'Jadwal Remedial', 'route' => 'guru.remedial', 'icon' => 'refresh-cw'],
 
             ['title' => 'Rapor & Wali Kelas', 'route' => null, 'icon' => null, 'section' => true],
@@ -81,11 +87,11 @@
             ['title' => 'Nilai Sumatif TP & SAS', 'route' => 'guru.input-sumatif', 'icon' => 'edit-3'],
             ['title' => 'Setoran Tahfizh', 'route' => 'guru.input-tahfidz', 'icon' => 'award'],
             ['title' => 'Penilaian Kokurikuler P5', 'route' => 'guru.penilaian-p5', 'icon' => 'star'],
-            ['title' => 'Bobot & Formula Nilai', 'route' => 'guru.bobot-nilai', 'icon' => 'sliders'],
             ['title' => 'Jadwal Remedial', 'route' => 'guru.remedial', 'icon' => 'refresh-cw'],
 
             ['title' => 'Rapor & Wali Kelas', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Cetak & Kelola Rapor', 'route' => 'guru.kelola-rapor', 'icon' => 'book-open'],
+            ['title' => 'Ekstrakurikuler', 'route' => 'guru.ekskul', 'icon' => 'star'],
             ['title' => 'Pengembangan Diri', 'route' => 'guru.pengembangan-diri', 'icon' => 'user-check'],
 
             ['title' => 'Presensi Saya & Info', 'route' => null, 'icon' => null, 'section' => true],
@@ -104,10 +110,11 @@
     
     // Define navigation items based on role
     $menuItems = match ($role) {
-        'super_admin' => [
+        'super_admin', 'super_admin_2' => [
             ['title' => 'Dashboard', 'route' => 'super-admin.dashboard', 'icon' => 'home'],
             ['title' => 'Panduan & FAQ', 'route' => 'shared.tutorial-faq', 'icon' => 'help-circle'],
             ['title' => 'Keuangan', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Persetujuan Keuangan', 'route' => 'super-admin.approval-keuangan', 'icon' => 'shield-check', 'badge' => $pendingApprovalsCount],
             ['title' => 'Overview Pembayaran', 'route' => 'finance.overview-pembayaran', 'icon' => 'eye'],
             ['title' => 'Arus Kas (Cash Flow)', 'route' => 'finance.arus-kas', 'icon' => 'layers'],
             ['title' => 'Kelola Tagihan', 'route' => 'finance.tagihan', 'icon' => 'file-text'],
@@ -115,9 +122,8 @@
             ['title' => 'Tabungan Siswa', 'route' => 'finance.tabungan', 'icon' => 'wallet'],
             ['title' => 'Gaji Guru', 'route' => 'finance.gaji-guru', 'icon' => 'wallet'],
             ['title' => 'Dana BOS (Masuk & Keluar)', 'route' => 'finance.dana-bos', 'icon' => 'box'],
-            ['title' => 'Kurikulum & Rapor', 'route' => null, 'icon' => null, 'section' => true],
-            ['title' => 'Setup Bab & TP', 'route' => 'guru.kurikulum-merdeka', 'icon' => 'layers'],
-            ['title' => 'Nilai Sumatif', 'route' => 'guru.input-sumatif', 'icon' => 'edit-3'],
+            ['title' => 'Supervisi & Akademik', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Monitoring Akademik', 'route' => 'super-admin.monitoring-akademik', 'icon' => 'activity'],
             ['title' => 'Setoran Tahfizh', 'route' => 'guru.input-tahfidz', 'icon' => 'award'],
             ['title' => 'Penilaian P5', 'route' => 'guru.penilaian-p5', 'icon' => 'star'],
             ['title' => 'Rapor Murid', 'route' => 'guru.kelola-rapor', 'icon' => 'book-open'],
@@ -163,7 +169,6 @@
             ['title' => 'Jadwal Pelajaran', 'route' => 'tata-usaha.jadwal', 'icon' => 'calendar'],
             ['title' => 'Kalender & Libur', 'route' => 'tata-usaha.kalender-akademik', 'icon' => 'calendar'],
             ['title' => 'Kenaikan Kelas', 'route' => 'tata-usaha.kenaikan-kelas', 'icon' => 'user-check'],
-            ['title' => 'Komponen Nilai', 'route' => 'tata-usaha.komponen-nilai', 'icon' => 'sliders'],
             ['title' => 'Laporan', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Laporan Absensi Siswa', 'route' => 'tata-usaha.laporan.absensi-siswa', 'icon' => 'file-text'],
             ['title' => 'Rekap Absensi Guru', 'route' => 'tata-usaha.laporan.absensi-guru', 'icon' => 'clipboard'],
@@ -175,26 +180,30 @@
         'pengawas' => [
             ['title' => 'Dashboard', 'route' => 'pengawas.dashboard', 'icon' => 'home'],
             ['title' => 'Panduan & FAQ', 'route' => 'shared.tutorial-faq', 'icon' => 'help-circle'],
-            ['title' => 'Akademik', 'route' => null, 'icon' => null, 'section' => true],
-            ['title' => 'Persetujuan Nilai', 'route' => 'pengawas.koreksi-nilai', 'icon' => 'user-check'],
+            ['title' => 'Supervisi & Penilaian Guru', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Penilaian & Capaian Guru', 'route' => 'pengawas.capaian-guru', 'icon' => 'award'],
+            ['title' => 'Persetujuan Nilai Rapor', 'route' => 'pengawas.koreksi-nilai', 'icon' => 'shield-check'],
+            ['title' => 'Monitoring Akademik & Tunggakan', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Laporan Absensi Siswa', 'route' => 'pengawas.laporan.absensi-siswa', 'icon' => 'file-text'],
+            ['title' => 'Rekap Absensi Guru', 'route' => 'pengawas.laporan.absensi-guru', 'icon' => 'clipboard'],
+            ['title' => 'Laporan Rekap Nilai', 'route' => 'pengawas.laporan.rekap-nilai', 'icon' => 'award'],
+            ['title' => 'Laporan Tunggakan Siswa', 'route' => 'pengawas.laporan.tunggakan', 'icon' => 'alert-circle'],
+            ['title' => 'Informasi & Agenda', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Kalender Akademik', 'route' => 'pengawas.kalender-akademik', 'icon' => 'calendar'],
             ['title' => 'Notifikasi', 'route' => 'shared.notifications', 'icon' => 'bell'],
         ],
         'kepala_sekolah' => [
             ['title' => 'Dashboard', 'route' => 'kepala-sekolah.dashboard', 'icon' => 'home'],
             ['title' => 'Panduan & FAQ', 'route' => 'shared.tutorial-faq', 'icon' => 'help-circle'],
-            ['title' => 'Monitoring & Executive', 'route' => null, 'icon' => null, 'section' => true],
-            ['title' => 'Overview Keuangan', 'route' => 'finance.overview-pembayaran', 'icon' => 'eye'],
-            ['title' => 'Arus Kas (Cash Flow)', 'route' => 'finance.arus-kas', 'icon' => 'layers'],
-            ['title' => 'Dana BOS (Masuk & Keluar)', 'route' => 'finance.dana-bos', 'icon' => 'box'],
-            ['title' => 'Laporan Tunggakan', 'route' => 'finance.laporan.tunggakan', 'icon' => 'file-text'],
-            ['title' => 'Laporan Pemasukan', 'route' => 'finance.laporan.pemasukan', 'icon' => 'activity'],
-            ['title' => 'Laporan Pengeluaran', 'route' => 'finance.laporan.pengeluaran', 'icon' => 'trending-down'],
-            ['title' => 'Laporan & Audit', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Supervisi Guru', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Penilaian & Capaian Guru', 'route' => 'kepala-sekolah.capaian-guru', 'icon' => 'award'],
+            ['title' => 'Monitoring Akademik & Tunggakan', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Laporan Absensi Siswa', 'route' => 'kepala-sekolah.laporan.absensi-siswa', 'icon' => 'file-text'],
             ['title' => 'Rekap Absensi Guru', 'route' => 'kepala-sekolah.laporan.absensi-guru', 'icon' => 'clipboard'],
             ['title' => 'Laporan Rekap Nilai', 'route' => 'kepala-sekolah.laporan.rekap-nilai', 'icon' => 'award'],
-            ['title' => 'Audit Log Sistem', 'route' => 'kepala-sekolah.audit-log', 'icon' => 'activity'],
+            ['title' => 'Laporan Tunggakan Siswa', 'route' => 'kepala-sekolah.laporan.tunggakan', 'icon' => 'alert-circle'],
+            ['title' => 'Dana BOS (Pemantauan)', 'route' => 'kepala-sekolah.dana-bos', 'icon' => 'box'],
+            ['title' => 'Informasi & Agenda', 'route' => null, 'icon' => null, 'section' => true],
             ['title' => 'Kalender Akademik', 'route' => 'kepala-sekolah.kalender-akademik', 'icon' => 'calendar'],
             ['title' => 'Notifikasi', 'route' => 'shared.notifications', 'icon' => 'bell'],
         ],
@@ -204,7 +213,7 @@
             ['title' => 'Dashboard', 'route' => 'murid.dashboard', 'icon' => 'home'],
             ['title' => 'Panduan & FAQ', 'route' => 'shared.tutorial-faq', 'icon' => 'help-circle'],
             ['title' => 'Akademik & Tahfizh', 'route' => null, 'icon' => null, 'section' => true],
-            ['title' => 'Nilai Akademik (TP & STS)', 'route' => 'murid.rapor', 'icon' => 'award'],
+            ['title' => 'Nilai Akademik (Rapor)', 'route' => 'murid.rapor', 'icon' => 'award'],
             ['title' => 'Evaluasi Tahfizh', 'route' => 'murid.tahfidz', 'icon' => 'book-open'],
             ['title' => 'Jadwal Remedial', 'route' => 'murid.remedial', 'icon' => 'clock'],
             ['title' => 'Kehadiran Saya', 'route' => 'murid.kehadiran', 'icon' => 'clipboard'],
@@ -223,6 +232,7 @@
             ['title' => 'Dashboard', 'route' => 'finance.dashboard', 'icon' => 'home'],
             ['title' => 'Panduan & FAQ', 'route' => 'shared.tutorial-faq', 'icon' => 'help-circle'],
             ['title' => 'Manajemen Arus Kas & Tagihan', 'route' => null, 'icon' => null, 'section' => true],
+            ['title' => 'Persetujuan Keuangan', 'route' => 'finance.approval-keuangan', 'icon' => 'shield-check', 'badge' => $pendingApprovalsCount],
             ['title' => 'Overview Pembayaran', 'route' => 'finance.overview-pembayaran', 'icon' => 'eye'],
             ['title' => 'Arus Kas (Cash Flow)', 'route' => 'finance.arus-kas', 'icon' => 'layers'],
             ['title' => 'Manajemen Tagihan', 'route' => 'finance.tagihan', 'icon' => 'file-text'],
@@ -248,6 +258,7 @@
 
     $roleLabel = match ($role) {
         'super_admin' => 'Kepala Yayasan',
+        'super_admin_2' => 'Super Admin 2 (Viewer)',
         'tata_usaha' => 'Tata Usaha',
         'guru' => 'Guru',
         'murid' => 'Murid / Wali',
@@ -339,6 +350,9 @@
                         @case('settings') <x-lucide-settings class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('activity') <x-lucide-activity class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('alert-triangle') <x-lucide-alert-triangle class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('alert-circle') <x-lucide-alert-circle class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('trending-up') <x-lucide-trending-up class="w-[18px] h-[18px] shrink-0" /> @break
+                        @case('school') <x-lucide-school class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('user-check') <x-lucide-user-check class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('bell') <x-lucide-bell class="w-[18px] h-[18px] shrink-0" /> @break
                         @case('wallet') <x-lucide-wallet class="w-[18px] h-[18px] shrink-0" /> @break
@@ -361,7 +375,12 @@
                         @case('help-circle') <x-lucide-help-circle class="w-[18px] h-[18px] shrink-0" /> @break
                     @endswitch
 
-                    <span>{{ $item['title'] }}</span>
+                    <span class="flex-1 text-left">{{ $item['title'] }}</span>
+                    @if (!empty($item['badge']) && $item['badge'] > 0)
+                        <span class="ml-auto px-2 py-0.5 text-[11px] font-bold text-white bg-amber-500 rounded-full animate-pulse shadow-sm">
+                            {{ $item['badge'] }}
+                        </span>
+                    @endif
                 </a>
             @endif
         @endforeach

@@ -39,10 +39,12 @@
                             
                             @if (in_array($setting['key'], ['alamat_instansi', 'alamat_sekolah']))
                                 <textarea wire:model="settings.{{ $index }}.value" rows="2"
-                                    class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 shadow-2xs resize-none"></textarea>
+                                    @if(auth()->user()?->isSuperAdmin2()) readonly disabled @endif
+                                    class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 shadow-2xs resize-none @if(auth()->user()?->isSuperAdmin2()) bg-stone-100 cursor-not-allowed @endif"></textarea>
                             @else
                                 <input wire:model="settings.{{ $index }}.value" type="text"
-                                    class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
+                                    @if(auth()->user()?->isSuperAdmin2()) readonly disabled @endif
+                                    class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs @if(auth()->user()?->isSuperAdmin2()) bg-stone-100 cursor-not-allowed @endif" />
                             @endif
                             
                             @error("settings.{$index}.value") <span class="text-rose-600 text-[10px] font-bold block mt-0.5">{{ $message }}</span> @enderror
@@ -57,9 +59,11 @@
                     <x-lucide-shield-check class="w-4 h-4 text-emerald-700 shrink-0" />
                     <span>QR Code Verifikasi Publik Aktif Otomatis di Seluruh Dokumen</span>
                 </div>
-                <x-button type="submit" variant="primary" size="md" icon="save" loadingTarget="save">
-                    Simpan Pengaturan
-                </x-button>
+                @if (!auth()->user()?->isSuperAdmin2())
+                    <x-button type="submit" variant="primary" size="md" icon="save" loadingTarget="save">
+                        Simpan Pengaturan
+                    </x-button>
+                @endif
             </div>
         </form>
     </div>

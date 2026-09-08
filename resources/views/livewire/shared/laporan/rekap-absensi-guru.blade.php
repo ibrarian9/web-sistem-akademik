@@ -5,7 +5,7 @@
         :steps="[
             ['title' => 'Filter Bulan & Tahun', 'desc' => 'Pilih bulan dan tahun periode presensi untuk menampilkan rekap kehadiran seluruh dewan guru.'],
             ['title' => 'Indikator Kehadiran', 'desc' => 'Menampilkan status H (Hadir), T (Terlambat), I (Izin), dan A (Alpa) berdasarkan waktu check-in mandiri guru.'],
-            ['title' => 'Ekspor Dokumen PDF', 'desc' => 'Unduh laporan rekapitulasi presensi bulanan dalam format PDF siap cetak dengan TTD elektronik.']
+            ['title' => 'Ekspor Dokumen PDF & Excel', 'desc' => 'Unduh laporan rekapitulasi presensi bulanan dalam format PDF siap cetak atau format Excel (.CSV) untuk pengolahan data lebih lanjut.']
         ]"
     />
 
@@ -18,9 +18,14 @@
         icon="calendar-check"
     >
         <x-slot:actions>
-            <x-button type="button" variant="outline" size="sm" icon="file-text" wire:click="downloadPdf">
-                Ekspor PDF
-            </x-button>
+            <div class="flex flex-wrap items-center gap-2">
+                <x-button type="button" variant="outline" size="sm" icon="file-spreadsheet" wire:click="downloadExcel" loadingTarget="downloadExcel" :disabled="empty($matrix)" title="Ekspor data rekapitulasi ke format Excel / CSV">
+                    Ekspor Excel
+                </x-button>
+                <x-button type="button" variant="outline" size="sm" icon="file-text" wire:click="downloadPdf" loadingTarget="downloadPdf" :disabled="empty($matrix)" title="Ekspor dokumen laporan ke format PDF">
+                    Ekspor PDF
+                </x-button>
+            </div>
         </x-slot:actions>
     </x-page-header>
 
@@ -68,9 +73,14 @@
                 Laporan Kehadiran Seluruh Guru Aktif
             </div>
             
-            <x-button type="button" variant="outline" size="sm" icon="file-text" wire:click="downloadPdf" :disabled="empty($matrix)" title="{{ empty($matrix) ? 'Tidak ada data kehadiran guru untuk diekspor' : 'Ekspor Dokumen PDF' }}">
-                Ekspor PDF
-            </x-button>
+            <div class="flex items-center gap-2">
+                <x-button type="button" variant="outline" size="sm" icon="file-spreadsheet" wire:click="downloadExcel" loadingTarget="downloadExcel" :disabled="empty($matrix)" title="{{ empty($matrix) ? 'Tidak ada data kehadiran guru untuk diekspor' : 'Ekspor Matriks ke Excel' }}">
+                    Ekspor Excel
+                </x-button>
+                <x-button type="button" variant="outline" size="sm" icon="file-text" wire:click="downloadPdf" loadingTarget="downloadPdf" :disabled="empty($matrix)" title="{{ empty($matrix) ? 'Tidak ada data kehadiran guru untuk diekspor' : 'Ekspor Dokumen PDF' }}">
+                    Ekspor PDF
+                </x-button>
+            </div>
         </div>
 
         <!-- Scrollable Matrix Table -->

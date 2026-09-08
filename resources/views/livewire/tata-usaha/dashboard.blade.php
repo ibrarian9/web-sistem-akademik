@@ -20,10 +20,11 @@
     />
 
     <!-- Stat Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <x-stat-card title="Siswa Aktif" :value="$totalSiswa" icon="users" color="green" />
         <x-stat-card title="Guru Aktif" :value="$totalGuru" icon="user-check" color="blue" />
-        <x-stat-card title="Total Kelas" :value="$totalKelas" icon="calendar" color="amber" />
+        <x-stat-card title="Total Rombel" :value="$totalKelas" icon="layers" color="amber" />
+        <x-stat-card title="Jadwal Pelajaran" :value="$totalJadwal" icon="calendar" color="purple" />
     </div>
 
     <!-- Quick Access -->

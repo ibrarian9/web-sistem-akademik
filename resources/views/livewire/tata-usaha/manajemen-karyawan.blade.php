@@ -8,9 +8,11 @@
         icon="users"
     >
         <x-slot:actions>
-            <x-button variant="primary" size="md" icon="plus-circle" wire:click.prevent="openCreate">
-                Tambah Karyawan Baru
-            </x-button>
+            @if (!auth()->user()?->isSuperAdmin2())
+                <x-button variant="primary" size="md" icon="plus-circle" wire:click.prevent="openCreate">
+                    Tambah Karyawan Baru
+                </x-button>
+            @endif
         </x-slot:actions>
     </x-page-header>
 
@@ -102,16 +104,18 @@
                         <x-status-badge :status="$k->status" />
                     </div>
 
-                    <div class="flex items-center gap-1.5">
-                        <x-button type="button" variant="secondary" size="xs" icon="edit" wire:click.prevent="openEdit({{ $k->id }})" title="Edit Karyawan">
-                            Edit
-                        </x-button>
-                        @if ($k->id !== auth()->id() && $k->role?->nama !== 'super_admin')
-                            <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click.prevent="delete({{ $k->id }})" data-confirm="Apakah Anda yakin ingin menghapus akun karyawan {{ $k->nama }}?" title="Hapus Karyawan">
-                                Hapus
+                    @if (!auth()->user()?->isSuperAdmin2())
+                        <div class="flex items-center gap-1.5">
+                            <x-button type="button" variant="secondary" size="xs" icon="edit" wire:click.prevent="openEdit({{ $k->id }})" title="Edit Karyawan">
+                                Edit
                             </x-button>
-                        @endif
-                    </div>
+                            @if ($k->id !== auth()->id() && $k->role?->nama !== 'super_admin')
+                                <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click.prevent="delete({{ $k->id }})" data-confirm="Apakah Anda yakin ingin menghapus akun karyawan {{ $k->nama }}?" title="Hapus Karyawan">
+                                    Hapus
+                                </x-button>
+                            @endif
+                        </div>
+                    @endif
                 </div>
             </div>
         @empty

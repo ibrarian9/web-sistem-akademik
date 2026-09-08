@@ -107,10 +107,55 @@ class Dashboard extends Component
                 ->orderBy('created_at', 'desc')
                 ->limit(7)
                 ->get()
-                ->map(fn($log) => [
-                    'description' => $log->description,
-                    'time' => $log->created_at->diffForHumans(),
-                ])
+                ->map(function ($log) {
+                    $desc = (string) ($log->description ?? '');
+                    
+                    $modelNames = [
+                        'Nilai' => 'Nilai Akademik',
+                        'NilaiSumatifTp' => 'Nilai Sumatif',
+                        'NilaiSas' => 'Nilai Akhir Semester (SAS)',
+                        'NilaiTahfidz' => 'Nilai & Setoran Tahfizh',
+                        'NilaiP5' => 'Penilaian Projek P5',
+                        'Rapor' => 'Rapor Akademik',
+                        'RaporDetail' => 'Catatan Rapor',
+                        'RaporTahfidzDetail' => 'Catatan Rapor Tahfizh',
+                        'JadwalRemedial' => 'Jadwal Remedial',
+                        'AbsensiSiswa' => 'Presensi Kehadiran',
+                        'Pembayaran' => 'Pembayaran SPP / Sekolah',
+                        'Tagihan' => 'Tagihan Pendidikan',
+                        'Tabungan' => 'Tabungan Santri',
+                        'Siswa' => 'Biodata Santri',
+                    ];
+
+                    if (preg_match('/^(Membuat|Memperbarui|Menghapus)\s+data\s+(\w+)(?:\s*\((.*?)\))?/i', $desc, $m)) {
+                        $action = strtolower($m[1]);
+                        $model = $m[2];
+                        $identifier = $m[3] ?? '';
+                        $friendlyModel = $modelNames[$model] ?? 'data akademik';
+                        $cleanIdentifier = preg_replace('/^#?\d+$/', '', trim($identifier));
+
+                        $actionPhrase = match ($action) {
+                            'membuat' => "Pencatatan {$friendlyModel} baru",
+                            'memperbarui' => "Pembaruan catatan {$friendlyModel}",
+                            'menghapus' => "Penyesuaian catatan {$friendlyModel}",
+                            default => "Aktivitas pada {$friendlyModel}",
+                        };
+
+                        $desc = (!empty($cleanIdentifier) && !preg_match('/^#\d+$/', $cleanIdentifier))
+                            ? "{$actionPhrase} ({$cleanIdentifier})"
+                            : $actionPhrase;
+                    }
+
+                    $desc = preg_replace('/\s*\(\s*#?\d+\s*\)/', '', $desc);
+                    $desc = preg_replace('/\s+ID\s+#?\d+/i', '', $desc);
+                    $desc = preg_replace('/\s*#\d+/', '', $desc);
+                    $desc = trim($desc);
+
+                    return [
+                        'description' => $desc ?: 'Pembaruan data akun santri',
+                        'time' => $log->created_at ? $log->created_at->diffForHumans() : '-',
+                    ];
+                })
                 ->toArray();
         }
     }

@@ -39,8 +39,8 @@ class CapaianPengembanganGuru extends Component
     public function mount()
     {
         $user = auth()->user();
-        if (!$user || !in_array($user->role->nama ?? '', ['super_admin', 'kepala_sekolah'])) {
-            abort(403, 'Akses Ditolak: Halaman Evaluasi Capaian Guru khusus untuk Super Admin & Kepala Sekolah.');
+        if (!$user || !in_array($user->role->nama ?? '', ['super_admin', 'super_admin_2', 'kepala_sekolah', 'pengawas', 'koordinator'])) {
+            abort(403, 'Akses Ditolak: Halaman Evaluasi Capaian Guru khusus untuk Super Admin, Kepala Sekolah, dan Pengawas.');
         }
 
         $this->tanggal_penilaian = date('Y-m-d');
@@ -84,6 +84,10 @@ class CapaianPengembanganGuru extends Component
 
     public function openEvaluateModal($id)
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            return;
+        }
+
         $capaian = CapaianGuru::with(['guru.user', 'tahunAjaran', 'semester'])->find($id);
         if (!$capaian) {
             return;
@@ -107,6 +111,10 @@ class CapaianPengembanganGuru extends Component
 
     public function saveEvaluation()
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            return;
+        }
+
         $this->validate([
             'selectedCapaianId' => 'required|exists:capaian_gurus,id',
             'skor_nilai' => 'required|numeric|between:0,100',
@@ -134,6 +142,10 @@ class CapaianPengembanganGuru extends Component
 
     public function delete($id)
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            return;
+        }
+
         CapaianGuru::where('id', $id)->delete();
         session()->flash('success', 'Data pengajuan capaian guru berhasil dihapus.');
     }

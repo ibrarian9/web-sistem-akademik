@@ -122,6 +122,11 @@ class ArusKasMasuk extends Component
 
     public function openCreateModal()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->resetValidation();
         $this->reset(['jumlah', 'keterangan']);
         $this->tanggal = date('Y-m-d');
@@ -136,6 +141,11 @@ class ArusKasMasuk extends Component
 
     public function saveIncome()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $this->validate();
 
         PemasukanKas::create([
@@ -154,9 +164,32 @@ class ArusKasMasuk extends Component
         $this->resetPage();
     }
 
-    public function deleteIncome(int $id)
+    public function deleteIncome(int $id, ?string $alasan = null)
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
         $item = PemasukanKas::findOrFail($id);
+        $userRole = auth()->user()->role->nama ?? '';
+
+        if ($userRole === 'finance') {
+            $reason = $alasan ?: 'Penghapusan catatan pemasukan kas diajukan oleh staf keuangan';
+            \App\Services\FinancialApprovalService::createRequest(
+                auth()->user(),
+                'hapus',
+                'arus_kas',
+                $item,
+                null,
+                $reason,
+                "Hapus Pemasukan Kas: {$item->kategori} - Rp " . number_format($item->jumlah, 0, ',', '.') . " (" . ($item->tanggal ? $item->tanggal->format('d/m/Y') : '-') . ")"
+            );
+
+            session()->flash('message', 'Permohonan penghapusan pemasukan kas telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.');
+            return;
+        }
+
         $item->delete();
 
         session()->flash('message', 'Catatan pemasukan kas yayasan berhasil dihapus.');
@@ -164,6 +197,16 @@ class ArusKasMasuk extends Component
 
     public function bulkDelete()
     {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        if (auth()->user()->role?->nama === 'finance') {
+            session()->flash('error', 'Akses Ditolak: Penghapusan massal tidak diizinkan untuk staf keuangan. Silakan ajukan penghapusan per transaksi agar dapat disetujui Super Admin.');
+            return;
+        }
+
         if (empty($this->selectedIds)) {
             return;
         }

@@ -21,6 +21,9 @@ class RaporDetail extends Model
         'nilai_keagamaan',
         'nilai_akhir',
         'predikat',
+        'deskripsi_tertinggi',
+        'deskripsi_terendah',
+        'narasi_capaian_full',
     ];
 
     protected $casts = [

@@ -144,6 +144,11 @@
                             </th>
                         @endforeach
                         
+                        <!-- Rata-rata TP Column -->
+                        <th class="w-20 sm:w-24 min-w-[80px] p-2 text-center bg-emerald-900/90 text-white font-black text-xs uppercase border-b border-r border-emerald-950" title="Rata-rata Nilai TP">
+                            Rata² TP
+                        </th>
+
                         <!-- Nilai SAS Column -->
                         <th class="w-20 sm:w-24 min-w-[80px] p-2 text-center bg-emerald-900 text-white font-black text-xs uppercase border-b border-r border-emerald-950">
                             Nilai SAS
@@ -162,15 +167,19 @@
                                 return $v !== '' && $v !== null && is_numeric($v);
                             });
                             $avgTp = count($tpScores) > 0 ? array_sum($tpScores) / count($tpScores) : null;
-                            
+
                             $sasVal = $nilaiSasMatrix[$s->id] ?? '';
                             $sasNum = (is_numeric($sasVal) && $sasVal !== '') ? (float)$sasVal : null;
                             
-                            $components = [];
-                            if ($avgTp !== null) $components[] = $avgTp;
-                            if ($sasNum !== null) $components[] = $sasNum;
-                            
-                            $nilaiRapor = count($components) > 0 ? array_sum($components) / count($components) : null;
+                            if ($avgTp !== null && $sasNum !== null) {
+                                $nilaiRapor = ($avgTp + $sasNum) / 2;
+                            } elseif ($avgTp !== null) {
+                                $nilaiRapor = $avgTp;
+                            } elseif ($sasNum !== null) {
+                                $nilaiRapor = $sasNum;
+                            } else {
+                                $nilaiRapor = null;
+                            }
                             $nilaiRaporFormatted = $nilaiRapor !== null ? round($nilaiRapor, 2) : null;
                         @endphp
                         <tr class="hover:bg-stone-50 transition group">
@@ -195,7 +204,7 @@
                                         inputmode="decimal"
                                         step="0.01" 
                                         min="0" 
-                                        max="100"
+                                        max="100" 
                                         data-row="{{ $index }}"
                                         data-col="{{ $colIdx }}"
                                         @keydown.enter.prevent="navigateCell($event, {{ $index }}, {{ $colIdx }})"
@@ -208,6 +217,11 @@
                                 </td>
                             @endforeach
 
+                            <!-- Rata-rata TP -->
+                            <td class="p-2 text-center bg-emerald-50/40 font-bold text-stone-700 text-xs border-b border-r border-stone-200">
+                                {{ $avgTp !== null ? number_format($avgTp, 1) : '-' }}
+                            </td>
+
                             <!-- Input SAS -->
                             <td class="p-1.5 sm:p-2 text-center bg-cyan-50/30 group-hover:bg-cyan-50/60 border-b border-r border-stone-200 transition">
                                 <input 
@@ -215,7 +229,7 @@
                                     inputmode="decimal"
                                     step="0.01" 
                                     min="0" 
-                                    max="100"
+                                    max="100" 
                                     data-row="{{ $index }}"
                                     data-col="{{ count($allTps) }}"
                                     @keydown.enter.prevent="navigateCell($event, {{ $index }}, {{ count($allTps) }})"
@@ -233,7 +247,7 @@
                             </td>
                         </tr>
                     @empty
-                        <x-table.empty :colspan="count($allTps) + 3" title="Tidak ada siswa" message="Tidak ada siswa terdaftar pada rombel kelas ini." />
+                        <x-table.empty :colspan="count($allTps) + 5" title="Tidak ada siswa" message="Tidak ada siswa terdaftar pada rombel kelas ini." />
                     @endforelse
                 </tbody>
             </table>

@@ -113,9 +113,31 @@ class DetailGajiGuru extends Component
         $this->previewSalaryId = null;
     }
 
-    public function deleteSalary(int $id)
+    public function deleteSalary(int $id, ?string $alasan = null)
     {
-        $gaji = GajiGuru::where('guru_id', $this->guruId)->findOrFail($id);
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $gaji = GajiGuru::with('guru.user')->where('guru_id', $this->guruId)->findOrFail($id);
+        $userRole = auth()->user()->role->nama ?? '';
+
+        if ($userRole === 'finance') {
+            $reason = $alasan ?: 'Penghapusan data gaji diajukan oleh staf keuangan';
+            \App\Services\FinancialApprovalService::createRequest(
+                auth()->user(),
+                'hapus',
+                'gaji_guru',
+                $gaji,
+                null,
+                $reason,
+                "Hapus Gaji Guru: " . ($gaji->guru->user->nama ?? 'Guru') . " - {$gaji->bulan} {$gaji->tahun} (THP: Rp " . number_format($gaji->total_diterima, 0, ',', '.') . ")"
+            );
+
+            session()->flash('message', 'Permohonan penghapusan data gaji telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.');
+            return;
+        }
 
         DB::transaction(function () use ($gaji) {
             if ($gaji->status === 'dibayar') {
@@ -146,14 +168,65 @@ class DetailGajiGuru extends Component
 
     public function deleteSelected()
     {
-        if (empty($this->selectedGajiIds)) {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            $this->dispatch('notify', ['type' => 'error', 'message' => 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.']);
             return;
         }
 
-        $salaries = GajiGuru::where('guru_id', $this->guruId)
+        if (empty($this->selectedGajiIds)) {
+            session()->flash('error', 'Silakan pilih riwayat gaji yang ingin dihapus terlebih dahulu.');
+            $this->dispatch('notify', ['type' => 'warning', 'message' => 'Silakan pilih riwayat gaji yang ingin dihapus terlebih dahulu.']);
+            return;
+        }
+
+        $salaries = GajiGuru::with('guru.user')->where('guru_id', $this->guruId)
             ->whereIn('id', $this->selectedGajiIds)
             ->get();
         $count = $salaries->count();
+        $userRole = auth()->user()->role?->nama ?? '';
+
+        if ($userRole === 'finance') {
+            $submittedCount = 0;
+            $deletedDraftCount = 0;
+
+            DB::transaction(function () use ($salaries, &$submittedCount, &$deletedDraftCount) {
+                foreach ($salaries as $gaji) {
+                    if ($gaji->status === 'dibayar') {
+                        \App\Services\FinancialApprovalService::createRequest(
+                            auth()->user(),
+                            'hapus',
+                            'gaji_guru',
+                            $gaji,
+                            null,
+                            'Penghapusan batch diajukan oleh staf keuangan',
+                            "Hapus Gaji Guru: " . ($gaji->guru->user->nama ?? 'Guru') . " - {$gaji->bulan} {$gaji->tahun} (THP: Rp " . number_format($gaji->total_diterima, 0, ',', '.') . ")"
+                        );
+                        $submittedCount++;
+                    } else {
+                        $gaji->delete();
+                        $deletedDraftCount++;
+                    }
+                }
+            });
+
+            $this->selectedGajiIds = [];
+            $this->selectAll = false;
+
+            $msg = [];
+            if ($deletedDraftCount > 0) {
+                $msg[] = "{$deletedDraftCount} data draf gaji berhasil dihapus.";
+            }
+            if ($submittedCount > 0) {
+                $msg[] = "{$submittedCount} permohonan hapus gaji berstatus dibayar diajukan ke Super Admin untuk disetujui.";
+            }
+
+            $messageText = implode(' ', $msg) ?: 'Aksi batch selesai.';
+            session()->flash('message', $messageText);
+            $this->dispatch('notify', ['type' => 'success', 'message' => $messageText]);
+            $this->dispatch('modal-alert', ['type' => 'create', 'title' => 'Permohonan Berhasil Diajukan', 'message' => $messageText]);
+            return;
+        }
 
         DB::transaction(function () use ($salaries) {
             foreach ($salaries as $gaji) {
@@ -182,7 +255,10 @@ class DetailGajiGuru extends Component
 
         $this->selectedGajiIds = [];
         $this->selectAll = false;
-        session()->flash('message', "Berhasil menghapus {$count} data riwayat gaji terpilih.");
+        $messageText = "Berhasil menghapus {$count} data riwayat gaji terpilih.";
+        session()->flash('message', $messageText);
+        $this->dispatch('notify', ['type' => 'success', 'message' => $messageText]);
+        $this->dispatch('modal-alert', ['type' => 'delete', 'title' => 'Data Berhasil Dihapus', 'message' => $messageText]);
     }
 
     protected function getBaseQuery()

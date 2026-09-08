@@ -24,9 +24,11 @@
         icon="users"
     >
         <x-slot:actions>
+            @if(!auth()->user()->isSuperAdmin2())
             <x-button type="button" variant="primary" size="md" icon="plus" wire:click.prevent="openCreate">
                 Tambah Siswa Baru
             </x-button>
+            @endif
         </x-slot:actions>
     </x-page-header>
 
@@ -90,6 +92,13 @@
                         <td class="p-3.5 border-r border-stone-200">
                             <div class="font-extrabold text-stone-900 text-xs">{{ strtoupper($siswa->user->nama ?? '-') }}</div>
                             <div class="text-[10px] text-stone-500 font-medium">User: {{ $siswa->user->username ?? '-' }}</div>
+                            @if($siswa->shadowTeacher)
+                                <div class="mt-1 flex items-center gap-1">
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200" title="Guru Pendamping Khusus">
+                                        GPK: {{ $siswa->shadowTeacher->user->nama ?? '-' }}
+                                    </span>
+                                </div>
+                            @endif
                         </td>
                         <td class="p-3.5 border-r border-stone-200">
                             @if($siswa->kelas)
@@ -121,12 +130,14 @@
                                 <x-button type="button" variant="outline" size="xs" icon="eye" wire:click.prevent="openDetail({{ $siswa->id }})">
                                     Detail
                                 </x-button>
+                                @if(!auth()->user()->isSuperAdmin2())
                                 <x-button type="button" variant="secondary" size="xs" icon="edit" wire:click.prevent="openEdit({{ $siswa->id }})">
                                     Edit
                                 </x-button>
                                 <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click.prevent="delete({{ $siswa->id }})" data-confirm="Apakah Anda yakin ingin menghapus data siswa ini?">
                                     Hapus
                                 </x-button>
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -172,13 +183,13 @@
         @endif
 
         <form wire:submit.prevent="save" action="javascript:void(0);" class="space-y-4 text-xs">
-            <!-- Dual Kelas Selection Box -->
+            <!-- Dual Kelas & Guru Pendamping Selection Box -->
             <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl space-y-3">
-                <span class="text-xs font-extrabold text-emerald-950 uppercase block">PENETAPAN KELAS SISWA (OPSIONAL / BISA MENYESUAIKAN)</span>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <span class="text-xs font-extrabold text-emerald-950 uppercase block">PENETAPAN KELAS & PENDAMPING SISWA (OPSIONAL / BISA MENYESUAIKAN)</span>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <!-- 1. Kelas Umum -->
                     <div class="space-y-1">
-                        <label class="text-xs font-bold text-stone-700 uppercase">1. Kelas Umum (Opsional)</label>
+                        <label class="text-xs font-bold text-stone-700 uppercase">1. Kelas Umum (Wali Kelas)</label>
                         <select wire:model="kelas_id" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
                             <option value="">-- Belum Ada / Opsional --</option>
                             @foreach ($kelasesUmum as $kls)
@@ -198,6 +209,18 @@
                             @endforeach
                         </select>
                         @error('kelas_tahfidz_id') <span class="text-rose-600 text-[10px] font-bold block mt-1">{{ $message }}</span> @enderror
+                    </div>
+
+                    <!-- 3. Guru Pendamping Khusus (Shadow Teacher) -->
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-stone-700 uppercase">3. Guru Pendamping (Shadow)</label>
+                        <select wire:model="shadow_teacher_id" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
+                            <option value="">-- Tanpa Guru Pendamping --</option>
+                            @foreach ($gurus as $guru)
+                                <option value="{{ $guru->id }}">{{ $guru->user->nama ?? 'Guru' }} ({{ $guru->nip ?: 'NIP -' }})</option>
+                            @endforeach
+                        </select>
+                        @error('shadow_teacher_id') <span class="text-rose-600 text-[10px] font-bold block mt-1">{{ $message }}</span> @enderror
                     </div>
                 </div>
             </div>
@@ -331,8 +354,8 @@
     >
         @if ($selectedSiswaDetail)
             <div class="space-y-4 text-xs">
-                <!-- Dual Class Cards -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- Tri-Card: Wali Kelas, Wali Tahfizh, Shadow Teacher -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <!-- Kelas Umum -->
                     <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl space-y-1">
                         <div class="flex items-center gap-1.5 text-xs font-extrabold text-emerald-950">
@@ -347,7 +370,7 @@
                                 Wali Kelas: <strong>{{ $selectedSiswaDetail->kelas->guruUmum->user->nama ?? 'Belum Ditentukan' }}</strong>
                             </div>
                         @else
-                            <div class="text-xs text-stone-400 italic pt-1">- Belum Ditempatkan di Kelas Umum -</div>
+                            <div class="text-xs text-stone-400 italic pt-1">- Belum Ditempatkan -</div>
                         @endif
                     </div>
 
@@ -355,7 +378,7 @@
                     <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl space-y-1">
                         <div class="flex items-center gap-1.5 text-xs font-extrabold text-amber-950">
                             <x-lucide-bookmark class="w-4 h-4 text-amber-700 shrink-0" />
-                            <span>2. Kelas Tahfizh / Halaqah</span>
+                            <span>2. Kelas Tahfizh</span>
                         </div>
                         @if($selectedSiswaDetail->kelasTahfidz)
                             <div class="text-sm font-black text-amber-900 pt-0.5">
@@ -365,7 +388,25 @@
                                 Pengampu: <strong>{{ $selectedSiswaDetail->kelasTahfidz->guruTahfidz->user->nama ?? 'Belum Ditentukan' }}</strong>
                             </div>
                         @else
-                            <div class="text-xs text-stone-400 italic pt-1">- Belum Ditempatkan di Kelas Tahfizh -</div>
+                            <div class="text-xs text-stone-400 italic pt-1">- Belum Ditempatkan -</div>
+                        @endif
+                    </div>
+
+                    <!-- Guru Pendamping Khusus (Shadow Teacher) -->
+                    <div class="p-3.5 bg-indigo-50 border border-indigo-200 rounded-xl space-y-1">
+                        <div class="flex items-center gap-1.5 text-xs font-extrabold text-indigo-950">
+                            <x-lucide-user-check class="w-4 h-4 text-indigo-700 shrink-0" />
+                            <span>3. Guru Pendamping</span>
+                        </div>
+                        @if($selectedSiswaDetail->shadowTeacher)
+                            <div class="text-sm font-black text-indigo-900 pt-0.5">
+                                {{ $selectedSiswaDetail->shadowTeacher->user->nama ?? '-' }}
+                            </div>
+                            <div class="text-[11px] text-indigo-700 font-medium">
+                                Status: <strong>Shadow Teacher / GPK</strong>
+                            </div>
+                        @else
+                            <div class="text-xs text-stone-400 italic pt-1">- Tidak Ada Guru Pendamping -</div>
                         @endif
                     </div>
                 </div>

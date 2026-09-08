@@ -4,7 +4,7 @@
         title="Panduan Portal Guru & Wali Kelas"
         :steps="[
             ['title' => 'Absensi Mandiri', 'desc' => 'Lakukan Check-In saat tiba di sekolah dan Check-Out sebelum pulang pada menu Absensi Mandiri.'],
-            ['title' => 'Input Nilai Siswa', 'desc' => 'Isi nilai mata pelajaran umum/tahfidz siswa serta atur pembobotan komponen pada menu Bobot Nilai.'],
+            ['title' => 'Input Nilai Sumatif', 'desc' => 'Isi nilai sumatif Lingkup Materi dan Sumatif Akhir Semester (SAS) untuk mata pelajaran yang diampu.'],
             ['title' => 'Cetak & Terbitkan Rapor', 'desc' => 'Khusus Wali Kelas: verifikasi capaian nilai, absensi, dan sikap sebelum menerbitkan rapor digital.']
         ]"
     />
@@ -117,6 +117,16 @@
                     <div>
                         <h4 class="text-xs font-bold text-stone-900">Penilaian Kokurikuler P5</h4>
                         <p class="text-[10px] text-stone-500 font-medium">Penilaian kualitatif P5 (1-klik).</p>
+                    </div>
+                </a>
+
+                <a href="{{ route('guru.ekskul') }}" class="flex items-center gap-3 p-3.5 bg-stone-50 hover:bg-stone-100 border border-stone-200 hover:border-amber-300 rounded-xl text-stone-900 transition duration-150">
+                    <div class="w-9 h-9 rounded-lg bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-900 shrink-0">
+                        <x-lucide-star class="w-4 h-4" />
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-stone-900">Ekstrakurikuler Siswa</h4>
+                        <p class="text-[10px] text-stone-500 font-medium">Katalog & penilaian ekskul santri.</p>
                     </div>
                 </a>
             </div>

@@ -71,13 +71,36 @@ class AutoNarasiService
             }
         }
 
+        if (empty($lingkupAverages)) {
+            $orphanTpScores = NilaiSumatifTp::where('siswa_id', $siswaId)
+                ->where('semester_id', $semesterId)
+                ->whereHas('tujuanPembelajaran.lingkupMateri', function ($q) use ($mapelId) {
+                    $q->where('mapel_id', $mapelId);
+                })
+                ->get();
+
+            if ($orphanTpScores->isNotEmpty()) {
+                $lingkupAverages[] = (float) $orphanTpScores->avg('nilai');
+
+                foreach ($orphanTpScores as $s) {
+                    if ($s->tujuanPembelajaran) {
+                        $allTpScores[] = [
+                            'tp' => $s->tujuanPembelajaran,
+                            'score' => (float) $s->nilai,
+                            'urutan' => $s->tujuanPembelajaran->urutan ?? 1,
+                        ];
+                    }
+                }
+            }
+        }
+
         // 2. Fetch Nilai SAS
         $nilaiSasRecord = NilaiSas::where('siswa_id', $siswaId)
             ->where('mapel_id', $mapelId)
             ->where('semester_id', $semesterId)
             ->first();
 
-        $nilaiSas = $nilaiSasRecord ? (float) $nilaiSasRecord->nilai : null;
+        $nilaiSas = $nilaiSasRecord ? (float) ($nilaiSasRecord->nilai_sas !== null ? $nilaiSasRecord->nilai_sas : $nilaiSasRecord->nilai) : null;
 
         // 3. Calculate Nilai Akhir
         $components = $lingkupAverages;
@@ -90,11 +113,11 @@ class AutoNarasiService
 
         // Determine Predikat
         $predikat = 'D';
-        if ($nilaiAkhirFormatted >= 85) {
+        if ($nilaiAkhirFormatted >= 90) {
             $predikat = 'A';
-        } elseif ($nilaiAkhirFormatted >= 75) {
+        } elseif ($nilaiAkhirFormatted >= 80) {
             $predikat = 'B';
-        } elseif ($nilaiAkhirFormatted >= 65) {
+        } elseif ($nilaiAkhirFormatted >= 70) {
             $predikat = 'C';
         }
 

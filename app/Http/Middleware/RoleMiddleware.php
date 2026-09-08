@@ -38,7 +38,7 @@ class RoleMiddleware
 
         // Redirect to their default dashboard if unauthorized for this route
         return match ($userRole) {
-            'super_admin' => redirect()->route('super-admin.dashboard'),
+            'super_admin', 'super_admin_2' => redirect()->route('super-admin.dashboard'),
             'tata_usaha' => redirect()->route('tata-usaha.dashboard'),
             'guru' => redirect()->route('guru.dashboard'),
             'murid' => redirect()->route('murid.dashboard'),

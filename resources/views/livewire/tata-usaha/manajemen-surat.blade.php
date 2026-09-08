@@ -284,11 +284,13 @@
                 </div>
 
                 <!-- Submit Action Button -->
-                <div class="flex items-center justify-end border-t border-stone-200 pt-4 gap-2">
-                    <x-button type="submit" variant="primary" size="md" icon="save" loadingTarget="simpanDanCetak">
-                        Simpan & Pratinjau PDF Surat (Live Editor)
-                    </x-button>
-                </div>
+                @if (!auth()->user()?->isSuperAdmin2())
+                    <div class="flex items-center justify-end border-t border-stone-200 pt-4 gap-2">
+                        <x-button type="submit" variant="primary" size="md" icon="save" loadingTarget="simpanDanCetak">
+                            Simpan & Pratinjau PDF Surat (Live Editor)
+                        </x-button>
+                    </div>
+                @endif
             </form>
         </div>
     @else
@@ -336,9 +338,11 @@
                                     <x-button type="button" variant="warning" size="xs" icon="download" wire:click="downloadPdfById({{ $r->id }})">
                                         PDF
                                     </x-button>
-                                    <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="deleteRiwayat({{ $r->id }})" data-confirm="Apakah Anda yakin ingin menghapus arsip surat ini?">
-                                        Hapus
-                                    </x-button>
+                                    @if (!auth()->user()?->isSuperAdmin2())
+                                        <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="deleteRiwayat({{ $r->id }})" data-confirm="Apakah Anda yakin ingin menghapus arsip surat ini?">
+                                            Hapus
+                                        </x-button>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

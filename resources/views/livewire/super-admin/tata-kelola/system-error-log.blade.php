@@ -8,9 +8,11 @@
         icon="alert-triangle"
     >
         <x-slot:actions>
-            <x-button type="button" variant="danger" size="md" icon="trash-2" wire:click="clearLog" data-confirm="Apakah Anda yakin ingin mengosongkan berkas log error sistem?">
-                Bersihkan Log Error
-            </x-button>
+            @if (!auth()->user()?->isSuperAdmin2())
+                <x-button type="button" variant="danger" size="md" icon="trash-2" wire:click="clearLog" data-confirm="Apakah Anda yakin ingin mengosongkan berkas log error sistem?">
+                    Bersihkan Log Error
+                </x-button>
+            @endif
         </x-slot:actions>
     </x-page-header>
 

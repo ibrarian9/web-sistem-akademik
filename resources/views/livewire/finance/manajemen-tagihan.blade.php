@@ -311,12 +311,25 @@
                 required 
             />
 
+            @if (auth()->user()->role?->nama === 'finance')
+                <div class="space-y-1.5 p-3.5 bg-amber-50/70 border border-amber-200 rounded-xl">
+                    <label class="block text-xs font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+                        <x-lucide-shield-alert class="w-4 h-4 text-amber-600" />
+                        Alasan Perubahan Tagihan (Wajib Persetujuan) <span class="text-rose-500">*</span>
+                    </label>
+                    <p class="text-[11px] text-amber-700">Perubahan oleh bagian Keuangan membutuhkan persetujuan dari Super Admin atau Super Admin 2.</p>
+                    <textarea wire:model="edit_alasan" rows="2" placeholder="Tuliskan alasan pengajuan perubahan nominal/tagihan ini..."
+                              class="w-full px-3 py-2 text-xs bg-white border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-stone-800"></textarea>
+                    @error('edit_alasan') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror
+                </div>
+            @endif
+
             <div class="flex items-center justify-end gap-2 pt-3 border-t border-stone-200">
                 <x-button variant="secondary" size="md" wire:click="closeEditModal">
                     Batal
                 </x-button>
                 <x-button variant="primary" size="md" type="submit" loadingTarget="saveEditTagihan">
-                    Simpan Perubahan
+                    {{ auth()->user()->role?->nama === 'finance' ? 'Ajukan Perubahan (Butuh Approval)' : 'Simpan Perubahan' }}
                 </x-button>
             </div>
         </form>

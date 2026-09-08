@@ -2,18 +2,20 @@
     <!-- Header Title Bar -->
     <x-page-header 
         title="Tata Kelola Dana BOS (Bantuan Operasional Sekolah)" 
-        subtitle="Pencatatan dana BOS reguler/kinerja dari pemerintah, terpisah dari kas yayasan sekolah."
-        badge="DANA BOS KEMDIKBUD"
+        :subtitle="auth()->user()->isKepalaSekolah() ? 'Pemantauan alokasi dan realisasi pos anggaran Dana BOS reguler/kinerja dari pemerintah.' : 'Pencatatan dana BOS reguler/kinerja dari pemerintah, terpisah dari kas yayasan sekolah.'"
+        :badge="auth()->user()->isKepalaSekolah() ? 'MONITORING KEPALA SEKOLAH' : (auth()->user()->isSuperAdmin2() ? 'LIHAT SAJA (SUPER ADMIN 2)' : 'DANA BOS KEMDIKBUD')"
         badgeVariant="sky"
         icon="landmark"
     >
         <x-slot:actions>
+            @if(!auth()->user()->isSuperAdmin2() && !auth()->user()->isKepalaSekolah())
             <x-button variant="primary" size="md" icon="plus" wire:click="openCreateModal('masuk')">
                 Catat Penerimaan BOS
             </x-button>
             <x-button variant="danger-solid" size="md" icon="plus" wire:click="openCreateModal('keluar')">
                 Catat Belanja BOS
             </x-button>
+            @endif
         </x-slot:actions>
     </x-page-header>
 
@@ -41,8 +43,12 @@
 
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
-        title="Petunjuk Tata Kelola Dana BOS"
-        :steps="[
+        :title="auth()->user()->isKepalaSekolah() ? 'Petunjuk Pemantauan Dana BOS' : 'Petunjuk Tata Kelola Dana BOS'"
+        :steps="auth()->user()->isKepalaSekolah() ? [
+            ['title' => 'Transparansi Anggaran', 'desc' => 'Kepala Sekolah dapat memantau seluruh alokasi penerimaan dan realisasi belanja BOS secara akurat dan transparan.'],
+            ['title' => 'Filter Periode & Tab', 'desc' => 'Gunakan tab selector (Semua, Penerimaan, Belanja) dan filter periode (Hari ini, Kemarin, Minggu ini, Bulan ini, Custom) untuk mengevaluasi data.'],
+            ['title' => 'Cetak & Ekspor', 'desc' => 'Gunakan tombol Rekap PDF atau Rekap Excel untuk mengunduh laporan realisasi dana BOS kapan pun dibutuhkan.']
+        ] : [
             ['title' => 'Pencatatan Terpisah', 'desc' => 'Seluruh pencairan dan realisasi belanja BOS tercatat terpisah dengan kas yayasan demi kepatuhan RKAS.'],
             ['title' => 'Filter Periode & Tab', 'desc' => 'Gunakan tab selector (Semua, Penerimaan, Belanja) dan filter periode (Hari ini, Kemarin, Minggu ini, Bulan ini, Custom).'],
             ['title' => 'Aksi Massal (Bulk Delete)', 'desc' => 'Centang checkbox pada baris transaksi untuk menghapus banyak catatan sekaligus.']
@@ -51,6 +57,10 @@
 
     @if (session()->has('message'))
         <x-alert-banner type="success" :message="session('message')" />
+    @endif
+
+    @if (session()->has('error'))
+        <x-alert-banner type="danger" :message="session('error')" />
     @endif
 
     <!-- Main Table Panel (Full Width) -->
@@ -98,14 +108,20 @@
                     </span>
                 @endif
 
-                <a href="{{ route('finance.dana-bos.pdf', ['filter_periode' => $filterPeriode, 'start_date' => $startDate, 'end_date' => $endDate, 'jenis' => $filterJenis, 'search' => $search]) }}" 
+                @php
+                    $isKepsek = auth()->user()?->isKepalaSekolah();
+                    $pdfRoute = route($isKepsek ? 'kepala-sekolah.dana-bos.pdf' : 'finance.dana-bos.pdf', ['filter_periode' => $filterPeriode, 'start_date' => $startDate, 'end_date' => $endDate, 'jenis' => $filterJenis, 'search' => $search]);
+                    $excelRoute = route($isKepsek ? 'kepala-sekolah.dana-bos.excel' : 'finance.dana-bos.excel', ['filter_periode' => $filterPeriode, 'start_date' => $startDate, 'end_date' => $endDate, 'jenis' => $filterJenis, 'search' => $search]);
+                @endphp
+
+                <a href="{{ $pdfRoute }}" 
                    target="_blank" 
                    class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-800 border border-rose-200 rounded-xl text-xs font-bold transition shadow-2xs">
                     <x-lucide-file-text class="w-4 h-4 text-rose-600" />
                     <span>Rekap PDF</span>
                 </a>
 
-                <a href="{{ route('finance.dana-bos.excel', ['filter_periode' => $filterPeriode, 'start_date' => $startDate, 'end_date' => $endDate, 'jenis' => $filterJenis, 'search' => $search]) }}" 
+                <a href="{{ $excelRoute }}" 
                    class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold transition shadow-2xs">
                     <x-lucide-file-spreadsheet class="w-4 h-4 text-emerald-600" />
                     <span>Rekap Excel</span>
@@ -154,13 +170,17 @@
                             {{ $t->keterangan }}
                         </td>
                         <td class="p-3.5 text-center">
-                            <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="deleteTransaction({{ $t->id }})" data-confirm="Yakin ingin menghapus catatan transaksi Dana BOS ini?">
+                            @if(!auth()->user()->isSuperAdmin2() && !auth()->user()->isKepalaSekolah())
+                            <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="deleteTransaction({{ $t->id }})" data-confirm="{{ auth()->user()->role?->nama === 'finance' ? 'Ajukan permohonan penghapusan catatan transaksi Dana BOS ini ke Super Admin / Super Admin 2?' : 'Yakin ingin menghapus catatan transaksi Dana BOS ini?' }}">
                                 Hapus
                             </x-button>
+                            @else
+                                <span class="text-[10px] text-stone-400 font-mono italic">Lihat Saja</span>
+                            @endif
                         </td>
                     </tr>
                 @empty
-                    <x-table.empty :colspan="7" title="Belum ada transaksi Dana BOS" message="Gunakan tombol di atas untuk mencatat penerimaan atau belanja dana BOS." />
+                    <x-table.empty :colspan="7" title="Belum ada transaksi Dana BOS" :message="auth()->user()->isSuperAdmin2() || auth()->user()->isKepalaSekolah() ? 'Belum ada catatan transaksi Dana BOS pada periode ini.' : 'Gunakan tombol di atas untuk mencatat penerimaan atau belanja dana BOS.'" />
                 @endforelse
             </tbody>
         </x-table>
@@ -171,7 +191,9 @@
     </div>
 
     <!-- Floating Bulk Actions Bar -->
+    @if(!auth()->user()->isSuperAdmin2() && !auth()->user()->isKepalaSekolah() && auth()->user()->role?->nama !== 'finance')
     <x-bulk-actions :selectedCount="count($selectedIds)" deleteAction="bulkDelete" cancelAction="resetSelection" confirmText="Apakah Anda yakin ingin menghapus seluruh catatan transaksi Dana BOS yang dipilih?" />
+    @endif
 
     <!-- Floating Card Form Dana BOS (Masuk / Keluar) -->
     <x-floating-card 

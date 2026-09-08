@@ -149,9 +149,9 @@ class TagihanZeroNominalAndPaymentDeletionTest extends TestCase
         $this->assertEquals('lunas', $tagihan->status);
     }
 
-    public function test_finance_can_delete_payment_and_tagihan_is_recalculated(): void
+    public function test_admin_can_delete_payment_and_tagihan_is_recalculated(): void
     {
-        $this->actingAs($this->financeUser);
+        $this->actingAs($this->adminUser);
 
         // Create a normal tagihan of 300.000
         $tagihan = Tagihan::create([
@@ -178,7 +178,7 @@ class TagihanZeroNominalAndPaymentDeletionTest extends TestCase
 
         $this->assertDatabaseHas('pembayaran', ['id' => $pembayaran->id]);
 
-        // Finance deletes the payment
+        // Admin deletes the payment directly
         Livewire::test(DetailTagihanSiswa::class, ['siswaId' => $this->siswa->id])
             ->call('deletePembayaran', $pembayaran->id)
             ->assertHasNoErrors();
@@ -194,7 +194,7 @@ class TagihanZeroNominalAndPaymentDeletionTest extends TestCase
 
     public function test_deleting_deposit_payment_refunds_student_deposit(): void
     {
-        $this->actingAs($this->financeUser);
+        $this->actingAs($this->adminUser);
 
         // Student initial deposit
         $this->siswa->update(['saldo_deposit' => 50000]);
@@ -220,7 +220,7 @@ class TagihanZeroNominalAndPaymentDeletionTest extends TestCase
             'petugas_id' => $this->financeUser->id,
         ]);
 
-        // Finance deletes payment
+        // Admin deletes payment
         Livewire::test(DetailTagihanSiswa::class, ['siswaId' => $this->siswa->id])
             ->call('deletePembayaran', $pembayaran->id)
             ->assertHasNoErrors();
@@ -237,7 +237,7 @@ class TagihanZeroNominalAndPaymentDeletionTest extends TestCase
 
     public function test_finance_can_delete_unpaid_tagihan_on_detail_page_and_it_is_logged_in_audit(): void
     {
-        $this->actingAs($this->financeUser);
+        $this->actingAs($this->adminUser);
 
         $tagihan = Tagihan::create([
             'siswa_id' => $this->siswa->id,
@@ -269,13 +269,13 @@ class TagihanZeroNominalAndPaymentDeletionTest extends TestCase
             ->first();
 
         $this->assertNotNull($auditLog, 'Audit log for deleted tagihan must be recorded.');
-        $this->assertEquals($this->financeUser->id, $auditLog->causer_id);
+        $this->assertEquals($this->adminUser->id, $auditLog->causer_id);
         $this->assertEquals('keuangan', $auditLog->log_name);
     }
 
-    public function test_finance_can_delete_tagihan_with_existing_payment_and_automatically_rolls_back_payments(): void
+    public function test_admin_can_delete_tagihan_with_existing_payment_and_automatically_rolls_back_payments(): void
     {
-        $this->actingAs($this->financeUser);
+        $this->actingAs($this->adminUser);
 
         $tagihan = Tagihan::create([
             'siswa_id' => $this->siswa->id,

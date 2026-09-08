@@ -26,7 +26,7 @@ class SystemErrorLog extends Component
     public function mount()
     {
         $user = auth()->user();
-        if (!$user || !in_array($user->role->nama ?? '', ['super_admin', 'kepala_sekolah'])) {
+        if (!$user || !in_array($user->role->nama ?? '', ['super_admin', 'super_admin_2', 'kepala_sekolah'])) {
             abort(403, 'Akses Ditolak: Halaman System Error Log khusus untuk Super Admin & Kepala Sekolah.');
         }
     }
@@ -59,6 +59,10 @@ class SystemErrorLog extends Component
 
     public function clearLog()
     {
+        if (auth()->user()?->isSuperAdmin2()) {
+            return;
+        }
+
         $logPath = storage_path('logs/laravel.log');
         if (File::exists($logPath)) {
             File::put($logPath, '');
