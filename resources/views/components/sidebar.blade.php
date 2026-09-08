@@ -332,9 +332,11 @@
                 </div>
             @else
                 @php
-                    $isActive = !empty($item['route']) && (request()->routeIs($item['route']) || request()->routeIs($item['route'] . '.*'));
+                    $hasRoute = !empty($item['route']) && \Illuminate\Support\Facades\Route::has($item['route']);
+                    $isActive = $hasRoute && (request()->routeIs($item['route']) || request()->routeIs($item['route'] . '.*'));
+                    $itemUrl = $hasRoute ? route($item['route']) : (!empty($item['url']) ? $item['url'] : '#');
                 @endphp
-                <a href="{{ !empty($item['route']) ? route($item['route']) : '#' }}" wire:navigate
+                <a href="{{ $itemUrl }}" wire:navigate
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group
                           {{ $isActive 
                               ? 'bg-green-50 text-green-700 border-l-[3px] border-green-600 shadow-sm font-bold sidebar-active-link' 
