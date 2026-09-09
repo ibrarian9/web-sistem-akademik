@@ -20,6 +20,7 @@ class Rapor extends Model
         'status',
         'catatan_wali_kelas',
         'tanggal_terbit',
+        'qr_code_hash',
     ];
 
     protected $casts = [

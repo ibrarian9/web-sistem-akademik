@@ -1,4 +1,4 @@
-<div class="space-y-6 font-sans">
+<div class="space-y-6 font-sans" x-data="{ previewOpen: false, previewSrc: '', previewTitle: '' }" x-init="$watch('$wire.showPreviewBuktiModal', val => { if(val) { previewSrc = $wire.previewBuktiUrl; previewTitle = $wire.previewBuktiTitle; previewOpen = true; } })" @keydown.escape.window="previewOpen = false">
     <!-- Header Title Bar -->
     <x-page-header 
         title="Gabungan Arus Kas Keluar" 
@@ -257,11 +257,39 @@
             </div>
         </div>
 
-        <!-- Date Range Filter Row -->
+        <!-- Comprehensive Filter Toolbar Row -->
         <div class="flex items-center justify-between gap-4 border-t border-stone-100 pt-3 flex-wrap">
-            <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-stone-500 uppercase tracking-wider">Periode:</span>
-                <x-date-filter model="filterPeriode" startDateModel="startDate" endDateModel="endDate" />
+            <div class="flex items-center gap-2.5 flex-wrap flex-1">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-stone-500 uppercase tracking-wider">Periode:</span>
+                    <x-date-filter model="filterPeriode" startDateModel="startDate" endDateModel="endDate" />
+                </div>
+
+                <!-- Payment Method Filter -->
+                <div class="flex items-center gap-1.5">
+                    <select wire:model.live="filterMetode" class="bg-stone-50 border border-stone-200 rounded-xl px-2.5 py-1.5 text-stone-700 text-xs font-bold focus:ring-2 focus:ring-rose-600 focus:bg-white transition shadow-2xs">
+                        <option value="semua">Semua Metode Beban</option>
+                        <option value="tunai">Tunai / Kasbon</option>
+                        <option value="transfer">Transfer Bank / Payroll</option>
+                        <option value="bank">Bank</option>
+                    </select>
+                </div>
+
+                <!-- Nominal Range Filters -->
+                <div class="flex items-center gap-1 bg-stone-50 border border-stone-200 px-2 py-1 rounded-xl shadow-2xs">
+                    <span class="text-[11px] font-bold text-stone-400">Rp</span>
+                    <input type="number" wire:model.live.debounce.400ms="nominalMin" placeholder="Nominal Min" class="w-24 bg-transparent border-0 p-0 text-xs font-bold text-stone-800 placeholder-stone-400 focus:ring-0" />
+                    <span class="text-stone-300 text-xs">-</span>
+                    <input type="number" wire:model.live.debounce.400ms="nominalMax" placeholder="Nominal Max" class="w-24 bg-transparent border-0 p-0 text-xs font-bold text-stone-800 placeholder-stone-400 focus:ring-0" />
+                </div>
+
+                <!-- Reset Filter Button -->
+                @if ($this->activeFilterCount > 0)
+                    <button type="button" wire:click="resetFilters" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold border border-stone-300 transition shadow-2xs cursor-pointer">
+                        <x-lucide-refresh-cw class="w-3 h-3 text-stone-500" />
+                        <span>Reset ({{ $this->activeFilterCount }})</span>
+                    </button>
+                @endif
             </div>
 
             @if (count($selectedIds) > 0 && !auth()->user()->isSuperAdmin2() && auth()->user()->role?->nama !== 'finance')
@@ -325,15 +353,22 @@
                         </td>
                         <td class="p-3.5 text-center border-r border-stone-200">
                             @if ($item->bukti)
-                                <button 
-                                    type="button" 
-                                    wire:click="openPreviewBukti('{{ $item->bukti }}', '{{ $item->keterangan }}')" 
-                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[11px] font-bold shadow-2xs transition cursor-pointer"
-                                    title="Lihat Foto Bukti"
-                                >
-                                    <x-lucide-image class="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                                    <span>Bukti</span>
-                                </button>
+                                <div class="flex items-center justify-center">
+                                    <img src="{{ asset('storage/' . $item->bukti) }}" 
+                                         alt="Bukti {{ $item->kategori }}"
+                                         @click="previewSrc = '{{ asset('storage/' . $item->bukti) }}'; previewTitle = 'Bukti {{ addslashes($item->kategori) }} ({{ $item->tanggal->format('d/m/Y') }})'; previewOpen = true"
+                                         class="w-10 h-10 object-cover rounded-lg border border-stone-200 shadow-2xs cursor-pointer hover:opacity-80 hover:scale-105 transition duration-150"
+                                         title="Klik untuk memperbesar bukti"
+                                         loading="lazy"
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';" />
+                                    <button type="button" 
+                                         style="display: none;"
+                                         @click="previewSrc = '{{ asset('storage/' . $item->bukti) }}'; previewTitle = 'Bukti {{ addslashes($item->kategori) }} ({{ $item->tanggal->format('d/m/Y') }})'; previewOpen = true"
+                                         class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[11px] font-bold shadow-2xs transition cursor-pointer">
+                                        <x-lucide-image class="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                        <span>Bukti</span>
+                                    </button>
+                                </div>
                             @elseif ($item->can_edit && !auth()->user()->isSuperAdmin2())
                                 <button 
                                     type="button" 
@@ -345,7 +380,7 @@
                                     <span>+ Bukti</span>
                                 </button>
                             @else
-                                <span class="text-[10px] text-stone-400 italic font-mono">-</span>
+                                <span class="text-xs text-stone-400 font-medium italic">-</span>
                             @endif
                         </td>
                         <td class="p-3.5 text-center text-xs font-semibold text-stone-600 border-r border-stone-200">
@@ -421,11 +456,14 @@
             </div>
 
             <!-- Nominal Pengeluaran -->
-            <div>
-                <label for="jumlah" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">Nominal Pengeluaran (Rp)</label>
-                <input type="number" id="jumlah" wire:model="jumlah" min="1000" step="1000" placeholder="Contoh: 150000" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs" />
-                @error('jumlah') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
-            </div>
+            <x-input-currency
+                id="jumlah"
+                name="jumlah"
+                wire:model="jumlah"
+                label="Nominal Pengeluaran (Rp)"
+                placeholder="Contoh: 150.000"
+                required
+            />
 
             <!-- Keterangan / Deskripsi Beban -->
             <div>
@@ -523,11 +561,14 @@
                 </div>
 
                 <!-- Nominal Pengeluaran -->
-                <div>
-                    <label class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">Nominal Pengeluaran (Rp)</label>
-                    <input type="number" wire:model="edit_jumlah" min="1000" step="1000" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs" />
-                    @error('edit_jumlah') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
-                </div>
+                <x-input-currency
+                    id="edit_jumlah"
+                    name="edit_jumlah"
+                    wire:model="edit_jumlah"
+                    label="Nominal Pengeluaran (Rp)"
+                    placeholder="Contoh: 150.000"
+                    required
+                />
 
                 <!-- Keterangan / Deskripsi Beban -->
                 <div>
@@ -605,32 +646,51 @@
         </x-floating-card>
     @endif
 
-    <!-- Modal Lightbox Preview Bukti -->
-    @if ($showPreviewBuktiModal && $previewBuktiUrl)
-        <x-floating-card 
-            :show="true" 
-            title="Pratinjau Bukti Pengeluaran" 
-            :subtitle="$previewBuktiTitle ?: 'Lampiran Struk / Bukti Transfer Kas'"
-            badge="FOTO STRUK"
-            badgeVariant="emerald"
-            icon="image"
-            maxWidth="max-w-md"
-            closeAction="closePreviewBukti"
-        >
-            <div class="space-y-3">
-                <div class="rounded-xl overflow-hidden border border-stone-300 bg-stone-900 shadow-2xs p-1">
-                    <img src="{{ $previewBuktiUrl }}" alt="Bukti Pengeluaran" class="w-full max-h-80 object-contain mx-auto rounded-lg" />
+    <!-- ALPINE.JS LIGHTBOX PREVIEW MODAL (CLIENT-SIDE) -->
+    <div x-show="previewOpen" 
+         x-cloak 
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/80 backdrop-blur-xs"
+         @click.self="previewOpen = false">
+        <div class="relative max-w-3xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden border border-stone-200"
+             @click.outside="previewOpen = false"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-5 py-3.5 border-b border-stone-200 bg-stone-50">
+                <div class="flex items-center gap-2 min-w-0">
+                    <x-lucide-image class="w-4 h-4 text-emerald-600 shrink-0" />
+                    <h4 class="text-xs font-extrabold text-stone-900 truncate" x-text="previewTitle || 'Foto Bukti Pengeluaran'"></h4>
                 </div>
-                <div class="flex items-center justify-between pt-2">
-                    <a href="{{ $previewBuktiUrl }}" target="_blank" class="text-xs font-bold text-emerald-700 hover:text-emerald-900 hover:underline flex items-center gap-1.5">
-                        <x-lucide-external-link class="w-3.5 h-3.5" />
-                        <span>Buka Resolusi Penuh</span>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a :href="previewSrc" target="_blank" download class="p-1.5 bg-stone-200/70 hover:bg-emerald-100 text-stone-700 hover:text-emerald-800 rounded-lg transition cursor-pointer" title="Buka Gambar Asli">
+                        <x-lucide-external-link class="w-4 h-4" />
                     </a>
-                    <x-button type="button" variant="secondary" size="sm" wire:click="closePreviewBukti">
-                        Tutup
-                    </x-button>
+                    <button type="button" @click="previewOpen = false" class="p-1.5 bg-stone-200/70 hover:bg-rose-100 text-stone-700 hover:text-rose-800 rounded-lg transition cursor-pointer" title="Tutup (ESC)">
+                        <x-lucide-x class="w-4 h-4" />
+                    </button>
                 </div>
             </div>
-        </x-floating-card>
-    @endif
+            <!-- Modal Body Image -->
+            <div class="p-4 bg-stone-950 flex items-center justify-center max-h-[75vh] overflow-auto">
+                <img :src="previewSrc" alt="Foto Bukti Pengeluaran" class="max-w-full max-h-[70vh] rounded-lg object-contain shadow-xl" />
+            </div>
+            <!-- Modal Footer -->
+            <div class="px-5 py-3 bg-stone-50 border-t border-stone-200 flex items-center justify-between">
+                <span class="text-[11px] text-stone-500 font-medium">Tekan <kbd class="px-1.5 py-0.5 bg-stone-200 rounded text-[10px] font-mono">ESC</kbd> atau klik di luar untuk menutup</span>
+                <x-button type="button" variant="secondary" size="sm" @click="previewOpen = false">
+                    Tutup
+                </x-button>
+            </div>
+        </div>
+    </div>
 </div>

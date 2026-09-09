@@ -21,6 +21,12 @@ class Dashboard extends Component
     public bool $hasPiketHariIni = false;
     public string $targetJamMasuk = '07:00';
 
+    public bool $isGuruPendamping = false;
+    public int $totalSiswaDidampingi = 0;
+    public int $totalCatatanBulanIni = 0;
+    public array $siswaDidampingiList = [];
+    public array $catatanTerbaru = [];
+
     public function mount()
     {
         $user = auth()->user();
@@ -133,6 +139,32 @@ class Dashboard extends Component
         if ($absensi) {
             $this->waktuCheckIn = date('H:i', strtotime($absensi->waktu_datang));
             $this->statusAbsensi = ucfirst($absensi->status);
+        }
+
+        $this->isGuruPendamping = $guru->isGuruPendamping();
+        if ($this->isGuruPendamping) {
+            $siswaList = \App\Models\Siswa::forShadowTeacher($guru)->with(['user', 'kelas'])->get();
+            $this->totalSiswaDidampingi = $siswaList->count();
+            $this->totalCatatanBulanIni = \App\Models\CatatanPendampingan::where('guru_id', $guru->id)
+                ->whereMonth('tanggal', Carbon::now()->month)
+                ->whereYear('tanggal', Carbon::now()->year)
+                ->count();
+            $this->siswaDidampingiList = $siswaList->map(function ($s) {
+                return [
+                    'id' => $s->id,
+                    'nama' => $s->user->nama ?? $s->nama_lengkap ?? 'Siswa',
+                    'nisn' => $s->nisn,
+                    'kelas' => $s->kelas->nama_kelas ?? 'Belum ada kelas',
+                    'catatan_count' => $s->catatanPendampingan()->count(),
+                ];
+            })->toArray();
+
+            $this->catatanTerbaru = \App\Models\CatatanPendampingan::where('guru_id', $guru->id)
+                ->with(['siswa.user', 'siswa.kelas'])
+                ->latest('tanggal')
+                ->take(5)
+                ->get()
+                ->toArray();
         }
     }
 

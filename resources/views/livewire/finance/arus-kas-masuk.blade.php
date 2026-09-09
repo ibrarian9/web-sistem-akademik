@@ -280,11 +280,39 @@
             </div>
         </div>
 
-        <!-- Date Range Filter Row -->
+        <!-- Comprehensive Filter Toolbar Row -->
         <div class="flex items-center justify-between gap-4 border-t border-stone-100 pt-3 flex-wrap">
-            <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-stone-500 uppercase tracking-wider">Periode:</span>
-                <x-date-filter model="filterPeriode" startDateModel="startDate" endDateModel="endDate" />
+            <div class="flex items-center gap-2.5 flex-wrap flex-1">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-stone-500 uppercase tracking-wider">Periode:</span>
+                    <x-date-filter model="filterPeriode" startDateModel="startDate" endDateModel="endDate" />
+                </div>
+
+                <!-- Payment Method Filter -->
+                <div class="flex items-center gap-1.5">
+                    <select wire:model.live="filterMetode" class="bg-stone-50 border border-stone-200 rounded-xl px-2.5 py-1.5 text-stone-700 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs">
+                        <option value="semua">Semua Metode Pembayaran</option>
+                        <option value="tunai">Tunai / Cash</option>
+                        <option value="transfer">Transfer Bank</option>
+                        <option value="qris">QRIS / Non-Tunai</option>
+                    </select>
+                </div>
+
+                <!-- Nominal Range Filters -->
+                <div class="flex items-center gap-1 bg-stone-50 border border-stone-200 px-2 py-1 rounded-xl shadow-2xs">
+                    <span class="text-[11px] font-bold text-stone-400">Rp</span>
+                    <input type="number" wire:model.live.debounce.400ms="nominalMin" placeholder="Nominal Min" class="w-24 bg-transparent border-0 p-0 text-xs font-bold text-stone-800 placeholder-stone-400 focus:ring-0" />
+                    <span class="text-stone-300 text-xs">-</span>
+                    <input type="number" wire:model.live.debounce.400ms="nominalMax" placeholder="Nominal Max" class="w-24 bg-transparent border-0 p-0 text-xs font-bold text-stone-800 placeholder-stone-400 focus:ring-0" />
+                </div>
+
+                <!-- Reset Filter Button -->
+                @if ($this->activeFilterCount > 0)
+                    <button type="button" wire:click="resetFilters" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold border border-stone-300 transition shadow-2xs cursor-pointer">
+                        <x-lucide-refresh-cw class="w-3 h-3 text-stone-500" />
+                        <span>Reset ({{ $this->activeFilterCount }})</span>
+                    </button>
+                @endif
             </div>
 
             @if (count($selectedIds) > 0 && !auth()->user()->isSuperAdmin2() && auth()->user()->role?->nama !== 'finance')
@@ -422,11 +450,14 @@
             </div>
 
             <!-- Nominal Penerimaan -->
-            <div>
-                <label for="income_jumlah" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">Nominal Penerimaan (Rp)</label>
-                <input type="number" id="income_jumlah" wire:model="jumlah" min="1000" step="1000" placeholder="Contoh: 500000" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs" />
-                @error('jumlah') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
-            </div>
+            <x-input-currency
+                id="income_jumlah"
+                name="jumlah"
+                wire:model="jumlah"
+                label="Nominal Penerimaan (Rp)"
+                placeholder="Contoh: 500.000"
+                required
+            />
 
             <!-- Keterangan / Sumber Donatur -->
             <div>

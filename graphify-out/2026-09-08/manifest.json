@@ -1,7 +1,7 @@
 {
   "app/Console/Commands/GenerateMonthlySpp.php": {
-    "mtime": 1788152635.1368787,
-    "ast_hash": "50b2a2ba046359b1861a7ff36d3ddc98",
+    "mtime": 1788851638.9880574,
+    "ast_hash": "27c92417702eeaf8def152998b433eff",
     "semantic_hash": ""
   },
   "app/Console/Commands/GenerateMonthlySppCommand.php": {
@@ -15,8 +15,8 @@
     "semantic_hash": "25a307335c0719bc9a91b3f7babd186d"
   },
   "app/Http/Controllers/DocumentVerificationController.php": {
-    "mtime": 1788835014.4342406,
-    "ast_hash": "b575adf585a77d9286717c03ebe3b7d8",
+    "mtime": 1788851496.2613533,
+    "ast_hash": "c475cf58a0b015ab6b5fb842fcc4441b",
     "semantic_hash": ""
   },
   "app/Http/Controllers/FinanceExportController.php": {
@@ -30,8 +30,8 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/RaporPdfController.php": {
-    "mtime": 1786272429.495099,
-    "ast_hash": "59a6a579cdd1858664783d666a77461f",
+    "mtime": 1788851553.8532133,
+    "ast_hash": "6c8c613ab08750b68b97fcd80d8fbf4b",
     "semantic_hash": ""
   },
   "app/Http/Controllers/VerifikasiDokumenController.php": {
@@ -50,18 +50,18 @@
     "semantic_hash": ""
   },
   "app/Livewire/Finance/ArusKas.php": {
-    "mtime": 1788842925.2803135,
-    "ast_hash": "3207ec951409865ebcd70815201817db",
+    "mtime": 1788854045.4773338,
+    "ast_hash": "e8d9cd506cc642cc2fbed044e88eccf2",
     "semantic_hash": ""
   },
   "app/Livewire/Finance/ArusKasKeluar.php": {
-    "mtime": 1788838774.1719894,
-    "ast_hash": "1f038ac8d0d9f42165904c628de621f8",
+    "mtime": 1788854652.8382065,
+    "ast_hash": "844742b25f9807f32a6b5500557a35e3",
     "semantic_hash": ""
   },
   "app/Livewire/Finance/ArusKasMasuk.php": {
-    "mtime": 1788842952.4484212,
-    "ast_hash": "161a2a017eb69173e2d1ac6b96e08952",
+    "mtime": 1788854641.7660422,
+    "ast_hash": "323f9563c8d757c9ded50e66cb074d61",
     "semantic_hash": ""
   },
   "app/Livewire/Finance/ArusMasuk.php": {
@@ -70,8 +70,8 @@
     "semantic_hash": "d800ee268b7df901091d6c6d52ae67b6"
   },
   "app/Livewire/Finance/DanaBos.php": {
-    "mtime": 1788841792.4988842,
-    "ast_hash": "1b26d542f9833526ad65c7a288b3e9a4",
+    "mtime": 1788854663.0122576,
+    "ast_hash": "9eeae1cb24d261e9b48741f93064ab65",
     "semantic_hash": ""
   },
   "app/Livewire/Finance/Dashboard.php": {
@@ -80,8 +80,8 @@
     "semantic_hash": ""
   },
   "app/Livewire/Finance/InputPembayaran.php": {
-    "mtime": 1788838595.5441728,
-    "ast_hash": "066b0e12194b68d1e4842645bbaef8fd",
+    "mtime": 1788854403.8628051,
+    "ast_hash": "ecac5c89db4ce00bcc01952c4cec5d42",
     "semantic_hash": ""
   },
   "app/Livewire/Finance/Laporan/LaporanPemasukan.php": {
@@ -100,18 +100,18 @@
     "semantic_hash": ""
   },
   "app/Livewire/Finance/ManajemenGajiGuru.php": {
-    "mtime": 1788840862.562933,
-    "ast_hash": "6f8bf3be30201f96ffb42da0669b86fc",
+    "mtime": 1788853786.3376195,
+    "ast_hash": "2b4299354eba8a5f0e6c338c9acc648a",
     "semantic_hash": ""
   },
   "app/Livewire/Finance/ManajemenPeminjaman.php": {
-    "mtime": 1788715381.5227396,
-    "ast_hash": "b8f1f0a77a77bdd240ac6ea3498722ab",
+    "mtime": 1788854435.9118097,
+    "ast_hash": "1d24d0c52ffcc173dba6c381dc40c45e",
     "semantic_hash": ""
   },
   "app/Livewire/Finance/ManajemenTagihan.php": {
-    "mtime": 1788714773.2908492,
-    "ast_hash": "940a2459c833abec40218d6edb195a01",
+    "mtime": 1788854149.5684795,
+    "ast_hash": "aa323a9e490ab8b5495e17d3ce88e4ac",
     "semantic_hash": ""
   },
   "app/Livewire/Finance/OverviewPembayaran.php": {
@@ -120,8 +120,8 @@
     "semantic_hash": ""
   },
   "app/Livewire/Finance/PengajuanDanaIndex.php": {
-    "mtime": 1788715375.0536735,
-    "ast_hash": "905f072f0c6bb353002c2887bce7d2a1",
+    "mtime": 1788854422.3497267,
+    "ast_hash": "bc5785cf32cecdb1e59d912c918bf911",
     "semantic_hash": ""
   },
   "app/Livewire/Guru/AbsensiDiri.php": {
@@ -160,8 +160,8 @@
     "semantic_hash": "57c5d7275beca42dad46b14cb1e518d8"
   },
   "app/Livewire/Guru/KelolaRapor.php": {
-    "mtime": 1786699793.8467927,
-    "ast_hash": "937c65f0e9558d9d7691ff7d199f2222",
+    "mtime": 1788851513.3223085,
+    "ast_hash": "43598ec5830f81b61f95746bee4847ea",
     "semantic_hash": ""
   },
   "app/Livewire/Guru/ManajemenKurikulumMerdeka.php": {
@@ -220,9 +220,9 @@
     "semantic_hash": ""
   },
   "app/Livewire/Murid/SetoranTahfidz.php": {
-    "mtime": 1785769680.607098,
-    "ast_hash": "09627d7a08a103a3eedc9b227ea22725",
-    "semantic_hash": "09627d7a08a103a3eedc9b227ea22725"
+    "mtime": 1788851568.3951826,
+    "ast_hash": "ce72222ed3312863be78a9c6d36dcec5",
+    "semantic_hash": ""
   },
   "app/Livewire/Murid/TagihanSpp.php": {
     "mtime": 1784526373.6160908,
@@ -355,8 +355,8 @@
     "semantic_hash": ""
   },
   "app/Livewire/TataUsaha/ProsesKenaikanKelas.php": {
-    "mtime": 1788715878.8649223,
-    "ast_hash": "eb832959be112c4159a3dc518a1e9faa",
+    "mtime": 1788851666.148019,
+    "ast_hash": "9675e5ad45edaad7e2aa423cb427278c",
     "semantic_hash": ""
   },
   "app/Models/AbsensiGuru.php": {
@@ -605,8 +605,8 @@
     "semantic_hash": "034955fa46a4e30448bb962aef340625"
   },
   "app/Services/AutoNarasiService.php": {
-    "mtime": 1788768882.5337663,
-    "ast_hash": "46bd107d22367bf238a160f955d737ba",
+    "mtime": 1788851466.1604388,
+    "ast_hash": "f77e647430c3cc72382d1004e7f69198",
     "semantic_hash": ""
   },
   "app/Services/ESignatureService.php": {
@@ -640,9 +640,9 @@
     "semantic_hash": "888c810b5a4720916f07aa05dd2c2dd3"
   },
   "composer.json": {
-    "mtime": 1784830535.0939033,
-    "ast_hash": "cc11312e2fd30492c76d529870d5ee4f",
-    "semantic_hash": "cc11312e2fd30492c76d529870d5ee4f"
+    "mtime": 1788853580.207674,
+    "ast_hash": "a820f317e9f0a6e9132e2c7ce3960a91",
+    "semantic_hash": ""
   },
   "config/activitylog.php": {
     "mtime": 1784157557.721779,
@@ -965,8 +965,8 @@
     "semantic_hash": "3e7f8f8c0aa5b35568f45c05356368d7"
   },
   "resources/views/components/sidebar.blade.php": {
-    "mtime": 1788831426.0500312,
-    "ast_hash": "9530f85df52aba0ba316a67c0c3d902d",
+    "mtime": 1788851823.7928894,
+    "ast_hash": "13124fffc5323357504c758dbddc8daa",
     "semantic_hash": ""
   },
   "resources/views/components/stat-card.blade.php": {
@@ -1000,18 +1000,18 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/arus-kas-keluar.blade.php": {
-    "mtime": 1788838811.2575822,
-    "ast_hash": "fe74a605440c6e6b0fc463bbb54d0ad1",
+    "mtime": 1788853721.633237,
+    "ast_hash": "fc18dfdc6bcb389270f293f5e65351d9",
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/arus-kas-masuk.blade.php": {
-    "mtime": 1788843030.6107745,
-    "ast_hash": "b5f5c48954b4919c2f72190a153a0b10",
+    "mtime": 1788853699.0854576,
+    "ast_hash": "1a7846c705e6d682dba5d002ee055a10",
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/arus-kas.blade.php": {
-    "mtime": 1788842992.4965944,
-    "ast_hash": "0c900f998eba316d96873afb9b3b2d35",
+    "mtime": 1788853683.795609,
+    "ast_hash": "1544563b7da47447aa6fb3f1791ca44b",
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/arus-masuk.blade.php": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/manajemen-gaji-guru.blade.php": {
-    "mtime": 1788841003.115022,
-    "ast_hash": "d804b3bbb165990699f8b560d46844bf",
+    "mtime": 1788853980.0128875,
+    "ast_hash": "2469a25b2d5b39ed2967db8f4cd07e16",
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/manajemen-peminjaman.blade.php": {
@@ -1170,8 +1170,8 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/murid/setoran-tahfidz.blade.php": {
-    "mtime": 1787731094.2985425,
-    "ast_hash": "db75d6201841144564fabf6ba08e6e6f",
+    "mtime": 1788851606.7081099,
+    "ast_hash": "57099e1ed1e3e3001146a5e8afe8f702",
     "semantic_hash": ""
   },
   "resources/views/livewire/murid/tagihan-spp.blade.php": {
@@ -1390,8 +1390,8 @@
     "semantic_hash": "0f0dcce9bcaf5b632002f559796f5beb"
   },
   "routes/web.php": {
-    "mtime": 1788833642.3337295,
-    "ast_hash": "3d44d717d967f1a51759f01db398cc92",
+    "mtime": 1788851905.003874,
+    "ast_hash": "91055f5b326ff2ae7964b13dbc965657",
     "semantic_hash": ""
   },
   "tests/Feature/AuthTest.php": {
@@ -1425,8 +1425,8 @@
     "semantic_hash": "69bd766b8166a5a7c7e47d62ff7e28d1"
   },
   "tests/Feature/FinanceModuleTest.php": {
-    "mtime": 1787261662.4069085,
-    "ast_hash": "a3b2c186827246c7c0a8ce82a7ca54a1",
+    "mtime": 1788854501.594221,
+    "ast_hash": "3db973a09359a8f5fce980f01b542a72",
     "semantic_hash": ""
   },
   "tests/Feature/FinanceStage2Test.php": {
@@ -1815,8 +1815,8 @@
     "semantic_hash": ""
   },
   "app/Livewire/Finance/TabunganSiswa.php": {
-    "mtime": 1788714990.1908555,
-    "ast_hash": "fb14d8c8721075320a010481270f588d",
+    "mtime": 1788854389.2234223,
+    "ast_hash": "ed6f20bd3651ffcfa6f7939b772ea3c8",
     "semantic_hash": ""
   },
   "app/Livewire/Murid/TabunganSaya.php": {
@@ -2030,8 +2030,8 @@
     "semantic_hash": ""
   },
   "resources/views/components/input-currency.blade.php": {
-    "mtime": 1787926793.3078885,
-    "ast_hash": "903d12d68a6b7c40837d3c3cc11bc4fc",
+    "mtime": 1788854631.8689826,
+    "ast_hash": "cb22ca7b6fbeaf105cb387e54696b611",
     "semantic_hash": ""
   },
   "resources/views/components/input.blade.php": {
@@ -2120,13 +2120,13 @@
     "semantic_hash": ""
   },
   "app/Livewire/Finance/DetailTagihanSiswa.php": {
-    "mtime": 1788838639.8798652,
-    "ast_hash": "eac0e9ff66d4861394cbedc9b1c3c5c6",
+    "mtime": 1788854670.5850282,
+    "ast_hash": "5b7ab5ff479f568d5942c77d1c96499d",
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/detail-tagihan-siswa.blade.php": {
-    "mtime": 1788838685.6265845,
-    "ast_hash": "4a199e8081da9d62cd5ddc0190f51881",
+    "mtime": 1788853661.1788354,
+    "ast_hash": "82edbd3aed8d226374ec9139e28aafed",
     "semantic_hash": ""
   },
   "tests/Feature/StudentCountSyncTataUsahaFinanceTest.php": {
@@ -2225,8 +2225,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/YayasanPayrollExcelStructureTest.php": {
-    "mtime": 1787921164.4024541,
-    "ast_hash": "01c8eef63641c31e78fc8e1a47cc0c44",
+    "mtime": 1788854795.6874497,
+    "ast_hash": "39cafa3bb362ed1b0a27042db7f6b230",
     "semantic_hash": ""
   },
   ".playwright-mcp/page-2026-08-28T09-47-38-856Z.yml": {
@@ -2425,8 +2425,8 @@
     "semantic_hash": ""
   },
   "app/Services/FinancialApprovalService.php": {
-    "mtime": 1788761847.1992729,
-    "ast_hash": "464da55e28c62aeb072474713a79ab82",
+    "mtime": 1788851648.9400427,
+    "ast_hash": "e37907ac2ee797e98498e103d1e03805",
     "semantic_hash": ""
   },
   "database/migrations/2026_09_07_000001_create_approval_keuangan_table.php": {
@@ -2470,8 +2470,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/AcademicAndFinanceEnhancementsTest.php": {
-    "mtime": 1788765261.8798072,
-    "ast_hash": "95018ecf3d82ee404dbb871ac5590f15",
+    "mtime": 1788844517.1088426,
+    "ast_hash": "ea1569258b66af68aac39d47f058c2a5",
     "semantic_hash": ""
   },
   "tests/Feature/KalenderAkademikTanggalMerahTest.php": {
@@ -2612,6 +2612,36 @@
   "tests/Feature/ArusKasCustomKategoriDanFilterCardTest.php": {
     "mtime": 1788843045.6598494,
     "ast_hash": "f3a7fd4218b904a28d7d219a41cf3d73",
+    "semantic_hash": ""
+  },
+  "resources/views/components/sidebar-icon.blade.php": {
+    "mtime": 1788851832.624886,
+    "ast_hash": "6625d484dc60c50f6e0f9b8dad893ba8",
+    "semantic_hash": ""
+  },
+  "tests/Feature/BusinessLogicSecurityAndIntegrityTest.php": {
+    "mtime": 1788851756.7149267,
+    "ast_hash": "782ed2c70ed56a12cf79a0f0da05fca8",
+    "semantic_hash": ""
+  },
+  "app/Casts/MoneyCast.php": {
+    "mtime": 1788853617.2872844,
+    "ast_hash": "2c47ee917259cbed0ec63afb83ab084d",
+    "semantic_hash": ""
+  },
+  "app/Helpers/CurrencyHelper.php": {
+    "mtime": 1788854366.419584,
+    "ast_hash": "cf02b2856c01bdde5da6fa812d81f8f1",
+    "semantic_hash": ""
+  },
+  "app/Traits/WithCurrencySanitizer.php": {
+    "mtime": 1788854623.1520345,
+    "ast_hash": "9587e2d33d915adec92564c8ae7af1b5",
+    "semantic_hash": ""
+  },
+  "tests/Feature/CurrencyInputAndFormattingTest.php": {
+    "mtime": 1788854718.0136387,
+    "ast_hash": "5bdb7dbf1965efa70a4adf838dcd7b55",
     "semantic_hash": ""
   }
 }

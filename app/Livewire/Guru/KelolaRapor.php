@@ -228,6 +228,14 @@ class KelolaRapor extends Component
         DB::beginTransaction();
         try {
             // Create or update Rapor header
+            $existing = Rapor::where('siswa_id', $this->siswaId)
+                ->where('semester_id', $this->activeSemester->id)
+                ->first();
+
+            $qrHash = ($existing && !empty($existing->qr_code_hash))
+                ? $existing->qr_code_hash
+                : ('RAP-' . $this->siswaId . '-' . Str::random(12));
+
             $rapor = Rapor::updateOrCreate([
                 'siswa_id' => $this->siswaId,
                 'semester_id' => $this->activeSemester->id,
@@ -235,7 +243,7 @@ class KelolaRapor extends Component
                 'kelas_id' => $this->kelasId,
                 'catatan_wali_kelas' => $this->catatanWaliKelas ?: null,
                 'tanggal_terbit' => $this->tanggalTerbit,
-                'qr_code_hash' => 'RAP-' . $this->siswaId . '-' . Str::random(12),
+                'qr_code_hash' => $qrHash,
             ]);
 
             // Create or update Rapor details

@@ -119,11 +119,23 @@
                             @if ($log->event === 'created')
                                 <x-badge variant="emerald" size="xs">Created</x-badge>
                             @elseif ($log->event === 'updated')
-                                <x-badge variant="blue" size="xs">Updated</x-badge>
+                                <x-badge variant="sky" size="xs">Updated</x-badge>
                             @elseif ($log->event === 'deleted')
                                 <x-badge variant="rose" size="xs">Deleted</x-badge>
+                            @elseif ($log->event === 'login')
+                                <x-badge variant="emerald" size="xs">Login</x-badge>
+                            @elseif ($log->event === 'logout')
+                                <x-badge variant="stone" size="xs">Logout</x-badge>
+                            @elseif ($log->event === 'failed_login')
+                                <x-badge variant="rose" size="xs">Failed Login</x-badge>
+                            @elseif ($log->event === 'export')
+                                <x-badge variant="purple" size="xs">Export</x-badge>
+                            @elseif ($log->event === 'download')
+                                <x-badge variant="amber" size="xs">Download</x-badge>
+                            @elseif ($log->event === 'verify')
+                                <x-badge variant="sky" size="xs">Verify</x-badge>
                             @else
-                                <x-badge variant="stone" size="xs">{{ $log->event ?: 'log' }}</x-badge>
+                                <x-badge variant="stone" size="xs">{{ ucfirst($log->event ?: 'log') }}</x-badge>
                             @endif
                         </td>
                         <td class="p-3.5 text-stone-800 font-semibold max-w-sm truncate border-r border-stone-200" title="{{ $log->description }}">

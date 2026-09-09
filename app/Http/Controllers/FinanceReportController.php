@@ -13,6 +13,7 @@ use App\Models\TahunAjaran;
 use App\Models\Pengaturan;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use App\Services\AuditLogger;
 
 class FinanceReportController extends Controller
 {
@@ -35,6 +36,11 @@ class FinanceReportController extends Controller
         if (!in_array($userRole, ['finance', 'super_admin', 'super_admin_2', 'kepala_sekolah']) && !$isOwnSlip) {
             abort(403, 'Anda tidak memiliki akses untuk melihat slip gaji ini.');
         }
+
+        AuditLogger::log('download', "Mengunduh/melihat slip gaji guru: " . ($gaji->guru->user->nama ?? 'Guru') . " ({$gaji->bulan} {$gaji->tahun})", $gaji, [
+            'log_name' => 'keuangan',
+            'properties' => ['gaji_id' => $gaji->id, 'total_diterima' => $gaji->total_diterima],
+        ]);
 
         $namaSekolah = \App\Models\Pengaturan::getValue('nama_sekolah', 'PONDOK PESANTREN & SEKOLAH ISLAM TERPADU');
         $alamatSekolah = \App\Models\Pengaturan::getValue('alamat_sekolah', 'Jl. Pendidikan Karakter Islami No. 123');
@@ -100,6 +106,11 @@ class FinanceReportController extends Controller
             abort(404, 'Tidak ada data slip gaji yang ditemukan untuk kriteria ini.');
         }
 
+        AuditLogger::log('download', "Mengunduh slip gaji massal ({$salaries->count()} guru) periode " . ($request->bulan ?? '') . ' ' . ($request->tahun ?? date('Y')), null, [
+            'log_name' => 'keuangan',
+            'properties' => ['count' => $salaries->count(), 'filter' => $request->all()],
+        ]);
+
         $pdf = Pdf::loadView('livewire.shared.laporan.pdf-bulk-slip-gaji', [
             'salaries' => $salaries,
             'bulan' => $request->bulan ?? '',
@@ -134,6 +145,13 @@ class FinanceReportController extends Controller
         if (!in_array($userRole, ['finance', 'super_admin', 'super_admin_2', 'tata_usaha', 'kepala_sekolah']) && !$isOwnReceipt) {
             abort(403, 'Anda tidak memiliki akses untuk melihat resi ini.');
         }
+
+        $siswa = $pembayaran->tagihan->siswa ?? null;
+        AuditLogger::log('download', "Mencetak/melihat kwitansi pembayaran #{$pembayaran->no_resi} (" . ($siswa->user->nama ?? 'Siswa') . " - Rp " . number_format($pembayaran->nominal_dibayar, 0, ',', '.') . ")", $pembayaran, [
+            'log_name' => 'keuangan',
+            'siswa_id' => $siswa?->id,
+            'properties' => ['no_resi' => $pembayaran->no_resi, 'nominal' => $pembayaran->nominal_dibayar],
+        ]);
 
         $staffFinance = User::whereHas('role', function ($q) {
             $q->where('nama', 'finance');
@@ -183,6 +201,11 @@ class FinanceReportController extends Controller
         if (!in_array($userRole, ['finance', 'super_admin', 'super_admin_2'])) {
             abort(403, 'Anda tidak memiliki hak akses untuk melihat laporan pengeluaran.');
         }
+
+        AuditLogger::log('export', 'Mengekspor Laporan Pengeluaran Kas ke PDF', null, [
+            'log_name' => 'keuangan',
+            'properties' => ['format' => 'pdf', 'filter' => $request->all()],
+        ]);
 
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
@@ -300,6 +323,11 @@ class FinanceReportController extends Controller
         if (!in_array($userRole, ['finance', 'super_admin', 'super_admin_2'])) {
             abort(403, 'Anda tidak memiliki hak akses untuk melihat laporan pemasukan.');
         }
+
+        AuditLogger::log('export', 'Mengekspor Laporan Pemasukan & Infaq ke PDF', null, [
+            'log_name' => 'keuangan',
+            'properties' => ['format' => 'pdf', 'filter' => $request->all()],
+        ]);
 
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
@@ -526,6 +554,11 @@ class FinanceReportController extends Controller
             abort(403, 'Anda tidak memiliki hak akses untuk mencetak laporan Dana BOS.');
         }
 
+        AuditLogger::log('export', 'Mengekspor Laporan Pembukuan Dana BOS ke PDF', null, [
+            'log_name' => 'keuangan',
+            'properties' => ['format' => 'pdf', 'filter' => $request->all()],
+        ]);
+
         $filterPeriode = $request->query('filter_periode');
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
@@ -634,6 +667,11 @@ class FinanceReportController extends Controller
             abort(403, 'Anda tidak memiliki hak akses untuk melihat rekapitulasi gaji guru.');
         }
 
+        AuditLogger::log('export', 'Mengekspor Rekapitulasi Gaji Guru & Karyawan ke PDF', null, [
+            'log_name' => 'keuangan',
+            'properties' => ['format' => 'pdf', 'filter' => $request->all()],
+        ]);
+
         $bulan = $request->query('bulan');
         $tahun = $request->query('tahun');
         $status = $request->query('status');
@@ -722,6 +760,11 @@ class FinanceReportController extends Controller
         if (!in_array($userRole, ['finance', 'super_admin', 'super_admin_2', 'founder'])) {
             abort(403, 'Anda tidak memiliki hak akses untuk melihat laporan tabungan siswa.');
         }
+
+        AuditLogger::log('export', 'Mengekspor Laporan Tabungan Siswa ke PDF', null, [
+            'log_name' => 'keuangan',
+            'properties' => ['format' => 'pdf', 'filter' => $request->all()],
+        ]);
 
         $siswaId = $request->query('siswa_id');
         $kelasId = $request->query('kelas_id');
@@ -950,6 +993,11 @@ class FinanceReportController extends Controller
         if (!in_array($userRole, ['finance', 'super_admin', 'super_admin_2', 'founder'])) {
             abort(403, 'Anda tidak memiliki hak akses untuk melihat laporan arus kas.');
         }
+
+        AuditLogger::log('export', 'Mengekspor Laporan Arus Kas Umum ke PDF', null, [
+            'log_name' => 'keuangan',
+            'properties' => ['format' => 'pdf', 'filter' => $request->all()],
+        ]);
 
         $tab = $request->query('tab', 'semua');
         $stream = $request->query('stream', 'semua');

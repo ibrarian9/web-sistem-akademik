@@ -1,13 +1,17 @@
 <div class="space-y-6 font-sans">
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
-        title="Petunjuk Pencatatan Presensi Kehadiran Siswa"
-        :steps="[
+        :title="$isReadOnly ? 'Petunjuk Pemantauan Presensi Kehadiran Siswa' : 'Petunjuk Pencatatan Presensi Kehadiran Siswa'"
+        :steps="$isReadOnly ? [
+            ['title' => 'Pilih Kelas & Tanggal', 'desc' => 'Pilih rombel kelas tempat siswa dampingan berada dan tentukan tanggal yang ingin ditinjau.'],
+            ['title' => 'Pantau Status Kehadiran', 'desc' => 'Tinjau status kehadiran siswa bimbingan yang telah diinput oleh Guru Umum.'],
+            ['title' => 'Koordinasi Terpadu', 'desc' => 'Gunakan data kehadiran untuk menyelaraskan catatan observasi pendampingan berkala.']
+        ] : [
             ['title' => 'Pilih Kelas & Tanggal', 'desc' => 'Tentukan rombel kelas dan tanggal presensi (gunakan tombol cepat Hari Ini atau Kemarin).'],
             ['title' => 'Set Status Masal / Per-Siswa', 'desc' => 'Klik tombol status cepat di bagian atas untuk mengisi seluruh kelas, atau klik tombol status pada tiap baris siswa.'],
-            ['title' => 'Simpan Presensi', 'desc' => 'Pastikan menekan tombol Simpan Seluruh Kehadiran di bawah untuk menyimpan data ke database.']
+            ['title' => 'Simpan Presensi', 'desc' => 'Pastikan menekan tombol Simpan Presensi di bawah untuk menyimpan data ke database.']
         ]"
-        notes="Presensi yang disimpan akan langsung terakumulasi pada Rekap Absensi Siswa dan Rapor Digital."
+        :notes="$isReadOnly ? 'Pengisian presensi siswa dikelola oleh Guru Umum. Guru Pendamping memiliki hak akses pantau khusus siswa dampingan.' : 'Presensi yang disimpan akan langsung terakumulasi pada Rekap Absensi Siswa dan Rapor Digital.'"
     />
 
     <!-- Header Card -->
@@ -16,8 +20,8 @@
             <span class="px-3 py-1 bg-emerald-100 border border-emerald-300 text-emerald-800 rounded-full text-xs font-bold uppercase tracking-wider inline-block mb-1">
                 AKADEMIK & PRESENSI
             </span>
-            <h1 class="text-2xl font-extrabold text-stone-900 tracking-tight">Presensi Kehadiran Siswa</h1>
-            <p class="text-xs text-stone-600 font-semibold mt-1">Rekam dan perbarui status kehadiran harian siswa di kelas yang Anda ampu.</p>
+            <h1 class="text-2xl font-extrabold text-stone-900 tracking-tight">{{ $isReadOnly ? 'Pantau Kehadiran Siswa' : 'Presensi Kehadiran Siswa' }}</h1>
+            <p class="text-xs text-stone-600 font-semibold mt-1">{{ $isReadOnly ? 'Pantau status kehadiran harian siswa dampingan Anda yang dicatat oleh Guru Umum.' : 'Rekam dan perbarui status kehadiran harian siswa di kelas yang Anda ampu.' }}</p>
         </div>
         <div class="flex items-center gap-2">
             <button type="button" wire:click="setPresetDate('today')" 
@@ -32,6 +36,17 @@
             </button>
         </div>
     </div>
+
+    @if ($isReadOnly)
+        <!-- Read-Only Banner for Guru Pendamping -->
+        <div class="p-4 bg-amber-50 border border-amber-300 text-amber-900 rounded-2xl text-xs flex items-center justify-between gap-3 shadow-xs">
+            <div class="flex items-center gap-2.5 font-bold">
+                <x-lucide-info class="w-4 h-4 text-amber-700 shrink-0" />
+                <span>Mode Pratinjau (Hanya Lihat): Pencatatan presensi kehadiran siswa dilakukan oleh Guru Umum. Guru Pendamping hanya dapat melihat status kehadiran siswa bimbingan.</span>
+            </div>
+            <span class="px-2.5 py-1 bg-amber-200 text-amber-900 rounded-lg text-[10px] font-black uppercase tracking-wider shrink-0">Hanya Lihat</span>
+        </div>
+    @endif
 
     @if (session()->has('message'))
         <div class="p-4 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-2xl text-xs font-bold flex items-center gap-2 shadow-xs">
@@ -68,7 +83,7 @@
             </div>
 
             <!-- Quick Action Set All -->
-            @if ($kelas_id && count($attendance) > 0)
+            @if ($kelas_id && count($attendance) > 0 && !$isReadOnly)
                 <div class="space-y-1.5 flex flex-col justify-end">
                     <label class="text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Set Masal Seluruh Kelas</label>
                     <div class="flex flex-wrap gap-1.5">
@@ -158,7 +173,7 @@
                             <x-table.th align="center" class="w-12">No</x-table.th>
                             <x-table.th class="w-28">NIS</x-table.th>
                             <x-table.th>Nama Siswa</x-table.th>
-                            <x-table.th align="center" class="w-96">Pilih Status Kehadiran</x-table.th>
+                            <x-table.th align="center" class="w-96">{{ $isReadOnly ? 'Status Kehadiran' : 'Pilih Status Kehadiran' }}</x-table.th>
                             <x-table.th>Catatan</x-table.th>
                         </tr>
                     </thead>
@@ -174,39 +189,76 @@
                                     <span class="font-extrabold text-stone-900 block text-xs">{{ $att['nama'] }}</span>
                                 </td>
                                 <td class="p-3.5 border-r border-stone-200">
-                                    <div class="flex items-center justify-center gap-1.5">
-                                        <!-- Hadir Button -->
-                                        <button type="button" wire:click="setStatus({{ $index }}, 'hadir')"
-                                            class="px-3 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider flex items-center gap-1 cursor-pointer {{ $currentStatus === 'hadir' ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-400 font-extrabold' : 'bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200' }}">
-                                            <x-lucide-check-circle class="w-3.5 h-3.5" />
-                                            <span>Hadir</span>
-                                        </button>
+                                    @if ($isReadOnly)
+                                        <div class="flex items-center justify-center">
+                                            @if ($currentStatus === 'hadir')
+                                                <span class="px-3 py-1.5 rounded-xl text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300 uppercase tracking-wider flex items-center gap-1.5 shadow-2xs">
+                                                    <x-lucide-check-circle class="w-3.5 h-3.5 text-emerald-600" />
+                                                    <span>Hadir</span>
+                                                </span>
+                                            @elseif ($currentStatus === 'sakit')
+                                                <span class="px-3 py-1.5 rounded-xl text-xs font-black bg-blue-100 text-blue-800 border border-blue-300 uppercase tracking-wider flex items-center gap-1.5 shadow-2xs">
+                                                    <x-lucide-activity class="w-3.5 h-3.5 text-blue-600" />
+                                                    <span>Sakit</span>
+                                                </span>
+                                            @elseif ($currentStatus === 'izin')
+                                                <span class="px-3 py-1.5 rounded-xl text-xs font-black bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider flex items-center gap-1.5 shadow-2xs">
+                                                    <x-lucide-file-text class="w-3.5 h-3.5 text-amber-700" />
+                                                    <span>Izin</span>
+                                                </span>
+                                            @elseif ($currentStatus === 'alpa')
+                                                <span class="px-3 py-1.5 rounded-xl text-xs font-black bg-rose-100 text-rose-800 border border-rose-300 uppercase tracking-wider flex items-center gap-1.5 shadow-2xs">
+                                                    <x-lucide-x-circle class="w-3.5 h-3.5 text-rose-600" />
+                                                    <span>Alpa</span>
+                                                </span>
+                                            @else
+                                                <span class="px-3 py-1.5 rounded-xl text-xs font-bold bg-stone-100 text-stone-600 border border-stone-200 uppercase tracking-wider flex items-center gap-1.5">
+                                                    <x-lucide-clock class="w-3.5 h-3.5 text-stone-400" />
+                                                    <span>Belum Ada Data</span>
+                                                </span>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <div class="flex items-center justify-center gap-1.5">
+                                            <!-- Hadir Button -->
+                                            <button type="button" wire:click="setStatus({{ $index }}, 'hadir')"
+                                                class="px-3 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider flex items-center gap-1 cursor-pointer {{ $currentStatus === 'hadir' ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-400 font-extrabold' : 'bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200' }}">
+                                                <x-lucide-check-circle class="w-3.5 h-3.5" />
+                                                <span>Hadir</span>
+                                            </button>
 
-                                        <!-- Sakit Button -->
-                                        <button type="button" wire:click="setStatus({{ $index }}, 'sakit')"
-                                            class="px-3 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider flex items-center gap-1 cursor-pointer {{ $currentStatus === 'sakit' ? 'bg-blue-600 text-white shadow-xs ring-2 ring-blue-400 font-extrabold' : 'bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200' }}">
-                                            <x-lucide-activity class="w-3.5 h-3.5" />
-                                            <span>Sakit</span>
-                                        </button>
+                                            <!-- Sakit Button -->
+                                            <button type="button" wire:click="setStatus({{ $index }}, 'sakit')"
+                                                class="px-3 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider flex items-center gap-1 cursor-pointer {{ $currentStatus === 'sakit' ? 'bg-blue-600 text-white shadow-xs ring-2 ring-blue-400 font-extrabold' : 'bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200' }}">
+                                                <x-lucide-activity class="w-3.5 h-3.5" />
+                                                <span>Sakit</span>
+                                            </button>
 
-                                        <!-- Izin Button -->
-                                        <button type="button" wire:click="setStatus({{ $index }}, 'izin')"
-                                            class="px-3 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider flex items-center gap-1 cursor-pointer {{ $currentStatus === 'izin' ? 'bg-amber-500 text-stone-950 shadow-xs ring-2 ring-amber-300 font-black' : 'bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200' }}">
-                                            <x-lucide-file-text class="w-3.5 h-3.5" />
-                                            <span>Izin</span>
-                                        </button>
+                                            <!-- Izin Button -->
+                                            <button type="button" wire:click="setStatus({{ $index }}, 'izin')"
+                                                class="px-3 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider flex items-center gap-1 cursor-pointer {{ $currentStatus === 'izin' ? 'bg-amber-500 text-stone-950 shadow-xs ring-2 ring-amber-300 font-black' : 'bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200' }}">
+                                                <x-lucide-file-text class="w-3.5 h-3.5" />
+                                                <span>Izin</span>
+                                            </button>
 
-                                        <!-- Alpa Button -->
-                                        <button type="button" wire:click="setStatus({{ $index }}, 'alpa')"
-                                            class="px-3 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider flex items-center gap-1 cursor-pointer {{ $currentStatus === 'alpa' ? 'bg-rose-600 text-white shadow-xs ring-2 ring-rose-400 font-extrabold' : 'bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200' }}">
-                                            <x-lucide-x-circle class="w-3.5 h-3.5" />
-                                            <span>Alpa</span>
-                                        </button>
-                                    </div>
+                                            <!-- Alpa Button -->
+                                            <button type="button" wire:click="setStatus({{ $index }}, 'alpa')"
+                                                class="px-3 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider flex items-center gap-1 cursor-pointer {{ $currentStatus === 'alpa' ? 'bg-rose-600 text-white shadow-xs ring-2 ring-rose-400 font-extrabold' : 'bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200' }}">
+                                                <x-lucide-x-circle class="w-3.5 h-3.5" />
+                                                <span>Alpa</span>
+                                            </button>
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="p-3.5">
-                                    <input type="text" wire:model="attendance.{{ $index }}.catatan" 
-                                        class="w-full px-3 py-1.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 shadow-xs" placeholder="Keterangan / alasan izin..." />
+                                    @if ($isReadOnly)
+                                        <span class="text-xs font-medium text-stone-700 block px-1">
+                                            {{ $att['catatan'] ?: '-' }}
+                                        </span>
+                                    @else
+                                        <input type="text" wire:model="attendance.{{ $index }}.catatan" 
+                                            class="w-full px-3 py-1.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 shadow-xs" placeholder="Keterangan / alasan izin..." />
+                                    @endif
                                 </td>
                             </tr>
                         @empty
@@ -215,7 +267,7 @@
                     </tbody>
                 </x-table>
 
-                @if (count($attendance) > 0)
+                @if (count($attendance) > 0 && !$isReadOnly)
                     <div class="flex items-center justify-between border-t border-stone-200 p-4 bg-stone-50">
                         <div class="text-xs text-stone-600 font-medium">
                             Pastikan status seluruh siswa telah terisi sebelum menyimpan.

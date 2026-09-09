@@ -25,6 +25,16 @@ beforeEach(function () {
         'status' => 'aktif',
     ]);
 
+    $this->roleSuperAdmin = Role::firstOrCreate(['nama' => 'super_admin'], ['deskripsi' => 'Super Admin']);
+    $this->superAdminUser = User::create([
+        'nama' => 'Founder Super Admin',
+        'username' => 'superadmin_yayasan',
+        'email' => 'superadmin@firyal.sch.id',
+        'password' => bcrypt('password123'),
+        'role_id' => $this->roleSuperAdmin->id,
+        'status' => 'aktif',
+    ]);
+
     // Mudir F3 (Zulkifli)
     $this->mudirUser = User::create([
         'nama' => 'ZULKIFLI',
@@ -129,7 +139,7 @@ test('finance dapat membuat gaji manual satuan untuk guru tertentu', function ()
 });
 
 test('edit modal rincian penggajian memperbarui nilai bruto dan take home pay dengan tepat', function () {
-    $this->actingAs($this->financeUser);
+    $this->actingAs($this->superAdminUser);
 
     $gaji = GajiGuru::create([
         'guru_id' => $this->mudirGuru->id,
@@ -169,7 +179,7 @@ test('edit modal rincian penggajian memperbarui nilai bruto dan take home pay de
 });
 
 test('finance dapat mengubah gaji yang sudah dibayar dan menyinkronkan pengeluaran kas', function () {
-    $this->actingAs($this->financeUser);
+    $this->actingAs($this->superAdminUser);
 
     $kategori = KategoriPengeluaran::firstOrCreate(['nama' => 'Gaji Guru'], ['jenis' => 'operasional']);
     $pengeluaran = Pengeluaran::create([
@@ -215,7 +225,7 @@ test('finance dapat mengubah gaji yang sudah dibayar dan menyinkronkan pengeluar
 });
 
 test('finance dapat membatalkan pembayaran dan mengembalikan gaji ke status draf', function () {
-    $this->actingAs($this->financeUser);
+    $this->actingAs($this->superAdminUser);
 
     $kategori = KategoriPengeluaran::firstOrCreate(['nama' => 'Gaji Guru'], ['jenis' => 'operasional']);
     $pengeluaran = Pengeluaran::create([

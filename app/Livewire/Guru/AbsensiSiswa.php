@@ -19,6 +19,7 @@ class AbsensiSiswa extends Component
 
     // Option lists
     public array $classes = [];
+    public bool $isReadOnly = false;
 
     protected $rules = [
         'kelas_id' => 'required|exists:kelas,id',
@@ -30,6 +31,10 @@ class AbsensiSiswa extends Component
     public function mount()
     {
         $this->tanggal = date('Y-m-d');
+        $guru = auth()->user()->guru ?? null;
+        if ($guru && $guru->isGuruPendamping()) {
+            $this->isReadOnly = true;
+        }
         $this->loadFilters();
     }
 
@@ -40,7 +45,7 @@ class AbsensiSiswa extends Component
             return;
         }
 
-        // Get classes assigned to this teacher (both from Mapel, Wali Kelas, and Guru Tahfizh)
+        // Get classes assigned to this teacher (from Mapel, Wali Kelas, Guru Tahfizh, or Shadow Teacher assignments)
         $assignments = GuruMapelKelas::with('kelas')
             ->where('guru_id', $guru->id)
             ->get();
@@ -49,7 +54,13 @@ class AbsensiSiswa extends Component
         $waliClasses = \App\Models\Kelas::where('guru_umum_id', $guru->id)->get();
         $tahfidzClasses = \App\Models\Kelas::where('guru_tahfidz_id', $guru->id)->get();
 
-        $this->classes = $gmkClasses->merge($waliClasses)->merge($tahfidzClasses)->unique('id')->values()->toArray();
+        $shadowClasses = collect();
+        if ($guru->isGuruPendamping()) {
+            $this->isReadOnly = true;
+            $shadowClasses = $guru->siswaDidampingi()->with('kelas')->get()->pluck('kelas')->filter();
+        }
+
+        $this->classes = $gmkClasses->merge($waliClasses)->merge($tahfidzClasses)->merge($shadowClasses)->unique('id')->values()->toArray();
 
         if (empty($this->kelas_id) && count($this->classes) > 0) {
             $this->kelas_id = $this->classes[0]['id'];
@@ -74,13 +85,19 @@ class AbsensiSiswa extends Component
             return;
         }
 
-        $students = Siswa::where(function ($q) {
+        $guru = auth()->user()->guru ?? null;
+        $studentQuery = Siswa::where(function ($q) {
                 $q->where('kelas_id', $this->kelas_id)
                   ->orWhere('kelas_tahfidz_id', $this->kelas_id);
             })
             ->where('status', 'aktif')
-            ->with('user')
-            ->get();
+            ->with('user');
+
+        if ($guru && $guru->isGuruPendamping()) {
+            $studentQuery->where('shadow_teacher_id', $guru->id);
+        }
+
+        $students = $studentQuery->get();
 
         $this->attendance = [];
 
@@ -125,6 +142,9 @@ class AbsensiSiswa extends Component
 
     public function setStatus(int $index, string $status)
     {
+        if ($this->isReadOnly) {
+            return;
+        }
         if (isset($this->attendance[$index])) {
             $this->attendance[$index]['status'] = $status;
         }
@@ -132,6 +152,9 @@ class AbsensiSiswa extends Component
 
     public function setStatusAll(string $status)
     {
+        if ($this->isReadOnly) {
+            return;
+        }
         foreach ($this->attendance as $index => $att) {
             $this->attendance[$index]['status'] = $status;
         }
@@ -139,13 +162,18 @@ class AbsensiSiswa extends Component
 
     public function save()
     {
-        $this->validate();
-
         $guru = auth()->user()->guru;
         if (!$guru) {
             session()->flash('error', 'Data profil guru tidak ditemukan.');
             return;
         }
+
+        if ($this->isReadOnly || $guru->isGuruPendamping()) {
+            session()->flash('error', 'Akses dibatasi. Pengisian presensi harian siswa hanya dapat dilakukan oleh Guru Umum. Guru Pendamping hanya memiliki hak akses melihat.');
+            return;
+        }
+
+        $this->validate();
 
         DB::transaction(function () use ($guru) {
             foreach ($this->attendance as $att) {

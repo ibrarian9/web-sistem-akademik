@@ -39,11 +39,19 @@ class GenerateMonthlySpp extends Command
             return Command::FAILURE;
         }
 
-        // 2. Get SPP billing type
-        $jtSpp = JenisTagihan::where('nama', 'SPP')->first();
-        if (!$jtSpp) {
-            $this->error('Failed: SPP billing type not found.');
-            return Command::FAILURE;
+        // 2. Get or create SPP billing type with is_blocking = true
+        $jtSpp = JenisTagihan::firstOrCreate(
+            ['nama' => 'SPP'],
+            [
+                'kategori' => 'rutin',
+                'default_nominal' => 350000,
+                'is_blocking' => true,
+            ]
+        );
+
+        // Ensure is_blocking is true
+        if (!$jtSpp->is_blocking) {
+            $jtSpp->update(['is_blocking' => true]);
         }
 
         // 3. Determine current Indonesian month name and year
@@ -56,6 +64,7 @@ class GenerateMonthlySpp extends Command
         $currentMonthNum = Carbon::now()->month;
         $currentMonthName = $indonesianMonths[$currentMonthNum];
         $currentYear = Carbon::now()->year;
+        $dueDate = Carbon::now()->startOfMonth()->addDays(9)->toDateString(); // 10th of current month
 
         // 4. Retrieve all active students
         $activeStudents = Siswa::where('status', 'aktif')->get();
@@ -74,18 +83,33 @@ class GenerateMonthlySpp extends Command
                 ->exists();
 
             if (!$exists) {
-                $status = (floatval($jtSpp->default_nominal) <= 0) ? 'lunas' : 'belum_bayar';
+                $nominal = floatval($jtSpp->default_nominal ?: 350000);
+                $status = ($nominal <= 0) ? 'lunas' : 'belum_bayar';
 
-                Tagihan::create([
+                $tagihan = Tagihan::create([
                     'siswa_id' => $siswa->id,
                     'jenis_tagihan_id' => $jtSpp->id,
                     'tahun_ajaran_id' => $tahunAjaran->id,
                     'bulan' => $currentMonthName,
-                    'nominal' => $jtSpp->default_nominal,
+                    'nominal' => $nominal,
                     'total_dibayar' => 0,
                     'status' => $status,
-                    'jatuh_tempo' => Carbon::now()->startOfMonth()->addDays(9)->toDateString(), // 10th of current month
+                    'jatuh_tempo' => $dueDate,
                 ]);
+
+                if ($siswa->user_id) {
+                    \App\Models\Notifikasi::create([
+                        'user_id' => $siswa->user_id,
+                        'siswa_id' => $siswa->id,
+                        'judul' => "Tagihan SPP Bulan {$currentMonthName} Terbit",
+                        'isi_pesan' => "Tagihan SPP bulan {$currentMonthName} sebesar Rp " . number_format($nominal, 0, ',', '.') . " telah diterbitkan. Jatuh tempo: {$dueDate}.",
+                        'jenis' => 'tagihan',
+                        'channel' => 'in_app',
+                        'status_kirim' => 'terkirim',
+                        'dikirim_pada' => now(),
+                    ]);
+                }
+
                 $countCreated++;
             } else {
                 $countSkipped++;

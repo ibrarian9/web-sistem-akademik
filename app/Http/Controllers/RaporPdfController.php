@@ -8,17 +8,55 @@ use App\Models\RaporDetail;
 use App\Models\RaporTahfidzDetail;
 use App\Models\Semester;
 use App\Models\Siswa;
+use App\Models\Tagihan;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Services\AuditLogger;
 
 class RaporPdfController extends Controller
 {
+    /**
+     * Check authorization and SPP lock for viewing a student's rapor.
+     */
+    protected function authorizeViewRapor(int $siswaId): void
+    {
+        $user = auth()->user();
+        if (!$user) {
+            abort(401, 'Silakan masuk ke akun terlebih dahulu.');
+        }
+
+        $userRole = $user->role->nama ?? '';
+
+        // Murid / Wali can only access their own rapor and only when not blocked by SPP
+        if ($userRole === 'murid') {
+            if (!$user->siswa || (int) $user->siswa->id !== (int) $siswaId) {
+                abort(403, 'Akses Ditolak: Anda hanya berhak mengakses dokumen rapor Anda sendiri.');
+            }
+
+            // Check for unpaid blocking SPP past due date
+            $hasOutstanding = Tagihan::where('siswa_id', $user->siswa->id)
+                ->whereIn('status', ['belum_bayar', 'sebagian'])
+                ->whereHas('jenisTagihan', function ($q) {
+                    $q->where('is_blocking', true);
+                })
+                ->whereDate('jatuh_tempo', '<=', Carbon::today())
+                ->exists();
+
+            if ($hasOutstanding) {
+                abort(403, 'Akses Rapor Terkunci: Terdapat kewajiban tagihan SPP yang telah jatuh tempo. Harap selesaikan administrasi keuangan untuk melihat rapor.');
+            }
+        }
+    }
+
     /**
      * Preview official PDF Rapor Utama inline in browser tab.
      */
     public function previewPdf($siswaId)
     {
+        $this->authorizeViewRapor((int) $siswaId);
+
         $siswa = Siswa::with(['user', 'kelas'])->findOrFail($siswaId);
 
         $activeSem = DB::table('semester')
@@ -35,14 +73,7 @@ class RaporPdfController extends Controller
             ->first();
 
         if (!$rapor) {
-            $rapor = Rapor::create([
-                'siswa_id' => $siswaId,
-                'semester_id' => $semesterId,
-                'kelas_id' => $siswa->kelas_id,
-                'tanggal_terbit' => date('Y-m-d'),
-                'catatan_wali_kelas' => 'Ananda telah menunjukkan perkembangan yang sangat memuaskan baik dalam bidang akademis maupun hafalan Al-Qur\'an.',
-                'qr_code_hash' => 'RAP-' . $siswaId . '-' . Str::random(12),
-            ]);
+            abort(404, 'Rapor Hasil Belajar untuk semester ini belum resmi diterbitkan oleh wali kelas.');
         }
 
         if (empty($rapor->qr_code_hash)) {
@@ -68,6 +99,16 @@ class RaporPdfController extends Controller
 
         $filename = 'rapor_' . str_replace(' ', '_', strtolower($siswa->user->nama ?? 'siswa')) . '.pdf';
 
+        AuditLogger::log('download', "Mengunduh/melihat PDF Rapor Kurikulum Merdeka siswa: " . ($siswa->user->nama ?? 'Siswa'), $rapor, [
+            'log_name' => 'akademik',
+            'siswa_id' => $siswa->id,
+            'properties' => [
+                'rapor_id' => $rapor->id,
+                'semester_id' => $semesterId,
+                'kelas' => $siswa->kelas->nama_kelas ?? null,
+            ],
+        ]);
+
         return response($pdf->output(), 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="' . $filename . '"',
@@ -79,6 +120,8 @@ class RaporPdfController extends Controller
      */
     public function previewTahfidzPdf($siswaId)
     {
+        $this->authorizeViewRapor((int) $siswaId);
+
         $siswa = Siswa::with(['user', 'kelas'])->findOrFail($siswaId);
 
         $activeSem = DB::table('semester')
@@ -95,14 +138,7 @@ class RaporPdfController extends Controller
             ->first();
 
         if (!$rapor) {
-            $rapor = Rapor::create([
-                'siswa_id' => $siswaId,
-                'semester_id' => $semesterId,
-                'kelas_id' => $siswa->kelas_id,
-                'tanggal_terbit' => date('Y-m-d'),
-                'catatan_wali_kelas' => 'Alhamdulillah perkembangan hafalan santri sangat baik, makhraj fasih, dan tajwid lancar.',
-                'qr_code_hash' => 'RAP-TAH-' . $siswaId . '-' . Str::random(12),
-            ]);
+            abort(404, 'Rapor Tahfizh untuk semester ini belum resmi diterbitkan oleh ustadz pengampu.');
         }
 
         $nilaiTahfidz = NilaiTahfidz::where('siswa_id', $siswaId)
@@ -119,6 +155,16 @@ class RaporPdfController extends Controller
         ]);
 
         $filename = 'rapor_tahfidz_' . str_replace(' ', '_', strtolower($siswa->user->nama ?? 'santri')) . '.pdf';
+
+        AuditLogger::log('download', "Mengunduh/melihat PDF Lembar Mutaba'ah & Rapor Tahfizh siswa: " . ($siswa->user->nama ?? 'Santri'), $rapor, [
+            'log_name' => 'akademik',
+            'siswa_id' => $siswa->id,
+            'properties' => [
+                'rapor_id' => $rapor->id,
+                'semester_id' => $semesterId,
+                'kelas' => $siswa->kelas->nama_kelas ?? null,
+            ],
+        ]);
 
         return response($pdf->output(), 200, [
             'Content-Type' => 'application/pdf',

@@ -540,282 +540,82 @@
                                     
                                     <!-- Gaji Pokok Formatted Input -->
                                     <td class="p-2 border-b border-r border-stone-200 text-right">
-                                        <div x-data="{
-                                            val: @entangle('generateItems.' . $gId . '.gaji_pokok'),
-                                            fmt: '',
-                                            format(v) {
-                                                if (v === null || v === undefined || v === '') return '0';
-                                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                                let s = v.toString().trim();
-                                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                                let clean = s.replace(/[^0-9]/g, '');
-                                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                                            },
-                                            onInput(e) {
-                                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                                this.val = c ? parseInt(c, 10) : 0;
-                                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                                e.target.value = this.fmt;
-                                                $wire.recalculateGenerateRow({{ $gId }});
-                                            },
-                                            init() {
-                                                this.fmt = this.format(this.val);
-                                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                                            }
-                                        }">
-                                            <input 
-                                                type="text" 
-                                                inputmode="numeric" 
-                                                x-model="fmt" 
-                                                @input="onInput($event)"
-                                                class="w-full px-2.5 py-1.5 bg-white border border-stone-300 rounded-lg text-stone-900 text-xs font-black text-right focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 shadow-2xs" 
-                                            />
-                                        </div>
+                                        <x-input-currency
+                                            :prefix="false"
+                                            wire:model.live.debounce.300ms="generateItems.{{ $gId }}.gaji_pokok"
+                                            placeholder="0"
+                                            class="!py-1.5 !px-2.5 !rounded-lg text-xs"
+                                        />
                                     </td>
 
                                     <!-- Gaji Berkala Formatted Input -->
                                     <td class="p-2 border-b border-r border-stone-200 text-right">
-                                        <div x-data="{
-                                            val: @entangle('generateItems.' . $gId . '.gaji_berkala'),
-                                            fmt: '',
-                                            format(v) {
-                                                if (v === null || v === undefined || v === '') return '0';
-                                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                                let s = v.toString().trim();
-                                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                                let clean = s.replace(/[^0-9]/g, '');
-                                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                                            },
-                                            onInput(e) {
-                                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                                this.val = c ? parseInt(c, 10) : 0;
-                                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                                e.target.value = this.fmt;
-                                                $wire.recalculateGenerateRow({{ $gId }});
-                                            },
-                                            init() {
-                                                this.fmt = this.format(this.val);
-                                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                                            }
-                                        }">
-                                            <input 
-                                                type="text" 
-                                                inputmode="numeric" 
-                                                x-model="fmt" 
-                                                @input="onInput($event)"
-                                                class="w-full px-2.5 py-1.5 bg-white border border-stone-300 rounded-lg text-stone-900 text-xs font-black text-right focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 shadow-2xs" 
-                                            />
-                                        </div>
+                                        <x-input-currency
+                                            :prefix="false"
+                                            wire:model.live.debounce.300ms="generateItems.{{ $gId }}.gaji_berkala"
+                                            placeholder="0"
+                                            class="!py-1.5 !px-2.5 !rounded-lg text-xs"
+                                        />
                                     </td>
 
                                     <!-- Insentif Formatted Input -->
                                     <td class="p-2 border-b border-r border-stone-200 text-right">
-                                        <div x-data="{
-                                            val: @entangle('generateItems.' . $gId . '.insentif'),
-                                            fmt: '',
-                                            format(v) {
-                                                if (v === null || v === undefined || v === '') return '0';
-                                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                                let s = v.toString().trim();
-                                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                                let clean = s.replace(/[^0-9]/g, '');
-                                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                                            },
-                                            onInput(e) {
-                                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                                this.val = c ? parseInt(c, 10) : 0;
-                                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                                e.target.value = this.fmt;
-                                                $wire.recalculateGenerateRow({{ $gId }});
-                                            },
-                                            init() {
-                                                this.fmt = this.format(this.val);
-                                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                                            }
-                                        }">
-                                            <input 
-                                                type="text" 
-                                                inputmode="numeric" 
-                                                x-model="fmt" 
-                                                @input="onInput($event)"
-                                                class="w-full px-2.5 py-1.5 bg-white border border-stone-300 rounded-lg text-stone-900 text-xs font-black text-right focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 shadow-2xs" 
-                                            />
-                                        </div>
+                                        <x-input-currency
+                                            :prefix="false"
+                                            wire:model.live.debounce.300ms="generateItems.{{ $gId }}.insentif"
+                                            placeholder="0"
+                                            class="!py-1.5 !px-2.5 !rounded-lg text-xs"
+                                        />
                                     </td>
 
                                     <!-- Honor Ekskul Formatted Input -->
                                     <td class="p-2 border-b border-r border-stone-200 text-right">
-                                        <div x-data="{
-                                            val: @entangle('generateItems.' . $gId . '.honor_ekskul'),
-                                            fmt: '',
-                                            format(v) {
-                                                if (v === null || v === undefined || v === '') return '0';
-                                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                                let s = v.toString().trim();
-                                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                                let clean = s.replace(/[^0-9]/g, '');
-                                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                                            },
-                                            onInput(e) {
-                                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                                this.val = c ? parseInt(c, 10) : 0;
-                                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                                e.target.value = this.fmt;
-                                                $wire.recalculateGenerateRow({{ $gId }});
-                                            },
-                                            init() {
-                                                this.fmt = this.format(this.val);
-                                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                                            }
-                                        }">
-                                            <input 
-                                                type="text" 
-                                                inputmode="numeric" 
-                                                x-model="fmt" 
-                                                @input="onInput($event)"
-                                                class="w-full px-2.5 py-1.5 bg-white border border-stone-300 rounded-lg text-stone-900 text-xs font-black text-right focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 shadow-2xs" 
-                                            />
-                                        </div>
+                                        <x-input-currency
+                                            :prefix="false"
+                                            wire:model.live.debounce.300ms="generateItems.{{ $gId }}.honor_ekskul"
+                                            placeholder="0"
+                                            class="!py-1.5 !px-2.5 !rounded-lg text-xs"
+                                        />
                                     </td>
 
                                     <!-- BPJSTK Formatted Input -->
                                     <td class="p-2 border-b border-r border-stone-200 text-right">
-                                        <div x-data="{
-                                            val: @entangle('generateItems.' . $gId . '.insentif_bpjs'),
-                                            fmt: '',
-                                            format(v) {
-                                                if (v === null || v === undefined || v === '') return '0';
-                                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                                let s = v.toString().trim();
-                                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                                let clean = s.replace(/[^0-9]/g, '');
-                                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                                            },
-                                            onInput(e) {
-                                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                                this.val = c ? parseInt(c, 10) : 0;
-                                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                                e.target.value = this.fmt;
-                                                $wire.recalculateGenerateRow({{ $gId }});
-                                            },
-                                            init() {
-                                                this.fmt = this.format(this.val);
-                                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                                            }
-                                        }">
-                                            <input 
-                                                type="text" 
-                                                inputmode="numeric" 
-                                                x-model="fmt" 
-                                                @input="onInput($event)"
-                                                class="w-full px-2.5 py-1.5 bg-white border border-stone-300 rounded-lg text-stone-900 text-xs font-black text-right focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 shadow-2xs" 
-                                            />
-                                        </div>
+                                        <x-input-currency
+                                            :prefix="false"
+                                            wire:model.live.debounce.300ms="generateItems.{{ $gId }}.insentif_bpjs"
+                                            placeholder="0"
+                                            class="!py-1.5 !px-2.5 !rounded-lg text-xs"
+                                        />
                                     </td>
 
                                     <!-- Maghrib Mengaji Formatted Input -->
                                     <td class="p-2 border-b border-r border-stone-200 text-right">
-                                        <div x-data="{
-                                            val: @entangle('generateItems.' . $gId . '.insentif_maghrib_mengaji'),
-                                            fmt: '',
-                                            format(v) {
-                                                if (v === null || v === undefined || v === '') return '0';
-                                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                                let s = v.toString().trim();
-                                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                                let clean = s.replace(/[^0-9]/g, '');
-                                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                                            },
-                                            onInput(e) {
-                                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                                this.val = c ? parseInt(c, 10) : 0;
-                                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                                e.target.value = this.fmt;
-                                                $wire.recalculateGenerateRow({{ $gId }});
-                                            },
-                                            init() {
-                                                this.fmt = this.format(this.val);
-                                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                                            }
-                                        }">
-                                            <input 
-                                                type="text" 
-                                                inputmode="numeric" 
-                                                x-model="fmt" 
-                                                @input="onInput($event)"
-                                                class="w-full px-2.5 py-1.5 bg-white border border-stone-300 rounded-lg text-stone-900 text-xs font-black text-right focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 shadow-2xs" 
-                                            />
-                                        </div>
+                                        <x-input-currency
+                                            :prefix="false"
+                                            wire:model.live.debounce.300ms="generateItems.{{ $gId }}.insentif_maghrib_mengaji"
+                                            placeholder="0"
+                                            class="!py-1.5 !px-2.5 !rounded-lg text-xs"
+                                        />
                                     </td>
 
                                     <!-- Potongan Sosial Formatted Input -->
                                     <td class="p-2 border-b border-r border-stone-200 text-right">
-                                        <div x-data="{
-                                            val: @entangle('generateItems.' . $gId . '.potongan_sosial'),
-                                            fmt: '',
-                                            format(v) {
-                                                if (v === null || v === undefined || v === '') return '0';
-                                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                                let s = v.toString().trim();
-                                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                                let clean = s.replace(/[^0-9]/g, '');
-                                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                                            },
-                                            onInput(e) {
-                                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                                this.val = c ? parseInt(c, 10) : 0;
-                                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                                e.target.value = this.fmt;
-                                                $wire.recalculateGenerateRow({{ $gId }});
-                                            },
-                                            init() {
-                                                this.fmt = this.format(this.val);
-                                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                                            }
-                                        }">
-                                            <input 
-                                                type="text" 
-                                                inputmode="numeric" 
-                                                x-model="fmt" 
-                                                @input="onInput($event)"
-                                                class="w-full px-2.5 py-1.5 bg-white border border-stone-300 rounded-lg text-stone-900 text-xs font-black text-right focus:ring-2 focus:ring-rose-500 focus:border-rose-500 shadow-2xs" 
-                                            />
-                                        </div>
+                                        <x-input-currency
+                                            :prefix="false"
+                                            wire:model.live.debounce.300ms="generateItems.{{ $gId }}.potongan_sosial"
+                                            placeholder="0"
+                                            class="!py-1.5 !px-2.5 !rounded-lg text-xs"
+                                        />
                                     </td>
 
                                     <!-- Potongan Kasbon Formatted Input -->
                                     <td class="p-2 border-b border-r border-stone-200 text-right">
-                                        <div x-data="{
-                                            val: @entangle('generateItems.' . $gId . '.potongan_peminjaman'),
-                                            fmt: '',
-                                            format(v) {
-                                                if (v === null || v === undefined || v === '') return '0';
-                                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                                let s = v.toString().trim();
-                                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                                let clean = s.replace(/[^0-9]/g, '');
-                                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                                            },
-                                            onInput(e) {
-                                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                                this.val = c ? parseInt(c, 10) : 0;
-                                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                                e.target.value = this.fmt;
-                                                $wire.recalculateGenerateRow({{ $gId }});
-                                            },
-                                            init() {
-                                                this.fmt = this.format(this.val);
-                                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                                            }
-                                        }">
-                                            <input 
-                                                type="text" 
-                                                inputmode="numeric" 
-                                                x-model="fmt" 
-                                                @input="onInput($event)"
-                                                class="w-full px-2.5 py-1.5 bg-white border border-stone-300 rounded-lg text-stone-900 text-xs font-black text-right focus:ring-2 focus:ring-rose-500 focus:border-rose-500 shadow-2xs" 
-                                            />
-                                        </div>
+                                        <x-input-currency
+                                            :prefix="false"
+                                            wire:model.live.debounce.300ms="generateItems.{{ $gId }}.potongan_peminjaman"
+                                            placeholder="0"
+                                            class="!py-1.5 !px-2.5 !rounded-lg text-xs"
+                                        />
                                     </td>
 
                                     <!-- Calculated THP -->
@@ -968,173 +768,47 @@
                     </div>
 
                     <div class="space-y-2.5">
-                        <div x-data="{
-                            val: @entangle('createGajiPokok'),
-                            fmt: '',
-                            format(v) {
-                                if (v === null || v === undefined || v === '') return '0';
-                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                let s = v.toString().trim();
-                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                let clean = s.replace(/[^0-9]/g, '');
-                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                            },
-                            onInput(e) {
-                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                this.val = c ? parseInt(c, 10) : 0;
-                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                e.target.value = this.fmt;
-                                $wire.calculateCreateTotal();
-                            },
-                            init() {
-                                this.fmt = this.format(this.val);
-                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                            }
-                        }">
-                            <label class="block text-[11px] font-bold text-stone-700 mb-1">1. Gaji Pokok (Rp)</label>
-                            <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
-                        </div>
+                        <x-input-currency
+                            label="1. Gaji Pokok (Rp)"
+                            wire:model.live.debounce.300ms="createGajiPokok"
+                            placeholder="0"
+                        />
 
-                        <div x-data="{
-                            val: @entangle('createGajiBerkala'),
-                            fmt: '',
-                            format(v) {
-                                if (v === null || v === undefined || v === '') return '0';
-                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                let s = v.toString().trim();
-                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                let clean = s.replace(/[^0-9]/g, '');
-                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                            },
-                            onInput(e) {
-                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                this.val = c ? parseInt(c, 10) : 0;
-                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                e.target.value = this.fmt;
-                                $wire.calculateCreateTotal();
-                            },
-                            init() {
-                                this.fmt = this.format(this.val);
-                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                            }
-                        }">
-                            <label class="block text-[11px] font-bold text-stone-700 mb-1">2. Gaji Berkala (Rp)</label>
-                            <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
-                        </div>
+                        <x-input-currency
+                            label="2. Gaji Berkala (Rp)"
+                            wire:model.live.debounce.300ms="createGajiBerkala"
+                            placeholder="0"
+                        />
 
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="block text-[11px] font-bold text-stone-700 mb-1">3a. Pertemuan Ekskul</label>
                                 <input type="number" min="0" wire:model.live.debounce.300ms="createJumlahEkskul" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 text-center shadow-2xs" placeholder="0" />
                             </div>
-                            <div x-data="{
-                                val: @entangle('createHonorEkskul'),
-                                fmt: '',
-                                format(v) {
-                                    if (v === null || v === undefined || v === '') return '0';
-                                    if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                    let s = v.toString().trim();
-                                    if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                    let clean = s.replace(/[^0-9]/g, '');
-                                    return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                                },
-                                onInput(e) {
-                                    let c = e.target.value.replace(/[^0-9]/g, '');
-                                    this.val = c ? parseInt(c, 10) : 0;
-                                    this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                    e.target.value = this.fmt;
-                                    $wire.calculateCreateTotal();
-                                },
-                                init() {
-                                    this.fmt = this.format(this.val);
-                                    this.$watch('val', (v) => { this.fmt = this.format(v); });
-                                }
-                            }">
-                                <label class="block text-[11px] font-bold text-stone-700 mb-1">3b. Honor Ekskul (Rp)</label>
-                                <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
-                            </div>
+                            <x-input-currency
+                                label="3b. Honor Ekskul (Rp)"
+                                wire:model.live.debounce.300ms="createHonorEkskul"
+                                placeholder="0"
+                            />
                         </div>
 
-                        <div x-data="{
-                            val: @entangle('createInsentif'),
-                            fmt: '',
-                            format(v) {
-                                if (v === null || v === undefined || v === '') return '0';
-                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                let s = v.toString().trim();
-                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                let clean = s.replace(/[^0-9]/g, '');
-                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                            },
-                            onInput(e) {
-                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                this.val = c ? parseInt(c, 10) : 0;
-                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                e.target.value = this.fmt;
-                                $wire.calculateCreateTotal();
-                            },
-                            init() {
-                                this.fmt = this.format(this.val);
-                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                            }
-                        }">
-                            <label class="block text-[11px] font-bold text-stone-700 mb-1">4. Incentive / Insentif Jabatan (Rp)</label>
-                            <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
-                        </div>
+                        <x-input-currency
+                            label="4. Incentive / Insentif Jabatan (Rp)"
+                            wire:model.live.debounce.300ms="createInsentif"
+                            placeholder="0"
+                        />
 
-                        <div x-data="{
-                            val: @entangle('createInsentifBpjs'),
-                            fmt: '',
-                            format(v) {
-                                if (v === null || v === undefined || v === '') return '0';
-                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                let s = v.toString().trim();
-                                if (/^-?\d+\.\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                let clean = s.replace(/[^0-9]/g, '');
-                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                            },
-                            onInput(e) {
-                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                this.val = c ? parseInt(c, 10) : 0;
-                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                e.target.value = this.fmt;
-                                $wire.calculateCreateTotal();
-                            },
-                            init() {
-                                this.fmt = this.format(this.val);
-                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                            }
-                        }">
-                            <label class="block text-[11px] font-bold text-stone-700 mb-1">5. Tunjangan BPJSTK (Rp)</label>
-                            <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
-                        </div>
+                        <x-input-currency
+                            label="5. Tunjangan BPJSTK (Rp)"
+                            wire:model.live.debounce.300ms="createInsentifBpjs"
+                            placeholder="0"
+                        />
 
-                        <div x-data="{
-                            val: @entangle('createInsentifMaghrib'),
-                            fmt: '',
-                            format(v) {
-                                if (v === null || v === undefined || v === '') return '0';
-                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                let s = v.toString().trim();
-                                if (/^-?\d+\.\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                let clean = s.replace(/[^0-9]/g, '');
-                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                            },
-                            onInput(e) {
-                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                this.val = c ? parseInt(c, 10) : 0;
-                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                e.target.value = this.fmt;
-                                $wire.calculateCreateTotal();
-                            },
-                            init() {
-                                this.fmt = this.format(this.val);
-                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                            }
-                        }">
-                            <label class="block text-[11px] font-bold text-stone-700 mb-1">6. Insentif Maghrib Mengaji (Rp)</label>
-                            <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
-                        </div>
+                        <x-input-currency
+                            label="6. Insentif Maghrib Mengaji (Rp)"
+                            wire:model.live.debounce.300ms="createInsentifMaghrib"
+                            placeholder="0"
+                        />
                     </div>
                 </div>
 
@@ -1146,113 +820,29 @@
                     </div>
 
                     <div class="space-y-2.5">
-                        <div x-data="{
-                            val: @entangle('createPotonganSosial'),
-                            fmt: '',
-                            format(v) {
-                                if (v === null || v === undefined || v === '') return '0';
-                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                let s = v.toString().trim();
-                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                let clean = s.replace(/[^0-9]/g, '');
-                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                            },
-                            onInput(e) {
-                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                this.val = c ? parseInt(c, 10) : 0;
-                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                e.target.value = this.fmt;
-                                $wire.calculateCreateTotal();
-                            },
-                            init() {
-                                this.fmt = this.format(this.val);
-                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                            }
-                        }">
-                            <label class="block text-[11px] font-bold text-stone-700 mb-1">1. Potongan Sosial Yayasan (Rp)</label>
-                            <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-rose-500 shadow-2xs" />
-                        </div>
+                        <x-input-currency
+                            label="1. Potongan Sosial Yayasan (Rp)"
+                            wire:model.live.debounce.300ms="createPotonganSosial"
+                            placeholder="0"
+                        />
 
-                        <div x-data="{
-                            val: @entangle('createPotonganPinjaman'),
-                            fmt: '',
-                            format(v) {
-                                if (v === null || v === undefined || v === '') return '0';
-                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                let s = v.toString().trim();
-                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                let clean = s.replace(/[^0-9]/g, '');
-                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                            },
-                            onInput(e) {
-                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                this.val = c ? parseInt(c, 10) : 0;
-                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                e.target.value = this.fmt;
-                                $wire.calculateCreateTotal();
-                            },
-                            init() {
-                                this.fmt = this.format(this.val);
-                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                            }
-                        }">
-                            <label class="block text-[11px] font-bold text-stone-700 mb-1">2. Potongan Hutang / Kasbon Pinjaman (Rp)</label>
-                            <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-rose-500 shadow-2xs" />
-                        </div>
+                        <x-input-currency
+                            label="2. Potongan Hutang / Kasbon Pinjaman (Rp)"
+                            wire:model.live.debounce.300ms="createPotonganPinjaman"
+                            placeholder="0"
+                        />
 
-                        <div x-data="{
-                            val: @entangle('createPotonganBpjstk'),
-                            fmt: '',
-                            format(v) {
-                                if (v === null || v === undefined || v === '') return '0';
-                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                let s = v.toString().trim();
-                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                let clean = s.replace(/[^0-9]/g, '');
-                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                            },
-                            onInput(e) {
-                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                this.val = c ? parseInt(c, 10) : 0;
-                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                e.target.value = this.fmt;
-                                $wire.calculateCreateTotal();
-                            },
-                            init() {
-                                this.fmt = this.format(this.val);
-                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                            }
-                        }">
-                            <label class="block text-[11px] font-bold text-stone-700 mb-1">3. Potongan Iuran BPJSTK (Rp)</label>
-                            <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-rose-500 shadow-2xs" />
-                        </div>
+                        <x-input-currency
+                            label="3. Potongan Iuran BPJSTK (Rp)"
+                            wire:model.live.debounce.300ms="createPotonganBpjstk"
+                            placeholder="0"
+                        />
 
-                        <div x-data="{
-                            val: @entangle('createPotonganLainnya'),
-                            fmt: '',
-                            format(v) {
-                                if (v === null || v === undefined || v === '') return '0';
-                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                let s = v.toString().trim();
-                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                let clean = s.replace(/[^0-9]/g, '');
-                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                            },
-                            onInput(e) {
-                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                this.val = c ? parseInt(c, 10) : 0;
-                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                e.target.value = this.fmt;
-                                $wire.calculateCreateTotal();
-                            },
-                            init() {
-                                this.fmt = this.format(this.val);
-                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                            }
-                        }">
-                            <label class="block text-[11px] font-bold text-stone-700 mb-1">4. Potongan Lain-lain (Rp)</label>
-                            <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-rose-500 shadow-2xs" />
-                        </div>
+                        <x-input-currency
+                            label="4. Potongan Lain-lain (Rp)"
+                            wire:model.live.debounce.300ms="createPotonganLainnya"
+                            placeholder="0"
+                        />
                     </div>
                 </div>
             </div>
@@ -1337,173 +927,47 @@
                     </div>
 
                     <div class="space-y-2.5">
-                        <div x-data="{
-                            val: @entangle('editGajiPokok'),
-                            fmt: '',
-                            format(v) {
-                                if (v === null || v === undefined || v === '') return '0';
-                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                let s = v.toString().trim();
-                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                let clean = s.replace(/[^0-9]/g, '');
-                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                            },
-                            onInput(e) {
-                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                this.val = c ? parseInt(c, 10) : 0;
-                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                e.target.value = this.fmt;
-                                $wire.calculateEditTotal();
-                            },
-                            init() {
-                                this.fmt = this.format(this.val);
-                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                            }
-                        }">
-                            <label class="block text-[11px] font-bold text-stone-700 mb-1">1. Gaji Pokok (Rp)</label>
-                            <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
-                        </div>
+                        <x-input-currency
+                            label="1. Gaji Pokok (Rp)"
+                            wire:model.live.debounce.300ms="editGajiPokok"
+                            placeholder="0"
+                        />
 
-                        <div x-data="{
-                            val: @entangle('editGajiBerkala'),
-                            fmt: '',
-                            format(v) {
-                                if (v === null || v === undefined || v === '') return '0';
-                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                let s = v.toString().trim();
-                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                let clean = s.replace(/[^0-9]/g, '');
-                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                            },
-                            onInput(e) {
-                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                this.val = c ? parseInt(c, 10) : 0;
-                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                e.target.value = this.fmt;
-                                $wire.calculateEditTotal();
-                            },
-                            init() {
-                                this.fmt = this.format(this.val);
-                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                            }
-                        }">
-                            <label class="block text-[11px] font-bold text-stone-700 mb-1">2. Gaji Berkala (Rp)</label>
-                            <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
-                        </div>
+                        <x-input-currency
+                            label="2. Gaji Berkala (Rp)"
+                            wire:model.live.debounce.300ms="editGajiBerkala"
+                            placeholder="0"
+                        />
 
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="block text-[11px] font-bold text-stone-700 mb-1">3a. Pertemuan Ekskul</label>
                                 <input type="number" min="0" wire:model.live.debounce.300ms="editJumlahEkskul" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 text-center shadow-2xs" placeholder="0" />
                             </div>
-                            <div x-data="{
-                                val: @entangle('editHonorEkskul'),
-                                fmt: '',
-                                format(v) {
-                                    if (v === null || v === undefined || v === '') return '0';
-                                    if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                    let s = v.toString().trim();
-                                    if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                    let clean = s.replace(/[^0-9]/g, '');
-                                    return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                                },
-                                onInput(e) {
-                                    let c = e.target.value.replace(/[^0-9]/g, '');
-                                    this.val = c ? parseInt(c, 10) : 0;
-                                    this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                    e.target.value = this.fmt;
-                                    $wire.calculateEditTotal();
-                                },
-                                init() {
-                                    this.fmt = this.format(this.val);
-                                    this.$watch('val', (v) => { this.fmt = this.format(v); });
-                                }
-                            }">
-                                <label class="block text-[11px] font-bold text-stone-700 mb-1">3b. Honor Ekskul (Rp)</label>
-                                <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
-                            </div>
+                            <x-input-currency
+                                label="3b. Honor Ekskul (Rp)"
+                                wire:model.live.debounce.300ms="editHonorEkskul"
+                                placeholder="0"
+                            />
                         </div>
 
-                        <div x-data="{
-                            val: @entangle('editInsentif'),
-                            fmt: '',
-                            format(v) {
-                                if (v === null || v === undefined || v === '') return '0';
-                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                let s = v.toString().trim();
-                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                let clean = s.replace(/[^0-9]/g, '');
-                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                            },
-                            onInput(e) {
-                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                this.val = c ? parseInt(c, 10) : 0;
-                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                e.target.value = this.fmt;
-                                $wire.calculateEditTotal();
-                            },
-                            init() {
-                                this.fmt = this.format(this.val);
-                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                            }
-                        }">
-                            <label class="block text-[11px] font-bold text-stone-700 mb-1">4. Incentive / Insentif Jabatan (Rp)</label>
-                            <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
-                        </div>
+                        <x-input-currency
+                            label="4. Incentive / Insentif Jabatan (Rp)"
+                            wire:model.live.debounce.300ms="editInsentif"
+                            placeholder="0"
+                        />
 
-                        <div x-data="{
-                            val: @entangle('editInsentifBpjs'),
-                            fmt: '',
-                            format(v) {
-                                if (v === null || v === undefined || v === '') return '0';
-                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                let s = v.toString().trim();
-                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                let clean = s.replace(/[^0-9]/g, '');
-                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                            },
-                            onInput(e) {
-                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                this.val = c ? parseInt(c, 10) : 0;
-                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                e.target.value = this.fmt;
-                                $wire.calculateEditTotal();
-                            },
-                            init() {
-                                this.fmt = this.format(this.val);
-                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                            }
-                        }">
-                            <label class="block text-[11px] font-bold text-stone-700 mb-1">5. Tunjangan BPJSTK (Rp)</label>
-                            <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
-                        </div>
+                        <x-input-currency
+                            label="5. Tunjangan BPJSTK (Rp)"
+                            wire:model.live.debounce.300ms="editInsentifBpjs"
+                            placeholder="0"
+                        />
 
-                        <div x-data="{
-                            val: @entangle('editInsentifMaghrib'),
-                            fmt: '',
-                            format(v) {
-                                if (v === null || v === undefined || v === '') return '0';
-                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                let s = v.toString().trim();
-                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                let clean = s.replace(/[^0-9]/g, '');
-                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                            },
-                            onInput(e) {
-                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                this.val = c ? parseInt(c, 10) : 0;
-                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                e.target.value = this.fmt;
-                                $wire.calculateEditTotal();
-                            },
-                            init() {
-                                this.fmt = this.format(this.val);
-                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                            }
-                        }">
-                            <label class="block text-[11px] font-bold text-stone-700 mb-1">6. Insentif Maghrib Mengaji (Rp)</label>
-                            <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
-                        </div>
+                        <x-input-currency
+                            label="6. Insentif Maghrib Mengaji (Rp)"
+                            wire:model.live.debounce.300ms="editInsentifMaghrib"
+                            placeholder="0"
+                        />
                     </div>
                 </div>
 
@@ -1515,113 +979,29 @@
                     </div>
 
                     <div class="space-y-2.5">
-                        <div x-data="{
-                            val: @entangle('editPotonganSosial'),
-                            fmt: '',
-                            format(v) {
-                                if (v === null || v === undefined || v === '') return '0';
-                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                let s = v.toString().trim();
-                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                let clean = s.replace(/[^0-9]/g, '');
-                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                            },
-                            onInput(e) {
-                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                this.val = c ? parseInt(c, 10) : 0;
-                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                e.target.value = this.fmt;
-                                $wire.calculateEditTotal();
-                            },
-                            init() {
-                                this.fmt = this.format(this.val);
-                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                            }
-                        }">
-                            <label class="block text-[11px] font-bold text-stone-700 mb-1">1. Potongan Sosial Yayasan (Rp)</label>
-                            <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-rose-500 shadow-2xs" />
-                        </div>
+                        <x-input-currency
+                            label="1. Potongan Sosial Yayasan (Rp)"
+                            wire:model.live.debounce.300ms="editPotonganSosial"
+                            placeholder="0"
+                        />
 
-                        <div x-data="{
-                            val: @entangle('editPotonganPinjaman'),
-                            fmt: '',
-                            format(v) {
-                                if (v === null || v === undefined || v === '') return '0';
-                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                let s = v.toString().trim();
-                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                let clean = s.replace(/[^0-9]/g, '');
-                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                            },
-                            onInput(e) {
-                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                this.val = c ? parseInt(c, 10) : 0;
-                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                e.target.value = this.fmt;
-                                $wire.calculateEditTotal();
-                            },
-                            init() {
-                                this.fmt = this.format(this.val);
-                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                            }
-                        }">
-                            <label class="block text-[11px] font-bold text-stone-700 mb-1">2. Potongan Hutang / Kasbon Pinjaman (Rp)</label>
-                            <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-rose-500 shadow-2xs" />
-                        </div>
+                        <x-input-currency
+                            label="2. Potongan Hutang / Kasbon Pinjaman (Rp)"
+                            wire:model.live.debounce.300ms="editPotonganPinjaman"
+                            placeholder="0"
+                        />
 
-                        <div x-data="{
-                            val: @entangle('editPotonganBpjstk'),
-                            fmt: '',
-                            format(v) {
-                                if (v === null || v === undefined || v === '') return '0';
-                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                let s = v.toString().trim();
-                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                let clean = s.replace(/[^0-9]/g, '');
-                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                            },
-                            onInput(e) {
-                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                this.val = c ? parseInt(c, 10) : 0;
-                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                e.target.value = this.fmt;
-                                $wire.calculateEditTotal();
-                            },
-                            init() {
-                                this.fmt = this.format(this.val);
-                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                            }
-                        }">
-                            <label class="block text-[11px] font-bold text-stone-700 mb-1">3. Potongan Iuran BPJSTK (Rp)</label>
-                            <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-rose-500 shadow-2xs" />
-                        </div>
+                        <x-input-currency
+                            label="3. Potongan Iuran BPJSTK (Rp)"
+                            wire:model.live.debounce.300ms="editPotonganBpjstk"
+                            placeholder="0"
+                        />
 
-                        <div x-data="{
-                            val: @entangle('editPotonganLainnya'),
-                            fmt: '',
-                            format(v) {
-                                if (v === null || v === undefined || v === '') return '0';
-                                if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                                let s = v.toString().trim();
-                                if (/^-?\\d+\\.\\d{1,2}$/.test(s)) return Math.round(parseFloat(s)).toLocaleString('id-ID');
-                                let clean = s.replace(/[^0-9]/g, '');
-                                return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                            },
-                            onInput(e) {
-                                let c = e.target.value.replace(/[^0-9]/g, '');
-                                this.val = c ? parseInt(c, 10) : 0;
-                                this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                                e.target.value = this.fmt;
-                                $wire.calculateEditTotal();
-                            },
-                            init() {
-                                this.fmt = this.format(this.val);
-                                this.$watch('val', (v) => { this.fmt = this.format(v); });
-                            }
-                        }">
-                            <label class="block text-[11px] font-bold text-stone-700 mb-1">4. Potongan Lain-lain (Rp)</label>
-                            <input type="text" inputmode="numeric" x-model="fmt" @input="onInput($event)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold text-right focus:ring-2 focus:ring-rose-500 shadow-2xs" />
-                        </div>
+                        <x-input-currency
+                            label="4. Potongan Lain-lain (Rp)"
+                            wire:model.live.debounce.300ms="editPotonganLainnya"
+                            placeholder="0"
+                        />
                     </div>
                 </div>
             </div>

@@ -212,11 +212,12 @@ class ProsesKenaikanKelas extends Component
                     // Graduated to Alumni
                     SiswaKelas::updateOrCreate(
                         ['siswa_id' => $siswa->id, 'semester_id' => $activeSemester ? $activeSemester->id : null],
-                        ['kelas_id' => $this->kelasAsalId, 'status' => 'pindah']
+                        ['kelas_id' => $this->kelasAsalId, 'status' => 'lulus']
                     );
 
                     $siswa->update([
                         'kelas_id' => null,
+                        'kelas_tahfidz_id' => null,
                         'status' => 'lulus',
                         'tahun_lulus' => date('Y'),
                         'catatan_alumni' => 'Lulus secara massal pada ' . date('d M Y'),

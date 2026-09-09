@@ -6,10 +6,11 @@ use Livewire\Component;
 use App\Models\Guru;
 use App\Models\Peminjaman;
 use Livewire\WithPagination;
+use App\Traits\WithCurrencySanitizer;
 
 class ManajemenPeminjaman extends Component
 {
-    use WithPagination;
+    use WithPagination, WithCurrencySanitizer;
 
     // Filters
     public string $search = '';
@@ -18,13 +19,13 @@ class ManajemenPeminjaman extends Component
     // Form fields
     public bool $showCreateModal = false;
     public ?int $guru_id = null;
-    public float $nominal = 0.00;
+    public $nominal = 0.00;
     public int $tenor_bulan = 1;
     public string $tanggal_pinjam = '';
 
     protected $rules = [
         'guru_id' => 'required|exists:guru,id',
-        'nominal' => 'required|numeric|min:1000',
+        'nominal' => 'required|numeric|min:1',
         'tenor_bulan' => 'required|integer|min:1|max:60',
         'tanggal_pinjam' => 'required|date',
     ];
@@ -69,6 +70,8 @@ class ManajemenPeminjaman extends Component
             session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
             return;
         }
+
+        $this->sanitizeCurrencies(['nominal']);
 
         $this->validate();
 

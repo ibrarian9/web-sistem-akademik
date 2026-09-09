@@ -53,6 +53,7 @@ Route::middleware(['auth'])->group(function () {
     // PDF Rapor Inline Browser Preview
     Route::get('/rapor/pdf-preview/{siswaId}', [\App\Http\Controllers\RaporPdfController::class, 'previewPdf'])->name('rapor.pdf.preview');
     Route::get('/rapor/pdf-tahfidz-preview/{siswaId}', [\App\Http\Controllers\RaporPdfController::class, 'previewTahfidzPdf'])->name('rapor.pdf-tahfidz.preview');
+    Route::get('/pendampingan/cetak/{siswaId}', [\App\Http\Controllers\PendampinganReportController::class, 'cetakLaporan'])->name('pendampingan.cetak');
 
 
     
@@ -73,7 +74,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('finance.pengajuan-dana');
 
     // Super Admin Group — Oversight, Keuangan, User Management, Audit
-    Route::middleware(['role:super_admin,super_admin_2,founder,pengawas'])->prefix('super-admin')->name('super-admin.')->group(function () {
+    Route::middleware(['role:super_admin,super_admin_2,founder'])->prefix('super-admin')->name('super-admin.')->group(function () {
         Route::get('/dashboard', \App\Livewire\SuperAdmin\Dashboard::class)->name('dashboard');
         Route::get('/approval-keuangan', \App\Livewire\Finance\ApprovalKeuanganIndex::class)->name('approval-keuangan');
         Route::get('/audit-log', \App\Livewire\SuperAdmin\TataKelola\AuditLog::class)->name('audit-log');
@@ -94,6 +95,7 @@ Route::middleware(['auth'])->group(function () {
         Route::match(['get', 'post'], '/komponen-nilai', fn() => redirect()->route('super-admin.monitoring-akademik'))->name('komponen-nilai');
         Route::match(['get', 'post'], '/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik');
         Route::match(['get', 'post'], '/kenaikan-kelas', \App\Livewire\TataUsaha\ProsesKenaikanKelas::class)->name('kenaikan-kelas');
+        Route::get('/pendampingan', \App\Livewire\Guru\CatatanPendampinganIndex::class)->name('pendampingan');
         
         // Laporan
         Route::get('/laporan/absensi-siswa', \App\Livewire\Shared\Laporan\RekapAbsensiSiswa::class)->name('laporan.absensi-siswa');
@@ -136,6 +138,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/capaian-guru', \App\Livewire\SuperAdmin\TataKelola\CapaianPengembanganGuru::class)->name('capaian-guru');
         Route::get('/koreksi-nilai', \App\Livewire\Pengawas\ManajemenKoreksiNilai::class)->name('koreksi-nilai');
         Route::get('/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik');
+        Route::get('/pendampingan', \App\Livewire\Guru\CatatanPendampinganIndex::class)->name('pendampingan');
 
         // Laporan Monitoring Akademik & Tunggakan
         Route::get('/laporan/absensi-siswa', \App\Livewire\Shared\Laporan\RekapAbsensiSiswa::class)->name('laporan.absensi-siswa');
@@ -159,6 +162,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', \App\Livewire\KepalaSekolah\Dashboard::class)->name('dashboard');
         Route::get('/capaian-guru', \App\Livewire\SuperAdmin\TataKelola\CapaianPengembanganGuru::class)->name('capaian-guru');
         Route::get('/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik');
+        Route::get('/pendampingan', \App\Livewire\Guru\CatatanPendampinganIndex::class)->name('pendampingan');
         
         // Laporan Monitoring Akademik & Tunggakan
         Route::get('/laporan/absensi-siswa', \App\Livewire\Shared\Laporan\RekapAbsensiSiswa::class)->name('laporan.absensi-siswa');
@@ -195,6 +199,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pengembangan-diri', \App\Livewire\Guru\CapaianPengembanganDiri::class)->name('pengembangan-diri');
         Route::get('/ekskul', \App\Livewire\Guru\Ekstrakurikuler::class)->name('ekskul');
         Route::get('/kalender-akademik', \App\Livewire\TataUsaha\ManajemenKalenderAkademik::class)->name('kalender-akademik');
+        Route::get('/pendampingan', \App\Livewire\Guru\CatatanPendampinganIndex::class)->name('pendampingan');
         
         // Laporan
         Route::get('/laporan/absensi-siswa', \App\Livewire\Shared\Laporan\RekapAbsensiSiswa::class)->name('laporan.absensi-siswa');

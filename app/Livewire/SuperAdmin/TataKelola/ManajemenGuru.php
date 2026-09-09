@@ -110,7 +110,7 @@ class ManajemenGuru extends Component
             'username' => 'required|string|max:50|unique:users,username,' . ($guruUserId ?? 'NULL'),
             'nik' => 'nullable|string|max:20',
             'status_kepegawaian' => 'required|in:pns,gtt,honorer,tetap_yayasan,gty',
-            'jenis_guru' => 'required|in:umum,tahfidz,keduanya',
+            'jenis_guru' => 'required|in:umum,tahfidz,keduanya,pendamping',
             'pendidikan' => 'nullable|string|max:100',
             'grade_guru' => 'nullable|string|max:50',
             'status_pernikahan' => 'required|in:belum_menikah,menikah,cerai_hidup,cerai_mati',

@@ -12,6 +12,7 @@ use App\Models\Tabungan;
 use App\Models\Siswa;
 use App\Models\Kelas;
 use App\Models\TahunAjaran;
+use App\Services\AuditLogger;
 
 class FinanceExportController extends Controller
 {
@@ -20,6 +21,11 @@ class FinanceExportController extends Controller
      */
     public function exportTunggakan(Request $request)
     {
+        AuditLogger::log('export', 'Mengekspor Laporan Tunggakan SPP & Tagihan Siswa ke CSV/Excel', null, [
+            'log_name' => 'keuangan',
+            'properties' => ['format' => 'csv', 'filter' => $request->all()],
+        ]);
+
         $kelasId = $request->query('kelas_id');
         $tahunAjaranId = $request->query('tahun_ajaran_id');
         $bulan = $request->query('bulan');
@@ -128,6 +134,11 @@ class FinanceExportController extends Controller
      */
     public function exportPemasukan(Request $request)
     {
+        AuditLogger::log('export', 'Mengekspor Laporan Arus Kas Masuk & Infaq ke CSV/Excel', null, [
+            'log_name' => 'keuangan',
+            'properties' => ['format' => 'csv', 'filter' => $request->all()],
+        ]);
+
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
         $filterPeriode = $request->query('filter_periode');
@@ -242,6 +253,11 @@ class FinanceExportController extends Controller
      */
     public function exportPengeluaran(Request $request)
     {
+        AuditLogger::log('export', 'Mengekspor Laporan Arus Kas Keluar & Operasional ke CSV/Excel', null, [
+            'log_name' => 'keuangan',
+            'properties' => ['format' => 'csv', 'filter' => $request->all()],
+        ]);
+
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
         $filterPeriode = $request->query('filter_periode');
@@ -342,6 +358,11 @@ class FinanceExportController extends Controller
             abort(403, 'Anda tidak memiliki hak akses untuk mengekspor data Dana BOS.');
         }
 
+        AuditLogger::log('export', 'Mengekspor Rekapitulasi Pembukuan Dana BOS ke CSV/Excel', null, [
+            'log_name' => 'keuangan',
+            'properties' => ['format' => 'csv', 'filter' => $request->all()],
+        ]);
+
         $filterPeriode = $request->query('filter_periode');
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
@@ -431,6 +452,11 @@ class FinanceExportController extends Controller
      */
     public function exportRekapGaji(Request $request)
     {
+        AuditLogger::log('export', 'Mengekspor Rekapitulasi Penggajian Guru & Karyawan ke CSV/Excel', null, [
+            'log_name' => 'keuangan',
+            'properties' => ['format' => 'csv', 'filter' => $request->all()],
+        ]);
+
         $bulan = $request->query('bulan');
         $tahun = $request->query('tahun');
         $status = $request->query('status');
@@ -549,6 +575,11 @@ class FinanceExportController extends Controller
      */
     public function exportTabungan(Request $request)
     {
+        AuditLogger::log('export', 'Mengekspor Laporan Rekapitulasi & Mutasi Tabungan Siswa ke CSV/Excel', null, [
+            'log_name' => 'keuangan',
+            'properties' => ['format' => 'csv', 'filter' => $request->all()],
+        ]);
+
         $siswaId = $request->query('siswa_id');
         $kelasId = $request->query('kelas_id');
         $search = $request->query('search');
@@ -800,6 +831,11 @@ class FinanceExportController extends Controller
      */
     public function exportArusKas(Request $request)
     {
+        AuditLogger::log('export', 'Mengekspor Ringkasan Arus Kas (Cash Flow) ke CSV/Excel', null, [
+            'log_name' => 'keuangan',
+            'properties' => ['format' => 'csv', 'filter' => $request->all()],
+        ]);
+
         $tab = $request->query('tab', 'semua');
         $stream = $request->query('stream', 'semua');
         $filterPeriode = $request->query('filter_periode', 'semua');

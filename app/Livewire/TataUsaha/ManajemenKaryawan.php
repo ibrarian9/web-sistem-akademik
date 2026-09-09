@@ -112,7 +112,7 @@ class ManajemenKaryawan extends Component
             'no_hp' => 'nullable|string|max:20',
             'alamat' => 'nullable|string|max:255',
             'status' => 'required|in:aktif,nonaktif',
-            'jenis_guru' => 'required|in:umum,tahfidz',
+            'jenis_guru' => 'required|in:umum,tahfidz,pendamping,keduanya',
             'status_kepegawaian' => 'required|in:tetap,honorer',
         ];
 

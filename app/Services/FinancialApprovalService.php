@@ -179,7 +179,15 @@ class FinancialApprovalService
                                 }
                             }
                             if ($target->potongan_peminjaman > 0) {
-                                $loan = \App\Models\Peminjaman::where('guru_id', $target->guru_id)->first();
+                                $loan = \App\Models\Peminjaman::where('guru_id', $target->guru_id)
+                                    ->where('status', 'berjalan')
+                                    ->latest()
+                                    ->first();
+                                if (!$loan) {
+                                    $loan = \App\Models\Peminjaman::where('guru_id', $target->guru_id)
+                                        ->latest()
+                                        ->first();
+                                }
                                 if ($loan) {
                                     $loan->update([
                                         'sisa_pinjaman' => $loan->sisa_pinjaman + $target->potongan_peminjaman,

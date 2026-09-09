@@ -99,6 +99,31 @@ class PlottingSiswaKelas extends Component
                 'kelas_tahfidz_id' => $targetKelas->id,
             ]);
         } else {
+            // Check shadow teacher constraint: max 1 shadow teacher per class
+            $existingShadowTeacher = Siswa::where('kelas_id', $targetKelas->id)
+                ->whereNotNull('shadow_teacher_id')
+                ->with('shadowTeacher.user')
+                ->first();
+
+            $incomingShadowTeachers = Siswa::whereIn('id', $this->selected_siswa_ids)
+                ->whereNotNull('shadow_teacher_id')
+                ->pluck('shadow_teacher_id')
+                ->unique();
+
+            if ($incomingShadowTeachers->isNotEmpty()) {
+                if ($incomingShadowTeachers->count() > 1) {
+                    session()->flash('error', 'Gagal: Siswa yang dipilih memiliki lebih dari 1 guru pendamping yang berbeda. Dalam satu kelas hanya boleh ada 1 guru pendamping.');
+                    return;
+                }
+
+                $incomingTeacherId = $incomingShadowTeachers->first();
+                if ($existingShadowTeacher && $existingShadowTeacher->shadow_teacher_id != $incomingTeacherId) {
+                    $existingName = $existingShadowTeacher->shadowTeacher?->user?->nama ?? 'Guru Pendamping lain';
+                    session()->flash('error', "Gagal: Kelas {$targetKelas->nama_kelas} sudah didampingi oleh {$existingName}. Maksimal 1 guru pendamping yang berbeda per kelas.");
+                    return;
+                }
+            }
+
             Siswa::whereIn('id', $this->selected_siswa_ids)->update([
                 'kelas_id' => $targetKelas->id,
             ]);

@@ -7,6 +7,7 @@ use App\Models\Pengaturan;
 use App\Models\Rapor;
 use App\Models\RiwayatSurat;
 use App\Services\ESignatureService;
+use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 
 class DocumentVerificationController extends Controller
@@ -23,6 +24,12 @@ class DocumentVerificationController extends Controller
             $kelas = $rapor->kelas;
             $semester = $rapor->semester;
 
+            AuditLogger::log('verify', "Verifikasi QR Code Dokumen Berhasil: Rapor Digital (UUID: {$uuid})", $rapor, [
+                'log_name' => 'keamanan',
+                'siswa_id' => $siswa?->id,
+                'properties' => ['uuid' => $uuid, 'is_valid' => true, 'jenis' => 'rapor'],
+            ]);
+
             return view('verifikasi.dokumen', [
                 'isValid' => true,
                 'jenisDokumen' => 'Rapor Hasil Belajar Digital (Kurikulum Merdeka & Tahfizh)',
@@ -38,9 +45,15 @@ class DocumentVerificationController extends Controller
 
         // 2. Check if UUID matches a Pembayaran/Resi record in DB
         $pembayaran = Pembayaran::where('qr_code_hash', $uuid)->first();
-        if ($pembayaran) {
+        if ($pembayaran && !$pembayaran->is_void) {
             $tagihan = $pembayaran->tagihan;
             $siswa = $tagihan ? $tagihan->siswa : null;
+
+            AuditLogger::log('verify', "Verifikasi QR Code Dokumen Berhasil: Resi Pembayaran #{$pembayaran->no_resi}", $pembayaran, [
+                'log_name' => 'keamanan',
+                'siswa_id' => $siswa?->id,
+                'properties' => ['uuid' => $uuid, 'is_valid' => true, 'no_resi' => $pembayaran->no_resi],
+            ]);
 
             return view('verifikasi.dokumen', [
                 'isValid' => true,
@@ -59,7 +72,7 @@ class DocumentVerificationController extends Controller
         if (str_starts_with($uuid, 'TTD-')) {
             $parts = explode('-', $uuid);
             $typePrefix = $parts[1] ?? 'DOC';
-            $docId = $parts[2] ?? '1';
+            $docId = $parts[2] ?? '0';
 
             if ($typePrefix === 'SUR') {
                 $surat = RiwayatSurat::find($docId);
@@ -109,48 +122,52 @@ class DocumentVerificationController extends Controller
                         'uuid' => $uuid,
                     ]);
                 }
+            } elseif ($typePrefix === 'RES') {
+                $pembayaranDoc = Pembayaran::with(['tagihan.siswa.user', 'tagihan.siswa.kelas', 'tagihan.tahunAjaran', 'petugas'])->find($docId);
+                if ($pembayaranDoc && !$pembayaranDoc->is_void) {
+                    $tagihan = $pembayaranDoc->tagihan;
+                    $siswa = $tagihan ? $tagihan->siswa : null;
 
-                return view('verifikasi.dokumen', [
-                    'isValid' => true,
-                    'nomorSurat' => 'Terverifikasi Sistem',
-                    'jenisDokumen' => 'Surat Keterangan Resmi Sekolah',
-                    'namaSiswa' => 'Penerima Terdaftar',
-                    'nisn' => 'TERVERIFIKASI',
-                    'kelas' => 'Aktif',
-                    'tahunAjaran' => date('Y'),
-                    'tanggalTerbit' => date('d F Y'),
-                    'pejabatPengesah' => Pengaturan::getValue('kepala_sekolah_nama', 'Kepala Sekolah'),
-                    'uuid' => $uuid,
-                ]);
+                    return view('verifikasi.dokumen', [
+                        'isValid' => true,
+                        'jenisDokumen' => 'Resi Bukti Pembayaran Resmi (STT Keuangan)',
+                        'namaSiswa' => $siswa ? ($siswa->user->nama ?? $siswa->nama_panggilan) : 'Siswa',
+                        'nisn' => $siswa ? $siswa->nisn : '-',
+                        'kelas' => $siswa && $siswa->kelas ? $siswa->kelas->nama_kelas : '-',
+                        'tahunAjaran' => $tagihan && $tagihan->tahunAjaran ? $tagihan->tahunAjaran->nama : '-',
+                        'tanggalTerbit' => date('d F Y', strtotime($pembayaranDoc->tanggal_bayar)),
+                        'pejabatPengesah' => $pembayaranDoc->petugas ? $pembayaranDoc->petugas->nama : 'Staf Keuangan Yayasan',
+                        'uuid' => $uuid,
+                    ]);
+                }
+            } elseif ($typePrefix === 'RAP') {
+                $raporDoc = Rapor::with(['siswa.user', 'kelas', 'semester.tahunAjaran'])->find($docId);
+                if ($raporDoc) {
+                    $siswa = $raporDoc->siswa;
+                    $kelas = $raporDoc->kelas;
+                    $semester = $raporDoc->semester;
+
+                    return view('verifikasi.dokumen', [
+                        'isValid' => true,
+                        'jenisDokumen' => 'Rapor Hasil Belajar Digital (Kurikulum Merdeka & Tahfizh)',
+                        'namaSiswa' => $siswa ? ($siswa->user->nama ?? $siswa->nama_panggilan) : 'Siswa',
+                        'nisn' => $siswa ? $siswa->nisn : '-',
+                        'kelas' => $kelas ? $kelas->nama_kelas : '-',
+                        'tahunAjaran' => $semester ? ($semester->tahunAjaran->nama ?? '-') : '-',
+                        'tanggalTerbit' => $raporDoc->tanggal_terbit ? date('d F Y', strtotime($raporDoc->tanggal_terbit)) : date('d F Y'),
+                        'pejabatPengesah' => ($kelas && $kelas->guruUmum) ? ($kelas->guruUmum->user->nama ?? 'Wali Kelas') : 'Kepala Sekolah',
+                        'uuid' => $uuid,
+                    ]);
+                }
             }
-
-            $jenisDokumen = match ($typePrefix) {
-                'RAP' => 'Rapor Hasil Belajar Digital',
-                'RES' => 'Resi Bukti Pembayaran Resmi (STT Keuangan)',
-                default => 'Dokumen Resmi Sekolah',
-            };
-
-            $pejabatRole = match ($typePrefix) {
-                'RES' => 'bendahara',
-                default => 'kepala_sekolah',
-            };
-
-            $sigData = ESignatureService::getSignatureData($pejabatRole, $typePrefix, $docId);
-
-            return view('verifikasi.dokumen', [
-                'isValid' => true,
-                'jenisDokumen' => $jenisDokumen,
-                'namaSiswa' => 'Siswa Terdaftar',
-                'nisn' => 'TERVERIFIKASI',
-                'kelas' => 'Aktif',
-                'tahunAjaran' => date('Y'),
-                'tanggalTerbit' => $sigData['tanggal'] ?? date('d F Y'),
-                'pejabatPengesah' => $sigData['nama'] ?? 'Pejabat Berwenang',
-                'uuid' => $uuid,
-            ]);
         }
 
-        // Invalid or Unknown Document
+        // Invalid, Voided, or Unknown Document
+        AuditLogger::log('verify', "Verifikasi QR Code Dokumen Gagal / Tidak Valid (UUID: {$uuid})", null, [
+            'log_name' => 'keamanan',
+            'properties' => ['uuid' => $uuid, 'is_valid' => false],
+        ]);
+
         return view('verifikasi.dokumen', [
             'isValid' => false,
             'uuid' => $uuid,

@@ -6,13 +6,14 @@ use Livewire\Component;
 use App\Models\DanaBos as BosModel;
 use App\Models\TahunAjaran;
 use App\Traits\WithDateFilter;
+use App\Traits\WithCurrencySanitizer;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
 
 class DanaBos extends Component
 {
-    use WithPagination, WithDateFilter, WithFileUploads;
+    use WithPagination, WithDateFilter, WithFileUploads, WithCurrencySanitizer;
 
     // Modal state
     public bool $showCreateModal = false;
@@ -28,7 +29,7 @@ class DanaBos extends Component
     // Create Form properties
     public string $jenis = 'masuk';
     public string $tanggal = '';
-    public float $nominal = 0.00;
+    public $nominal = 0.00;
     public string $kategori = '';
     public string $keterangan = '';
     public $bukti_foto = null;
@@ -38,7 +39,7 @@ class DanaBos extends Component
     public ?int $editingTransactionId = null;
     public string $edit_jenis = 'masuk';
     public string $edit_tanggal = '';
-    public float $edit_nominal = 0.00;
+    public $edit_nominal = 0.00;
     public string $edit_kategori = '';
     public string $edit_keterangan = '';
     public ?string $edit_existing_bukti = null;
@@ -154,6 +155,8 @@ class DanaBos extends Component
             return;
         }
 
+        $this->sanitizeCurrencies(['nominal']);
+
         $this->validate();
 
         $activeTA = TahunAjaran::where('status_aktif', true)->first() ?? TahunAjaran::latest()->first();
@@ -219,6 +222,8 @@ class DanaBos extends Component
             session()->flash('error', 'Akses Ditolak: Anda hanya memiliki hak akses pemantauan (Lihat Saja).');
             return;
         }
+
+        $this->sanitizeCurrencies(['edit_nominal']);
 
         $this->validate([
             'edit_jenis' => 'required|in:masuk,keluar',

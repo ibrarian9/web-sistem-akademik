@@ -94,8 +94,8 @@
                             <div class="text-[10px] text-stone-500 font-medium">User: {{ $siswa->user->username ?? '-' }}</div>
                             @if($siswa->shadowTeacher)
                                 <div class="mt-1 flex items-center gap-1">
-                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200" title="Guru Pendamping Khusus: {{ $siswa->shadowTeacher->user->nama ?? '-' }} ({{ ucfirst($siswa->shadowTeacher->jenis_guru ?? 'Umum') }})">
-                                        GPK: {{ $siswa->shadowTeacher->user->nama ?? '-' }} ({{ $siswa->shadowTeacher->jenis_guru === 'tahfidz' ? 'Tahfizh' : 'Umum' }})
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200" title="Guru Pendamping Khusus: {{ $siswa->shadowTeacher->user->nama ?? '-' }} ({{ ucfirst($siswa->shadowTeacher->jenis_guru ?? 'Pendamping') }})">
+                                        GPK: {{ $siswa->shadowTeacher->user->nama ?? '-' }} ({{ $siswa->shadowTeacher->jenis_guru === 'pendamping' ? 'Pendamping' : ($siswa->shadowTeacher->jenis_guru === 'tahfidz' ? 'Tahfizh' : 'Umum') }})
                                     </span>
                                 </div>
                             @endif
@@ -257,9 +257,11 @@
                         <div>
                             <select wire:model="shadow_teacher_id" class="w-full px-3 py-2 bg-white border border-indigo-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-indigo-600 shadow-2xs">
                                 <option value="">-- Tanpa Guru Pendamping --</option>
-                                @foreach ($gurus as $guru)
-                                    <option value="{{ $guru->id }}">{{ $guru->user->nama ?? 'Guru' }} — {{ $guru->jenis_guru === 'tahfidz' ? 'Guru Tahfizh' : ($guru->jenis_guru === 'keduanya' ? 'Guru Umum & Tahfizh' : 'Guru Umum') }} ({{ $guru->nip ?: 'NIP -' }})</option>
-                                @endforeach
+                                @forelse ($shadowTeachers as $guru)
+                                    <option value="{{ $guru->id }}">{{ $guru->user->nama ?? 'Guru' }} — Guru Pendamping ({{ $guru->nip ?: 'NIP -' }})</option>
+                                @empty
+                                    <option value="" disabled>Belum ada guru berkategori Pendamping (Shadow Teacher)</option>
+                                @endforelse
                             </select>
                             @error('shadow_teacher_id') <span class="text-rose-600 text-[10px] font-bold block mt-1">{{ $message }}</span> @enderror
                         </div>
@@ -505,7 +507,7 @@
                                 {{ $selectedSiswaDetail->shadowTeacher->user->nama ?? '-' }}
                             </div>
                             <div class="text-[11px] text-indigo-700 font-medium">
-                                Status: <strong>Shadow Teacher / GPK</strong> ({{ $selectedSiswaDetail->shadowTeacher->jenis_guru === 'tahfidz' ? 'Guru Tahfizh' : ($selectedSiswaDetail->shadowTeacher->jenis_guru === 'keduanya' ? 'Guru Umum & Tahfizh' : 'Guru Umum') }})
+                                Status: <strong>Shadow Teacher / GPK</strong> ({{ $selectedSiswaDetail->shadowTeacher->jenis_guru === 'pendamping' ? 'Guru Pendamping' : ($selectedSiswaDetail->shadowTeacher->jenis_guru === 'tahfidz' ? 'Guru Tahfizh' : ($selectedSiswaDetail->shadowTeacher->jenis_guru === 'keduanya' ? 'Guru Umum & Tahfizh' : 'Guru Umum')) }})
                             </div>
                         @else
                             <div class="text-xs text-stone-400 italic pt-1">- Tidak Ada Guru Pendamping -</div>

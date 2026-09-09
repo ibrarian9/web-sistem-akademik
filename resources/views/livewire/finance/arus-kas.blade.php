@@ -1,4 +1,4 @@
-<div class="space-y-6 font-sans">
+<div class="space-y-6 font-sans" x-data="{ previewOpen: false, previewSrc: '', previewTitle: '' }" x-init="$watch('$wire.showPreviewBuktiModal', val => { if(val) { previewSrc = $wire.previewBuktiUrl; previewTitle = $wire.previewBuktiTitle; previewOpen = true; } })" @keydown.escape.window="previewOpen = false">
     <!-- Header Title Bar -->
     <x-page-header 
         title="Arus Kas (Cash Flow)" 
@@ -266,26 +266,83 @@
             @endif
         </div>
 
-        <!-- Date Range Filter Row -->
-        <div class="flex items-center justify-between gap-4 border-t border-stone-100 pt-3 flex-wrap">
-            <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-stone-500 uppercase tracking-wider">Periode:</span>
-                <x-date-filter model="filterPeriode" startDateModel="startDate" endDateModel="endDate" />
-            </div>
+        <!-- Comprehensive Filter Toolbar Row -->
+        <div class="border-t border-stone-100 pt-3 space-y-3">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+                <!-- Left Filter Controls -->
+                <div class="flex items-center gap-2.5 flex-wrap flex-1">
+                    <!-- Date Range Filter -->
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Periode:</span>
+                        <x-date-filter model="filterPeriode" startDateModel="startDate" endDateModel="endDate" />
+                    </div>
 
-            <div class="flex items-center gap-3 flex-wrap">
-                <div class="text-xs font-bold text-stone-600">
-                    Menampilkan <span class="text-stone-900 font-extrabold">{{ $paginatedTransactions->total() }}</span> transaksi kas
+                    <!-- Contextual Category Filter (Kas Masuk) -->
+                    @if ($tab === 'semua' || $tab === 'masuk')
+                        <div class="flex items-center gap-1.5">
+                            <select wire:model.live="filterKategoriMasuk" class="bg-stone-50 border border-stone-200 rounded-xl px-2.5 py-1.5 text-stone-700 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs">
+                                <option value="">Semua Kategori Masuk</option>
+                                @foreach ($kategoriMasukOptions as $optMasuk)
+                                    <option value="{{ $optMasuk }}">{{ $optMasuk }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
+
+                    <!-- Contextual Category Filter (Kas Keluar) -->
+                    @if ($tab === 'semua' || $tab === 'keluar')
+                        <div class="flex items-center gap-1.5">
+                            <select wire:model.live="filterKategoriKeluar" class="bg-stone-50 border border-stone-200 rounded-xl px-2.5 py-1.5 text-stone-700 text-xs font-bold focus:ring-2 focus:ring-rose-600 focus:bg-white transition shadow-2xs">
+                                <option value="">Semua Kategori Keluar</option>
+                                @foreach ($kategoriKeluarOptions as $optKeluar)
+                                    <option value="{{ $optKeluar['id'] }}">{{ $optKeluar['nama'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
+
+                    <!-- Payment Method Filter -->
+                    <div class="flex items-center gap-1.5">
+                        <select wire:model.live="filterMetode" class="bg-stone-50 border border-stone-200 rounded-xl px-2.5 py-1.5 text-stone-700 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs">
+                            <option value="semua">Semua Metode Pembayaran</option>
+                            <option value="tunai">Tunai / Cash</option>
+                            <option value="transfer">Transfer Bank / Payroll</option>
+                            <option value="qris">QRIS / Non-Tunai</option>
+                        </select>
+                    </div>
+
+                    <!-- Nominal Range Filters -->
+                    <div class="flex items-center gap-1 bg-stone-50 border border-stone-200 px-2 py-1 rounded-xl shadow-2xs">
+                        <span class="text-[11px] font-bold text-stone-400">Rp</span>
+                        <input type="number" wire:model.live.debounce.400ms="nominalMin" placeholder="Nominal Min" class="w-24 bg-transparent border-0 p-0 text-xs font-bold text-stone-800 placeholder-stone-400 focus:ring-0" />
+                        <span class="text-stone-300 text-xs">-</span>
+                        <input type="number" wire:model.live.debounce.400ms="nominalMax" placeholder="Nominal Max" class="w-24 bg-transparent border-0 p-0 text-xs font-bold text-stone-800 placeholder-stone-400 focus:ring-0" />
+                    </div>
+
+                    <!-- Reset Filter Button -->
+                    @if ($this->activeFilterCount > 0)
+                        <button type="button" wire:click="resetFilters" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold border border-stone-300 transition shadow-2xs cursor-pointer">
+                            <x-lucide-refresh-cw class="w-3 h-3 text-stone-500" />
+                            <span>Reset ({{ $this->activeFilterCount }})</span>
+                        </button>
+                    @endif
                 </div>
-                <div class="flex items-center gap-1.5">
-                    <button type="button" wire:click="exportPdf" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-xl text-xs font-bold border border-rose-200 transition shadow-2xs cursor-pointer" title="Cetak Jurnal PDF Sesuai Filter">
-                        <x-lucide-printer class="w-3.5 h-3.5 text-rose-600" />
-                        <span>PDF</span>
-                    </button>
-                    <button type="button" wire:click="exportExcel" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl text-xs font-bold border border-emerald-200 transition shadow-2xs cursor-pointer" title="Ekspor Jurnal Excel Sesuai Filter">
-                        <x-lucide-file-spreadsheet class="w-3.5 h-3.5 text-emerald-600" />
-                        <span>Excel</span>
-                    </button>
+
+                <!-- Right Action Controls (Export & Counter) -->
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div class="text-xs font-bold text-stone-600">
+                        Menampilkan <span class="text-stone-900 font-extrabold">{{ $paginatedTransactions->total() }}</span> transaksi
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button type="button" wire:click="exportPdf" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-xl text-xs font-bold border border-rose-200 transition shadow-2xs cursor-pointer" title="Cetak Jurnal PDF Sesuai Filter">
+                            <x-lucide-printer class="w-3.5 h-3.5 text-rose-600" />
+                            <span>PDF</span>
+                        </button>
+                        <button type="button" wire:click="exportExcel" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl text-xs font-bold border border-emerald-200 transition shadow-2xs cursor-pointer" title="Ekspor Jurnal Excel Sesuai Filter">
+                            <x-lucide-file-spreadsheet class="w-3.5 h-3.5 text-emerald-600" />
+                            <span>Excel</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -298,8 +355,12 @@
                     <x-table.th align="center" class="w-24">Tipe</x-table.th>
                     <x-table.th class="w-44">Stream / Sumber</x-table.th>
                     <x-table.th class="w-40">Kategori / Pos</x-table.th>
-                    <x-table.th align="right" class="w-36">Kas Masuk (Rp)</x-table.th>
-                    <x-table.th align="right" class="w-36">Kas Keluar (Rp)</x-table.th>
+                    @if ($tab === 'semua' || $tab === 'masuk')
+                        <x-table.th align="right" class="w-36">{{ $tab === 'masuk' ? 'Nominal Masuk (Rp)' : 'Kas Masuk (Rp)' }}</x-table.th>
+                    @endif
+                    @if ($tab === 'semua' || $tab === 'keluar')
+                        <x-table.th align="right" class="w-36">{{ $tab === 'keluar' ? 'Nominal Keluar (Rp)' : 'Kas Keluar (Rp)' }}</x-table.th>
+                    @endif
                     <x-table.th class="min-w-[180px]">Keterangan / Rincian</x-table.th>
                     <x-table.th align="center" class="w-32">Metode / Resi</x-table.th>
                     <x-table.th align="center" class="w-24">Bukti</x-table.th>
@@ -307,6 +368,9 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-stone-200 bg-white">
+                @php
+                    $tableColspan = ($tab === 'semua') ? 10 : 9;
+                @endphp
                 @forelse ($paginatedTransactions as $item)
                     <tr class="hover:bg-stone-50/80 transition">
                         <td class="p-3.5 border-r border-stone-200">
@@ -334,12 +398,16 @@
                         <td class="p-3.5 border-r border-stone-200 font-bold text-stone-800 text-xs">
                             {{ $item->kategori }}
                         </td>
-                        <td class="p-3.5 text-right font-black text-emerald-700 text-xs border-r border-stone-200">
-                            {{ $item->nominal_masuk > 0 ? ('Rp ' . number_format($item->nominal_masuk, 0, ',', '.')) : '-' }}
-                        </td>
-                        <td class="p-3.5 text-right font-black text-rose-700 text-xs border-r border-stone-200">
-                            {{ $item->nominal_keluar > 0 ? ('Rp ' . number_format($item->nominal_keluar, 0, ',', '.')) : '-' }}
-                        </td>
+                        @if ($tab === 'semua' || $tab === 'masuk')
+                            <td class="p-3.5 text-right font-black text-emerald-700 text-xs border-r border-stone-200">
+                                {{ $item->nominal_masuk > 0 ? ('Rp ' . number_format($item->nominal_masuk, 0, ',', '.')) : '-' }}
+                            </td>
+                        @endif
+                        @if ($tab === 'semua' || $tab === 'keluar')
+                            <td class="p-3.5 text-right font-black text-rose-700 text-xs border-r border-stone-200">
+                                {{ $item->nominal_keluar > 0 ? ('Rp ' . number_format($item->nominal_keluar, 0, ',', '.')) : '-' }}
+                            </td>
+                        @endif
                         <td class="p-3.5 text-xs text-stone-700 font-medium border-r border-stone-200">
                             {{ $item->keterangan }}
                         </td>
@@ -351,15 +419,25 @@
                         </td>
                         <td class="p-3.5 text-center text-xs border-r border-stone-200">
                             @if (!empty($item->bukti))
-                                <button type="button" 
-                                    wire:click="openPreviewBukti('{{ asset('storage/' . $item->bukti) }}', 'Bukti {{ $item->kategori }} ({{ $item->tanggal->format('d/m/Y') }})')"
-                                    class="group inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition shadow-2xs text-[11px] font-bold cursor-pointer"
-                                    title="Klik untuk melihat foto bukti">
-                                    <x-lucide-image class="w-3.5 h-3.5 text-emerald-600" />
-                                    <span>Lihat</span>
-                                </button>
+                                <div class="flex items-center justify-center">
+                                    <img src="{{ asset('storage/' . $item->bukti) }}" 
+                                         alt="Bukti {{ $item->kategori }}"
+                                         @click="previewSrc = '{{ asset('storage/' . $item->bukti) }}'; previewTitle = 'Bukti {{ addslashes($item->kategori) }} ({{ $item->tanggal->format('d/m/Y') }})'; previewOpen = true"
+                                         class="w-10 h-10 object-cover rounded-lg border border-stone-200 shadow-2xs cursor-pointer hover:opacity-80 hover:scale-105 transition duration-150"
+                                         title="Klik untuk memperbesar bukti"
+                                         loading="lazy"
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';" />
+                                    <button type="button" 
+                                         style="display: none;"
+                                         @click="previewSrc = '{{ asset('storage/' . $item->bukti) }}'; previewTitle = 'Bukti {{ addslashes($item->kategori) }} ({{ $item->tanggal->format('d/m/Y') }})'; previewOpen = true"
+                                         class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition shadow-2xs text-[11px] font-bold cursor-pointer"
+                                         title="Lihat Bukti">
+                                        <x-lucide-image class="w-3.5 h-3.5 text-emerald-600" />
+                                        <span>Lihat</span>
+                                    </button>
+                                </div>
                             @else
-                                <span class="text-[11px] text-stone-400 italic">-</span>
+                                <span class="text-xs text-stone-400 font-medium italic">-</span>
                             @endif
                         </td>
                         <td class="p-3.5 text-center">
@@ -392,7 +470,7 @@
                         </td>
                     </tr>
                 @empty
-                    <x-table.empty :colspan="10" title="Belum ada catatan arus kas" message="Tidak ada transaksi pembukuan kas yang sesuai dengan filter yang dipilih." />
+                    <x-table.empty :colspan="$tableColspan" title="Belum ada catatan arus kas" message="Tidak ada transaksi pembukuan kas yang sesuai dengan filter yang dipilih." />
                 @endforelse
             </tbody>
         </x-table>
@@ -441,11 +519,14 @@
                 @endif
             </div>
 
-            <div>
-                <label for="income_nom" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">Nominal Penerimaan (Rp)</label>
-                <input type="number" id="income_nom" wire:model="jumlah_masuk" min="1000" step="1000" placeholder="Contoh: 500000" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs" />
-                @error('jumlah_masuk') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
-            </div>
+            <x-input-currency
+                id="income_nom"
+                name="jumlah_masuk"
+                wire:model="jumlah_masuk"
+                label="Nominal Penerimaan (Rp)"
+                placeholder="Contoh: 500.000"
+                required
+            />
 
             <div>
                 <label for="income_ket" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">Keterangan / Nama Donatur</label>
@@ -502,11 +583,14 @@
                 @endif
             </div>
 
-            <div>
-                <label for="expense_nom" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">Nominal Pengeluaran (Rp)</label>
-                <input type="number" id="expense_nom" wire:model="jumlah_keluar" min="1000" step="1000" placeholder="Contoh: 150000" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs" />
-                @error('jumlah_keluar') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
-            </div>
+            <x-input-currency
+                id="expense_nom"
+                name="jumlah_keluar"
+                wire:model="jumlah_keluar"
+                label="Nominal Pengeluaran (Rp)"
+                placeholder="Contoh: 150.000"
+                required
+            />
 
             <div>
                 <label for="expense_ket" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">Keterangan / Uraian Belanja</label>
@@ -584,11 +668,14 @@
                 @error('edit_kategori_pengeluaran_id') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
             </div>
 
-            <div>
-                <label for="edit_exp_nom" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">Nominal Pengeluaran (Rp)</label>
-                <input type="number" id="edit_exp_nom" wire:model="edit_jumlah" min="1000" step="1000" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs" />
-                @error('edit_jumlah') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
-            </div>
+            <x-input-currency
+                id="edit_exp_nom"
+                name="edit_jumlah"
+                wire:model="edit_jumlah"
+                label="Nominal Pengeluaran (Rp)"
+                placeholder="Contoh: 150.000"
+                required
+            />
 
             <div>
                 <label for="edit_exp_ket" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">Keterangan / Uraian Belanja</label>
@@ -655,33 +742,51 @@
         </form>
     </x-floating-card>
 
-    <!-- LIGHTBOX PREVIEW MODAL -->
-    @if ($showPreviewBuktiModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/80 backdrop-blur-xs transition-opacity animate-fade-in" wire:keydown.escape="closePreviewBukti">
-            <div class="relative max-w-3xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden border border-stone-200">
-                <div class="flex items-center justify-between px-5 py-4 border-b border-stone-200 bg-stone-50">
-                    <div class="flex items-center gap-2">
-                        <x-lucide-image class="w-4 h-4 text-emerald-600" />
-                        <h4 class="text-sm font-extrabold text-stone-900">{{ $previewBuktiTitle ?: 'Foto Bukti Transaksi' }}</h4>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <a href="{{ $previewBuktiUrl }}" target="_blank" download class="p-1.5 bg-stone-200/70 hover:bg-emerald-100 text-stone-700 hover:text-emerald-800 rounded-lg transition" title="Buka Gambar Asli">
-                            <x-lucide-external-link class="w-4 h-4" />
-                        </a>
-                        <button type="button" wire:click="closePreviewBukti" class="p-1.5 bg-stone-200/70 hover:bg-rose-100 text-stone-700 hover:text-rose-800 rounded-lg transition" title="Tutup">
-                            <x-lucide-x class="w-4 h-4" />
-                        </button>
-                    </div>
+    <!-- ALPINE.JS LIGHTBOX PREVIEW MODAL (CLIENT-SIDE) -->
+    <div x-show="previewOpen" 
+         x-cloak 
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/80 backdrop-blur-xs"
+         @click.self="previewOpen = false">
+        <div class="relative max-w-3xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden border border-stone-200"
+             @click.outside="previewOpen = false"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-5 py-3.5 border-b border-stone-200 bg-stone-50">
+                <div class="flex items-center gap-2 min-w-0">
+                    <x-lucide-image class="w-4 h-4 text-emerald-600 shrink-0" />
+                    <h4 class="text-xs font-extrabold text-stone-900 truncate" x-text="previewTitle || 'Foto Bukti Transaksi'"></h4>
                 </div>
-                <div class="p-4 bg-stone-900 flex items-center justify-center max-h-[75vh] overflow-auto">
-                    <img src="{{ $previewBuktiUrl }}" alt="Foto Bukti" class="max-w-full max-h-[70vh] rounded-lg object-contain shadow-lg" />
-                </div>
-                <div class="px-5 py-3 bg-stone-50 border-t border-stone-200 text-right">
-                    <x-button type="button" variant="secondary" size="sm" wire:click="closePreviewBukti">
-                        Tutup
-                    </x-button>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a :href="previewSrc" target="_blank" download class="p-1.5 bg-stone-200/70 hover:bg-emerald-100 text-stone-700 hover:text-emerald-800 rounded-lg transition cursor-pointer" title="Buka Gambar Asli">
+                        <x-lucide-external-link class="w-4 h-4" />
+                    </a>
+                    <button type="button" @click="previewOpen = false" class="p-1.5 bg-stone-200/70 hover:bg-rose-100 text-stone-700 hover:text-rose-800 rounded-lg transition cursor-pointer" title="Tutup (ESC)">
+                        <x-lucide-x class="w-4 h-4" />
+                    </button>
                 </div>
             </div>
+            <!-- Modal Body Image -->
+            <div class="p-4 bg-stone-950 flex items-center justify-center max-h-[75vh] overflow-auto">
+                <img :src="previewSrc" alt="Foto Bukti Transaksi" class="max-w-full max-h-[70vh] rounded-lg object-contain shadow-xl" />
+            </div>
+            <!-- Modal Footer -->
+            <div class="px-5 py-3 bg-stone-50 border-t border-stone-200 flex items-center justify-between">
+                <span class="text-[11px] text-stone-500 font-medium">Tekan <kbd class="px-1.5 py-0.5 bg-stone-200 rounded text-[10px] font-mono">ESC</kbd> atau klik di luar untuk menutup</span>
+                <x-button type="button" variant="secondary" size="sm" @click="previewOpen = false">
+                    Tutup
+                </x-button>
+            </div>
         </div>
-    @endif
+    </div>
 </div>

@@ -46,12 +46,18 @@ class RekapAbsensiSiswa extends Component
         if ($user && $user->role && $user->role->nama === 'guru') {
             $guru = $user->guru;
             if ($guru) {
+                $shadowClasses = collect();
+                if ($guru->isGuruPendamping()) {
+                    $shadowClasses = $guru->siswaDidampingi()->pluck('kelas_id')->filter();
+                }
+
                 $kelasIds = Kelas::where('guru_umum_id', $guru->id)
                     ->orWhere('guru_tahfidz_id', $guru->id)
                     ->pluck('id')
                     ->merge(
                         GuruMapelKelas::where('guru_id', $guru->id)->pluck('kelas_id')
                     )
+                    ->merge($shadowClasses)
                     ->unique();
                 return Kelas::whereIn('id', $kelasIds)->orderBy('nama_kelas', 'asc')->get();
             }
@@ -72,7 +78,7 @@ class RekapAbsensiSiswa extends Component
 
         $kelas = Kelas::with(['guruUmum.user', 'guruTahfidz.user'])->find($this->kelasId);
         
-        $students = Siswa::with('user')
+        $studentsQuery = Siswa::with('user')
             ->where(function ($q) {
                 $q->where('siswa.kelas_id', $this->kelasId)
                   ->orWhere('siswa.kelas_tahfidz_id', $this->kelasId)
@@ -82,7 +88,14 @@ class RekapAbsensiSiswa extends Component
                           ->where('kelas_id', $this->kelasId);
                   });
             })
-            ->where('siswa.status', 'aktif')
+            ->where('siswa.status', 'aktif');
+
+        $user = auth()->user();
+        if ($user && $user->role && $user->role->nama === 'guru' && $user->guru && $user->guru->isGuruPendamping()) {
+            $studentsQuery->where('siswa.shadow_teacher_id', $user->guru->id);
+        }
+
+        $students = $studentsQuery
             ->join('users', 'siswa.user_id', '=', 'users.id')
             ->orderBy('users.nama', 'asc')
             ->select('siswa.*')

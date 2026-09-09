@@ -5,6 +5,7 @@
             isPlaying: false,
             isMuted: false,
             isDisabled: false,
+            isMinimized: false,
             volume: 0.15,
             surahTitle: 'Surah Al-Fatihah',
             reciter: 'Misyari Rasyid Al-Afasy',
@@ -93,18 +94,18 @@
             }
         }"
         x-init="initPlayer()"
-        class="fixed bottom-5 right-5 z-[9990] select-none"
+        class="fixed bottom-22 right-6 sm:bottom-6 sm:left-6 lg:left-72 sm:right-auto z-40 select-none"
     >
-        <!-- Floating Active Player Widget (When not disabled) -->
+        <!-- Floating Active Player Widget (Full Card) -->
         <div 
-            x-show="!isDisabled"
+            x-show="!isDisabled && !isMinimized"
             x-transition:enter="transition ease-out duration-300 transform"
             x-transition:enter-start="opacity-0 translate-y-4 scale-95"
             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
             x-transition:leave="transition ease-in duration-200 transform"
             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
             x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-            class="bg-white/95 backdrop-blur-md border border-emerald-200 rounded-2xl shadow-xl p-3 sm:p-3.5 flex items-center gap-3 text-xs max-w-sm w-full"
+            class="bg-white/95 backdrop-blur-md border border-emerald-200 rounded-2xl shadow-xl p-3 sm:p-3.5 flex items-center gap-3 text-xs max-w-[calc(100vw-3rem)] sm:max-w-sm w-full"
             style="display: none;"
         >
             <!-- Animated Soundwave or Quran Icon -->
@@ -150,7 +151,7 @@
                 </div>
             </div>
 
-            <!-- Controls: Pause & Turn Off -->
+            <!-- Controls: Play/Pause, Minimize & Turn Off -->
             <div class="flex items-center gap-1 shrink-0 border-l border-stone-200/80 pl-2">
                 <!-- Play / Pause Button -->
                 <button 
@@ -167,6 +168,16 @@
                     </template>
                 </button>
 
+                <!-- Minimize Button -->
+                <button 
+                    type="button" 
+                    @click="isMinimized = true"
+                    class="p-1.5 rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-700 transition"
+                    title="Kecilkan Tampilan"
+                >
+                    <x-lucide-minimize-2 class="w-4 h-4" />
+                </button>
+
                 <!-- Matikan Button -->
                 <button 
                     type="button" 
@@ -177,6 +188,58 @@
                     <x-lucide-power class="w-4 h-4" />
                 </button>
             </div>
+        </div>
+
+        <!-- Floating Minimized Pill Widget (When playing/paused but minimized) -->
+        <div 
+            x-show="!isDisabled && isMinimized"
+            x-transition:enter="transition ease-out duration-200 transform"
+            x-transition:enter-start="opacity-0 scale-90"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-150 transform"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-90"
+            class="bg-white/95 backdrop-blur-md border border-emerald-200 rounded-full shadow-lg p-1.5 pl-3 pr-2 flex items-center gap-2 text-xs"
+            style="display: none;"
+        >
+            <div class="flex items-center gap-1.5 cursor-pointer" @click="togglePlay()" title="Klik untuk Jeda/Putar">
+                <template x-if="isPlaying">
+                    <div class="flex items-end gap-0.5 h-3">
+                        <span class="w-0.5 bg-emerald-600 rounded-full animate-[soundWave_0.8s_ease-in-out_infinite]"></span>
+                        <span class="w-0.5 bg-emerald-600 rounded-full animate-[soundWave_1.1s_ease-in-out_infinite_0.2s]"></span>
+                        <span class="w-0.5 bg-emerald-600 rounded-full animate-[soundWave_0.9s_ease-in-out_infinite_0.4s]"></span>
+                    </div>
+                </template>
+                <template x-if="!isPlaying">
+                    <x-lucide-volume-x class="w-3.5 h-3.5 text-stone-400" />
+                </template>
+                <span class="font-bold text-stone-800 text-[11px] truncate max-w-[110px] sm:max-w-[140px]" x-text="surahTitle"></span>
+            </div>
+            <button 
+                type="button" 
+                @click="togglePlay()"
+                class="p-1 rounded-full hover:bg-stone-100 text-stone-700 hover:text-emerald-700 transition"
+                :title="isPlaying ? 'Jeda' : 'Putar'"
+            >
+                <template x-if="isPlaying"><x-lucide-pause class="w-3.5 h-3.5" /></template>
+                <template x-if="!isPlaying"><x-lucide-play class="w-3.5 h-3.5 fill-current" /></template>
+            </button>
+            <button 
+                type="button" 
+                @click="isMinimized = false" 
+                class="p-1 rounded-full hover:bg-stone-100 text-stone-400 hover:text-stone-700 transition" 
+                title="Perbesar Pemutar"
+            >
+                <x-lucide-maximize-2 class="w-3.5 h-3.5" />
+            </button>
+            <button 
+                type="button" 
+                @click="turnOff()" 
+                class="p-1 rounded-full hover:bg-rose-50 text-stone-400 hover:text-rose-600 transition" 
+                title="Matikan"
+            >
+                <x-lucide-power class="w-3.5 h-3.5" />
+            </button>
         </div>
 
         <!-- Re-enable Small Floating Button (When turned off / disabled) -->

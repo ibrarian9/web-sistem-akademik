@@ -9,10 +9,11 @@ use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
+use App\Traits\WithCurrencySanitizer;
 
 class TabunganSiswa extends Component
 {
-    use WithPagination;
+    use WithPagination, WithCurrencySanitizer;
 
     // Filter Saldo Siswa Table
     public $search = '';
@@ -40,7 +41,7 @@ class TabunganSiswa extends Component
     public bool $showEditTransactionModal = false;
     public ?int $editingTabunganId = null;
     public string $edit_jenis = 'setor';
-    public float $edit_nominal = 0.00;
+    public $edit_nominal = 0.00;
     public string $edit_tanggal = '';
     public string $edit_keterangan = '';
     public string $edit_siswa_nama = '';
@@ -176,10 +177,12 @@ class TabunganSiswa extends Component
             return;
         }
 
+        $this->sanitizeCurrencies(['nominal']);
+
         $this->validate([
             'siswa_id' => 'required|exists:siswa,id',
             'jenis' => 'required|in:setor,tarik',
-            'nominal' => 'required|numeric|min:1000',
+            'nominal' => 'required|numeric|min:1',
             'tanggal' => 'required|date',
             'keterangan' => 'nullable|string|max:255',
         ]);
@@ -255,10 +258,12 @@ class TabunganSiswa extends Component
             return;
         }
 
+        $this->sanitizeCurrencies(['edit_nominal']);
+
         $rules = [
             'editingTabunganId' => 'required|exists:tabungans,id',
             'edit_jenis' => 'required|in:setor,tarik',
-            'edit_nominal' => 'required|numeric|min:1000',
+            'edit_nominal' => 'required|numeric|min:1',
             'edit_tanggal' => 'required|date',
             'edit_keterangan' => 'nullable|string|max:255',
         ];

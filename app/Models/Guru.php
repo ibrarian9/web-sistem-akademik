@@ -97,4 +97,38 @@ class Guru extends Model
     {
         return $this->hasMany(CapaianGuru::class, 'guru_id');
     }
+
+    public function catatanPendampingan()
+    {
+        return $this->hasMany(CatatanPendampingan::class, 'guru_id');
+    }
+
+    public function siswaDidampingi()
+    {
+        return $this->hasMany(Siswa::class, 'shadow_teacher_id');
+    }
+
+    public function scopeShadowTeacher($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('jenis_guru', 'pendamping')
+              ->orWhereHas('user.role', function ($rq) {
+                  $rq->whereIn('nama', ['shadow_teacher', 'pendamping']);
+              });
+        });
+    }
+
+    public function isGuruPendamping(): bool
+    {
+        if (strtolower($this->jenis_guru ?? '') === 'pendamping') {
+            return true;
+        }
+
+        if ($this->relationLoaded('user') && $this->user) {
+            $roleName = strtolower($this->user->role?->nama ?? '');
+            return in_array($roleName, ['shadow_teacher', 'pendamping']);
+        }
+
+        return in_array(strtolower($this->user?->role?->nama ?? ''), ['shadow_teacher', 'pendamping']);
+    }
 }

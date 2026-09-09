@@ -272,11 +272,11 @@ test('founder can delete single unpaid tagihan while finance cannot', function (
         'jatuh_tempo' => now()->addDays(10),
     ]);
 
-    // Finance user cannot delete
+    // Finance user cannot delete directly; routes to approval
     $this->actingAs($this->userFinance);
     Livewire::test(ManajemenTagihan::class)
         ->call('deleteTagihan', $tagihan->id)
-        ->assertSee('Akses Ditolak');
+        ->assertSee('Permohonan penghapusan tagihan telah diajukan');
 
     $this->assertDatabaseHas('tagihan', [
         'id' => $tagihan->id,

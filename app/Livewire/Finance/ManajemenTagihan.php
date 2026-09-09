@@ -9,12 +9,13 @@ use App\Models\Siswa;
 use App\Models\JenisTagihan;
 use App\Models\TahunAjaran;
 use App\Traits\WithDateFilter;
+use App\Traits\WithCurrencySanitizer;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
 
 class ManajemenTagihan extends Component
 {
-    use WithPagination, WithDateFilter;
+    use WithPagination, WithDateFilter, WithCurrencySanitizer;
 
     // Filters for Main Table
     public ?int $filterKelas = null;
@@ -310,6 +311,8 @@ class ManajemenTagihan extends Component
             return;
         }
 
+        $this->sanitizeCurrencies(['nominal']);
+
         $this->validate([
             'single_siswa_id' => 'required|exists:siswa,id',
             'jenis_tagihan_id' => 'required|exists:jenis_tagihan,id',
@@ -385,6 +388,8 @@ class ManajemenTagihan extends Component
             session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
             return;
         }
+
+        $this->sanitizeCurrencies(['nominal']);
 
         $rules = [
             'jenis_tagihan_id' => 'required|exists:jenis_tagihan,id',
@@ -537,6 +542,8 @@ class ManajemenTagihan extends Component
         }
 
         $tagihan = Tagihan::with(['siswa.user', 'jenisTagihan'])->findOrFail($this->editingTagihanId);
+
+        $this->sanitizeCurrencies(['edit_nominal']);
 
         $rules = [
             'editingTagihanId' => 'required|exists:tagihan,id',

@@ -30,6 +30,29 @@
         </div>
     @endif
 
+    @if($hasOutstanding)
+        <!-- LOCK CARD (Outstanding SPP Bills) -->
+        <div class="relative overflow-hidden bg-white border border-rose-200 rounded-3xl p-8 shadow-sm flex flex-col items-center justify-center min-h-[350px]">
+            <div class="relative z-20 text-center max-w-md space-y-6 flex flex-col items-center">
+                <div class="p-4 bg-rose-100 text-rose-600 border border-rose-200 rounded-full">
+                    <x-lucide-lock class="w-10 h-10" />
+                </div>
+                
+                <div class="space-y-2">
+                    <h3 class="text-base font-extrabold text-stone-900 uppercase tracking-wider">Akses Lembar Mutaba'ah Terkunci</h3>
+                    <p class="text-xs text-stone-600 font-medium leading-relaxed">
+                        Mohon maaf, Anda belum dapat melihat riwayat setoran dan evaluasi hafalan santri karena terdapat tunggakan tagihan SPP yang telah jatuh tempo per tanggal 10.
+                    </p>
+                </div>
+
+                <div class="pt-2">
+                    <a href="{{ route('murid.tagihan') }}" class="py-2.5 px-6 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition duration-200 shadow-sm">
+                        Bayar SPP Sekarang
+                    </a>
+                </div>
+            </div>
+        </div>
+    @else
     <!-- Summary Metrics -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-xs flex items-center gap-4">
@@ -250,4 +273,5 @@
             </div>
         </form>
     </x-floating-card>
+    @endif
 </div>

@@ -8,10 +8,11 @@ use App\Models\Pengeluaran;
 use App\Models\KategoriPengeluaran;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
+use App\Traits\WithCurrencySanitizer;
 
 class PengajuanDanaIndex extends Component
 {
-    use WithPagination;
+    use WithPagination, WithCurrencySanitizer;
 
     // Filter properties
     public string $filterStatus = 'semua';
@@ -31,7 +32,7 @@ class PengajuanDanaIndex extends Component
     public bool $showModal = false;
     public string $judul = '';
     public string $kategori = 'Pembelian Buku';
-    public float $jumlah = 0.00;
+    public $jumlah = 0.00;
     public string $keterangan = '';
     public ?string $target_realisasi = null;
 
@@ -82,6 +83,8 @@ class PengajuanDanaIndex extends Component
             session()->flash('error', 'Hanya bagian Keuangan yang dapat membuat pengajuan dana.');
             return;
         }
+
+        $this->sanitizeCurrencies(['jumlah']);
 
         $this->validate();
 

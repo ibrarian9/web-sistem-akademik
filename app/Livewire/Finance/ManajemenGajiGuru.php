@@ -12,11 +12,12 @@ use App\Services\NotificationService;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\DB;
+use App\Traits\WithCurrencySanitizer;
 use Illuminate\Support\Facades\Storage;
 
 class ManajemenGajiGuru extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithPagination, WithFileUploads, WithCurrencySanitizer;
 
     // Filters
     public string $search = '';
@@ -418,6 +419,20 @@ class ManajemenGajiGuru extends Component
             $guru = Guru::with('user')->find($guruId);
             if ($guru) {
                 $this->populateCreateDefaults($guru);
+            }
+        }
+    }
+
+    public function updated($propertyName)
+    {
+        if (str_starts_with($propertyName, 'create') && !in_array($propertyName, ['createGuruId', 'createBuktiFoto'])) {
+            $this->calculateCreateTotal();
+        } elseif (str_starts_with($propertyName, 'edit') && !in_array($propertyName, ['editGuruId', 'edit_bukti_foto'])) {
+            $this->calculateEditTotal();
+        } elseif (str_starts_with($propertyName, 'generateItems.')) {
+            $parts = explode('.', $propertyName);
+            if (isset($parts[1]) && is_numeric($parts[1])) {
+                $this->recalculateGenerateRow((int) $parts[1]);
             }
         }
     }

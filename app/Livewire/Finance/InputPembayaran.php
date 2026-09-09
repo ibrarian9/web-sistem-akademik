@@ -11,10 +11,11 @@ use App\Models\Notifikasi;
 use Illuminate\Support\Facades\DB;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
+use App\Traits\WithCurrencySanitizer;
 
 class InputPembayaran extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithPagination, WithFileUploads, WithCurrencySanitizer;
 
     // Filters
     public string $search = '';
@@ -26,7 +27,7 @@ class InputPembayaran extends Component
     public float $siswaDeposit = 0.00;
 
     // Payment Form properties
-    public float $nominal_dibayar = 0.00;
+    public $nominal_dibayar = 0.00;
     public string $tanggal_bayar = '';
     public string $metode_bayar = 'Tunai';
     public ?string $bukti_bayar = null;
@@ -146,6 +147,8 @@ class InputPembayaran extends Component
             session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
             return;
         }
+
+        $this->sanitizeCurrencies(['nominal_dibayar']);
 
         $this->validate();
 

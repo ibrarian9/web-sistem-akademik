@@ -32,29 +32,29 @@ class TataUsahaShadowTeacherTest extends TestCase
             'status' => 'aktif',
         ]);
 
-        $userGuruUmum = User::factory()->create([
-            'nama' => 'Ustadzah Sarah',
+        $userGuruPendamping1 = User::factory()->create([
+            'nama' => 'Ustadzah Sarah Pendamping',
             'role_id' => $roleGuru->id,
             'status' => 'aktif',
         ]);
         $this->guruUmum = Guru::create([
-            'user_id' => $userGuruUmum->id,
+            'user_id' => $userGuruPendamping1->id,
             'nip' => '198801012020012001',
-            'jenis_guru' => 'umum',
+            'jenis_guru' => 'pendamping',
             'status_kepegawaian' => 'tetap',
             'tanggal_masuk' => now()->toDateString(),
             'status_aktif' => true,
         ]);
 
-        $userGuruTahfidz = User::factory()->create([
-            'nama' => 'Ustadz Zaid',
+        $userGuruPendamping2 = User::factory()->create([
+            'nama' => 'Ustadz Zaid Pendamping',
             'role_id' => $roleGuru->id,
             'status' => 'aktif',
         ]);
         $this->guruTahfidz = Guru::create([
-            'user_id' => $userGuruTahfidz->id,
+            'user_id' => $userGuruPendamping2->id,
             'nip' => '199002022020011002',
-            'jenis_guru' => 'tahfidz',
+            'jenis_guru' => 'pendamping',
             'status_kepegawaian' => 'tetap',
             'tanggal_masuk' => now()->toDateString(),
             'status_aktif' => true,
@@ -85,12 +85,12 @@ class TataUsahaShadowTeacherTest extends TestCase
         Livewire::test(ManajemenSiswa::class)
             ->set('search', 'Zaid')
             ->assertSee('BUDI ABK')
-            ->assertSee('GPK: Ustadz Zaid (Tahfizh)')
+            ->assertSee('GPK: Ustadz Zaid Pendamping (Pendamping)')
             ->call('openDetail', $siswa->id)
             ->assertSee('Shadow Teacher / GPK')
-            ->assertSee('(Guru Tahfizh)');
+            ->assertSee('(Guru Pendamping)');
 
-        // 3. Tata usaha re-assigns shadow teacher to Guru Umum
+        // 3. Tata usaha re-assigns shadow teacher to Guru Pendamping 1
         Livewire::test(ManajemenSiswa::class)
             ->call('openEdit', $siswa->id)
             ->set('shadow_teacher_id', $this->guruUmum->id)
@@ -103,6 +103,6 @@ class TataUsahaShadowTeacherTest extends TestCase
         Livewire::test(ManajemenSiswa::class)
             ->set('search', 'Sarah')
             ->assertSee('BUDI ABK')
-            ->assertSee('GPK: Ustadzah Sarah (Umum)');
+            ->assertSee('GPK: Ustadzah Sarah Pendamping (Pendamping)');
     }
 }

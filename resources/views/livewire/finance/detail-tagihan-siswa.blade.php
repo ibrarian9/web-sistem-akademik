@@ -496,12 +496,15 @@
                 </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-bold text-stone-700 mb-1">Nominal Tagihan (Rp) <span class="text-rose-600">*</span></label>
-                <input type="number" min="0" step="1000" wire:model="nominal" class="w-full bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold p-2.5 focus:ring-2 focus:ring-emerald-600" placeholder="Contoh: 350000 (Isi 0 jika Siswa Bebas SPP / Beasiswa)">
-                <span class="text-[10px] text-stone-500 block mt-1">Jika diisi Rp 0, tagihan otomatis berstatus <strong>Lunas</strong>.</span>
-                @error('nominal') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror
-            </div>
+            <x-input-currency
+                wire:model="nominal"
+                id="nominal"
+                name="nominal"
+                label="Nominal Tagihan (Rp)"
+                placeholder="Contoh: 350.000 (Isi 0 jika Siswa Bebas SPP / Beasiswa)"
+                hint="Jika diisi Rp 0, tagihan otomatis berstatus Lunas."
+                required
+            />
 
             <div class="flex justify-end gap-2 pt-3 border-t border-stone-200">
                 <x-button type="button" variant="secondary" size="md" wire:click="closeCreateModal">
@@ -554,17 +557,20 @@
                 </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-bold text-stone-700 mb-1">Nominal Tagihan (Rp) <span class="text-rose-600">*</span></label>
-                <input type="number" min="0" step="1000" wire:model="edit_nominal" class="w-full bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold p-2.5 focus:ring-2 focus:ring-emerald-600">
-                @if ($edit_total_dibayar > 0)
-                    <span class="text-[11px] text-amber-700 font-semibold block mt-1">
-                        Catatan: Siswa telah membayar Rp {{ number_format($edit_total_dibayar, 0, ',', '.') }}.
-                    </span>
-                @endif
-                <span class="text-[10px] text-stone-500 block mt-1">Jika nominal diubah menjadi Rp 0, status tagihan otomatis menjadi <strong>Lunas</strong>.</span>
-                @error('edit_nominal') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror
-            </div>
+            <x-input-currency
+                wire:model="edit_nominal"
+                id="edit_nominal"
+                name="edit_nominal"
+                label="Nominal Tagihan (Rp)"
+                placeholder="0"
+                hint="Jika nominal diubah menjadi Rp 0, status tagihan otomatis menjadi Lunas."
+                required
+            />
+            @if ($edit_total_dibayar > 0)
+                <span class="text-[11px] text-amber-700 font-semibold block -mt-1 mb-2">
+                    Catatan: Siswa telah membayar Rp {{ number_format($edit_total_dibayar, 0, ',', '.') }}.
+                </span>
+            @endif
 
             @if (auth()->user()->role?->nama === 'finance')
                 <div class="space-y-1.5 p-3.5 bg-amber-50/70 border border-amber-200 rounded-xl">

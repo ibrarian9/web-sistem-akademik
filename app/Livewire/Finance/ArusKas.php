@@ -12,6 +12,7 @@ use App\Models\GajiGuru;
 use App\Models\Peminjaman;
 use App\Models\Pengaturan;
 use App\Traits\WithDateFilter;
+use App\Traits\WithCurrencySanitizer;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
@@ -20,7 +21,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class ArusKas extends Component
 {
-    use WithPagination, WithDateFilter, WithFileUploads;
+    use WithPagination, WithDateFilter, WithFileUploads, WithCurrencySanitizer;
 
     // Active Tab: 'semua', 'masuk', 'keluar'
     public string $tab = 'semua';
@@ -32,6 +33,9 @@ class ArusKas extends Component
     public string $search = '';
     public ?int $filterKategoriKeluar = null;
     public string $filterKategoriMasuk = '';
+    public ?string $nominalMin = null;
+    public ?string $nominalMax = null;
+    public string $filterMetode = 'semua';
 
     // Modals
     public bool $showIncomeModal = false;
@@ -93,6 +97,11 @@ class ArusKas extends Component
         'startDate' => ['except' => null],
         'endDate' => ['except' => null],
         'search' => ['except' => ''],
+        'filterKategoriMasuk' => ['except' => ''],
+        'filterKategoriKeluar' => ['except' => null],
+        'nominalMin' => ['except' => null],
+        'nominalMax' => ['except' => null],
+        'filterMetode' => ['except' => 'semua'],
     ];
 
     public function mount()
@@ -183,6 +192,8 @@ class ArusKas extends Component
             session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
             return;
         }
+
+        $this->sanitizeCurrencies(['jumlah_masuk', 'jumlah']);
 
         if ($this->is_kategori_masuk_kustom) {
             $this->validate([
@@ -304,6 +315,8 @@ class ArusKas extends Component
             return;
         }
 
+        $this->sanitizeCurrencies(['jumlah_keluar', 'jumlah']);
+
         $amount = $this->jumlah_keluar > 0 ? $this->jumlah_keluar : $this->jumlah;
         $date = $this->tanggal_keluar ?: ($this->tanggal ?: date('Y-m-d'));
         $desc = $this->keterangan_keluar ?: $this->keterangan;
@@ -394,6 +407,8 @@ class ArusKas extends Component
         }
 
         if (!$this->editingPengeluaranId) return;
+
+        $this->sanitizeCurrencies(['edit_jumlah']);
 
         $this->validate([
             'edit_kategori_pengeluaran_id' => 'required|exists:kategori_pengeluaran,id',
@@ -710,7 +725,62 @@ class ArusKas extends Component
             }
         }
 
+        // Filter by Nominal Range (Min/Max)
+        if ($this->nominalMin !== null && $this->nominalMin !== '') {
+            $minVal = unmask_rupiah($this->nominalMin);
+            $transactions = $transactions->filter(function ($t) use ($minVal) {
+                $val = $t->type === 'masuk' ? $t->nominal_masuk : $t->nominal_keluar;
+                return $val >= $minVal;
+            });
+        }
+
+        if ($this->nominalMax !== null && $this->nominalMax !== '') {
+            $maxVal = unmask_rupiah($this->nominalMax);
+            $transactions = $transactions->filter(function ($t) use ($maxVal) {
+                $val = $t->type === 'masuk' ? $t->nominal_masuk : $t->nominal_keluar;
+                return $val <= $maxVal;
+            });
+        }
+
+        // Filter by Payment Method
+        if ($this->filterMetode && $this->filterMetode !== 'semua') {
+            $methodQuery = strtolower($this->filterMetode);
+            $transactions = $transactions->filter(function ($t) use ($methodQuery) {
+                return str_contains(strtolower($t->metode_resi ?? ''), $methodQuery);
+            });
+        }
+
         return $transactions->sortByDesc(fn($item) => $item->tanggal->timestamp)->values();
+    }
+
+    public function resetFilters()
+    {
+        $this->search = '';
+        $this->filterPeriode = 'semua';
+        $this->startDate = null;
+        $this->endDate = null;
+        $this->filterKategoriMasuk = '';
+        $this->filterKategoriKeluar = null;
+        $this->nominalMin = null;
+        $this->nominalMax = null;
+        $this->filterMetode = 'semua';
+        $this->stream = 'semua';
+        $this->resetPage();
+    }
+
+    public function getActiveFilterCountProperty(): int
+    {
+        $count = 0;
+        if (!empty($this->search)) $count++;
+        if ($this->filterPeriode !== 'semua') $count++;
+        if (!empty($this->startDate) || !empty($this->endDate)) $count++;
+        if (!empty($this->filterKategoriMasuk)) $count++;
+        if ($this->filterKategoriKeluar !== null) $count++;
+        if ($this->nominalMin !== null && $this->nominalMin !== '') $count++;
+        if ($this->nominalMax !== null && $this->nominalMax !== '') $count++;
+        if ($this->filterMetode !== 'semua') $count++;
+        if ($this->stream !== 'semua') $count++;
+        return $count;
     }
 
     /**

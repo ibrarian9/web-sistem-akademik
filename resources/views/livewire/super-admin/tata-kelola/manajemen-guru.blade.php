@@ -102,6 +102,19 @@
                                         {{ str_replace('_', ' ', $guru->user->role->nama) }}
                                     </span>
                                 @endif
+                                @if ($guru->jenis_guru === 'pendamping')
+                                    <span class="inline-block px-1.5 py-0.2 rounded text-[9px] font-black uppercase bg-indigo-100 text-indigo-800 border border-indigo-200">
+                                        Guru Pendamping
+                                    </span>
+                                @elseif ($guru->jenis_guru === 'tahfidz')
+                                    <span class="inline-block px-1.5 py-0.2 rounded text-[9px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                        Tahfizh
+                                    </span>
+                                @elseif ($guru->jenis_guru === 'keduanya')
+                                    <span class="inline-block px-1.5 py-0.2 rounded text-[9px] font-black uppercase bg-amber-100 text-amber-800 border border-amber-200">
+                                        Mapel & Tahfizh
+                                    </span>
+                                @endif
                             </div>
                         </td>
                         <td class="p-3.5 border-r border-stone-200">
@@ -284,9 +297,10 @@
                     <select wire:model="jenis_guru" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
                         <option value="umum">Guru Mata Pelajaran (Umum)</option>
                         <option value="tahfidz">Guru Halaqah Tahfizh (Ustadz/ah Tahfizh)</option>
+                        <option value="pendamping">Guru Pendamping Khusus (Shadow Teacher / Murid Berkebutuhan Khusus)</option>
                         <option value="keduanya">Keduanya (Guru Mapel & Pengampu Halaqah Tahfizh)</option>
                     </select>
-                    <p class="text-[10px] font-medium text-emerald-800 mt-1">Pilih <b>Guru Halaqah Tahfizh</b> atau <b>Keduanya</b> agar nama guru ini dapat dipilih sebagai Pengampu Halaqah pada Manajemen Kelas & Tahfizh.</p>
+                    <p class="text-[10px] font-medium text-emerald-800 mt-1">Pilih <b>Guru Pendamping Khusus</b> untuk guru yang mendampingi anak murid berkebutuhan khusus di kelas umum atau tahfidz.</p>
                     @error('jenis_guru') <span class="text-rose-600 text-[10px] font-bold block mt-1">{{ $message }}</span> @enderror
                 </div>
 

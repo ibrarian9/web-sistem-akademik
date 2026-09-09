@@ -14,9 +14,9 @@ class AuditLogger
     public static function log(string $event, string $description, $subject = null, array $extra = []): void
     {
         try {
-            $user = Auth::user();
-            $ipAddress = Request::ip() ?? '127.0.0.1';
-            $userAgent = Request::userAgent() ?? 'CLI/System';
+            $user = $extra['causer'] ?? Auth::user();
+            $ipAddress = $extra['ip_address'] ?? (Request::ip() ?? '127.0.0.1');
+            $userAgent = $extra['user_agent'] ?? (Request::userAgent() ?? 'CLI/System');
 
             $subjectType = null;
             $subjectId = null;

@@ -10,6 +10,7 @@ use App\Services\ESignatureService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Services\AuditLogger;
 
 class ManajemenSurat extends Component
 {
@@ -241,6 +242,11 @@ class ManajemenSurat extends Component
         $pdf = Pdf::loadView('pdf.surat-template', $payload);
         $filename = str_replace('/', '_', $this->nomor_surat) . '.pdf';
 
+        AuditLogger::log('download', "Mengunduh PDF Surat Resmi: {$this->nomor_surat}", null, [
+            'log_name' => 'tata_kelola',
+            'properties' => ['nomor_surat' => $this->nomor_surat, 'jenis_surat' => $this->jenis_surat],
+        ]);
+
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->output();
         }, $filename);
@@ -264,6 +270,11 @@ class ManajemenSurat extends Component
 
         $pdf = Pdf::loadView('pdf.surat-template', $payload);
         $filename = str_replace('/', '_', $surat->nomor_surat) . '.pdf';
+
+        AuditLogger::log('download', "Mengunduh PDF Surat Resmi: {$surat->nomor_surat}", $surat, [
+            'log_name' => 'tata_kelola',
+            'properties' => ['nomor_surat' => $surat->nomor_surat, 'jenis_surat' => $surat->jenis_surat],
+        ]);
 
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->output();

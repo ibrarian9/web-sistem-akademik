@@ -10,12 +10,13 @@ use App\Models\TahunAjaran;
 use App\Models\Pembayaran;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Traits\WithCurrencySanitizer;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 
 class DetailTagihanSiswa extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithPagination, WithFileUploads, WithCurrencySanitizer;
 
     public int $siswaId;
     public ?Siswa $siswa = null;
@@ -44,7 +45,7 @@ class DetailTagihanSiswa extends Component
     public bool $showCreateModal = false;
     public ?int $jenis_tagihan_id = null;
     public string $bulan = 'Juli';
-    public float $nominal = 0.00;
+    public $nominal = 0.00;
     public string $jatuh_tempo = '';
 
     // Edit Tagihan Modal
@@ -52,7 +53,7 @@ class DetailTagihanSiswa extends Component
     public ?int $editingTagihanId = null;
     public ?int $edit_jenis_tagihan_id = null;
     public string $edit_bulan = 'Juli';
-    public float $edit_nominal = 0.00;
+    public $edit_nominal = 0.00;
     public string $edit_jatuh_tempo = '';
     public float $edit_total_dibayar = 0.00;
     public string $edit_alasan = '';
@@ -195,6 +196,8 @@ class DetailTagihanSiswa extends Component
             return;
         }
 
+        $this->sanitizeCurrencies(['nominal']);
+
         $this->validate([
             'jenis_tagihan_id' => 'required|exists:jenis_tagihan,id',
             'bulan' => 'required|string|max:50',
@@ -272,6 +275,7 @@ class DetailTagihanSiswa extends Component
         }
 
         $userRole = auth()->user()->role->nama ?? '';
+        $this->sanitizeCurrencies(['edit_nominal']);
         $rules = [
             'edit_jenis_tagihan_id' => 'required|exists:jenis_tagihan,id',
             'edit_bulan' => 'required|string|max:50',

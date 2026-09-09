@@ -9,6 +9,8 @@ use App\Models\Kelas;
 use App\Models\Guru;
 use App\Models\User;
 use App\Models\Role;
+use App\Rules\EligibleShadowTeacher;
+use App\Rules\MaxOneShadowTeacherPerClass;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
@@ -124,7 +126,12 @@ class ManajemenSiswa extends Component
             'jenis_kelamin' => 'required|in:L,P',
             'kelas_id' => 'nullable|exists:kelas,id',
             'kelas_tahfidz_id' => 'nullable|exists:kelas,id',
-            'shadow_teacher_id' => 'nullable|exists:guru,id',
+            'shadow_teacher_id' => [
+                'nullable',
+                'exists:guru,id',
+                new EligibleShadowTeacher(),
+                new MaxOneShadowTeacherPerClass($this->kelas_id, $this->siswaId),
+            ],
             'tanggal_masuk' => 'required|date',
             'status' => 'required|in:aktif,lulus,pindah,keluar',
         ];
@@ -359,13 +366,22 @@ class ManajemenSiswa extends Component
 
         $kelasesTahfidz = Kelas::where('jenis_kelas', 'tahfidz')->get();
 
-        $gurus = Guru::where('status_aktif', true)->with('user')->get();
+        $shadowTeachers = Guru::where(function ($q) {
+                $q->where('status_aktif', true);
+                if ($this->shadow_teacher_id) {
+                    $q->orWhere('id', $this->shadow_teacher_id);
+                }
+            })
+            ->shadowTeacher()
+            ->with(['user.role'])
+            ->get();
 
         return view('livewire.super-admin.tata-kelola.manajemen-siswa', [
             'siswas' => $siswas,
             'kelasesUmum' => $kelasesUmum,
             'kelasesTahfidz' => $kelasesTahfidz,
-            'gurus' => $gurus,
+            'shadowTeachers' => $shadowTeachers,
+            'gurus' => $shadowTeachers,
         ])->layout('components.layouts.app', ['title' => 'Manajemen Siswa']);
     }
 }

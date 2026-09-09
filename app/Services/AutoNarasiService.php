@@ -25,11 +25,26 @@ class AutoNarasiService
         // Special handling if Mapel is Tahfizh / Tahfidz (Core Curriculum of SD Tahfizh)
         if ($mapel && (strtolower($mapel->jenis) === 'tahfidz' || str_contains(strtolower($mapel->nama_mapel), 'tahfi'))) {
             $tahfidzNarasi = $this->generateForTahfidz($siswaId, $semesterId);
+            $avgScore = ($tahfidzNarasi['avg_kelancaran'] > 0 || $tahfidzNarasi['avg_tajwid'] > 0)
+                ? round(($tahfidzNarasi['avg_kelancaran'] + $tahfidzNarasi['avg_tajwid']) / 2, 2)
+                : 0;
+
+            $predikat = 'D';
+            if ($avgScore >= 90) {
+                $predikat = 'A';
+            } elseif ($avgScore >= 80) {
+                $predikat = 'B';
+            } elseif ($avgScore >= 70) {
+                $predikat = 'C';
+            } elseif ($avgScore == 0) {
+                $predikat = '-';
+            }
+
             return [
-                'nilai_akhir' => max(85, $tahfidzNarasi['avg_kelancaran']),
-                'predikat' => substr($tahfidzNarasi['predikat_tahfidz'], 0, 1) ?: 'A',
-                'deskripsi_tertinggi' => 'menunjukkan kelancaran setoran mutqin pada surah ' . $tahfidzNarasi['daftar_surah_lulus'],
-                'deskripsi_terendah' => 'membutuhkan penguatan muraja\'ah mandiri di rumah',
+                'nilai_akhir' => $avgScore,
+                'predikat' => $predikat,
+                'deskripsi_tertinggi' => $avgScore > 0 ? ('menunjukkan kelancaran setoran mutqin pada surah ' . $tahfidzNarasi['daftar_surah_lulus']) : 'belum ada catatan setoran mutqin',
+                'deskripsi_terendah' => $avgScore > 0 ? 'membutuhkan penguatan muraja\'ah mandiri di rumah' : 'membutuhkan bimbingan awal setoran',
                 'narasi_capaian_full' => $tahfidzNarasi['narasi_tahfidz_full'],
             ];
         }
@@ -182,17 +197,32 @@ class AutoNarasiService
             ->where('semester_id', $semesterId)
             ->get();
 
-        $totalJuz = $tahfidzDetail->total_juz_dihafal ?? ($nilaiTahfidzList->max('juz') ?: 1);
-        $surahLulus = $tahfidzDetail->daftar_surah_lulus ?? ($nilaiTahfidzList->pluck('surah')->filter()->implode(', ') ?: 'Juz 30');
-        $predikat = $tahfidzDetail->predikat_tahfidz ?? ($nilaiTahfidzList->first()->predikat_keagamaan ?? 'Sangat Baik');
+        if ($nilaiTahfidzList->isEmpty() && !$tahfidzDetail) {
+            return [
+                'total_juz_dihafal' => 0,
+                'daftar_surah_lulus' => '-',
+                'predikat_tahfidz' => 'Belum Dinilai',
+                'avg_tajwid' => 0,
+                'avg_kelancaran' => 0,
+                'narasi_tahfidz_full' => "Ananda {$nama} belum memiliki catatan setoran hafalan pada semester ini.",
+            ];
+        }
 
-        $avgTajwid = $nilaiTahfidzList->avg('nilai_tajwid') ?? 88;
-        $avgKelancaran = $nilaiTahfidzList->avg('nilai_kelancaran') ?? 90;
+        $totalJuz = $tahfidzDetail->total_juz_dihafal ?? ($nilaiTahfidzList->max('juz') ?: 0);
+        $surahLulus = $tahfidzDetail->daftar_surah_lulus ?? ($nilaiTahfidzList->pluck('surah')->filter()->implode(', ') ?: '-');
+        $predikat = $tahfidzDetail->predikat_tahfidz ?? ($nilaiTahfidzList->first()->predikat_keagamaan ?? 'Cukup');
 
-        $evalTajwid = $avgTajwid >= 90 ? 'sangat fasih dan makhraj tepat' : ($avgTajwid >= 80 ? 'lancar sesuai kaidah tajwid' : 'perlu pembimbingan makhraj');
-        $evalKelancaran = $avgKelancaran >= 90 ? 'sangat mutqin (lancar tanpa rintangan)' : 'lancar dalam hafalan';
+        $avgTajwid = $nilaiTahfidzList->avg('nilai_tajwid') ?? 0;
+        $avgKelancaran = $nilaiTahfidzList->avg('nilai_kelancaran') ?? 0;
 
-        $narasiFull = "Alhamdulillah, Ananda {$nama} telah menyelesaikan hafalan {$totalJuz} Juz ({$surahLulus}) dengan predikat {$predikat}. Setoran hafalan {$evalKelancaran} serta kualitas tajwid {$evalTajwid}.";
+        $evalTajwid = $avgTajwid >= 90 ? 'sangat fasih dan makhraj tepat' : ($avgTajwid >= 80 ? 'lancar sesuai kaidah tajwid' : ($avgTajwid > 0 ? 'perlu pembimbingan makhraj' : 'belum dinilai'));
+        $evalKelancaran = $avgKelancaran >= 90 ? 'sangat mutqin (lancar tanpa rintangan)' : ($avgKelancaran >= 75 ? 'lancar dalam hafalan' : ($avgKelancaran > 0 ? 'perlu penguatan muraja\'ah' : 'belum dinilai'));
+
+        if ($totalJuz > 0 || $surahLulus !== '-') {
+            $narasiFull = "Alhamdulillah, Ananda {$nama} telah menyelesaikan hafalan {$totalJuz} Juz ({$surahLulus}) dengan predikat {$predikat}. Setoran hafalan {$evalKelancaran} serta kualitas tajwid {$evalTajwid}.";
+        } else {
+            $narasiFull = "Ananda {$nama} sedang dalam proses bimbingan hafalan Al-Qur'an pada semester ini.";
+        }
 
         return [
             'total_juz_dihafal' => $totalJuz,

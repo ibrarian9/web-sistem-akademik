@@ -12,6 +12,7 @@ class SetoranTahfidz extends Component
 {
     public $semester_id;
     public $selectedRecordId = null;
+    public bool $hasOutstanding = false;
 
     // Feedback Form State
     public bool $showFeedbackModal = false;
@@ -39,6 +40,15 @@ class SetoranTahfidz extends Component
         $user = auth()->user();
         if ($user) {
             $this->dikirim_oleh_nama = 'Orang Tua / Wali dari ' . ($user->nama ?? 'Santri');
+            if ($user->siswa) {
+                $this->hasOutstanding = \App\Models\Tagihan::where('siswa_id', $user->siswa->id)
+                    ->whereIn('status', ['belum_bayar', 'sebagian'])
+                    ->whereHas('jenisTagihan', function ($q) {
+                        $q->where('is_blocking', true);
+                    })
+                    ->whereDate('jatuh_tempo', '<=', \Carbon\Carbon::today())
+                    ->exists();
+            }
         }
     }
 

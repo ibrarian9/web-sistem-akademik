@@ -132,4 +132,55 @@ class Siswa extends Model
     {
         return $this->hasMany(NilaiSas::class, 'siswa_id');
     }
+
+    public function catatanPendampingan()
+    {
+        return $this->hasMany(CatatanPendampingan::class, 'siswa_id');
+    }
+
+    /**
+     * Scope query to students assigned to a specific shadow teacher.
+     * Supports Guru ID, User ID, Guru model, User model, or default to current auth user.
+     */
+    public function scopeForShadowTeacher($query, $teacher = null)
+    {
+        $guruId = null;
+
+        if ($teacher === null) {
+            $user = auth()->user();
+            $guruId = $user?->guru?->id ?? $user?->id;
+        } elseif ($teacher instanceof \App\Models\Guru) {
+            $guruId = $teacher->id;
+        } elseif ($teacher instanceof \App\Models\User) {
+            $guruId = $teacher->guru?->id ?? $teacher->id;
+        } elseif (is_numeric($teacher)) {
+            $guruExists = \App\Models\Guru::where('id', $teacher)->exists();
+            if ($guruExists) {
+                $guruId = (int) $teacher;
+            } else {
+                $guruId = \App\Models\Guru::where('user_id', $teacher)->value('id') ?? (int) $teacher;
+            }
+        }
+
+        return $query->where('shadow_teacher_id', $guruId);
+    }
+
+    /**
+     * Strict scope: if currently authenticated user is a Guru Pendamping,
+     * automatically constrain the query to only their assigned students.
+     */
+    public function scopeScopedForUser($query, $user = null)
+    {
+        $user = $user ?? auth()->user();
+        if (!$user) {
+            return $query;
+        }
+
+        $guru = $user->guru;
+        if ($guru && $guru->isGuruPendamping()) {
+            return $query->where('shadow_teacher_id', $guru->id);
+        }
+
+        return $query;
+    }
 }
