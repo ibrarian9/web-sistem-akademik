@@ -348,7 +348,7 @@
         </div>
 
         <!-- Unified Cash Flow Jurnal Table -->
-        <x-table loadingTarget="search, tab, stream, filterPeriode, startDate, endDate, page">
+        <x-table loadingTarget="search, tab, stream, filterPeriode, startDate, endDate, filterKategoriMasuk, filterKategoriKeluar, filterMetode, nominalMin, nominalMax, page">
             <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
                 <tr>
                     <x-table.th class="w-32">Tanggal</x-table.th>

@@ -53,7 +53,7 @@ class DanaBos extends Component
     protected $rules = [
         'jenis' => 'required|in:masuk,keluar',
         'tanggal' => 'required|date',
-        'nominal' => 'required|numeric|min:1',
+        'nominal' => 'required|numeric|min:0',
         'kategori' => 'required|string|max:255',
         'keterangan' => 'required|string|max:1000',
         'bukti_foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
@@ -228,7 +228,7 @@ class DanaBos extends Component
         $this->validate([
             'edit_jenis' => 'required|in:masuk,keluar',
             'edit_tanggal' => 'required|date',
-            'edit_nominal' => 'required|numeric|min:1',
+            'edit_nominal' => 'required|numeric|min:0',
             'edit_kategori' => 'required|string|max:255',
             'edit_keterangan' => 'required|string|max:1000',
             'edit_bukti_foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',

@@ -118,7 +118,13 @@ class ArusKas extends Component
         }
 
         $distinctMasuk = PemasukanKas::distinct()->pluck('kategori')->filter()->toArray();
-        $this->kategoriMasukOptions = array_values(array_unique(array_merge($this->kategoriMasukOptions, $distinctMasuk)));
+        $tagihanCategories = \App\Models\JenisTagihan::distinct()->pluck('nama')->filter()->toArray();
+        $this->kategoriMasukOptions = array_values(array_unique(array_merge(
+            $this->kategoriMasukOptions,
+            $distinctMasuk,
+            $tagihanCategories,
+            ['Tabungan Siswa']
+        )));
 
         $this->tanggal_masuk = date('Y-m-d');
         $this->tanggal_keluar = date('Y-m-d');
@@ -164,6 +170,36 @@ class ArusKas extends Component
         $this->resetPage();
     }
 
+    public function updatingFilterMetode()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingNominalMin()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingNominalMax()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterPeriode()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingStartDate()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingEndDate()
+    {
+        $this->resetPage();
+    }
+
     // Modal Kas Masuk
     public function openIncomeModal()
     {
@@ -198,26 +234,26 @@ class ArusKas extends Component
         if ($this->is_kategori_masuk_kustom) {
             $this->validate([
                 'kategori_masuk_kustom' => 'required|string|max:100',
-                'jumlah_masuk' => 'required|numeric|min:1000',
+                'jumlah_masuk' => 'required|numeric|min:0',
                 'tanggal_masuk' => 'required|date',
                 'keterangan_masuk' => 'nullable|string|max:500',
             ], [
                 'kategori_masuk_kustom.required' => 'Nama kategori penerimaan baru wajib diisi.',
                 'kategori_masuk_kustom.max' => 'Nama kategori maksimal 100 karakter.',
                 'jumlah_masuk.required' => 'Nominal penerimaan wajib diisi.',
-                'jumlah_masuk.min' => 'Nominal penerimaan minimal Rp 1.000.',
+                'jumlah_masuk.min' => 'Nominal penerimaan tidak boleh bernilai negatif.',
             ]);
             $kat = trim($this->kategori_masuk_kustom);
         } else {
             $this->validate([
                 'kategori_masuk' => 'required|string|max:100',
-                'jumlah_masuk' => 'required|numeric|min:1000',
+                'jumlah_masuk' => 'required|numeric|min:0',
                 'tanggal_masuk' => 'required|date',
                 'keterangan_masuk' => 'nullable|string|max:500',
             ], [
                 'kategori_masuk.required' => 'Kategori penerimaan wajib dipilih.',
                 'jumlah_masuk.required' => 'Nominal penerimaan wajib diisi.',
-                'jumlah_masuk.min' => 'Nominal penerimaan minimal Rp 1.000.',
+                'jumlah_masuk.min' => 'Nominal penerimaan tidak boleh bernilai negatif.',
             ]);
             $kat = $this->kategori_masuk ?: 'Infaq';
         }
@@ -326,7 +362,7 @@ class ArusKas extends Component
         $this->keterangan_keluar = $desc;
 
         $rules = [
-            'jumlah_keluar' => 'required|numeric|min:1000',
+            'jumlah_keluar' => 'required|numeric|min:0',
             'tanggal_keluar' => 'required|date',
             'keterangan_keluar' => 'nullable|string|max:500',
             'bukti_keluar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
@@ -412,7 +448,7 @@ class ArusKas extends Component
 
         $this->validate([
             'edit_kategori_pengeluaran_id' => 'required|exists:kategori_pengeluaran,id',
-            'edit_jumlah' => 'required|numeric|min:1000',
+            'edit_jumlah' => 'required|numeric|min:0',
             'edit_tanggal' => 'required|date',
             'edit_keterangan' => 'nullable|string|max:500',
             'edit_bukti_keluar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
@@ -518,12 +554,20 @@ class ArusKas extends Component
     {
         $transactions = collect();
 
-        // 🟢 INFLOW STREAMS (Include when tab = 'semua' or 'masuk')
-        if ($this->tab === 'semua' || $this->tab === 'masuk') {
+        // Check if an exclusive category filter is active
+        $hasCategoryKeluar = ($this->filterKategoriKeluar !== null && $this->filterKategoriKeluar !== '');
+        $hasCategoryMasuk = ($this->filterKategoriMasuk !== null && $this->filterKategoriMasuk !== '');
+
+        // 🟢 INFLOW STREAMS (Include when tab = 'semua' or 'masuk', unless filtering exclusively by Kas Keluar category)
+        if (($this->tab === 'semua' || $this->tab === 'masuk') && !$hasCategoryKeluar) {
             // Stream 1: Pembayaran Tagihan / SPP
             if ($this->stream === 'semua' || $this->stream === 'spp') {
                 $sppTbl = Pembayaran::with(['tagihan.siswa.user', 'tagihan.siswa.kelas', 'tagihan.jenisTagihan', 'petugas'])
                     ->where('is_void', false)->latest('tanggal_bayar');
+
+                if ($hasCategoryMasuk) {
+                    $sppTbl->whereHas('tagihan.jenisTagihan', fn($sq) => $sq->where('nama', $this->filterKategoriMasuk));
+                }
 
                 if ($this->search !== '') {
                     $sppTbl->where(function ($q) {
@@ -565,7 +609,7 @@ class ArusKas extends Component
             // Stream 2: Kas Masuk Yayasan (Infaq / Donasi)
             if ($this->stream === 'semua' || $this->stream === 'infaq') {
                 $kasTbl = PemasukanKas::with('petugas')->latest('tanggal');
-                if ($this->filterKategoriMasuk !== '') {
+                if ($hasCategoryMasuk) {
                     $kasTbl->where('kategori', $this->filterKategoriMasuk);
                 }
                 if ($this->search !== '') {
@@ -589,7 +633,7 @@ class ArusKas extends Component
                         'keterangan' => $item->keterangan ?: 'Penerimaan infaq/donasi yayasan',
                         'nominal_masuk' => (float) $item->jumlah,
                         'nominal_keluar' => 0.00,
-                        'metode_resi' => 'Kas Tunai / Transfer',
+                        'metode_resi' => 'Kas Tunai / Transfer Bank',
                         'no_resi' => null,
                         'petugas' => $item->petugas->nama ?? 'Bendahara',
                         'can_delete' => true,
@@ -598,7 +642,7 @@ class ArusKas extends Component
             }
 
             // Stream 3: Setoran Tabungan Siswa
-            if ($this->stream === 'semua' || $this->stream === 'tabungan') {
+            if (($this->stream === 'semua' || $this->stream === 'tabungan') && (!$hasCategoryMasuk || $this->filterKategoriMasuk === 'Tabungan Siswa' || str_contains(strtolower($this->filterKategoriMasuk), 'tabungan'))) {
                 $tabTbl = Tabungan::with(['siswa.user', 'siswa.kelas', 'petugas'])->where('jenis', 'setor')->latest('tanggal');
                 if ($this->search !== '') {
                     $tabTbl->whereHas('siswa.user', fn($q) => $q->where('nama', 'like', '%' . $this->search . '%'));
@@ -630,16 +674,19 @@ class ArusKas extends Component
             }
         }
 
-        // 🔴 OUTFLOW STREAMS (Include when tab = 'semua' or 'keluar')
-        if ($this->tab === 'semua' || $this->tab === 'keluar') {
+        // 🔴 OUTFLOW STREAMS (Include when tab = 'semua' or 'keluar', unless filtering exclusively by Kas Masuk category)
+        if (($this->tab === 'semua' || $this->tab === 'keluar') && !$hasCategoryMasuk) {
             // Stream 4: Operasional Yayasan
             if ($this->stream === 'semua' || $this->stream === 'operasional') {
                 $opTbl = Pengeluaran::with(['kategori', 'petugas'])->latest('tanggal');
-                if ($this->filterKategoriKeluar) {
+                if ($hasCategoryKeluar) {
                     $opTbl->where('kategori_pengeluaran_id', $this->filterKategoriKeluar);
                 }
                 if ($this->search !== '') {
-                    $opTbl->where('keterangan', 'like', '%' . $this->search . '%');
+                    $opTbl->where(function ($q) {
+                        $q->where('keterangan', 'like', '%' . $this->search . '%')
+                          ->orWhereHas('kategori', fn($sq) => $sq->where('nama', 'like', '%' . $this->search . '%'));
+                    });
                 }
                 $this->applyDateFilter($opTbl, 'tanggal');
 
@@ -656,7 +703,7 @@ class ArusKas extends Component
                         'keterangan' => $item->keterangan ?: 'Beban operasional kas yayasan',
                         'nominal_masuk' => 0.00,
                         'nominal_keluar' => (float) $item->jumlah,
-                        'metode_resi' => 'Kas Tunai / Bank',
+                        'metode_resi' => 'Kas Tunai / Transfer Bank',
                         'no_resi' => null,
                         'petugas' => $item->petugas->nama ?? 'Bendahara',
                         'can_delete' => true,
@@ -666,8 +713,8 @@ class ArusKas extends Component
                 }
             }
 
-            // Stream 5: Gaji Guru
-            if ($this->stream === 'semua' || $this->stream === 'gaji') {
+            // Stream 5: Gaji Guru (only when not filtering by specific KategoriPengeluaran ID)
+            if (($this->stream === 'semua' || $this->stream === 'gaji') && !$hasCategoryKeluar) {
                 $gajiTbl = GajiGuru::with(['guru.user'])->where('status', 'dibayar')->latest('tanggal_bayar');
                 if ($this->search !== '') {
                     $gajiTbl->whereHas('guru.user', fn($q) => $q->where('nama', 'like', '%' . $this->search . '%'));
@@ -695,8 +742,8 @@ class ArusKas extends Component
                 }
             }
 
-            // Stream 6: Kasbon Guru
-            if ($this->stream === 'semua' || $this->stream === 'kasbon') {
+            // Stream 6: Kasbon Guru (only when not filtering by specific KategoriPengeluaran ID)
+            if (($this->stream === 'semua' || $this->stream === 'kasbon') && !$hasCategoryKeluar) {
                 $loanTbl = Peminjaman::with(['guru.user'])->latest('tanggal_pinjam');
                 if ($this->search !== '') {
                     $loanTbl->whereHas('guru.user', fn($q) => $q->where('nama', 'like', '%' . $this->search . '%'));
@@ -716,7 +763,7 @@ class ArusKas extends Component
                         'keterangan' => 'Pencairan kasbon: ' . ($item->guru->user->nama ?? 'Guru') . ' (Tenor ' . $item->tenor_bulan . ' Bln)',
                         'nominal_masuk' => 0.00,
                         'nominal_keluar' => (float) $item->nominal,
-                        'metode_resi' => 'Pencairan Kasbon',
+                        'metode_resi' => 'Pencairan Tunai / Transfer',
                         'no_resi' => null,
                         'petugas' => 'Finance',
                         'can_delete' => false,
@@ -744,9 +791,17 @@ class ArusKas extends Component
 
         // Filter by Payment Method
         if ($this->filterMetode && $this->filterMetode !== 'semua') {
-            $methodQuery = strtolower($this->filterMetode);
-            $transactions = $transactions->filter(function ($t) use ($methodQuery) {
-                return str_contains(strtolower($t->metode_resi ?? ''), $methodQuery);
+            $transactions = $transactions->filter(function ($t) {
+                $method = strtolower($this->filterMetode);
+                $resi = strtolower($t->metode_resi ?? '');
+                if ($method === 'tunai') {
+                    return str_contains($resi, 'tunai') || str_contains($resi, 'cash');
+                } elseif ($method === 'transfer') {
+                    return str_contains($resi, 'transfer') || str_contains($resi, 'bank') || str_contains($resi, 'payroll');
+                } elseif ($method === 'qris') {
+                    return str_contains($resi, 'qris');
+                }
+                return str_contains($resi, $method);
             });
         }
 
@@ -775,7 +830,7 @@ class ArusKas extends Component
         if ($this->filterPeriode !== 'semua') $count++;
         if (!empty($this->startDate) || !empty($this->endDate)) $count++;
         if (!empty($this->filterKategoriMasuk)) $count++;
-        if ($this->filterKategoriKeluar !== null) $count++;
+        if ($this->filterKategoriKeluar !== null && $this->filterKategoriKeluar !== '') $count++;
         if ($this->nominalMin !== null && $this->nominalMin !== '') $count++;
         if ($this->nominalMax !== null && $this->nominalMax !== '') $count++;
         if ($this->filterMetode !== 'semua') $count++;
@@ -811,6 +866,8 @@ class ArusKas extends Component
             'kemarin' => 'Kemarin (' . date('d/m/Y', strtotime('-1 day')) . ')',
             'minggu_ini' => 'Minggu Ini',
             'bulan_ini' => 'Bulan Ini (' . date('F Y') . ')',
+            'bulan_lalu' => 'Bulan Lalu (' . Carbon::now()->subMonth()->translatedFormat('F Y') . ')',
+            'tahun_ini' => 'Tahun Ini (' . date('Y') . ')',
             'custom' => ($this->startDate ? Carbon::parse($this->startDate)->translatedFormat('d M Y') : '') . ' s/d ' . ($this->endDate ? Carbon::parse($this->endDate)->translatedFormat('d M Y') : ''),
             default => 'Semua Periode Transaksi',
         };
@@ -1001,15 +1058,24 @@ class ArusKas extends Component
         $sortedTransactions = $this->getUnifiedTransactions();
 
         // Paginate manually
-        $page = LengthAwarePaginator::resolveCurrentPage();
         $perPage = 15;
+        $total = $sortedTransactions->count();
+        $maxPage = max(1, (int) ceil($total / $perPage));
+        $page = (int) $this->getPage();
+        if ($page > $maxPage) {
+            $page = 1;
+            $this->setPage(1);
+        }
         $currentItems = $sortedTransactions->slice(($page - 1) * $perPage, $perPage)->values();
         $paginatedTransactions = new LengthAwarePaginator(
             $currentItems,
-            $sortedTransactions->count(),
+            $total,
             $perPage,
             $page,
-            ['path' => LengthAwarePaginator::resolveCurrentPath()]
+            [
+                'path' => LengthAwarePaginator::resolveCurrentPath(),
+                'pageName' => 'page',
+            ]
         );
 
         return view('livewire.finance.arus-kas', [

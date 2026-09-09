@@ -66,7 +66,7 @@ class ArusKasMasuk extends Component
 
     protected $rules = [
         'kategori' => 'required|string',
-        'jumlah' => 'required|numeric|min:1',
+        'jumlah' => 'required|numeric|min:0',
         'tanggal' => 'required|date',
         'keterangan' => 'nullable|string|max:500',
     ];
@@ -165,26 +165,26 @@ class ArusKasMasuk extends Component
         if ($this->is_kategori_kustom) {
             $this->validate([
                 'kategori_kustom' => 'required|string|max:100',
-                'jumlah' => 'required|numeric|min:1',
+                'jumlah' => 'required|numeric|min:0',
                 'tanggal' => 'required|date',
                 'keterangan' => 'nullable|string|max:500',
             ], [
                 'kategori_kustom.required' => 'Nama kategori penerimaan baru wajib diisi.',
                 'kategori_kustom.max' => 'Nama kategori maksimal 100 karakter.',
                 'jumlah.required' => 'Nominal penerimaan wajib diisi.',
-                'jumlah.min' => 'Nominal penerimaan minimal Rp 1.',
+                'jumlah.min' => 'Nominal penerimaan tidak boleh bernilai negatif.',
             ]);
             $kategori = trim($this->kategori_kustom);
         } else {
             $this->validate([
                 'kategori' => 'required|string|max:100',
-                'jumlah' => 'required|numeric|min:1',
+                'jumlah' => 'required|numeric|min:0',
                 'tanggal' => 'required|date',
                 'keterangan' => 'nullable|string|max:500',
             ], [
                 'kategori.required' => 'Kategori penerimaan wajib dipilih.',
                 'jumlah.required' => 'Nominal penerimaan wajib diisi.',
-                'jumlah.min' => 'Nominal penerimaan minimal Rp 1.',
+                'jumlah.min' => 'Nominal penerimaan tidak boleh bernilai negatif.',
             ]);
             $kategori = $this->kategori;
         }

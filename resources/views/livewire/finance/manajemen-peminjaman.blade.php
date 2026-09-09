@@ -32,23 +32,37 @@
 
     <!-- Loans List Panel (Full Width) -->
     <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div class="max-w-md w-full">
                 <x-search-input wire:model.live.debounce.300ms="search" placeholder="Cari nama guru peminjam..." />
             </div>
             
-            <div class="flex items-center gap-3">
-                <span class="text-xs font-bold text-stone-600 uppercase tracking-wider shrink-0">Status Pinjaman:</span>
-                <select wire:model.live="filterStatus" class="px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
-                    <option value="">Semua Status</option>
-                    <option value="berjalan">Berjalan (Belum Lunas)</option>
-                    <option value="lunas">Lunas</option>
-                </select>
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-stone-600 uppercase tracking-wider shrink-0">Periode:</span>
+                    <x-date-filter model="filterPeriode" startDateModel="startDate" endDateModel="endDate" />
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-stone-600 uppercase tracking-wider shrink-0">Status:</span>
+                    <select wire:model.live="filterStatus" class="px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs cursor-pointer">
+                        <option value="">Semua Status</option>
+                        <option value="berjalan">Berjalan (Belum Lunas)</option>
+                        <option value="lunas">Lunas</option>
+                    </select>
+                </div>
+
+                @if ($this->activeFilterCount > 0)
+                    <button type="button" wire:click="resetFilters" class="inline-flex items-center gap-1 px-3 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold border border-stone-300 transition shadow-2xs cursor-pointer">
+                        <x-lucide-refresh-cw class="w-3.5 h-3.5 text-stone-500" />
+                        <span>Reset ({{ $this->activeFilterCount }})</span>
+                    </button>
+                @endif
             </div>
         </div>
 
         <!-- List Table -->
-        <x-table loadingTarget="search, filterStatus, page">
+        <x-table loadingTarget="search, filterStatus, filterPeriode, startDate, endDate, page">
             <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
                 <tr>
                     <x-table.th class="min-w-[180px]">Guru Peminjam</x-table.th>

@@ -31,24 +31,25 @@
             let isNegative = s.startsWith('-');
             s = s.replace(/^-/, '');
 
-            let integerPart = '';
-            let decimalPart = '';
-
-            if (s.includes(',')) {
-                let parts = s.split(',');
-                integerPart = parts[0].replace(/[^0-9]/g, '');
-                decimalPart = parts[1] !== undefined ? ',' + parts[1].replace(/[^0-9]/g, '') : '';
-            } else if (/^\d+\.\d+$/.test(s)) {
+            // Handle database decimal values ending in .00 or standard float string
+            if (/^\d+\.\d+$/.test(s)) {
                 let parts = s.split('.');
-                integerPart = parts[0].replace(/[^0-9]/g, '');
-                decimalPart = parts[1] !== undefined ? ',' + parts[1] : '';
-            } else {
-                integerPart = s.replace(/[^0-9]/g, '');
+                if (parts[1] === '00' || parts[1] === '0') {
+                    s = parts[0];
+                } else if (parts[1].length === 3) {
+                    s = parts[0] + parts[1];
+                } else {
+                    s = parts[0];
+                }
+            } else if (s.includes('.')) {
+                s = s.replace(/\./g, '');
             }
 
-            if (!integerPart && !decimalPart) return '';
-            let formattedInt = integerPart ? integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '0';
-            return (isNegative ? '-' : '') + formattedInt + decimalPart;
+            // Strip any remaining non-digit characters
+            let cleanDigits = s.replace(/[^0-9]/g, '');
+            if (!cleanDigits) return '';
+            let formattedInt = cleanDigits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            return (isNegative ? '-' : '') + formattedInt;
         },
         syncFromRaw() {
             if (this.rawValue === null || this.rawValue === undefined || this.rawValue === '') {
@@ -61,41 +62,30 @@
             let inputEl = e.target;
             let oldVal = inputEl.value || '';
             let cursorPos = inputEl.selectionStart || 0;
-            let charsBefore = oldVal.slice(0, cursorPos);
-            let digitsBefore = charsBefore.replace(/[^0-9,]/g, '').length;
-
+            let digitsBefore = oldVal.slice(0, cursorPos).replace(/[^0-9]/g, '').length;
             let isNegative = oldVal.trim().startsWith('-');
-            let cleanStr = oldVal.replace(/[^0-9,]/g, '');
 
-            let parts = cleanStr.split(',');
-            let intDigits = parts[0] || '';
-            let decDigits = parts.length > 1 ? parts.slice(1).join('') : null;
+            let cleanDigits = oldVal.replace(/[^0-9]/g, '');
 
-            if (intDigits === '' && decDigits === null) {
+            if (cleanDigits === '') {
                 this.rawValue = null;
                 this.displayValue = '';
                 inputEl.value = '';
                 return;
             }
 
-            let formattedInt = intDigits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-            let formatted = (isNegative ? '-' : '') + (formattedInt || (decDigits !== null ? '0' : '')) + (decDigits !== null ? ',' + decDigits : '');
+            let formattedInt = cleanDigits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            let formatted = (isNegative ? '-' : '') + formattedInt;
+            let numVal = parseInt((isNegative ? '-' : '') + cleanDigits, 10);
 
-            let numVal = null;
-            if (decDigits !== null) {
-                numVal = parseFloat((isNegative ? '-' : '') + (intDigits || '0') + '.' + decDigits);
-            } else if (intDigits !== '') {
-                numVal = parseInt((isNegative ? '-' : '') + intDigits, 10);
-            }
-
-            this.rawValue = numVal;
+            this.rawValue = isNaN(numVal) ? null : numVal;
             this.displayValue = formatted;
             inputEl.value = formatted;
 
             let newCursorPos = 0;
             let count = 0;
             for (let i = 0; i < formatted.length; i++) {
-                if (/[0-9,]/.test(formatted[i])) {
+                if (/[0-9]/.test(formatted[i])) {
                     count++;
                 }
                 if (count === digitsBefore) {

@@ -53,7 +53,7 @@ class PengajuanDanaIndex extends Component
     protected $rules = [
         'judul' => 'required|string|max:255',
         'kategori' => 'required|string',
-        'jumlah' => 'required|numeric|min:10000',
+        'jumlah' => 'required|numeric|min:0',
         'keterangan' => 'required|string|max:1000',
         'target_realisasi' => 'nullable|date',
     ];

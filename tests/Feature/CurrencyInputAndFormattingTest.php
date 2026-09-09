@@ -21,7 +21,11 @@ use App\Livewire\Finance\ArusKasKeluar;
 use App\Livewire\Finance\TabunganSiswa;
 use App\Livewire\Finance\DetailTagihanSiswa;
 use App\Livewire\Finance\DanaBos as DanaBosLivewire;
+use App\Livewire\Finance\ArusKas;
+use App\Livewire\Finance\ManajemenPeminjaman;
+use App\Livewire\Finance\InputPembayaran;
 use App\Livewire\Finance\PengajuanDanaIndex;
+use App\Models\Guru;
 use Illuminate\Database\Eloquent\Model;
 
 beforeEach(function () {
@@ -294,3 +298,121 @@ test('PengajuanDanaIndex saves clean integer to database when formatted currency
         'nominal' => 2500000.00,
     ]);
 });
+
+/*
+|--------------------------------------------------------------------------
+| F. No Value Restriction (500 Acceptance) & No Thousand Dot Marker Tests
+|--------------------------------------------------------------------------
+*/
+
+test('input-currency component automatically formats with thousand separator dots and models rawValue', function () {
+    $view = $this->blade(
+        '<x-input-currency name="nominal" wire:model="nominal" label="Nominal Tagihan" placeholder="Contoh: 1.000.000" />'
+    );
+
+    // Verify it models rawValue to Livewire
+    $view->assertSee('x-modelable="rawValue"', false);
+    // Verify it uses the regex that formats thousands with dots
+    $view->assertSee("replace(/\\B(?=(\\d{3})+(?!\\d))/g, '.')", false);
+    // Verify it cleanly strips non-digits before formatting
+    $view->assertSee("cleanDigits = s.replace(/[^0-9]/g, '')", false);
+});
+
+test('ArusKas accepts nominal 500 for income without min 1000 restriction', function () {
+    $this->actingAs($this->userFinance);
+
+    Livewire::test(ArusKas::class)
+        ->set('kategori_masuk', 'Infaq')
+        ->set('jumlah_masuk', 500)
+        ->set('tanggal_masuk', date('Y-m-d'))
+        ->set('keterangan_masuk', 'Sedekah subuh Rp 500 via ArusKas')
+        ->call('saveIncome')
+        ->assertHasNoErrors();
+
+    $this->assertDatabaseHas('pemasukan_kas', [
+        'kategori' => 'Infaq',
+        'jumlah' => 500.00,
+        'keterangan' => 'Sedekah subuh Rp 500 via ArusKas',
+    ]);
+});
+
+test('ArusKas accepts nominal 500 for expense without min 1000 restriction', function () {
+    $this->actingAs($this->userFinance);
+
+    $kategori = KategoriPengeluaran::firstOrCreate(['nama' => 'ATK dan Perlengkapan']);
+
+    Livewire::test(ArusKas::class)
+        ->set('kategori_pengeluaran_id', $kategori->id)
+        ->set('jumlah_keluar', 500)
+        ->set('tanggal_keluar', date('Y-m-d'))
+        ->set('keterangan_keluar', 'Beli peniti Rp 500 via ArusKas')
+        ->call('saveExpense')
+        ->assertHasNoErrors();
+
+    $this->assertDatabaseHas('pengeluaran', [
+        'kategori_pengeluaran_id' => $kategori->id,
+        'jumlah' => 500.00,
+        'keterangan' => 'Beli peniti Rp 500 via ArusKas',
+    ]);
+});
+
+test('PengajuanDanaIndex accepts nominal 500 without min 10000 restriction', function () {
+    $this->actingAs($this->userFinance);
+
+    Livewire::test(PengajuanDanaIndex::class)
+        ->set('judul', 'Beli Kertas Buram')
+        ->set('kategori', 'Pengadaan Alat Tulis & Kelas')
+        ->set('jumlah', 500)
+        ->set('keterangan', 'Beli 2 lembar kertas buram Rp 500')
+        ->call('createPengajuan')
+        ->assertHasNoErrors();
+
+    $this->assertDatabaseHas('pengajuan_dana', [
+        'judul' => 'Beli Kertas Buram',
+        'nominal' => 500.00,
+    ]);
+});
+
+test('DanaBos accepts nominal 500 without min 1 restriction', function () {
+    $this->actingAs($this->userFinance);
+
+    Livewire::test(DanaBosLivewire::class)
+        ->set('jenis', 'keluar')
+        ->set('nominal', 500)
+        ->set('tanggal', date('Y-m-d'))
+        ->set('kategori', 'Kegiatan Pembelajaran')
+        ->set('keterangan', 'Biaya fotokopi lembar soal Rp 500')
+        ->call('saveTransaction')
+        ->assertHasNoErrors();
+
+    $this->assertDatabaseHas('dana_bos', [
+        'jenis' => 'keluar',
+        'nominal' => 500.00,
+        'keterangan' => 'Biaya fotokopi lembar soal Rp 500',
+    ]);
+});
+
+test('ManajemenPeminjaman accepts nominal 500 without min 1 restriction', function () {
+    $this->actingAs($this->userFinance);
+
+    $guru = Guru::first() ?? Guru::create([
+        'user_id' => $this->userFinance->id,
+        'nip' => '12345678',
+        'jenis_guru' => 'umum',
+        'status_kepegawaian' => 'tetap',
+    ]);
+
+    Livewire::test(ManajemenPeminjaman::class)
+        ->set('guru_id', $guru->id)
+        ->set('nominal', 500)
+        ->set('tenor_bulan', 1)
+        ->set('tanggal_pinjam', date('Y-m-d'))
+        ->call('savePeminjaman')
+        ->assertHasNoErrors();
+
+    $this->assertDatabaseHas('peminjaman', [
+        'guru_id' => $guru->id,
+        'nominal' => 500.00,
+    ]);
+});
+

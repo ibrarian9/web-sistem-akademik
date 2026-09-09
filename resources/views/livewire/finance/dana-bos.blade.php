@@ -263,7 +263,7 @@
                 required 
             />
 
-            <!-- Nominal dengan Pemisah Titik & Logo Rp -->
+            <!-- Nominal Transaksi -->
             <x-input-currency 
                 label="Nominal Transaksi (Rp)" 
                 name="nominal" 

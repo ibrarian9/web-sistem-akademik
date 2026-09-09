@@ -182,7 +182,7 @@ class TabunganSiswa extends Component
         $this->validate([
             'siswa_id' => 'required|exists:siswa,id',
             'jenis' => 'required|in:setor,tarik',
-            'nominal' => 'required|numeric|min:1',
+            'nominal' => 'required|numeric|min:0',
             'tanggal' => 'required|date',
             'keterangan' => 'nullable|string|max:255',
         ]);
@@ -263,7 +263,7 @@ class TabunganSiswa extends Component
         $rules = [
             'editingTabunganId' => 'required|exists:tabungans,id',
             'edit_jenis' => 'required|in:setor,tarik',
-            'edit_nominal' => 'required|numeric|min:1',
+            'edit_nominal' => 'required|numeric|min:0',
             'edit_tanggal' => 'required|date',
             'edit_keterangan' => 'nullable|string|max:255',
         ];

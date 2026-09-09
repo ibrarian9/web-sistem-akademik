@@ -25,6 +25,12 @@ trait WithDateFilter
         } elseif ($value === 'bulan_ini') {
             $this->startDate = Carbon::now()->startOfMonth()->format('Y-m-d');
             $this->endDate = Carbon::now()->endOfMonth()->format('Y-m-d');
+        } elseif ($value === 'bulan_lalu') {
+            $this->startDate = Carbon::now()->subMonth()->startOfMonth()->format('Y-m-d');
+            $this->endDate = Carbon::now()->subMonth()->endOfMonth()->format('Y-m-d');
+        } elseif ($value === 'tahun_ini') {
+            $this->startDate = Carbon::now()->startOfYear()->format('Y-m-d');
+            $this->endDate = Carbon::now()->endOfYear()->format('Y-m-d');
         } elseif ($value === 'semua') {
             $this->startDate = null;
             $this->endDate = null;
@@ -81,14 +87,34 @@ trait WithDateFilter
             ]);
         }
 
-        if ($this->filterPeriode === 'custom' || ($this->startDate && $this->endDate)) {
+        if ($this->filterPeriode === 'bulan_lalu') {
+            return $query->whereBetween($column, [
+                Carbon::now()->subMonth()->startOfMonth()->format('Y-m-d'),
+                Carbon::now()->subMonth()->endOfMonth()->format('Y-m-d')
+            ]);
+        }
+
+        if ($this->filterPeriode === 'tahun_ini') {
+            return $query->whereBetween($column, [
+                Carbon::now()->startOfYear()->format('Y-m-d'),
+                Carbon::now()->endOfYear()->format('Y-m-d')
+            ]);
+        }
+
+        if ($this->filterPeriode === 'custom') {
             if ($this->startDate && $this->endDate) {
-                return $query->whereBetween($column, [$this->startDate, $this->endDate]);
+                $start = min($this->startDate, $this->endDate);
+                $end = max($this->startDate, $this->endDate);
+                return $query->whereBetween($column, [$start, $end]);
             } elseif ($this->startDate) {
                 return $query->whereDate($column, '>=', $this->startDate);
             } elseif ($this->endDate) {
                 return $query->whereDate($column, '<=', $this->endDate);
             }
+        } elseif ($this->startDate && $this->endDate) {
+            $start = min($this->startDate, $this->endDate);
+            $end = max($this->startDate, $this->endDate);
+            return $query->whereBetween($column, [$start, $end]);
         }
 
         return $query;

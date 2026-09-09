@@ -5,7 +5,7 @@
     'label' => null,
 ])
 
-<div class="space-y-2 w-full sm:w-auto" x-data="{ showCustom: @entangle($model).live === 'custom' }">
+<div class="space-y-2 w-full sm:w-auto" x-data="{ currentPeriode: $wire.entangle('{{ $model }}') }">
     @if ($label)
         <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">{{ $label }}</label>
     @endif
@@ -20,12 +20,14 @@
                 <option value="kemarin">Kemarin</option>
                 <option value="minggu_ini">Minggu Ini</option>
                 <option value="bulan_ini">Bulan Ini</option>
+                <option value="bulan_lalu">Bulan Lalu</option>
+                <option value="tahun_ini">Tahun Ini</option>
                 <option value="custom">Rentang Kustom...</option>
             </select>
         </div>
 
         <!-- Custom Date Range Inputs (Visible when Custom is selected) -->
-        <div x-show="$wire.{{ $model }} === 'custom'" x-cloak class="flex items-center gap-2 bg-stone-50 border border-stone-200 p-1.5 rounded-2xl shadow-2xs animate-fade-in">
+        <div x-show="currentPeriode === 'custom'" x-cloak class="flex items-center gap-2 bg-stone-50 border border-stone-200 p-1.5 rounded-2xl shadow-2xs animate-fade-in">
             <input 
                 type="date" 
                 wire:model.live="{{ $startDateModel }}" 

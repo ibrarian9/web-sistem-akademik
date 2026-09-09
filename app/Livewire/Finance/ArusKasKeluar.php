@@ -77,7 +77,7 @@ class ArusKasKeluar extends Component
 
     protected $rules = [
         'kategori_pengeluaran_id' => 'required|exists:kategori_pengeluaran,id',
-        'jumlah' => 'required|numeric|min:1',
+        'jumlah' => 'required|numeric|min:0',
         'tanggal' => 'required|date',
         'keterangan' => 'nullable|string|max:500',
         'bukti_foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
@@ -187,7 +187,7 @@ class ArusKasKeluar extends Component
         if ($this->is_kategori_kustom && !empty(trim($this->kategori_keluar_kustom))) {
             $this->validate([
                 'kategori_keluar_kustom' => 'required|string|max:100',
-                'jumlah' => 'required|numeric|min:1',
+                'jumlah' => 'required|numeric|min:0',
                 'tanggal' => 'required|date',
                 'keterangan' => 'nullable|string|max:500',
                 'bukti_foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
@@ -201,7 +201,7 @@ class ArusKasKeluar extends Component
         } else {
             $this->validate([
                 'kategori_pengeluaran_id' => 'required|exists:kategori_pengeluaran,id',
-                'jumlah' => 'required|numeric|min:1',
+                'jumlah' => 'required|numeric|min:0',
                 'tanggal' => 'required|date',
                 'keterangan' => 'nullable|string|max:500',
                 'bukti_foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
@@ -268,7 +268,7 @@ class ArusKasKeluar extends Component
 
         $this->validate([
             'edit_kategori_pengeluaran_id' => 'required|exists:kategori_pengeluaran,id',
-            'edit_jumlah' => 'required|numeric|min:1',
+            'edit_jumlah' => 'required|numeric|min:0',
             'edit_tanggal' => 'required|date',
             'edit_keterangan' => 'nullable|string|max:500',
             'edit_bukti_foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',

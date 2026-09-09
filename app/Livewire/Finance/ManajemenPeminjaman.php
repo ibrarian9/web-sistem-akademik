@@ -7,14 +7,23 @@ use App\Models\Guru;
 use App\Models\Peminjaman;
 use Livewire\WithPagination;
 use App\Traits\WithCurrencySanitizer;
+use App\Traits\WithDateFilter;
 
 class ManajemenPeminjaman extends Component
 {
-    use WithPagination, WithCurrencySanitizer;
+    use WithPagination, WithCurrencySanitizer, WithDateFilter;
 
     // Filters
     public string $search = '';
     public string $filterStatus = ''; // 'berjalan', 'lunas'
+
+    protected $queryString = [
+        'search' => ['except' => ''],
+        'filterStatus' => ['except' => ''],
+        'filterPeriode' => ['except' => 'semua'],
+        'startDate' => ['except' => null],
+        'endDate' => ['except' => null],
+    ];
 
     // Form fields
     public bool $showCreateModal = false;
@@ -25,7 +34,7 @@ class ManajemenPeminjaman extends Component
 
     protected $rules = [
         'guru_id' => 'required|exists:guru,id',
-        'nominal' => 'required|numeric|min:1',
+        'nominal' => 'required|numeric|min:0',
         'tenor_bulan' => 'required|integer|min:1|max:60',
         'tanggal_pinjam' => 'required|date',
     ];
@@ -64,6 +73,41 @@ class ManajemenPeminjaman extends Component
         $this->resetPage();
     }
 
+    public function updatingFilterPeriode()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingStartDate()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingEndDate()
+    {
+        $this->resetPage();
+    }
+
+    public function resetFilters()
+    {
+        $this->search = '';
+        $this->filterStatus = '';
+        $this->filterPeriode = 'semua';
+        $this->startDate = null;
+        $this->endDate = null;
+        $this->resetPage();
+    }
+
+    public function getActiveFilterCountProperty(): int
+    {
+        $count = 0;
+        if (!empty($this->search)) $count++;
+        if (!empty($this->filterStatus)) $count++;
+        if ($this->filterPeriode !== 'semua') $count++;
+        if (!empty($this->startDate) || !empty($this->endDate)) $count++;
+        return $count;
+    }
+
     public function savePeminjaman()
     {
         if (auth()->user()->isSuperAdmin2()) {
@@ -99,7 +143,8 @@ class ManajemenPeminjaman extends Component
 
         if ($this->search) {
             $query->whereHas('guru.user', function ($q) {
-                $q->where('nama', 'like', '%' . $this->search . '%');
+                $q->where('nama', 'like', '%' . $this->search . '%')
+                  ->orWhere('nip', 'like', '%' . $this->search . '%');
             });
         }
 
@@ -107,7 +152,9 @@ class ManajemenPeminjaman extends Component
             $query->where('status', $this->filterStatus);
         }
 
-        $loans = $query->latest()->paginate(15);
+        $this->applyDateFilter($query, 'tanggal_pinjam');
+
+        $loans = $query->latest('tanggal_pinjam')->latest('id')->paginate(15);
         $gurus = Guru::where('status_aktif', true)->with('user')->get();
 
         return view('livewire.finance.manajemen-peminjaman', [

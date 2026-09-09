@@ -21,6 +21,14 @@ class ManajemenSiswa extends Component
     public string $search = '';
     public int $perPage = 10;
 
+    // Filter properties
+    public string $filterKelas = '';
+    public string $filterTingkat = '';
+    public string $filterKelasTahfidz = '';
+    public string $filterStatus = '';
+    public string $filterJenisKelamin = '';
+    public string $filterShadowTeacher = '';
+
     // Form fields
     public ?int $siswaId = null;
     public string $nama = '';
@@ -47,7 +55,57 @@ class ManajemenSiswa extends Component
     public $selectedSiswaDetail = null;
     public bool $showDetailModal = false;
 
-    protected $queryString = ['search' => ['except' => '']];
+    protected $queryString = [
+        'search' => ['except' => ''],
+        'filterKelas' => ['except' => ''],
+        'filterTingkat' => ['except' => ''],
+        'filterKelasTahfidz' => ['except' => ''],
+        'filterStatus' => ['except' => ''],
+        'filterJenisKelamin' => ['except' => ''],
+        'filterShadowTeacher' => ['except' => ''],
+    ];
+
+    public function updatingSearch() { $this->resetPage(); }
+    public function updatingPerPage() { $this->resetPage(); }
+    public function updatingFilterKelas() { $this->resetPage(); }
+    public function updatingFilterTingkat() { $this->resetPage(); }
+    public function updatingFilterKelasTahfidz() { $this->resetPage(); }
+    public function updatingFilterStatus() { $this->resetPage(); }
+    public function updatingFilterJenisKelamin() { $this->resetPage(); }
+    public function updatingFilterShadowTeacher() { $this->resetPage(); }
+
+    public function resetFilters(): void
+    {
+        $this->search = '';
+        $this->filterKelas = '';
+        $this->filterTingkat = '';
+        $this->filterKelasTahfidz = '';
+        $this->filterStatus = '';
+        $this->filterJenisKelamin = '';
+        $this->filterShadowTeacher = '';
+        $this->resetPage();
+    }
+
+    public function resetFilter(string $filterKey): void
+    {
+        if (property_exists($this, $filterKey)) {
+            $this->$filterKey = '';
+            $this->resetPage();
+        }
+    }
+
+    public function getActiveFilterCountProperty(): int
+    {
+        $count = 0;
+        if (!empty($this->search)) $count++;
+        if (!empty($this->filterKelas)) $count++;
+        if (!empty($this->filterTingkat)) $count++;
+        if (!empty($this->filterKelasTahfidz)) $count++;
+        if (!empty($this->filterStatus)) $count++;
+        if (!empty($this->filterJenisKelamin)) $count++;
+        if (!empty($this->filterShadowTeacher)) $count++;
+        return $count;
+    }
 
     public function openDetail(int $id)
     {
@@ -60,11 +118,6 @@ class ManajemenSiswa extends Component
     {
         $this->selectedSiswaDetail = null;
         $this->showDetailModal = false;
-    }
-
-    public function updatingSearch()
-    {
-        $this->resetPage();
     }
 
     public function openCreate()
@@ -346,25 +399,87 @@ class ManajemenSiswa extends Component
 
     public function render()
     {
-        $siswas = Siswa::with(['user', 'kelas', 'kelasTahfidz', 'shadowTeacher.user'])
-            ->where(function ($query) {
-                $query->where('nis', 'like', '%' . $this->search . '%')
-                    ->orWhereHas('user', function ($q) {
-                        $q->where('nama', 'like', '%' . $this->search . '%')
-                          ->orWhere('username', 'like', '%' . $this->search . '%');
+        $query = Siswa::with(['user', 'kelas', 'kelasTahfidz', 'shadowTeacher.user']);
+
+        // 1. Search Query
+        if (!empty($this->search)) {
+            $query->where(function ($q) {
+                $q->where('nis', 'like', '%' . $this->search . '%')
+                    ->orWhere('nisn', 'like', '%' . $this->search . '%')
+                    ->orWhere('nama_wali', 'like', '%' . $this->search . '%')
+                    ->orWhere('no_hp_wali', 'like', '%' . $this->search . '%')
+                    ->orWhereHas('user', function ($qu) {
+                        $qu->where('nama', 'like', '%' . $this->search . '%')
+                          ->orWhere('username', 'like', '%' . $this->search . '%')
+                          ->orWhere('email', 'like', '%' . $this->search . '%');
                     })
-                    ->orWhereHas('shadowTeacher.user', function ($q) {
-                        $q->where('nama', 'like', '%' . $this->search . '%');
+                    ->orWhereHas('shadowTeacher.user', function ($qs) {
+                        $qs->where('nama', 'like', '%' . $this->search . '%');
                     });
-            })
-            ->latest()
-            ->paginate($this->perPage);
+            });
+        }
 
-        $kelasesUmum = Kelas::where(function($q) {
+        // 2. Filter Tingkat Kelas Umum (1-6)
+        if (!empty($this->filterTingkat)) {
+            $query->whereHas('kelas', function ($q) {
+                $q->where('tingkat', $this->filterTingkat);
+            });
+        }
+
+        // 3. Filter Kelas Umum
+        if ($this->filterKelas === 'belum_set') {
+            $query->whereNull('kelas_id');
+        } elseif (!empty($this->filterKelas)) {
+            $query->where('kelas_id', $this->filterKelas);
+        }
+
+        // 4. Filter Kelas Tahfizh
+        if ($this->filterKelasTahfidz === 'belum_set') {
+            $query->whereNull('kelas_tahfidz_id');
+        } elseif (!empty($this->filterKelasTahfidz)) {
+            $query->where('kelas_tahfidz_id', $this->filterKelasTahfidz);
+        }
+
+        // 5. Filter Status Siswa (aktif, lulus, pindah, keluar)
+        if (!empty($this->filterStatus)) {
+            $query->where('status', $this->filterStatus);
+        }
+
+        // 6. Filter Jenis Kelamin (L, P)
+        if (!empty($this->filterJenisKelamin)) {
+            $query->where('jenis_kelamin', $this->filterJenisKelamin);
+        }
+
+        // 7. Filter Guru Pendamping (Shadow Teacher / Inklusi)
+        if ($this->filterShadowTeacher === 'inklusi') {
+            $query->whereNotNull('shadow_teacher_id');
+        } elseif ($this->filterShadowTeacher === 'reguler') {
+            $query->whereNull('shadow_teacher_id');
+        } elseif (!empty($this->filterShadowTeacher)) {
+            $query->where('shadow_teacher_id', $this->filterShadowTeacher);
+        }
+
+        $siswas = $query->latest()->paginate($this->perPage);
+
+        // Data for Form & Filters
+        $allKelasesUmum = Kelas::where(function($q) {
             $q->where('jenis_kelas', 'umum')->orWhereNull('jenis_kelas');
-        })->get();
+        })->orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
 
-        $kelasesTahfidz = Kelas::where('jenis_kelas', 'tahfidz')->get();
+        $kelasesTahfidz = Kelas::where('jenis_kelas', 'tahfidz')->orderBy('nama_kelas', 'asc')->get();
+
+        $tingkatOptions = Kelas::where(function($q) {
+            $q->where('jenis_kelas', 'umum')->orWhereNull('jenis_kelas');
+        })
+        ->whereNotNull('tingkat')
+        ->distinct()
+        ->orderBy('tingkat', 'asc')
+        ->pluck('tingkat')
+        ->toArray();
+
+        if (empty($tingkatOptions)) {
+            $tingkatOptions = [1, 2, 3, 4, 5, 6];
+        }
 
         $shadowTeachers = Guru::where(function ($q) {
                 $q->where('status_aktif', true);
@@ -376,11 +491,18 @@ class ManajemenSiswa extends Component
             ->with(['user.role'])
             ->get();
 
+        $allShadowTeachers = Guru::where('status_aktif', true)
+            ->shadowTeacher()
+            ->with(['user'])
+            ->get();
+
         return view('livewire.super-admin.tata-kelola.manajemen-siswa', [
             'siswas' => $siswas,
-            'kelasesUmum' => $kelasesUmum,
+            'kelasesUmum' => $allKelasesUmum,
             'kelasesTahfidz' => $kelasesTahfidz,
+            'tingkatOptions' => $tingkatOptions,
             'shadowTeachers' => $shadowTeachers,
+            'allShadowTeachers' => $allShadowTeachers,
             'gurus' => $shadowTeachers,
         ])->layout('components.layouts.app', ['title' => 'Manajemen Siswa']);
     }

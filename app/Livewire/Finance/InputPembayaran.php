@@ -48,7 +48,7 @@ class InputPembayaran extends Component
         return [
             'siswa_id' => 'required|exists:siswa,id',
             'tagihan_id' => 'required|exists:tagihan,id',
-            'nominal_dibayar' => 'required|numeric|min:1',
+            'nominal_dibayar' => 'required|numeric|min:0',
             'tanggal_bayar' => 'required|date',
             'metode_bayar' => 'required|string|in:Tunai,Transfer Bank,E-Wallet,Deposit',
             'bukti_foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
