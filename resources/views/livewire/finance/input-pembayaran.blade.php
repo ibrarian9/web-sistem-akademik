@@ -190,6 +190,42 @@
                 </div>
             @endif
 
+            @if (!empty($siswaUnpaidInvoices) && count($siswaUnpaidInvoices) > 1)
+                <!-- Selector Seluruh Tagihan Belum Lunas Siswa Ini -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider flex items-center justify-between">
+                        <span>Pilih Tagihan yang Ingin Dilunasi:</span>
+                        <span class="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-200">
+                            {{ count($siswaUnpaidInvoices) }} Tagihan Belum Lunas
+                        </span>
+                    </label>
+                    <div class="max-h-36 overflow-y-auto space-y-1.5 p-1 bg-stone-50 border border-stone-200 rounded-xl">
+                        @foreach ($siswaUnpaidInvoices as $ui)
+                            @php $isCurrent = $tagihan_id === $ui['id']; @endphp
+                            <button 
+                                type="button" 
+                                wire:click="switchTagihan({{ $ui['id'] }})"
+                                class="w-full text-left p-2.5 rounded-lg border transition flex items-center justify-between gap-2 cursor-pointer {{ $isCurrent ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-2xs font-bold text-emerald-950' : 'bg-white border-stone-200 hover:bg-stone-100 text-stone-700' }}"
+                            >
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <div class="w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 {{ $isCurrent ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-stone-300' }}">
+                                        @if ($isCurrent)
+                                            <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
+                                        @endif
+                                    </div>
+                                    <span class="text-xs font-extrabold truncate">{{ $ui['jenis'] }}</span>
+                                    <span class="text-[10px] px-1.5 py-0.5 rounded {{ $ui['is_spp'] ? 'bg-indigo-50 text-indigo-700' : 'bg-amber-50 text-amber-800' }}">{{ $ui['bulan'] }}</span>
+                                </div>
+                                <div class="text-right shrink-0">
+                                    <span class="text-xs font-black text-rose-700">Rp {{ number_format($ui['sisa'], 0, ',', '.') }}</span>
+                                    <span class="text-[9px] text-stone-400 block">Jatuh Tempo: {{ $ui['jatuh_tempo'] }}</span>
+                                </div>
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             <!-- Form Inputs -->
             <form wire:submit.prevent="savePayment" class="space-y-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

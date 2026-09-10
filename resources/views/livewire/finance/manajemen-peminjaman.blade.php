@@ -1,7 +1,7 @@
 <div class="space-y-6 font-sans">
     <!-- Header Title Bar -->
     <x-page-header 
-        title="Manajemen Peminjaman / Kasbon Guru" 
+        title="Manajemen Peminjaman & Kasbon Guru" 
         subtitle="Kelola pinjaman kasbon guru beserta riwayat cicilan bulanan yang terintegrasi dengan pemotongan slip gaji."
         badge="FASILITAS KASBON & PINJAMAN"
         badgeVariant="emerald"
@@ -69,7 +69,7 @@
                     <x-table.th align="center" class="w-36">Tgl Pinjam</x-table.th>
                     <x-table.th align="right" class="w-40">Nominal Pinjaman</x-table.th>
                     <x-table.th align="center" class="w-28">Tenor</x-table.th>
-                    <x-table.th align="right" class="w-40">Cicilan / Bulan</x-table.th>
+                    <x-table.th align="right" class="w-40">Cicilan per Bulan</x-table.th>
                     <x-table.th align="right" class="w-40">Sisa Pinjaman</x-table.th>
                     <x-table.th align="center" class="w-32">Status</x-table.th>
                 </tr>

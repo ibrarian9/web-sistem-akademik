@@ -103,9 +103,9 @@
             <x-table loadingTarget="saveAttendance">
                 <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
                     <tr>
-                        <x-table.th class="w-36">NIP / ID</x-table.th>
+                        <x-table.th class="w-36">NIP</x-table.th>
                         <x-table.th class="min-w-[180px]">Nama Karyawan</x-table.th>
-                        <x-table.th class="w-36">Peran / Jabatan</x-table.th>
+                        <x-table.th class="w-36">Jabatan</x-table.th>
                         <x-table.th align="center" class="w-44">Status Kehadiran</x-table.th>
                         <x-table.th align="center" class="w-52">Jam Datang & Pulang</x-table.th>
                         <x-table.th class="min-w-[200px]">Catatan</x-table.th>

@@ -94,4 +94,38 @@ class GajiGuru extends Model
     {
         return $this->belongsTo(Pengeluaran::class);
     }
+
+    /**
+     * Local Scope: Filter by bulan and tahun
+     */
+    public function scopeFilterPeriod($query, ?string $bulan = null, ?int $tahun = null)
+    {
+        return $query
+            ->when($bulan, fn($q) => $q->where('bulan', $bulan))
+            ->when($tahun, fn($q) => $q->where('tahun', $tahun));
+    }
+
+    /**
+     * Local Scope: Filter by status ('draft', 'dibayar', etc.)
+     */
+    public function scopeFilterStatus($query, ?string $status = null)
+    {
+        return $query->when($status, fn($q) => $q->where('status', $status));
+    }
+
+    /**
+     * Local Scope: Search by nama guru, NIP, or username
+     */
+    public function scopeSearchGuru($query, ?string $search = null)
+    {
+        return $query->when($search, function ($q) use ($search) {
+            $q->whereHas('guru.user', function ($uq) use ($search) {
+                $uq->where('nama', 'like', "%{$search}%")
+                    ->orWhere('username', 'like', "%{$search}%");
+            })->orWhereHas('guru', function ($gq) use ($search) {
+                $gq->where('nip', 'like', "%{$search}%");
+            })->orWhere('jabatan', 'like', "%{$search}%");
+        });
+    }
 }
+

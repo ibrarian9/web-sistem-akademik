@@ -99,24 +99,20 @@ test('finance can edit tagihan but cannot delete tagihan', function () {
 
     $this->actingAs($this->financeUser);
 
-    // 1. Finance can edit tagihan
+    // 1. Finance can edit tagihan (submits approval request with reason)
     Livewire::test(ManajemenTagihan::class)
         ->call('openEditModal', $tagihan->id)
         ->assertSet('edit_nominal', 250000.00)
         ->set('edit_nominal', 300000.00)
         ->set('edit_bulan', 'Agustus')
+        ->set('edit_alasan', 'Koreksi nominal tagihan siswa')
         ->call('saveEditTagihan')
-        ->assertHasNoErrors()
-        ->assertSee('Tagihan berhasil diperbarui');
+        ->assertHasNoErrors();
 
-    $tagihan->refresh();
-    expect((float)$tagihan->nominal)->toBe(300000.00);
-    expect($tagihan->bulan)->toBe('Agustus');
-
-    // 2. Finance CANNOT delete tagihan
+    // 2. Finance delete tagihan submits approval request, not directly deleted
     Livewire::test(ManajemenTagihan::class)
         ->call('deleteTagihan', $tagihan->id)
-        ->assertSee('Akses Ditolak');
+        ->assertSee('Permohonan penghapusan tagihan telah diajukan');
 
     $this->assertDatabaseHas('tagihan', ['id' => $tagihan->id]);
 });
@@ -184,21 +180,18 @@ test('finance can edit tabungan but cannot delete tabungan', function () {
 
     expect((float)$secondTx->saldo_akhir)->toBe(80000.00);
 
-    // Finance edits first transaction from 50000 to 70000
+    // Finance edits first transaction (submits approval request with reason)
     Livewire::test(TabunganSiswa::class)
         ->call('openEditTransaction', $firstTx->id)
         ->set('edit_nominal', 70000.00)
+        ->set('edit_alasan', 'Koreksi setoran tabungan siswa')
         ->call('saveEditTransaction')
         ->assertHasNoErrors();
 
-    $secondTx->refresh();
-    // After recalculation, second balance should be 70000 + 30000 = 100000
-    expect((float)$secondTx->saldo_akhir)->toBe(100000.00);
-
-    // Finance tries to delete -> Blocked!
+    // Finance tries to delete -> Submits approval request, not directly deleted!
     Livewire::test(TabunganSiswa::class)
         ->call('deleteTransaction', $firstTx->id)
-        ->assertSee('Akses Ditolak');
+        ->assertSee('Permohonan penghapusan transaksi tabungan telah diajukan');
 
     $this->assertDatabaseHas('tabungans', ['id' => $firstTx->id]);
 });

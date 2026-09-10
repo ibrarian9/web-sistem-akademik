@@ -8,10 +8,8 @@
     <div class="w-full max-w-md z-10">
         <!-- Logo & Header -->
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-green-50 border border-green-200 shadow-md mb-4">
-                <svg class="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.62 48.62 0 0112 20.904a48.62 48.62 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 019.918 5.842 50.45 50.45 0 00-2.658.814m-15.482 0a50.53 50.53 0 0115.482 0m-15.482 0v3.06c0 5.625 3.338 10.71 8.232 12.839m0-22.742V20.9" />
-                </svg>
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-white border border-stone-200 shadow-md mb-4 p-1.5 overflow-hidden">
+                <img src="{{ asset('log-yayasan.jpg') }}" alt="Logo Yayasan" class="w-full h-full object-contain rounded-xl">
             </div>
             <h1 class="text-2xl font-bold text-stone-800 tracking-tight">Sistem Akademik Yayasan</h1>
             <p class="text-sm text-stone-500 mt-1">Silakan masuk untuk mengakses dashboard Anda</p>

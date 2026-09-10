@@ -59,26 +59,73 @@ trait Auditable
 
     protected static function resolveAuditableIdentifier($model): string
     {
+        $className = class_basename($model);
+
+        if ($className === 'Pengeluaran') {
+            $cat = $model->kategoriPengeluaran->nama ?? ($model->kategori instanceof \Illuminate\Database\Eloquent\Model ? $model->kategori->nama : (is_string($model->kategori) ? $model->kategori : null));
+            return $cat ?: ($model->keterangan ? \Illuminate\Support\Str::limit($model->keterangan, 30) : 'Pengeluaran Kas');
+        }
+
+        if ($className === 'Tagihan') {
+            $j = $model->jenisTagihan->nama ?? 'Tagihan';
+            $s = $model->siswa->user->nama ?? null;
+            $b = $model->bulan ?? '';
+            return $s ? "{$j} ({$b}) - {$s}" : "{$j} ({$b})";
+        }
+
+        if ($className === 'Pembayaran') {
+            $s = $model->siswa->user->nama ?? 'Siswa';
+            $resi = $model->no_resi ? " (Resi #{$model->no_resi})" : '';
+            return "{$s}{$resi}";
+        }
+
+        if ($className === 'Siswa') {
+            $nama = $model->user->nama ?? 'Siswa';
+            $nis = $model->nis ? " (NIS: {$model->nis})" : '';
+            return "{$nama}{$nis}";
+        }
+
+        if ($className === 'Guru') {
+            return $model->user->nama ?? $model->nip ?? 'Guru';
+        }
+
         if (isset($model->bulan) && isset($model->tahun)) {
             return "{$model->bulan} {$model->tahun}";
         }
 
-        return $model->no_resi 
-            ?? $model->nomor_surat
-            ?? $model->kode_transaksi 
-            ?? $model->nama 
-            ?? $model->nama_lengkap
-            ?? $model->nama_kelas
-            ?? $model->nama_kegiatan
-            ?? $model->judul_lingkup_materi
-            ?? $model->deskripsi_tp
-            ?? $model->name 
-            ?? $model->nis 
-            ?? $model->nip
-            ?? $model->username 
-            ?? $model->judul 
-            ?? $model->kategori 
-            ?? "#{$model->getKey()}";
+        $candidates = [
+            $model->no_resi ?? null,
+            $model->nomor_surat ?? null,
+            $model->kode_transaksi ?? null,
+            $model->nama ?? null,
+            $model->nama_lengkap ?? null,
+            $model->nama_kelas ? "Kelas {$model->nama_kelas}" : null,
+            $model->nama_kegiatan ?? null,
+            $model->judul_lingkup_materi ?? null,
+            $model->deskripsi_tp ?? null,
+            $model->name ?? null,
+            $model->nis ? "NIS: {$model->nis}" : null,
+            $model->nip ? "NIP: {$model->nip}" : null,
+            $model->username ?? null,
+            $model->judul ?? null,
+        ];
+
+        foreach ($candidates as $candidate) {
+            if ($candidate !== null && is_string($candidate) && trim($candidate) !== '') {
+                return trim($candidate);
+            }
+        }
+
+        if (isset($model->kategori)) {
+            if ($model->kategori instanceof \Illuminate\Database\Eloquent\Model) {
+                return $model->kategori->nama ?? $model->kategori->name ?? class_basename($model->kategori);
+            }
+            if (is_string($model->kategori) && trim($model->kategori) !== '') {
+                return trim($model->kategori);
+            }
+        }
+
+        return \App\Services\AuditLogFormatter::formatModelName(get_class($model));
     }
 
     protected static function resolveAuditableLogName($model): string

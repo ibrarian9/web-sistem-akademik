@@ -183,4 +183,36 @@ class Siswa extends Model
 
         return $query;
     }
+
+    /**
+     * Local Scope: Filter only active students
+     */
+    public function scopeAktif($query)
+    {
+        return $query->where('status', 'aktif');
+    }
+
+    /**
+     * Local Scope: Filter students by class ID
+     */
+    public function scopeByKelas($query, $kelasId)
+    {
+        return $query->when($kelasId, fn($q) => $q->where('kelas_id', $kelasId));
+    }
+
+    /**
+     * Local Scope: Search students by name, NIS, NISN, or username
+     */
+    public function scopeSearch($query, ?string $search = null)
+    {
+        return $query->when($search, function ($q) use ($search) {
+            $q->where('nis', 'like', "%{$search}%")
+                ->orWhere('nisn', 'like', "%{$search}%")
+                ->orWhereHas('user', function ($uq) use ($search) {
+                    $uq->where('nama', 'like', "%{$search}%")
+                        ->orWhere('username', 'like', "%{$search}%");
+                });
+        });
+    }
 }
+

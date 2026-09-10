@@ -14,6 +14,10 @@ use Livewire\Livewire;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
+    \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+    Siswa::query()->forceDelete();
+    \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
     $this->artisan('db:seed', ['--class' => 'RoleSeeder']);
     $this->artisan('db:seed', ['--class' => 'PengaturanSeeder']);
 

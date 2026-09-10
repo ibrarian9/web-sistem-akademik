@@ -52,9 +52,17 @@ class ManajemenTagihan extends Component
 
     // Tagihan Form values
     public ?int $jenis_tagihan_id = null;
+    public string $periodeTipe = 'single'; // 'single' | 'full_year_jan_des' | 'full_year_juli_juni' | 'custom_range'
     public string $bulan = 'Juli';
+    public string $bulan_mulai = 'Juli';
+    public string $bulan_selesai = 'Desember';
     public float $nominal = 0.00;
     public string $jatuh_tempo = '';
+
+    // Quick Detail Modal properties
+    public bool $showQuickDetailModal = false;
+    public ?int $quickDetailSiswaId = null;
+    public ?Siswa $quickDetailSiswa = null;
 
     // Edit Tagihan Form properties
     public ?int $editingTagihanId = null;
@@ -80,6 +88,11 @@ class ManajemenTagihan extends Component
         'Semester Ganjil', 'Semester Genap', 'Tahunan'
     ];
 
+    public array $standardMonths = [
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni'
+    ];
+
     public function mount()
     {
         $this->classes = Kelas::orderBy('nama_kelas')->get()->toArray();
@@ -88,7 +101,7 @@ class ManajemenTagihan extends Component
             ->where('nama', 'not like', '%Donasi%')
             ->get()
             ->toArray();
-        $this->jatuh_tempo = date('Y-m-d', strtotime('+30 days'));
+        $this->jatuh_tempo = date('Y-m-10');
     }
 
     public function isFounder(): bool
@@ -258,6 +271,9 @@ class ManajemenTagihan extends Component
         $this->resetValidation();
         $this->releaseMode = $siswaId ? 'single' : 'bulk';
         $this->bulkTarget = 'custom';
+        $this->periodeTipe = 'single';
+        $this->bulan_mulai = 'Juli';
+        $this->bulan_selesai = 'Desember';
         $this->release_kelas_id = null;
         $this->studentSearch = '';
         $this->single_siswa_id = null;
@@ -267,6 +283,7 @@ class ManajemenTagihan extends Component
         $this->bulkSelectedSiswaIds = [];
         $this->bulkSearchStudent = '';
         $this->bulkSearchKelasId = null;
+        $this->jatuh_tempo = date('Y-m-10');
 
         if ($siswaId) {
             $this->selectStudent($siswaId);
@@ -304,6 +321,141 @@ class ManajemenTagihan extends Component
         }
     }
 
+    public function openQuickDetail(int $siswaId)
+    {
+        $this->quickDetailSiswaId = $siswaId;
+        $this->quickDetailSiswa = Siswa::with(['user', 'kelas', 'tagihans' => function ($q) {
+            $q->with(['jenisTagihan', 'tahunAjaran', 'pembayarans'])->latest();
+        }])->find($siswaId);
+        $this->showQuickDetailModal = true;
+    }
+
+    public function closeQuickDetailModal()
+    {
+        $this->showQuickDetailModal = false;
+        $this->quickDetailSiswaId = null;
+        $this->quickDetailSiswa = null;
+    }
+
+    public function setPresetRange(string $start, string $end)
+    {
+        $this->bulan_mulai = $start;
+        $this->bulan_selesai = $end;
+    }
+
+    public function getMonthsBetween(string $start, string $end): array
+    {
+        $academicOrder = [
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni'
+        ];
+
+        $calendarOrder = [
+            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+
+        if ($start === $end) {
+            return [$start];
+        }
+
+        // Check in Academic Order first (most common for schools)
+        $acadStart = array_search($start, $academicOrder);
+        $acadEnd = array_search($end, $academicOrder);
+
+        if ($acadStart !== false && $acadEnd !== false && $acadStart <= $acadEnd) {
+            return array_slice($academicOrder, $acadStart, $acadEnd - $acadStart + 1);
+        }
+
+        // Check in Calendar Order
+        $calStart = array_search($start, $calendarOrder);
+        $calEnd = array_search($end, $calendarOrder);
+
+        if ($calStart !== false && $calEnd !== false && $calStart <= $calEnd) {
+            return array_slice($calendarOrder, $calStart, $calEnd - $calStart + 1);
+        }
+
+        // Cyclic fallback in Academic order
+        if ($acadStart !== false && $acadEnd !== false) {
+            $result = [];
+            $curr = $acadStart;
+            while (true) {
+                $result[] = $academicOrder[$curr];
+                if ($curr === $acadEnd) {
+                    break;
+                }
+                $curr = ($curr + 1) % 12;
+            }
+            return $result;
+        }
+
+        return [$start];
+    }
+
+    public function getTargetMonths(): array
+    {
+        if ($this->periodeTipe === 'full_year_jan_des') {
+            return [
+                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            ];
+        } elseif ($this->periodeTipe === 'full_year_juli_juni') {
+            return [
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni'
+            ];
+        } elseif ($this->periodeTipe === 'custom_range') {
+            return $this->getMonthsBetween($this->bulan_mulai, $this->bulan_selesai);
+        }
+        return [$this->bulan];
+    }
+
+    protected function calculateDueDateForMonth(string $monthName, ?string $baseDueDate = null, ?string $tahunAjaranNama = null): string
+    {
+        $monthNumbers = [
+            'Januari' => 1, 'Februari' => 2, 'Maret' => 3, 'April' => 4,
+            'Mei' => 5, 'Juni' => 6, 'Juli' => 7, 'Agustus' => 8,
+            'September' => 9, 'Oktober' => 10, 'November' => 11, 'Desember' => 12
+        ];
+
+        if (!isset($monthNumbers[$monthName])) {
+            return date('Y-m-10');
+        }
+
+        $targetMonth = $monthNumbers[$monthName];
+        $targetDay = 10; // Fix tanggal 10 setiap bulannya
+
+        $year = (int) date('Y');
+        if ($tahunAjaranNama && str_contains($tahunAjaranNama, '/')) {
+            $parts = explode('/', $tahunAjaranNama);
+            $y1 = (int) trim($parts[0]);
+            $y2 = (int) trim($parts[1]);
+
+            if ($this->periodeTipe === 'full_year_jan_des') {
+                if (!empty($baseDueDate)) {
+                    try {
+                        $year = \Carbon\Carbon::parse($baseDueDate)->year;
+                    } catch (\Exception $e) {
+                        $year = $y2;
+                    }
+                } else {
+                    $year = $y2;
+                }
+            } else {
+                // Bulan Juli - Desember jatuh pada tahun ajaran pertama ($y1), Januari - Juni pada tahun kedua ($y2)
+                $year = ($targetMonth >= 7) ? $y1 : $y2;
+            }
+        } elseif (!empty($baseDueDate)) {
+            try {
+                $year = \Carbon\Carbon::parse($baseDueDate)->year;
+            } catch (\Exception $e) {
+                $year = (int) date('Y');
+            }
+        }
+
+        return sprintf('%04d-%02d-%02d', $year, $targetMonth, $targetDay);
+    }
+
     public function createSingleTagihan()
     {
         if (auth()->user()->role?->nama === 'super_admin_2') {
@@ -313,13 +465,20 @@ class ManajemenTagihan extends Component
 
         $this->sanitizeCurrencies(['nominal']);
 
-        $this->validate([
+        $rules = [
             'single_siswa_id' => 'required|exists:siswa,id',
             'jenis_tagihan_id' => 'required|exists:jenis_tagihan,id',
-            'bulan' => 'required|string|max:50',
             'nominal' => 'required|numeric|min:0',
-            'jatuh_tempo' => 'required|date',
-        ], [
+        ];
+
+        if ($this->periodeTipe === 'single') {
+            $rules['bulan'] = 'required|string|max:50';
+        } elseif ($this->periodeTipe === 'custom_range') {
+            $rules['bulan_mulai'] = 'required|string|in:' . implode(',', $this->standardMonths);
+            $rules['bulan_selesai'] = 'required|string|in:' . implode(',', $this->standardMonths);
+        }
+
+        $this->validate($rules, [
             'single_siswa_id.required' => 'Pilih siswa penerima tagihan terlebih dahulu.',
         ]);
 
@@ -331,40 +490,61 @@ class ManajemenTagihan extends Component
         }
 
         $siswa = Siswa::with('user')->findOrFail($this->single_siswa_id);
+        $targetMonths = $this->getTargetMonths();
+        $createdCount = 0;
+        $skippedCount = 0;
 
-        // Check if duplicate tagihan already exists
-        $existing = Tagihan::where('siswa_id', $siswa->id)
-            ->where('jenis_tagihan_id', $this->jenis_tagihan_id)
-            ->where('tahun_ajaran_id', $activeTA->id)
-            ->where('bulan', $this->bulan)
-            ->first();
+        DB::transaction(function () use ($siswa, $activeTA, $targetMonths, &$createdCount, &$skippedCount) {
+            $status = ($this->nominal <= 0) ? 'lunas' : 'belum_bayar';
 
-        if ($existing) {
-            $msg = "Siswa ini sudah memiliki tagihan " . ($existing->jenisTagihan->nama ?? 'Tagihan') . " untuk periode " . $this->bulan . ".";
+            foreach ($targetMonths as $m) {
+                $exists = Tagihan::where('siswa_id', $siswa->id)
+                    ->where('jenis_tagihan_id', $this->jenis_tagihan_id)
+                    ->where('tahun_ajaran_id', $activeTA->id)
+                    ->where('bulan', $m)
+                    ->exists();
+
+                if (!$exists) {
+                    $monthDueDate = $this->calculateDueDateForMonth($m, $this->jatuh_tempo, $activeTA->nama);
+                    Tagihan::create([
+                        'siswa_id' => $siswa->id,
+                        'jenis_tagihan_id' => $this->jenis_tagihan_id,
+                        'tahun_ajaran_id' => $activeTA->id,
+                        'bulan' => $m,
+                        'nominal' => $this->nominal,
+                        'total_dibayar' => 0.00,
+                        'status' => $status,
+                        'jatuh_tempo' => $monthDueDate,
+                    ]);
+                    $createdCount++;
+                } else {
+                    $skippedCount++;
+                }
+            }
+        });
+
+        if ($createdCount === 0 && $skippedCount > 0) {
+            $msg = "Tidak ada tagihan baru dibuat. Siswa ini sudah memiliki tagihan untuk seluruh periode yang dipilih.";
             session()->flash('warning', $msg);
             $this->dispatch('show-alert', [
                 'title' => 'Tagihan Sudah Ada',
                 'message' => $msg,
                 'type' => 'warning',
             ]);
-            $this->addError('bulan', $msg);
             return;
         }
 
-        $status = ($this->nominal <= 0) ? 'lunas' : 'belum_bayar';
+        $siswaName = $siswa->user->nama ?? 'Siswa';
+        if (count($targetMonths) > 1) {
+            $rangeLabel = ($this->periodeTipe === 'custom_range') 
+                ? "{$this->bulan_mulai} - {$this->bulan_selesai}" 
+                : ($this->periodeTipe === 'full_year_jan_des' ? 'Januari - Desember' : 'Juli - Juni');
+            $msg = "Berhasil menerbitkan {$createdCount} tagihan ({$rangeLabel}) untuk siswa {$siswaName}" . ($skippedCount > 0 ? " ({$skippedCount} bulan dilewati karena sudah ada)." : ".");
+        } else {
+            $singleMonth = $targetMonths[0] ?? $this->bulan;
+            $msg = "Berhasil merilis tagihan periode {$singleMonth} untuk siswa {$siswaName}" . ($this->nominal <= 0 ? " (Nominal Rp 0 - Otomatis Lunas)." : ".");
+        }
 
-        Tagihan::create([
-            'siswa_id' => $siswa->id,
-            'jenis_tagihan_id' => $this->jenis_tagihan_id,
-            'tahun_ajaran_id' => $activeTA->id,
-            'bulan' => $this->bulan,
-            'nominal' => $this->nominal,
-            'total_dibayar' => 0.00,
-            'status' => $status,
-            'jatuh_tempo' => $this->jatuh_tempo,
-        ]);
-
-        $msg = "Berhasil merilis tagihan untuk siswa " . ($siswa->user->nama ?? 'Siswa') . ($this->nominal <= 0 ? " (Nominal Rp 0 - Otomatis Lunas)." : ".");
         session()->flash('message', $msg);
         $this->dispatch('show-alert', [
             'title' => 'Tagihan Diterbitkan',
@@ -377,6 +557,10 @@ class ManajemenTagihan extends Component
         
         if ($this->showDetailModal && $this->selectedSiswaId) {
             $this->loadSelectedSiswa();
+        }
+        
+        if ($this->showQuickDetailModal && $this->quickDetailSiswaId) {
+            $this->openQuickDetail($this->quickDetailSiswaId);
         }
         
         $this->resetPage();
@@ -393,10 +577,15 @@ class ManajemenTagihan extends Component
 
         $rules = [
             'jenis_tagihan_id' => 'required|exists:jenis_tagihan,id',
-            'bulan' => 'required|string|max:50',
             'nominal' => 'required|numeric|min:0',
-            'jatuh_tempo' => 'required|date',
         ];
+
+        if ($this->periodeTipe === 'single') {
+            $rules['bulan'] = 'required|string|max:50';
+        } elseif ($this->periodeTipe === 'custom_range') {
+            $rules['bulan_mulai'] = 'required|string|in:' . implode(',', $this->standardMonths);
+            $rules['bulan_selesai'] = 'required|string|in:' . implode(',', $this->standardMonths);
+        }
 
         if ($this->bulkTarget === 'class') {
             $rules['release_kelas_id'] = 'required|exists:kelas,id';
@@ -433,40 +622,43 @@ class ManajemenTagihan extends Component
             return;
         }
 
+        $targetMonths = $this->getTargetMonths();
         $createdCount = 0;
         $skippedCount = 0;
 
-        DB::transaction(function () use ($targetStudents, $activeTA, &$createdCount, &$skippedCount) {
+        DB::transaction(function () use ($targetStudents, $activeTA, $targetMonths, &$createdCount, &$skippedCount) {
             $status = ($this->nominal <= 0) ? 'lunas' : 'belum_bayar';
 
             foreach ($targetStudents as $siswa) {
-                // Check if duplicate tagihan exists
-                $exists = Tagihan::where('siswa_id', $siswa->id)
-                    ->where('jenis_tagihan_id', $this->jenis_tagihan_id)
-                    ->where('tahun_ajaran_id', $activeTA->id)
-                    ->where('bulan', $this->bulan)
-                    ->exists();
+                foreach ($targetMonths as $m) {
+                    $exists = Tagihan::where('siswa_id', $siswa->id)
+                        ->where('jenis_tagihan_id', $this->jenis_tagihan_id)
+                        ->where('tahun_ajaran_id', $activeTA->id)
+                        ->where('bulan', $m)
+                        ->exists();
 
-                if (!$exists) {
-                    Tagihan::create([
-                        'siswa_id' => $siswa->id,
-                        'jenis_tagihan_id' => $this->jenis_tagihan_id,
-                        'tahun_ajaran_id' => $activeTA->id,
-                        'bulan' => $this->bulan,
-                        'nominal' => $this->nominal,
-                        'total_dibayar' => 0.00,
-                        'status' => $status,
-                        'jatuh_tempo' => $this->jatuh_tempo,
-                    ]);
-                    $createdCount++;
-                } else {
-                    $skippedCount++;
+                    if (!$exists) {
+                        $monthDueDate = $this->calculateDueDateForMonth($m, $this->jatuh_tempo, $activeTA->nama);
+                        Tagihan::create([
+                            'siswa_id' => $siswa->id,
+                            'jenis_tagihan_id' => $this->jenis_tagihan_id,
+                            'tahun_ajaran_id' => $activeTA->id,
+                            'bulan' => $m,
+                            'nominal' => $this->nominal,
+                            'total_dibayar' => 0.00,
+                            'status' => $status,
+                            'jatuh_tempo' => $monthDueDate,
+                        ]);
+                        $createdCount++;
+                    } else {
+                        $skippedCount++;
+                    }
                 }
             }
         });
 
         if ($createdCount === 0 && $skippedCount > 0) {
-            $msg = "Tidak ada tagihan baru yang diterbitkan. ({$skippedCount} siswa dilewati karena sudah memiliki tagihan ini).";
+            $msg = "Tidak ada tagihan baru yang diterbitkan. Seluruh tagihan untuk periode terpilih sudah pernah dibuat sebelumnya.";
             session()->flash('warning', $msg);
             $this->dispatch('show-alert', [
                 'title' => 'Tagihan Sudah Ada',
@@ -474,18 +666,18 @@ class ManajemenTagihan extends Component
                 'type' => 'warning',
             ]);
         } elseif ($createdCount > 0 && $skippedCount > 0) {
-            $msg = "Berhasil merilis tagihan untuk {$createdCount} siswa ({$skippedCount} siswa dilewati karena sudah memiliki tagihan ini).";
+            $msg = "Berhasil merilis {$createdCount} data tagihan ({$skippedCount} tagihan dilewati karena sudah ada).";
             session()->flash('message', $msg);
             $this->dispatch('show-alert', [
-                'title' => 'Rilis Massal Selesai',
+                'title' => 'Rilis Selesai',
                 'message' => $msg,
                 'type' => 'create',
             ]);
         } else {
-            $msg = "Berhasil merilis tagihan untuk {$createdCount} siswa.";
+            $msg = "Berhasil merilis {$createdCount} data tagihan untuk " . count($targetStudents) . " siswa.";
             session()->flash('message', $msg);
             $this->dispatch('show-alert', [
-                'title' => 'Rilis Massal Selesai',
+                'title' => 'Rilis Selesai',
                 'message' => $msg,
                 'type' => 'create',
             ]);
@@ -497,6 +689,10 @@ class ManajemenTagihan extends Component
 
         if ($this->showDetailModal && $this->selectedSiswaId) {
             $this->loadSelectedSiswa();
+        }
+
+        if ($this->showQuickDetailModal && $this->quickDetailSiswaId) {
+            $this->openQuickDetail($this->quickDetailSiswaId);
         }
     }
 

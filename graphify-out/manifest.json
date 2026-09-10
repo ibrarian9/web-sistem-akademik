@@ -80,8 +80,8 @@
     "semantic_hash": ""
   },
   "app/Livewire/Finance/InputPembayaran.php": {
-    "mtime": 1788937892.3213725,
-    "ast_hash": "4398be99fbbed8a23fdc7462e18d909b",
+    "mtime": 1789024957.8891757,
+    "ast_hash": "05808aebdaeb8d62891a8f629da777a6",
     "semantic_hash": ""
   },
   "app/Livewire/Finance/Laporan/LaporanPemasukan.php": {
@@ -100,8 +100,8 @@
     "semantic_hash": ""
   },
   "app/Livewire/Finance/ManajemenGajiGuru.php": {
-    "mtime": 1788853786.3376195,
-    "ast_hash": "2b4299354eba8a5f0e6c338c9acc648a",
+    "mtime": 1789030338.1592345,
+    "ast_hash": "c75ee1833df4732d708e0a62131f792b",
     "semantic_hash": ""
   },
   "app/Livewire/Finance/ManajemenPeminjaman.php": {
@@ -110,8 +110,8 @@
     "semantic_hash": ""
   },
   "app/Livewire/Finance/ManajemenTagihan.php": {
-    "mtime": 1788854149.5684795,
-    "ast_hash": "aa323a9e490ab8b5495e17d3ce88e4ac",
+    "mtime": 1789027305.6000428,
+    "ast_hash": "33cad86be4a7c259363b6df37fd28996",
     "semantic_hash": ""
   },
   "app/Livewire/Finance/OverviewPembayaran.php": {
@@ -270,8 +270,8 @@
     "semantic_hash": ""
   },
   "app/Livewire/SuperAdmin/TataKelola/AuditLog.php": {
-    "mtime": 1788831545.6177354,
-    "ast_hash": "9a231dd7e4e745bda6a0b5093a0c22e7",
+    "mtime": 1789026329.7399986,
+    "ast_hash": "cf3f9210f40aaf56da0b900f62a04629",
     "semantic_hash": ""
   },
   "app/Livewire/SuperAdmin/TataKelola/ManajemenGuru.php": {
@@ -355,8 +355,8 @@
     "semantic_hash": ""
   },
   "app/Livewire/TataUsaha/ProsesKenaikanKelas.php": {
-    "mtime": 1788851666.148019,
-    "ast_hash": "9675e5ad45edaad7e2aa423cb427278c",
+    "mtime": 1789030715.8269072,
+    "ast_hash": "52a253c2ec50e8b5d59bfa3cb8cdb1d3",
     "semantic_hash": ""
   },
   "app/Models/AbsensiGuru.php": {
@@ -390,8 +390,8 @@
     "semantic_hash": ""
   },
   "app/Models/GajiGuru.php": {
-    "mtime": 1788840693.61044,
-    "ast_hash": "2d86408eeeb9b879ca4ed4744502232b",
+    "mtime": 1789030330.905918,
+    "ast_hash": "beeca6b49c0188547652f62fe412c605",
     "semantic_hash": ""
   },
   "app/Models/Guru.php": {
@@ -550,8 +550,8 @@
     "semantic_hash": ""
   },
   "app/Models/Siswa.php": {
-    "mtime": 1788929197.6152916,
-    "ast_hash": "c151f4200d579e5f9fddcfd3a7ae398b",
+    "mtime": 1789029352.4731705,
+    "ast_hash": "863109b029888451cc8fd3d162d278f2",
     "semantic_hash": ""
   },
   "app/Models/SiswaEkstrakurikuler.php": {
@@ -570,8 +570,8 @@
     "semantic_hash": ""
   },
   "app/Models/Tagihan.php": {
-    "mtime": 1788152351.552546,
-    "ast_hash": "f5e5294b3bcb9a1bebce54bc5664a8ad",
+    "mtime": 1789029337.0592084,
+    "ast_hash": "23f1c6fccb0f80477d6bd2228b8ff644",
     "semantic_hash": ""
   },
   "app/Models/TahunAjaran.php": {
@@ -1020,8 +1020,8 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/dana-bos.blade.php": {
-    "mtime": 1788939240.4013858,
-    "ast_hash": "19a1f9efa0eebc2668feebf0f1c5003c",
+    "mtime": 1789028006.2561088,
+    "ast_hash": "a35e77b5eeb27894dde2ea4b0232f30c",
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/dashboard.blade.php": {
@@ -1030,8 +1030,8 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/input-pembayaran.blade.php": {
-    "mtime": 1788939230.9842727,
-    "ast_hash": "2a99213178ee76a8ecd61431c3f5ffaa",
+    "mtime": 1789024971.472639,
+    "ast_hash": "aac9656adc764cb2bd45c9955bf0f0f9",
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/laporan/laporan-pemasukan.blade.php": {
@@ -1050,18 +1050,18 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/manajemen-gaji-guru.blade.php": {
-    "mtime": 1788853980.0128875,
-    "ast_hash": "2469a25b2d5b39ed2967db8f4cd07e16",
+    "mtime": 1789030067.3373091,
+    "ast_hash": "198e9df4fd7d6ca76ada7d3d1d388950",
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/manajemen-peminjaman.blade.php": {
-    "mtime": 1788940529.9755898,
-    "ast_hash": "02d003a63db2e8019bdbf021a6529966",
+    "mtime": 1789028093.2800567,
+    "ast_hash": "f104cbb3e82095a76cd0bb43464c0e76",
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/manajemen-tagihan.blade.php": {
-    "mtime": 1788939219.228131,
-    "ast_hash": "9ec7953d283460fef212e60c5109742f",
+    "mtime": 1789029786.222242,
+    "ast_hash": "4c79098204800bb100b326d3553b7e4a",
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/overview-pembayaran.blade.php": {
@@ -1070,8 +1070,8 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/pengajuan-dana.blade.php": {
-    "mtime": 1788939188.3367546,
-    "ast_hash": "bee742c08f4ccc96dced6aacab3fc82c",
+    "mtime": 1789028071.040558,
+    "ast_hash": "90fec2f5bb875cf317e1bb3c3d1d0095",
     "semantic_hash": ""
   },
   "resources/views/livewire/guru/absensi-diri.blade.php": {
@@ -1275,8 +1275,8 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/super-admin/tata-kelola/audit-log.blade.php": {
-    "mtime": 1788855872.7432678,
-    "ast_hash": "d54d883524a801c8a4e1055c7255baf9",
+    "mtime": 1789029476.9543784,
+    "ast_hash": "789854be2664e2b6051b1145304cb0d7",
     "semantic_hash": ""
   },
   "resources/views/livewire/super-admin/tata-kelola/manajemen-guru.blade.php": {
@@ -1330,8 +1330,8 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/tata-usaha/input-absensi-karyawan.blade.php": {
-    "mtime": 1788672100.4868267,
-    "ast_hash": "995467b77aacbae92e30d723473b4fa6",
+    "mtime": 1789028112.1096437,
+    "ast_hash": "f6453dd679542b3b368b7ca3271965d6",
     "semantic_hash": ""
   },
   "resources/views/livewire/tata-usaha/manajemen-kalender-akademik.blade.php": {
@@ -1895,8 +1895,8 @@
     "semantic_hash": ""
   },
   "app/Traits/Auditable.php": {
-    "mtime": 1787922169.2936823,
-    "ast_hash": "9cdd0ee98c67e24be4c9e90f031876fe",
+    "mtime": 1789026315.9378738,
+    "ast_hash": "2b92bfcd901d8aacadcffb0ae46c49b4",
     "semantic_hash": ""
   },
   "database/migrations/2026_08_13_000001_add_user_agent_to_activity_log_table.php": {
@@ -2105,8 +2105,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/TagihanTabunganFounderFinancePermissionsTest.php": {
-    "mtime": 1788158291.493481,
-    "ast_hash": "7ba39e071967ae9ea6ba6d192f9927aa",
+    "mtime": 1789025255.8114774,
+    "ast_hash": "6861391e0b6ddb40dd202ec1455c1036",
     "semantic_hash": ""
   },
   "tests/Feature/CrudNotificationAndAlertTest.php": {
@@ -2120,13 +2120,13 @@
     "semantic_hash": ""
   },
   "app/Livewire/Finance/DetailTagihanSiswa.php": {
-    "mtime": 1788854670.5850282,
-    "ast_hash": "5b7ab5ff479f568d5942c77d1c96499d",
+    "mtime": 1789027323.8196476,
+    "ast_hash": "cbb0ce45f3a0b23c93cae730f8a9e293",
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/detail-tagihan-siswa.blade.php": {
-    "mtime": 1788939224.4591942,
-    "ast_hash": "82edbd3aed8d226374ec9139e28aafed",
+    "mtime": 1789029629.3218763,
+    "ast_hash": "107e64b27dd75c37cb6882bf5e8a8d09",
     "semantic_hash": ""
   },
   "tests/Feature/StudentCountSyncTataUsahaFinanceTest.php": {
@@ -2245,8 +2245,8 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/detail-gaji-guru.blade.php": {
-    "mtime": 1788841085.222247,
-    "ast_hash": "dd11cba85dd70e37ae07e43266b9c544",
+    "mtime": 1789028035.862383,
+    "ast_hash": "a306bf8d27ad44014ecf61f076175312",
     "semantic_hash": ""
   },
   "tests/Feature/AuditLogCoverageTest.php": {
@@ -2500,8 +2500,8 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/super-admin/monitoring-akademik.blade.php": {
-    "mtime": 1788831382.2755408,
-    "ast_hash": "788c846aa9be4708678e4785fd1c318c",
+    "mtime": 1789028143.8559701,
+    "ast_hash": "ae267f448c1d601335a0befb5f8ec197",
     "semantic_hash": ""
   },
   "tests/Feature/MonitoringAkademikTest.php": {
@@ -2715,8 +2715,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/ManajemenSiswaFilterTest.php": {
-    "mtime": 1788937244.119886,
-    "ast_hash": "fbbceda3885b676b3c1425fc6ec41c1e",
+    "mtime": 1789030637.1664326,
+    "ast_hash": "e89258be5a7d9d766f02cda37785fed3",
     "semantic_hash": ""
   },
   "tests/Feature/ArusKasFilterInvestigationTest.php": {
@@ -2727,6 +2727,216 @@
   "tests/Feature/KasbonGuruFilterWaktuTest.php": {
     "mtime": 1788940542.7537978,
     "ast_hash": "2f068b7682dedee35a1a06756d9b4dc5",
+    "semantic_hash": ""
+  },
+  "tests/Feature/TagihanBulkYearlyAndStudentBillsTest.php": {
+    "mtime": 1789030620.1108747,
+    "ast_hash": "d05ae296a52f4c6862bf63ad56492245",
+    "semantic_hash": ""
+  },
+  "app/Services/AuditLogFormatter.php": {
+    "mtime": 1789027845.7766292,
+    "ast_hash": "e8795d664fdbcac9d8dc19ae8d982c88",
+    "semantic_hash": ""
+  },
+  "tests/Feature/AuditLogHumanReadableTest.php": {
+    "mtime": 1789028170.4164274,
+    "ast_hash": "256314634859c54c7f5d20defb99938c",
+    "semantic_hash": ""
+  },
+  "app/Actions/Finance/DisburseGajiAction.php": {
+    "mtime": 1789029400.1118343,
+    "ast_hash": "3e081940dad62c650431a613b051f627",
+    "semantic_hash": ""
+  },
+  "app/Actions/Finance/GenerateBulkGajiAction.php": {
+    "mtime": 1789029382.531721,
+    "ast_hash": "173f26bf3818cb392d73be0c129932f8",
+    "semantic_hash": ""
+  },
+  "app/Actions/Finance/ReleaseBillsAction.php": {
+    "mtime": 1789029413.818196,
+    "ast_hash": "6865e6f95b9022ad7ac22b60ce94a4b9",
+    "semantic_hash": ""
+  },
+  "app/Livewire/Forms/Finance/GajiGuruForm.php": {
+    "mtime": 1789029423.5878453,
+    "ast_hash": "2cab01f68d1cd76f6a800ff5cfb237b8",
+    "semantic_hash": ""
+  },
+  "app/Livewire/Forms/Finance/ReleaseTagihanForm.php": {
+    "mtime": 1789029430.0219164,
+    "ast_hash": "0ed7cfc98691b934f82c0d5a7f487425",
+    "semantic_hash": ""
+  },
+  "app/Services/SalaryCalculationService.php": {
+    "mtime": 1789029374.6542947,
+    "ast_hash": "9a01de33afad1010a544d4f86fb27d49",
+    "semantic_hash": ""
+  },
+  "app/Traits/WithAlertNotification.php": {
+    "mtime": 1789029302.286221,
+    "ast_hash": "ddbeaacd11b7ff95c39fe2405126bbd2",
+    "semantic_hash": ""
+  },
+  "app/Traits/WithCurrencyFormatting.php": {
+    "mtime": 1789029311.4020948,
+    "ast_hash": "94f46fd1b7421dd0ad450d8806bcfe92",
+    "semantic_hash": ""
+  },
+  "app/Traits/WithTableFilters.php": {
+    "mtime": 1789029289.6075642,
+    "ast_hash": "5fd7d0ed7cb9fbcd765d4843b18163f3",
+    "semantic_hash": ""
+  },
+  "resources/views/components/badge-status.blade.php": {
+    "mtime": 1789029268.6130302,
+    "ast_hash": "0fe9c4c9e4020cd2d765522541fa06e8",
+    "semantic_hash": ""
+  },
+  "resources/views/components/button-delete.blade.php": {
+    "mtime": 1789029282.0839589,
+    "ast_hash": "456ea5814ae2e55290127ec78616acd9",
+    "semantic_hash": ""
+  },
+  "resources/views/components/button-edit.blade.php": {
+    "mtime": 1789029275.9056244,
+    "ast_hash": "f73e8fd3e8e517c80016cd90c8a14236",
+    "semantic_hash": ""
+  },
+  "resources/views/components/card.blade.php": {
+    "mtime": 1789029245.4270017,
+    "ast_hash": "9e2f6c97a10726a2a425f4d921d1493e",
+    "semantic_hash": ""
+  },
+  "resources/views/components/modal.blade.php": {
+    "mtime": 1789029255.9019115,
+    "ast_hash": "6a293c341f97e45f76f952446c50c828",
+    "semantic_hash": ""
+  },
+  "resources/views/components/textarea.blade.php": {
+    "mtime": 1789029263.368871,
+    "ast_hash": "2db5c04db3a74602e4e12b8204a6a918",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/detail-tagihan-siswa/partials/modal-bukti-pembayaran.blade.php": {
+    "mtime": 1789029617.5174682,
+    "ast_hash": "0060bee7cf5cba515466c5d7f62d35fd",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/detail-tagihan-siswa/partials/modal-create-tagihan.blade.php": {
+    "mtime": 1789029592.9414473,
+    "ast_hash": "55ee8bd8fbdf5f5087297674c3f17a1d",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/detail-tagihan-siswa/partials/modal-edit-tagihan.blade.php": {
+    "mtime": 1789029605.7690394,
+    "ast_hash": "351f379ac4ce92d16f4a35ce40aa02fd",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/detail-tagihan-siswa/partials/spp-matrix-widget.blade.php": {
+    "mtime": 1789029527.2577362,
+    "ast_hash": "51fe4cc76f0bf7a27cab98e7153b9710",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/detail-tagihan-siswa/partials/stats-cards.blade.php": {
+    "mtime": 1789029514.1978862,
+    "ast_hash": "fd0ab98cdf96a85a1b85274e8e97c5e9",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/detail-tagihan-siswa/partials/table-invoices.blade.php": {
+    "mtime": 1789029553.2172945,
+    "ast_hash": "565a188eb985e56f7d36cdfb8f598477",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/detail-tagihan-siswa/partials/table-payment-history.blade.php": {
+    "mtime": 1789029569.101396,
+    "ast_hash": "dbf4bbc12a30ebde36d29b800b3b82ce",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/manajemen-gaji-guru/partials/filter-bar.blade.php": {
+    "mtime": 1789029918.5392413,
+    "ast_hash": "b59ab14891ec8923c4bb262e8f9cb05f",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/manajemen-gaji-guru/partials/modal-create-salary.blade.php": {
+    "mtime": 1789029983.194878,
+    "ast_hash": "30d2d77ae9b05dd547b67fa04a53c2f8",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/manajemen-gaji-guru/partials/modal-detail-salary.blade.php": {
+    "mtime": 1789030032.4741356,
+    "ast_hash": "18029a6b1c59a25881279969b141fbe3",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/manajemen-gaji-guru/partials/modal-edit-salary.blade.php": {
+    "mtime": 1789030169.4911234,
+    "ast_hash": "4b806f3fe6399ffcbf66af493a1d7ac6",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/manajemen-gaji-guru/partials/modal-generate-massal.blade.php": {
+    "mtime": 1789029960.181277,
+    "ast_hash": "d191e57994a9a786c3bb29c7c8908c71",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/manajemen-gaji-guru/partials/modal-pay-salary.blade.php": {
+    "mtime": 1789030056.5956504,
+    "ast_hash": "a6f0c2e66d37f41ae439d1b874cef25f",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/manajemen-gaji-guru/partials/modal-preview-slip.blade.php": {
+    "mtime": 1789030044.2508814,
+    "ast_hash": "77a06f68979ef71d32be6f4d31e5c44c",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/manajemen-gaji-guru/partials/stats-cards.blade.php": {
+    "mtime": 1789029905.2322316,
+    "ast_hash": "5bb4795a07ec2c957bf9088ff4e0b7f9",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/manajemen-gaji-guru/partials/table-salary.blade.php": {
+    "mtime": 1789029939.05276,
+    "ast_hash": "b1202a95f3f70f4a9ccb20a522c26414",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/manajemen-tagihan/partials/filter-bar.blade.php": {
+    "mtime": 1789029698.619615,
+    "ast_hash": "b1db912bda24f0a68dac86682e0149d0",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/manajemen-tagihan/partials/modal-edit-tagihan.blade.php": {
+    "mtime": 1789029724.6063006,
+    "ast_hash": "2f546e55c889c06e15f506966c71e210",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/manajemen-tagihan/partials/modal-quick-detail.blade.php": {
+    "mtime": 1789029777.2524126,
+    "ast_hash": "781c5d5281f9f57d41280d00ca41fcdc",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/manajemen-tagihan/partials/modal-release-tagihan.blade.php": {
+    "mtime": 1789029766.829434,
+    "ast_hash": "635acd2b598e83b650224f1757fd785d",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/finance/manajemen-tagihan/partials/table-students.blade.php": {
+    "mtime": 1789029709.8757923,
+    "ast_hash": "87e6f74b791a55bb4a3e5b9caee48d65",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/super-admin/tata-kelola/audit-log/partials/filter-bar.blade.php": {
+    "mtime": 1789029443.9141884,
+    "ast_hash": "bb369c8beeeb69ff401bb5c40302bbfa",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/super-admin/tata-kelola/audit-log/partials/modal-detail.blade.php": {
+    "mtime": 1789029470.3703675,
+    "ast_hash": "5049ff1fff7b5fdddd0b298459907cc5",
+    "semantic_hash": ""
+  },
+  "resources/views/livewire/super-admin/tata-kelola/audit-log/partials/table.blade.php": {
+    "mtime": 1789029454.2618458,
+    "ast_hash": "e75224cbb1a41d81f1be40a7ef48871e",
     "semantic_hash": ""
   }
 }

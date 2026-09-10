@@ -209,7 +209,7 @@
                     </th>
                     <x-table.th align="center" class="w-32">Periode Gaji</x-table.th>
                     <x-table.th align="right" class="w-36">Gaji Pokok</x-table.th>
-                    <x-table.th align="right" class="w-40">Tunjangan / Insentif</x-table.th>
+                    <x-table.th align="right" class="w-40">Tunjangan & Insentif</x-table.th>
                     <x-table.th align="right" class="w-36">Potongan</x-table.th>
                     <x-table.th align="right" class="w-40">Take Home Pay</x-table.th>
                     <x-table.th align="center" class="w-28">Tgl Bayar</x-table.th>

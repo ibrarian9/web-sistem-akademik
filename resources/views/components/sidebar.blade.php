@@ -475,10 +475,8 @@
     <!-- Header / Brand -->
     <div class="flex items-center justify-between px-5 h-16 border-b border-stone-200 bg-white">
         <div class="flex items-center gap-3 min-w-0">
-            <div class="flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 shrink-0">
-                <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
+            <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-stone-200 shadow-xs shrink-0 overflow-hidden p-0.5">
+                <img src="{{ asset('log-yayasan.jpg') }}" alt="Logo Yayasan" class="w-full h-full object-contain rounded-lg">
             </div>
             <div class="truncate">
                 <h2 class="text-sm font-extrabold text-stone-900 tracking-tight">SIAKAD DIGITAL</h2>

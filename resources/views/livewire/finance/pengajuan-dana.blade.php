@@ -64,7 +64,7 @@
                     <x-table.th align="right" class="w-44">Jumlah Anggaran</x-table.th>
                     <x-table.th align="center" class="w-36">Pemohon</x-table.th>
                     <x-table.th align="center" class="w-48">Status Approval</x-table.th>
-                    <x-table.th align="center" class="w-44">Aksi / Persetujuan</x-table.th>
+                    <x-table.th align="center" class="w-44">Persetujuan</x-table.th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-stone-200 bg-white">
@@ -209,7 +209,7 @@
 
             <!-- Keterangan -->
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Keterangan / Rincian Kebutuhan</label>
+                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Rincian Kebutuhan</label>
                 <textarea wire:model="keterangan" rows="3" placeholder="Jelaskan rincian dan alokasi kebutuhan belanja dana..." class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 shadow-2xs resize-none"></textarea>
                 @error('keterangan') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror
             </div>

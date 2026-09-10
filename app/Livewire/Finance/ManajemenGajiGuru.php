@@ -9,6 +9,9 @@ use App\Models\Peminjaman;
 use App\Models\Pengeluaran;
 use App\Models\KategoriPengeluaran;
 use App\Services\NotificationService;
+use App\Services\SalaryCalculationService;
+use App\Actions\Finance\GenerateBulkGajiAction;
+use App\Actions\Finance\DisburseGajiAction;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\DB;
@@ -241,19 +244,12 @@ class ManajemenGajiGuru extends Component
             $potonganBpjstk = $isTetap ? 17928.00 : 0.00;
             $potonganLainnya = 0.00;
 
-            $activeLoan = Peminjaman::where('guru_id', $guru->id)
-                ->where('status', 'berjalan')
-                ->where('sisa_pinjaman', '>', 0)
-                ->first();
+            $calc = app(SalaryCalculationService::class);
+            $potonganPeminjaman = $calc->resolveActiveLoanDeduction($guru->id);
 
-            $potonganPeminjaman = 0.00;
-            if ($activeLoan) {
-                $potonganPeminjaman = min(floatval($activeLoan->cicilan_per_bulan), floatval($activeLoan->sisa_pinjaman));
-            }
-
-            $totalBruto = floatval($gajiPokok) + floatval($gajiBerkala) + floatval($honorEkskul) + floatval($insentif) + floatval($insentifBpjs) + floatval($insentifMaghrib);
-            $totalPotongan = floatval($potonganSosial) + floatval($potonganPeminjaman) + floatval($potonganBpjstk) + floatval($potonganLainnya);
-            $totalDiterima = max(0, $totalBruto - $totalPotongan);
+            $totalBruto = $calc->calculateBruto($gajiPokok, $gajiBerkala, $honorEkskul, $insentif, $insentifBpjs, $insentifMaghrib);
+            $totalPotongan = $calc->calculatePotongan($potonganSosial, $potonganPeminjaman, $potonganBpjstk, $potonganLainnya);
+            $totalDiterima = $calc->calculateNetTakeHomePay($totalBruto, $totalPotongan);
 
             $jabatan = $guru->jabatan ?: ($guru->jenis_guru === 'tahfidz' ? 'Wali Tahfizh' : 'Guru Pengajar');
             $jamKerja = $isTetap ? '07.00-14.00 (Fleksibel)' : '07.00-14.00';
@@ -289,20 +285,25 @@ class ManajemenGajiGuru extends Component
     {
         if (isset($this->generateItems[$guruId])) {
             $item = &$this->generateItems[$guruId];
-            $bruto = floatval($item['gaji_pokok'] ?? 0)
-                + floatval($item['gaji_berkala'] ?? 0)
-                + floatval($item['honor_ekskul'] ?? 0)
-                + floatval($item['insentif'] ?? 0)
-                + floatval($item['insentif_bpjs'] ?? 0)
-                + floatval($item['insentif_maghrib_mengaji'] ?? 0);
+            $calc = app(SalaryCalculationService::class);
+            $bruto = $calc->calculateBruto(
+                floatval($item['gaji_pokok'] ?? 0),
+                floatval($item['gaji_berkala'] ?? 0),
+                floatval($item['honor_ekskul'] ?? 0),
+                floatval($item['insentif'] ?? 0),
+                floatval($item['insentif_bpjs'] ?? 0),
+                floatval($item['insentif_maghrib_mengaji'] ?? 0)
+            );
 
-            $potongan = floatval($item['potongan_sosial'] ?? 0)
-                + floatval($item['potongan_peminjaman'] ?? 0)
-                + floatval($item['potongan_bpjstk'] ?? 0)
-                + floatval($item['potongan_lainnya'] ?? 0);
+            $potongan = $calc->calculatePotongan(
+                floatval($item['potongan_sosial'] ?? 0),
+                floatval($item['potongan_peminjaman'] ?? 0),
+                floatval($item['potongan_bpjstk'] ?? 0),
+                floatval($item['potongan_lainnya'] ?? 0)
+            );
 
             $item['total_bruto'] = $bruto;
-            $item['total_diterima'] = max(0, $bruto - $potongan);
+            $item['total_diterima'] = $calc->calculateNetTakeHomePay($bruto, $potongan);
         }
     }
 
@@ -330,60 +331,11 @@ class ManajemenGajiGuru extends Component
             return;
         }
 
-        $createdCount = 0;
-
-        DB::transaction(function () use ($selectedItems, &$createdCount) {
-            foreach ($selectedItems as $item) {
-                $exists = GajiGuru::where('guru_id', $item['guru_id'])
-                    ->where('bulan', $this->generateBulan)
-                    ->where('tahun', $this->generateTahun)
-                    ->exists();
-
-                if ($exists) {
-                    continue;
-                }
-
-                $bruto = floatval($item['gaji_pokok'])
-                    + floatval($item['gaji_berkala'])
-                    + floatval($item['honor_ekskul'])
-                    + floatval($item['insentif'])
-                    + floatval($item['insentif_bpjs'])
-                    + floatval($item['insentif_maghrib_mengaji']);
-
-                $potongan = floatval($item['potongan_sosial'])
-                    + floatval($item['potongan_peminjaman'])
-                    + floatval($item['potongan_bpjstk'])
-                    + floatval($item['potongan_lainnya']);
-
-                $thp = max(0, $bruto - $potongan);
-
-                GajiGuru::create([
-                    'guru_id' => $item['guru_id'],
-                    'bulan' => $this->generateBulan,
-                    'tahun' => $this->generateTahun,
-                    'gaji_pokok' => floatval($item['gaji_pokok']),
-                    'gaji_berkala' => floatval($item['gaji_berkala']),
-                    'jumlah_ekskul' => intval($item['jumlah_ekskul']),
-                    'honor_ekskul' => floatval($item['honor_ekskul']),
-                    'insentif' => floatval($item['insentif']),
-                    'insentif_bpjs' => floatval($item['insentif_bpjs']),
-                    'insentif_maghrib_mengaji' => floatval($item['insentif_maghrib_mengaji']),
-                    'potongan_sosial' => floatval($item['potongan_sosial']),
-                    'potongan_peminjaman' => floatval($item['potongan_peminjaman']),
-                    'potongan_bpjstk' => floatval($item['potongan_bpjstk']),
-                    'potongan_lainnya' => floatval($item['potongan_lainnya']),
-                    'total_bruto' => $bruto,
-                    'total_diterima' => $thp,
-                    'tanggal_bayar' => now()->toDateString(),
-                    'status' => 'draft',
-                    'sumber_dana' => $item['sumber_dana'] ?: 'Yayasan',
-                    'jam_kerja' => $item['jam_kerja'] ?: '07.00-14.00',
-                    'jabatan' => $item['jabatan'] ?: 'Guru',
-                ]);
-
-                $createdCount++;
-            }
-        });
+        $createdCount = app(GenerateBulkGajiAction::class)->execute(
+            $selectedItems,
+            $this->generateBulan,
+            $this->generateTahun
+        );
 
         session()->flash('message', "Draf gaji berhasil digenerate dan disimpan untuk {$createdCount} pegawai.");
         $this->closeGenerateModal();
@@ -468,19 +420,24 @@ class ManajemenGajiGuru extends Component
 
     public function calculateCreateTotal()
     {
-        $this->createTotalBruto = floatval($this->createGajiPokok)
-            + floatval($this->createGajiBerkala)
-            + floatval($this->createHonorEkskul)
-            + floatval($this->createInsentif)
-            + floatval($this->createInsentifBpjs)
-            + floatval($this->createInsentifMaghrib);
+        $calc = app(SalaryCalculationService::class);
+        $this->createTotalBruto = $calc->calculateBruto(
+            floatval($this->createGajiPokok),
+            floatval($this->createGajiBerkala),
+            floatval($this->createHonorEkskul),
+            floatval($this->createInsentif),
+            floatval($this->createInsentifBpjs),
+            floatval($this->createInsentifMaghrib)
+        );
 
-        $this->createTotalPotongan = floatval($this->createPotonganSosial)
-            + floatval($this->createPotonganPinjaman)
-            + floatval($this->createPotonganBpjstk)
-            + floatval($this->createPotonganLainnya);
+        $this->createTotalPotongan = $calc->calculatePotongan(
+            floatval($this->createPotonganSosial),
+            floatval($this->createPotonganPinjaman),
+            floatval($this->createPotonganBpjstk),
+            floatval($this->createPotonganLainnya)
+        );
 
-        $this->createTotalDiterima = max(0, $this->createTotalBruto - $this->createTotalPotongan);
+        $this->createTotalDiterima = $calc->calculateNetTakeHomePay($this->createTotalBruto, $this->createTotalPotongan);
     }
 
     public function closeCreateModal()
@@ -662,19 +619,24 @@ class ManajemenGajiGuru extends Component
 
     public function calculateEditTotal()
     {
-        $this->editTotalBruto = floatval($this->editGajiPokok)
-            + floatval($this->editGajiBerkala)
-            + floatval($this->editHonorEkskul)
-            + floatval($this->editInsentif)
-            + floatval($this->editInsentifBpjs)
-            + floatval($this->editInsentifMaghrib);
+        $calc = app(SalaryCalculationService::class);
+        $this->editTotalBruto = $calc->calculateBruto(
+            floatval($this->editGajiPokok),
+            floatval($this->editGajiBerkala),
+            floatval($this->editHonorEkskul),
+            floatval($this->editInsentif),
+            floatval($this->editInsentifBpjs),
+            floatval($this->editInsentifMaghrib)
+        );
 
-        $this->editTotalPotongan = floatval($this->editPotonganSosial)
-            + floatval($this->editPotonganPinjaman)
-            + floatval($this->editPotonganBpjstk)
-            + floatval($this->editPotonganLainnya);
+        $this->editTotalPotongan = $calc->calculatePotongan(
+            floatval($this->editPotonganSosial),
+            floatval($this->editPotonganPinjaman),
+            floatval($this->editPotonganBpjstk),
+            floatval($this->editPotonganLainnya)
+        );
 
-        $this->editTotalDiterima = max(0, $this->editTotalBruto - $this->editTotalPotongan);
+        $this->editTotalDiterima = $calc->calculateNetTakeHomePay($this->editTotalBruto, $this->editTotalPotongan);
     }
 
     public function saveEdit()
@@ -701,8 +663,10 @@ class ManajemenGajiGuru extends Component
             'editSumberDana' => 'required|string|max:100',
         ];
 
+        $gaji = GajiGuru::with('guru.user')->findOrFail($this->editingId);
+
         $userRole = auth()->user()->role->nama ?? '';
-        if ($userRole === 'finance') {
+        if ($userRole === 'finance' && $gaji->status === 'dibayar') {
             $rules['edit_alasan'] = 'required|string|min:5|max:500';
         }
 
@@ -710,10 +674,9 @@ class ManajemenGajiGuru extends Component
             'edit_alasan.required' => 'Alasan perubahan rincian gaji wajib diisi untuk permohonan persetujuan Super Admin / Super Admin 2.',
         ]);
 
-        $gaji = GajiGuru::with('guru.user')->findOrFail($this->editingId);
         $this->calculateEditTotal();
 
-        if ($userRole === 'finance') {
+        if ($userRole === 'finance' && $gaji->status === 'dibayar') {
             \App\Services\FinancialApprovalService::createRequest(
                 auth()->user(),
                 'edit',
@@ -897,60 +860,7 @@ class ManajemenGajiGuru extends Component
 
     protected function executePaySalary(GajiGuru $gaji, ?string $pathBukti = null, ?string $tanggalBayar = null, ?string $catatan = null)
     {
-        DB::transaction(function () use ($gaji, $pathBukti, $tanggalBayar, $catatan) {
-            $kategori = KategoriPengeluaran::firstOrCreate(
-                ['nama' => 'Gaji Guru'],
-                ['jenis' => 'operasional']
-            );
-
-            $keterangan = "Honorarium Pegawai Yayasan: " . ($gaji->guru->user->nama ?? 'Guru') . " (" . ($gaji->jabatan ?: 'Guru') . ") - Periode " . $gaji->bulan . " " . $gaji->tahun;
-            if ($catatan) {
-                $keterangan .= " (Catatan: " . $catatan . ")";
-            }
-
-            $pengeluaran = Pengeluaran::create([
-                'kategori_pengeluaran_id' => $kategori->id,
-                'jumlah' => $gaji->total_diterima,
-                'tanggal' => $tanggalBayar ?: now()->toDateString(),
-                'keterangan' => $keterangan,
-                'petugas_id' => auth()->id(),
-                'bukti' => $pathBukti,
-            ]);
-
-            if ($gaji->potongan_peminjaman > 0) {
-                $activeLoan = Peminjaman::where('guru_id', $gaji->guru_id)
-                    ->where('status', 'berjalan')
-                    ->where('sisa_pinjaman', '>', 0)
-                    ->first();
-
-                if ($activeLoan) {
-                    $newSisa = max(0, $activeLoan->sisa_pinjaman - $gaji->potongan_peminjaman);
-                    $status = $newSisa <= 0 ? 'lunas' : 'berjalan';
-
-                    $activeLoan->update([
-                        'sisa_pinjaman' => $newSisa,
-                        'status' => $status
-                    ]);
-                }
-            }
-
-            $gaji->update([
-                'status' => 'dibayar',
-                'pengeluaran_id' => $pengeluaran->id,
-                'tanggal_bayar' => $tanggalBayar ?: now()->toDateString(),
-                'bukti_bayar' => $pathBukti,
-            ]);
-
-            if ($gaji->guru->user_id) {
-                NotificationService::send(
-                    $gaji->guru->user_id,
-                    'Gaji Telah Dibayarkan',
-                    "Honorarium/Gaji Anda untuk periode {$gaji->bulan} {$gaji->tahun} sebesar Rp " . number_format($gaji->total_diterima, 0, ',', '.') . " telah berhasil diproses pada " . date('d-m-Y') . ".",
-                    'sistem',
-                    ['in_app']
-                );
-            }
-        });
+        app(DisburseGajiAction::class)->execute($gaji, $pathBukti, $tanggalBayar, $catatan, auth()->id());
     }
 
     public function updateSalaryBuktiFoto(int $salaryId)
@@ -1264,27 +1174,10 @@ class ManajemenGajiGuru extends Component
 
     public function render()
     {
-        $query = GajiGuru::with(['guru.user', 'pengeluaran']);
-
-        if ($this->search) {
-            $query->where(function($q) {
-                $q->whereHas('guru.user', function ($sub) {
-                    $sub->where('nama', 'like', '%' . $this->search . '%');
-                })->orWhere('jabatan', 'like', '%' . $this->search . '%');
-            });
-        }
-
-        if ($this->filterStatus) {
-            $query->where('status', $this->filterStatus);
-        }
-
-        if ($this->filterBulan) {
-            $query->where('bulan', $this->filterBulan);
-        }
-
-        if ($this->filterTahun) {
-            $query->where('tahun', $this->filterTahun);
-        }
+        $query = GajiGuru::with(['guru.user', 'pengeluaran'])
+            ->searchGuru($this->search ?: null)
+            ->filterStatus($this->filterStatus ?: null)
+            ->filterPeriod($this->filterBulan ?: null, $this->filterTahun ? intval($this->filterTahun) : null);
 
         // Base Query for Stats (matching active search & filters)
         $statsQuery = clone $query;

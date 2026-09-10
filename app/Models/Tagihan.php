@@ -64,4 +64,61 @@ class Tagihan extends Model
     {
         return $this->hasMany(Pembayaran::class);
     }
+
+    /**
+     * Local Scope: Filter only SPP bills
+     */
+    public function scopeSpp($query)
+    {
+        return $query->whereHas('jenisTagihan', fn($q) => $q->where('nama', 'like', '%SPP%'));
+    }
+
+    /**
+     * Local Scope: Filter non-SPP bills
+     */
+    public function scopeNonSpp($query)
+    {
+        return $query->whereHas('jenisTagihan', fn($q) => $q->where('nama', 'not like', '%SPP%'));
+    }
+
+    /**
+     * Local Scope: Filter by status
+     */
+    public function scopeFilterStatus($query, ?string $status = null)
+    {
+        return $query->when($status, fn($q) => $q->where('status', $status));
+    }
+
+    /**
+     * Local Scope: Filter by tahun ajaran ID
+     */
+    public function scopeFilterAcademicYear($query, ?int $tahunAjaranId = null)
+    {
+        return $query->when($tahunAjaranId, fn($q) => $q->where('tahun_ajaran_id', $tahunAjaranId));
+    }
+
+    /**
+     * Local Scope: Filter by bulan
+     */
+    public function scopeFilterBulan($query, ?string $bulan = null)
+    {
+        return $query->when($bulan, fn($q) => $q->where('bulan', $bulan));
+    }
+
+    /**
+     * Local Scope: Search by nama siswa or NIS
+     */
+    public function scopeSearchSiswa($query, ?string $search = null)
+    {
+        return $query->when($search, function ($q) use ($search) {
+            $q->whereHas('siswa.user', function ($uq) use ($search) {
+                $uq->where('nama', 'like', "%{$search}%")
+                    ->orWhere('username', 'like', "%{$search}%");
+            })->orWhereHas('siswa', function ($sq) use ($search) {
+                $sq->where('nis', 'like', "%{$search}%")
+                    ->orWhere('nisn', 'like', "%{$search}%");
+            });
+        });
+    }
 }
+

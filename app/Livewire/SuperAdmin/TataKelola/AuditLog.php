@@ -71,31 +71,36 @@ class AuditLog extends Component
         if ($log) {
             $logArray = (array) $log;
             
-            // Parse JSON attribute_changes
+            // Format deskripsi & model name bersih
+            $logArray['clean_description'] = \App\Services\AuditLogFormatter::cleanDescription($logArray['description']);
+            $logArray['clean_model_name'] = \App\Services\AuditLogFormatter::formatModelName($logArray['subject_type']);
+            $logArray['user_agent_info'] = \App\Services\AuditLogFormatter::parseUserAgent($logArray['user_agent']);
+
+            // Parse & format attribute_changes
             $changes = [];
             if (!empty($logArray['attribute_changes'])) {
                 if (is_string($logArray['attribute_changes'])) {
                     $decodedChanges = json_decode($logArray['attribute_changes'], true);
-                    $changes = json_last_error() === JSON_ERROR_NONE ? $decodedChanges : ['raw' => $logArray['attribute_changes']];
+                    $changes = json_last_error() === JSON_ERROR_NONE ? $decodedChanges : [];
                 } elseif (is_array($logArray['attribute_changes'])) {
                     $changes = $logArray['attribute_changes'];
                 }
             }
-            $logArray['changes_parsed'] = $changes;
+            $logArray['changes_formatted'] = \App\Services\AuditLogFormatter::formatAttributeChanges($changes, $logArray['subject_type']);
 
-            // Parse JSON properties
+            // Parse & format properties
             $props = [];
             if (!empty($logArray['properties'])) {
                 if (is_string($logArray['properties'])) {
                     $decodedProps = json_decode($logArray['properties'], true);
-                    $props = json_last_error() === JSON_ERROR_NONE ? $decodedProps : ['raw' => $logArray['properties']];
+                    $props = json_last_error() === JSON_ERROR_NONE ? $decodedProps : [];
                 } elseif (is_array($logArray['properties'])) {
                     $props = $logArray['properties'];
                 }
             }
-            $logArray['properties_parsed'] = $props;
+            $logArray['properties_formatted'] = \App\Services\AuditLogFormatter::formatProperties($props);
 
-            $this->detailTab = !empty($changes) ? 'diff' : 'properties';
+            $this->detailTab = !empty($logArray['changes_formatted']) ? 'diff' : 'properties';
             $this->selectedLog = $logArray;
             $this->showDetailModal = true;
         }
@@ -147,6 +152,14 @@ class AuditLog extends Component
             })
             ->orderBy('activity_log.created_at', 'desc')
             ->paginate($this->perPage);
+
+        // Transformasi row logs untuk tampilan manusiawi di tabel
+        $logs->getCollection()->transform(function ($item) {
+            $item->clean_description = \App\Services\AuditLogFormatter::cleanDescription($item->description);
+            $item->user_agent_info = \App\Services\AuditLogFormatter::parseUserAgent($item->user_agent);
+            $item->clean_model_name = \App\Services\AuditLogFormatter::formatModelName($item->subject_type);
+            return $item;
+        });
 
         // Fetch distinct events for the filter dropdown
         $events = DB::table('activity_log')

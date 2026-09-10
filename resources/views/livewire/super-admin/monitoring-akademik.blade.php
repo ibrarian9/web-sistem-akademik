@@ -546,7 +546,7 @@
                                 <x-table.th class="w-64">Nama Santri</x-table.th>
                                 <x-table.th class="w-28">Kelas</x-table.th>
                                 <x-table.th align="center" class="w-32">Status Presensi</x-table.th>
-                                <x-table.th>Catatan / Keterangan</x-table.th>
+                                <x-table.th>Keterangan</x-table.th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-stone-200 bg-white">
@@ -626,11 +626,11 @@
                         <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
                             <tr>
                                 <x-table.th align="center" class="w-12">No</x-table.th>
-                                <x-table.th class="w-64">Nama Guru / Ustadz</x-table.th>
+                                <x-table.th class="w-64">Nama Guru</x-table.th>
                                 <x-table.th align="center" class="w-28">Waktu Masuk</x-table.th>
                                 <x-table.th align="center" class="w-28">Waktu Pulang</x-table.th>
                                 <x-table.th align="center" class="w-32">Status</x-table.th>
-                                <x-table.th>Catatan / Keterangan</x-table.th>
+                                <x-table.th>Keterangan</x-table.th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-stone-200 bg-white">

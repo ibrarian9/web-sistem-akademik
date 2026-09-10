@@ -138,9 +138,9 @@
                     </th>
                     <x-table.th class="w-32">Tanggal</x-table.th>
                     <x-table.th align="center" class="w-36">Jenis</x-table.th>
-                    <x-table.th class="w-48">Kategori / Rekening</x-table.th>
+                    <x-table.th class="w-48">Kategori Rekening</x-table.th>
                     <x-table.th align="right" class="w-44">Nominal (Rp)</x-table.th>
-                    <x-table.th class="min-w-[200px]">Keterangan / Rincian Belanja</x-table.th>
+                    <x-table.th class="min-w-[200px]">Rincian Belanja</x-table.th>
                     <x-table.th align="center" class="w-28">Bukti Foto</x-table.th>
                     <x-table.th align="center" class="w-32">Aksi</x-table.th>
                 </tr>
@@ -256,7 +256,7 @@
 
             <!-- Kategori Belanja / Pos Penerimaan -->
             <x-input 
-                label="Kategori / Pos Anggaran BOS" 
+                label="Kategori Pos Anggaran BOS" 
                 name="kategori" 
                 wire:model="kategori" 
                 placeholder="{{ $jenis === 'masuk' ? 'Contoh: BOS Reguler Tahap 1' : 'Contoh: Belanja Buku Teks Pelajaran Kurikulum Merdeka' }}" 
@@ -281,9 +281,9 @@
                 required 
             />
 
-            <!-- Keterangan / Rincian -->
+            <!-- Keterangan -->
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Keterangan / Rincian Transaksi</label>
+                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Keterangan Transaksi</label>
                 <textarea wire:model="keterangan" rows="3" placeholder="Contoh: Pembelian 120 eksemplar buku paket matematika dari penyedia resmi Siplah..." class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 shadow-2xs resize-none"></textarea>
                 @error('keterangan') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror
             </div>
@@ -368,9 +368,9 @@
                     </button>
                 </div>
 
-                <!-- Kategori Belanja / Pos Penerimaan -->
+                <!-- Kategori Belanja -->
                 <x-input 
-                    label="Kategori / Pos Anggaran BOS" 
+                    label="Kategori Pos Anggaran BOS" 
                     name="edit_kategori" 
                     wire:model="edit_kategori" 
                     required 
@@ -395,7 +395,7 @@
 
                 <!-- Keterangan -->
                 <div class="space-y-1.5">
-                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Keterangan / Rincian Transaksi</label>
+                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Keterangan Transaksi</label>
                     <textarea wire:model="edit_keterangan" rows="3" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 shadow-2xs resize-none"></textarea>
                     @error('edit_keterangan') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror
                 </div>

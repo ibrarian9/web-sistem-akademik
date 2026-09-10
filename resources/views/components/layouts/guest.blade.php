@@ -4,6 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? config('app.name', 'Sistem Akademik') }}</title>
+    <link rel="icon" type="image/jpeg" href="{{ asset('log-yayasan.jpg') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ asset('log-yayasan.jpg') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="h-full font-sans antialiased selection:bg-green-500 selection:text-white">

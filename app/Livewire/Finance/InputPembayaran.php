@@ -36,6 +36,7 @@ class InputPembayaran extends Component
 
     // Selected Invoice details summary
     public ?array $selectedInvoiceInfo = null;
+    public array $siswaUnpaidInvoices = [];
     public array $classes = [];
 
     public function setMetodeBayar(string $method)
@@ -92,6 +93,8 @@ class InputPembayaran extends Component
         $this->siswa_id = $siswa->id;
         $this->siswaDeposit = floatval($siswa->saldo_deposit ?? 0.00);
 
+        $this->loadSiswaUnpaidInvoices($siswaId);
+
         if ($tagihanId) {
             $this->tagihan_id = $tagihanId;
         } else {
@@ -108,6 +111,37 @@ class InputPembayaran extends Component
             $this->selectedInvoiceInfo = null;
             $this->nominal_dibayar = 0.00;
         }
+    }
+
+    public function switchTagihan(int $tagihanId)
+    {
+        $this->tagihan_id = $tagihanId;
+        $this->loadSelectedTagihanDetails($tagihanId);
+    }
+
+    public function loadSiswaUnpaidInvoices(int $siswaId)
+    {
+        $invoices = Tagihan::where('siswa_id', $siswaId)
+            ->whereIn('status', ['belum_bayar', 'sebagian'])
+            ->with(['jenisTagihan', 'tahunAjaran'])
+            ->orderBy('jatuh_tempo', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $this->siswaUnpaidInvoices = $invoices->map(function ($t) {
+            $sisa = max(0, floatval($t->nominal) - floatval($t->total_dibayar));
+            return [
+                'id' => $t->id,
+                'jenis' => $t->jenisTagihan->nama ?? 'Tagihan',
+                'bulan' => $t->bulan ?: '-',
+                'nominal' => floatval($t->nominal),
+                'total_dibayar' => floatval($t->total_dibayar),
+                'sisa' => $sisa,
+                'status' => $t->status,
+                'jatuh_tempo' => $t->jatuh_tempo ? date('d/m/Y', strtotime($t->jatuh_tempo)) : '-',
+                'is_spp' => str_contains(strtoupper($t->jenisTagihan->nama ?? ''), 'SPP'),
+            ];
+        })->toArray();
     }
 
     public function loadSelectedTagihanDetails(int $tagihanId)
@@ -132,7 +166,7 @@ class InputPembayaran extends Component
 
     public function resetSelection()
     {
-        $this->reset(['siswa_id', 'tagihan_id', 'nominal_dibayar', 'selectedInvoiceInfo', 'siswaDeposit', 'bukti_foto']);
+        $this->reset(['siswa_id', 'tagihan_id', 'nominal_dibayar', 'selectedInvoiceInfo', 'siswaUnpaidInvoices', 'siswaDeposit', 'bukti_foto']);
         $this->resetValidation();
     }
 
