@@ -6,7 +6,12 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Kelas;
+use App\Models\JadwalPelajaran;
+use App\Models\GuruMapelKelas;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ManajemenUser extends Component
 {
@@ -147,15 +152,56 @@ class ManajemenUser extends Component
             return;
         }
 
-        $user = User::with('role')->findOrFail($id);
+        $user = User::with(['role', 'guru', 'siswa'])->findOrFail($id);
 
         if ($this->isTuUser() && in_array($user->role?->nama, ['murid', 'super_admin'])) {
             session()->flash('error', 'Tata Usaha tidak dapat menghapus akun ini.');
             return;
         }
 
-        $user->delete();
-        session()->flash('message', 'Pengguna berhasil dihapus.');
+        try {
+            DB::transaction(function () use ($user) {
+                \App\Services\AuditLogger::log('deleted', 'Menghapus pengguna: ' . $user->nama, $user, [
+                    'log_name' => 'manajemen_user',
+                ]);
+
+                if ($user->guru) {
+                    $guru = $user->guru;
+                    Kelas::where('guru_umum_id', $guru->id)->update(['guru_umum_id' => null]);
+                    Kelas::where('guru_tahfidz_id', $guru->id)->update(['guru_tahfidz_id' => null]);
+                    if (Schema::hasColumn('kelas', 'guru_id')) {
+                        Kelas::where('guru_id', $guru->id)->update(['guru_id' => null]);
+                    }
+                    if (Schema::hasTable('jadwal_pelajaran') && Schema::hasColumn('jadwal_pelajaran', 'guru_id')) {
+                        JadwalPelajaran::where('guru_id', $guru->id)->delete();
+                    }
+                    GuruMapelKelas::where('guru_id', $guru->id)->delete();
+                    if (Schema::hasTable('jadwal_piket_guru')) {
+                        DB::table('jadwal_piket_guru')->where('guru_id', $guru->id)->delete();
+                    }
+                    if (Schema::hasTable('ekstrakurikuler') && Schema::hasColumn('ekstrakurikuler', 'pembina_guru_id')) {
+                        DB::table('ekstrakurikuler')->where('pembina_guru_id', $guru->id)->update(['pembina_guru_id' => null]);
+                    }
+                    $guru->delete();
+                }
+
+                if ($user->siswa) {
+                    $siswa = $user->siswa;
+                    $siswa->tagihans()->where('status', '!=', 'lunas')->delete();
+                    $siswa->delete();
+                }
+
+                $user->delete();
+            });
+
+            session()->flash('message', 'Pengguna berhasil dihapus.');
+        } catch (\Throwable $e) {
+            \App\Services\AuditLogger::log('error', 'Gagal menghapus data pengguna ID ' . $id . ': ' . $e->getMessage(), null, [
+                'log_name' => 'manajemen_user',
+            ]);
+
+            session()->flash('error', 'Gagal menghapus pengguna: ' . $e->getMessage());
+        }
     }
 
     private function resetForm()

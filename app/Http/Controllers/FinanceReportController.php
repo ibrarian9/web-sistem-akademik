@@ -491,6 +491,9 @@ class FinanceReportController extends Controller
             } elseif ($endDate) {
                 $query->whereDate('jatuh_tempo', '<=', $endDate);
             }
+        } else {
+            // Default: hanya tagihan yang sudah jatuh tempo s/d bulan berjalan
+            $query->jatuhTempo();
         }
 
         $data = $query->get();

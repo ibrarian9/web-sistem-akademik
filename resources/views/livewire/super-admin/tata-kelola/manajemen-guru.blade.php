@@ -88,7 +88,7 @@
                             default => 'Belum Menikah',
                         };
                     @endphp
-                    <tr class="hover:bg-stone-50 transition">
+                    <tr class="hover:bg-stone-50 transition" wire:key="guru-row-{{ $guru->id }}">
                         <td class="p-3.5 border-r border-stone-200">
                             <div class="font-bold text-stone-900">NIY: {{ $guru->niy ?: ($guru->nip ?: '-') }}</div>
                             <div class="text-[10px] text-stone-500 font-medium">NIK: {{ $guru->nik ?: '-' }}</div>
@@ -146,12 +146,14 @@
                         <td class="p-3.5 text-center">
                             @if(!auth()->user()->isSuperAdmin2())
                             <div class="flex items-center justify-center gap-1.5">
-                                <x-button type="button" variant="secondary" size="xs" icon="edit" wire:click.prevent="openEdit({{ $guru->id }})">
+                                <x-button type="button" variant="secondary" size="xs" icon="edit" wire:click="openEdit({{ $guru->id }})">
                                     Edit
                                 </x-button>
-                                <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click.prevent="delete({{ $guru->id }})" data-confirm="Apakah Anda yakin ingin menghapus data guru ini?">
+                                @if($guru->user_id !== auth()->id())
+                                <x-button type="button" variant="danger" size="xs" icon="trash-2" wire:click="delete({{ $guru->id }})" data-confirm="Apakah Anda yakin ingin menghapus data guru {{ $guru->user->nama ?? '' }} ini?">
                                     Hapus
                                 </x-button>
+                                @endif
                             </div>
                             @else
                                 <span class="text-[10px] text-stone-400 font-mono italic">Lihat Saja</span>

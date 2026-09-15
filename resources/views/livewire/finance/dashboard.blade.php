@@ -184,6 +184,7 @@
         <x-stat-card 
             title="Total Tunggakan Aktif" 
             :value="'Rp ' . number_format($outstandingBills, 0, ',', '.')" 
+            :subtitle="$futureBills > 0 ? 'Jatuh tempo s/d bulan ini (+ Rp ' . number_format($futureBills, 0, ',', '.') . ' tagihan mendatang)' : 'Jatuh tempo s/d bulan berjalan'"
             icon="alert-triangle" 
             variant="white" 
         />

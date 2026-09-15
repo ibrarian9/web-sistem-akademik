@@ -7,8 +7,13 @@ use Livewire\WithPagination;
 use App\Models\Guru;
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Kelas;
+use App\Models\Siswa;
+use App\Models\JadwalPelajaran;
+use App\Models\GuruMapelKelas;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ManajemenGuru extends Component
 {
@@ -235,6 +240,11 @@ class ManajemenGuru extends Component
     {
         if (auth()->user()->isSuperAdmin2()) {
             session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            $this->dispatch('show-alert', [
+                'title' => 'Akses Ditolak',
+                'message' => 'Super Admin 2 hanya memiliki hak akses Lihat Saja.',
+                'type' => 'danger',
+            ]);
             return;
         }
 
@@ -243,10 +253,36 @@ class ManajemenGuru extends Component
                 $guru = Guru::findOrFail($id);
                 $namaGuru = $guru->user->nama ?? ('ID ' . $id);
                 $user = $guru->user;
+
+                if ($guru->user_id === auth()->id()) {
+                    throw new \Exception('Anda tidak dapat menghapus akun Anda sendiri yang sedang aktif digunakan.');
+                }
+
+                if ($user && $user->isSuperAdmin()) {
+                    throw new \Exception('Akses Ditolak: Data Super Admin / Founder tidak dapat dihapus.');
+                }
                 
                 \App\Services\AuditLogger::log('deleted', 'Menghapus data guru: ' . $namaGuru, $guru, [
                     'log_name' => 'manajemen_guru',
                 ]);
+
+                // Detach foreign relations gracefully
+                Kelas::where('guru_umum_id', $guru->id)->update(['guru_umum_id' => null]);
+                Kelas::where('guru_tahfidz_id', $guru->id)->update(['guru_tahfidz_id' => null]);
+                if (Schema::hasColumn('kelas', 'guru_id')) {
+                    Kelas::where('guru_id', $guru->id)->update(['guru_id' => null]);
+                }
+                Siswa::where('shadow_teacher_id', $guru->id)->update(['shadow_teacher_id' => null]);
+                if (Schema::hasTable('jadwal_pelajaran') && Schema::hasColumn('jadwal_pelajaran', 'guru_id')) {
+                    JadwalPelajaran::where('guru_id', $guru->id)->delete();
+                }
+                GuruMapelKelas::where('guru_id', $guru->id)->delete();
+                if (Schema::hasTable('jadwal_piket_guru')) {
+                    DB::table('jadwal_piket_guru')->where('guru_id', $guru->id)->delete();
+                }
+                if (Schema::hasTable('ekstrakurikuler') && Schema::hasColumn('ekstrakurikuler', 'pembina_guru_id')) {
+                    DB::table('ekstrakurikuler')->where('pembina_guru_id', $guru->id)->update(['pembina_guru_id' => null]);
+                }
 
                 $guru->delete();
                 if ($user) {

@@ -278,7 +278,8 @@ class InputPembayaran extends Component
 
     public function render()
     {
-        $queryTunggakan = Tagihan::whereIn('status', ['belum_bayar', 'sebagian'])
+        $queryTunggakan = Tagihan::tunggakan()
+            ->whereIn('status', ['belum_bayar', 'sebagian'])
             ->with(['siswa.user', 'siswa.kelas', 'jenisTagihan'])
             ->latest();
 

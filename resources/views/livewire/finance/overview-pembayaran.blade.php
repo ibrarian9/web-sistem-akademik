@@ -62,7 +62,7 @@
         <x-stat-card 
             title="Nominal Tunggakan" 
             :value="'Rp ' . number_format($nominalTunggakan, 0, ',', '.')" 
-            subtitle="Piutang SPP belum tertagih"
+            :subtitle="$nominalMendatang > 0 ? 'Jatuh tempo s/d bulan ini (+ Rp ' . number_format($nominalMendatang, 0, ',', '.') . ' mendatang)' : 'Piutang jatuh tempo s/d bulan ini'"
             icon="wallet" 
             variant="white" 
         />
@@ -94,7 +94,7 @@
             <!-- Filter Status -->
             <select wire:model.live="filterStatus" class="px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
                 <option value="">Semua Status Tagihan</option>
-                <option value="lunas">Lunas Semua</option>
+                <option value="lunas">Lunas / Tertib Berjalan</option>
                 <option value="tunggakan">Ada Tunggakan</option>
             </select>
         </div>
@@ -144,9 +144,12 @@
                             <div class="text-[11px] text-stone-500 font-medium">Tagihan: Rp {{ number_format($item['total_nominal'], 0, ',', '.') }}</div>
                             <div class="text-[11px] text-emerald-700 font-bold">Dibayar: Rp {{ number_format($item['total_dibayar'], 0, ',', '.') }}</div>
                             @if ($item['sisa_tunggakan'] > 0)
-                                <div class="text-xs text-rose-600 font-black mt-0.5">Sisa: Rp {{ number_format($item['sisa_tunggakan'], 0, ',', '.') }}</div>
+                                <div class="text-xs text-rose-600 font-black mt-0.5">Tunggakan: Rp {{ number_format($item['sisa_tunggakan'], 0, ',', '.') }}</div>
                             @else
-                                <div class="text-xs text-emerald-600 font-bold mt-0.5">Sisa: Lunas</div>
+                                <div class="text-xs text-emerald-600 font-bold mt-0.5">Tunggakan: Nihil (Lunas)</div>
+                            @endif
+                            @if (!empty($item['sisa_mendatang']) && $item['sisa_mendatang'] > 0)
+                                <div class="text-[10px] text-stone-400 font-medium mt-0.5">Mendatang: Rp {{ number_format($item['sisa_mendatang'], 0, ',', '.') }}</div>
                             @endif
                         </td>
                         <!-- Custom Status Badge -->
@@ -154,6 +157,9 @@
                             @switch($item['status'])
                                 @case('Lunas Semua')
                                     <x-badge variant="emerald" size="xs" :dot="true">Lunas Semua</x-badge>
+                                    @break
+                                @case('Tertib Berjalan')
+                                    <x-badge variant="emerald" size="xs" :dot="true">Tertib (Bulan Ini)</x-badge>
                                     @break
                                 @case('Ada Tunggakan')
                                     <x-badge variant="rose" size="xs" :dot="true">Ada Tunggakan</x-badge>

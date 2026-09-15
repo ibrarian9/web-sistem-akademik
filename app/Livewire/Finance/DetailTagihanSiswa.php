@@ -713,12 +713,25 @@ class DetailTagihanSiswa extends Component
     public function render()
     {
         // Calculate cumulative metrics for this student
+        $cutoffDate = now()->endOfMonth()->toDateString();
         $allTagihanQuery = Tagihan::where('siswa_id', $this->siswaId);
         $totalNominal = (clone $allTagihanQuery)->sum('nominal');
         $totalTerbayar = (clone $allTagihanQuery)->sum('total_dibayar');
         $totalSisa = max(0, $totalNominal - $totalTerbayar);
+
+        // Split real overdue arrears vs upcoming future bills
+        $totalTunggakan = (float) ((clone $allTagihanQuery)->tunggakan($cutoffDate)
+            ->selectRaw('SUM(nominal - total_dibayar) as aggregate')
+            ->value('aggregate') ?? 0.0);
+
+        $totalMendatang = (float) ((clone $allTagihanQuery)->mendatang($cutoffDate)
+            ->selectRaw('SUM(nominal - total_dibayar) as aggregate')
+            ->value('aggregate') ?? 0.0);
+
         $countLunas = (clone $allTagihanQuery)->where('status', 'lunas')->count();
         $countBelumLunas = (clone $allTagihanQuery)->where('status', '!=', 'lunas')->count();
+        $countTunggakan = (clone $allTagihanQuery)->tunggakan($cutoffDate)->count();
+        $countMendatang = (clone $allTagihanQuery)->mendatang($cutoffDate)->count();
 
         // Paginated filtered invoices
         $tagihanQuery = Tagihan::with(['jenisTagihan', 'tahunAjaran', 'pembayarans'])
@@ -779,10 +792,21 @@ class DetailTagihanSiswa extends Component
         $sppMatrix = [];
         foreach ($monthsSequence as $m) {
             $item = $sppRecords->get($m);
+            $itemStatus = 'unreleased';
+            if ($item) {
+                if ($item->status === 'lunas') {
+                    $itemStatus = 'lunas';
+                } elseif ($item->is_mendatang) {
+                    $itemStatus = 'mendatang';
+                } else {
+                    $itemStatus = $item->status;
+                }
+            }
             $sppMatrix[$m] = [
                 'bulan' => $m,
                 'has_bill' => !is_null($item),
-                'status' => $item ? $item->status : 'unreleased',
+                'status' => $itemStatus,
+                'is_mendatang' => $item ? $item->is_mendatang : false,
                 'nominal' => $item ? floatval($item->nominal) : 0,
                 'total_dibayar' => $item ? floatval($item->total_dibayar) : 0,
                 'sisa' => $item ? max(0, floatval($item->nominal) - floatval($item->total_dibayar)) : 0,
@@ -844,8 +868,12 @@ class DetailTagihanSiswa extends Component
             'totalNominal' => $totalNominal,
             'totalTerbayar' => $totalTerbayar,
             'totalSisa' => $totalSisa,
+            'totalTunggakan' => $totalTunggakan,
+            'totalMendatang' => $totalMendatang,
             'countLunas' => $countLunas,
             'countBelumLunas' => $countBelumLunas,
+            'countTunggakan' => $countTunggakan,
+            'countMendatang' => $countMendatang,
             'countAll' => $countAll,
             'countSpp' => $countSpp,
             'countNonSpp' => $countNonSpp,

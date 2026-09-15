@@ -47,7 +47,7 @@ class Tagihan extends Model
 
     public function siswa()
     {
-        return $this->belongsTo(Siswa::class);
+        return $this->belongsTo(Siswa::class)->withTrashed();
     }
 
     public function jenisTagihan()
@@ -119,6 +119,67 @@ class Tagihan extends Model
                     ->orWhere('nisn', 'like', "%{$search}%");
             });
         });
+    }
+
+    /**
+     * Local Scope: Filter bills due up to the end of current month
+     */
+    public function scopeJatuhTempo($query, ?string $cutoffDate = null)
+    {
+        $cutoff = $cutoffDate ?: now()->endOfMonth()->toDateString();
+        return $query->whereHas('siswa')
+            ->where(function ($q) use ($cutoff) {
+                $q->whereDate('jatuh_tempo', '<=', $cutoff)
+                  ->orWhere(function ($sub) use ($cutoff) {
+                      $sub->whereNull('jatuh_tempo')
+                          ->whereDate('created_at', '<=', $cutoff);
+                  });
+            });
+    }
+
+    /**
+     * Local Scope: Real arrears (unpaid bills due up to the end of current month)
+     */
+    public function scopeTunggakan($query, ?string $cutoffDate = null)
+    {
+        return $query->whereHas('siswa')
+            ->where('status', '!=', 'lunas')
+            ->jatuhTempo($cutoffDate);
+    }
+
+    /**
+     * Local Scope: Future bills (unpaid bills due after the end of current month)
+     */
+    public function scopeMendatang($query, ?string $cutoffDate = null)
+    {
+        $cutoff = $cutoffDate ?: now()->endOfMonth()->toDateString();
+        return $query->whereHas('siswa')
+            ->where('status', '!=', 'lunas')
+            ->whereDate('jatuh_tempo', '>', $cutoff);
+    }
+
+    public function getIsTunggakanAttribute(): bool
+    {
+        if ($this->status === 'lunas') {
+            return false;
+        }
+
+        $cutoff = now()->endOfMonth()->toDateString();
+        if ($this->jatuh_tempo) {
+            return $this->jatuh_tempo->format('Y-m-d') <= $cutoff;
+        }
+
+        return $this->created_at ? $this->created_at->format('Y-m-d') <= $cutoff : true;
+    }
+
+    public function getIsMendatangAttribute(): bool
+    {
+        if ($this->status === 'lunas') {
+            return false;
+        }
+
+        $cutoff = now()->endOfMonth()->toDateString();
+        return $this->jatuh_tempo && $this->jatuh_tempo->format('Y-m-d') > $cutoff;
     }
 }
 

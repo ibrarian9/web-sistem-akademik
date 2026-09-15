@@ -116,6 +116,9 @@ class LaporanTunggakan extends Component
             } elseif ($this->endDate) {
                 $query->whereDate('jatuh_tempo', '<=', $this->endDate);
             }
+        } else {
+            // Default periode 'semua': hanya mencakup tunggakan yang sudah jatuh tempo s/d bulan berjalan
+            $query->jatuhTempo();
         }
 
         return $query;

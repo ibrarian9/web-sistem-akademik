@@ -123,4 +123,62 @@ class RoleFilterAuditAndGuruTest extends TestCase
             ->assertSee('IBU SITI TU')
             ->assertDontSee('UST. ZAID GURU');
     }
+
+    public function test_tata_usaha_cannot_delete_own_active_account(): void
+    {
+        $tuGuru = Guru::create([
+            'user_id' => $this->tuUser->id,
+            'nip' => '19920202',
+            'tanggal_masuk' => '2020-01-01',
+            'status_aktif' => true,
+        ]);
+
+        Livewire::actingAs($this->tuUser)
+            ->test(ManajemenGuru::class)
+            ->call('delete', $tuGuru->id)
+            ->assertDispatched('show-alert');
+
+        $this->assertDatabaseHas('guru', ['id' => $tuGuru->id, 'deleted_at' => null]);
+        $this->assertDatabaseHas('users', ['id' => $this->tuUser->id, 'deleted_at' => null]);
+    }
+
+    public function test_tata_usaha_cannot_delete_super_admin(): void
+    {
+        $adminGuru = Guru::create([
+            'user_id' => $this->superAdmin->id,
+            'nip' => '19850101',
+            'tanggal_masuk' => '2020-01-01',
+            'status_aktif' => true,
+        ]);
+
+        Livewire::actingAs($this->tuUser)
+            ->test(ManajemenGuru::class)
+            ->call('delete', $adminGuru->id)
+            ->assertDispatched('show-alert');
+
+        $this->assertDatabaseHas('guru', ['id' => $adminGuru->id, 'deleted_at' => null]);
+        $this->assertDatabaseHas('users', ['id' => $this->superAdmin->id, 'deleted_at' => null]);
+    }
+
+    public function test_tata_usaha_can_delete_other_teacher_and_dispatches_alert(): void
+    {
+        $targetGuru = Guru::create([
+            'user_id' => $this->guruUser->id,
+            'nip' => '19900101',
+            'tanggal_masuk' => '2020-01-01',
+            'status_aktif' => true,
+        ]);
+
+        Livewire::actingAs($this->tuUser)
+            ->test(ManajemenGuru::class)
+            ->call('delete', $targetGuru->id)
+            ->assertDispatched('show-alert', function ($name, $params) {
+                $payload = $params[0] ?? $params;
+                return ($payload['type'] ?? '') === 'delete' && str_contains($payload['title'] ?? '', 'Berhasil');
+            });
+
+        $this->assertSoftDeleted('guru', ['id' => $targetGuru->id]);
+        $this->assertSoftDeleted('users', ['id' => $this->guruUser->id]);
+    }
 }
+

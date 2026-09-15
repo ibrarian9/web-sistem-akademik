@@ -349,6 +349,9 @@ class ManajemenSiswa extends Component
                     'siswa_id' => $siswa->id,
                 ]);
 
+                // Soft-delete tagihan yang belum lunas agar tidak menjadi tunggakan berjalan/mendatang
+                $siswa->tagihans()->where('status', '!=', 'lunas')->delete();
+
                 $siswa->delete();
                 if ($user) {
                     $user->delete();

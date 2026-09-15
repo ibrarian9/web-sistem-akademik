@@ -20,16 +20,32 @@
     <tbody class="divide-y divide-stone-200 bg-white">
         @forelse ($students as $siswa)
             @php
+                $cutoffDate = now()->endOfMonth()->toDateString();
                 $totalTagihan = $siswa->tagihans->sum('nominal');
                 $totalDibayar = $siswa->tagihans->sum('total_dibayar');
+                
+                // Pisahkan tagihan jatuh tempo s/d bulan ini vs mendatang
+                $dueTagihans = $siswa->tagihans->filter(fn($t) => ($t->jatuh_tempo ? $t->jatuh_tempo->format('Y-m-d') <= $cutoffDate : true));
+                $upcomingTagihans = $siswa->tagihans->filter(fn($t) => ($t->jatuh_tempo && $t->jatuh_tempo->format('Y-m-d') > $cutoffDate));
+                
+                $dueTagihan = $dueTagihans->sum('nominal');
+                $dueDibayar = $dueTagihans->sum('total_dibayar');
+                $sisaTunggakan = max(0, $dueTagihan - $dueDibayar);
+                
+                $upcomingTagihan = $upcomingTagihans->sum('nominal');
+                $upcomingDibayar = $upcomingTagihans->sum('total_dibayar');
+                $sisaMendatang = max(0, $upcomingTagihan - $upcomingDibayar);
                 $sisaPiutang = max(0, $totalTagihan - $totalDibayar);
+
                 $countTagihan = $siswa->tagihans->count();
                 
                 $globalStatus = 'lunas';
-                if ($sisaPiutang > 0 && $totalDibayar > 0) {
+                if ($sisaTunggakan > 0 && $dueDibayar > 0) {
                     $globalStatus = 'sebagian';
-                } elseif ($sisaPiutang > 0 && $totalDibayar == 0) {
+                } elseif ($sisaTunggakan > 0 && $dueDibayar == 0) {
                     $globalStatus = 'belum_bayar';
+                } elseif ($sisaTunggakan == 0 && $sisaMendatang > 0) {
+                    $globalStatus = 'tertib_berjalan';
                 }
             @endphp
             <tr class="hover:bg-stone-50 transition duration-150 text-xs">
@@ -71,17 +87,34 @@
                     Rp {{ number_format($totalDibayar, 0, ',', '.') }}
                 </td>
 
-                <!-- Sisa Piutang -->
-                <td class="p-3.5 text-right font-black text-rose-700 border-r border-stone-200">
-                    Rp {{ number_format($sisaPiutang, 0, ',', '.') }}
+                <!-- Sisa Piutang / Tunggakan -->
+                <td class="p-3.5 text-right font-black border-r border-stone-200">
+                    @if ($sisaTunggakan > 0)
+                        <div class="text-xs text-rose-700 font-black">
+                            Rp {{ number_format($sisaTunggakan, 0, ',', '.') }}
+                        </div>
+                        <span class="text-[9px] font-extrabold text-rose-600 block">Jatuh Tempo</span>
+                    @else
+                        <div class="text-xs text-emerald-700 font-black">
+                            Lunas
+                        </div>
+                        <span class="text-[9px] font-bold text-stone-400 block">Bulan Ini</span>
+                    @endif
+                    @if ($sisaMendatang > 0)
+                        <div class="text-[10px] text-stone-400 font-medium mt-0.5" title="Tagihan belum jatuh tempo (bulan depan)">
+                            + Rp {{ number_format($sisaMendatang, 0, ',', '.') }} (Bln Depan)
+                        </div>
+                    @endif
                 </td>
 
                 <!-- Status Global -->
                 <td class="p-3.5 text-center border-r border-stone-200">
                     @if ($globalStatus === 'lunas')
                         <x-badge variant="emerald" size="xs">Semua Lunas</x-badge>
+                    @elseif ($globalStatus === 'tertib_berjalan')
+                        <x-badge variant="emerald" size="xs">Tertib (Bulan Ini)</x-badge>
                     @elseif ($globalStatus === 'sebagian')
-                        <x-badge variant="amber" size="xs">Ada Sebagian</x-badge>
+                        <x-badge variant="amber" size="xs">Ada Tunggakan</x-badge>
                     @else
                         <x-badge variant="rose" size="xs">Belum Lunas</x-badge>
                     @endif

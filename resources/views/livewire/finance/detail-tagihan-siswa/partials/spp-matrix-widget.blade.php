@@ -10,17 +10,27 @@
                 <p class="text-xs text-stone-500">Ringkasan status pembayaran SPP siswa per bulan dalam satu tampilan komprehensif.</p>
             </div>
         </div>
-        <div class="flex items-center gap-3 text-[11px] font-bold">
+        <div class="flex items-center gap-3 text-[11px] font-bold flex-wrap">
             <span class="inline-flex items-center gap-1 text-emerald-700"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Lunas</span>
             <span class="inline-flex items-center gap-1 text-amber-700"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Dicicil</span>
-            <span class="inline-flex items-center gap-1 text-rose-700"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Belum Bayar</span>
+            <span class="inline-flex items-center gap-1 text-rose-700"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Tunggakan</span>
+            <span class="inline-flex items-center gap-1 text-sky-700"><span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span> Mendatang</span>
             <span class="inline-flex items-center gap-1 text-stone-400"><span class="w-2.5 h-2.5 rounded-full bg-stone-300"></span> Belum Terbit</span>
         </div>
     </div>
 
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
         @foreach ($sppMatrix as $mKey => $mVal)
-            <div class="p-3 rounded-xl border transition {{ $mVal['status'] === 'lunas' ? 'bg-emerald-50/60 border-emerald-200 text-emerald-950' : ($mVal['status'] === 'sebagian' ? 'bg-amber-50/60 border-amber-200 text-amber-950' : ($mVal['status'] === 'belum_bayar' ? 'bg-rose-50/60 border-rose-200 text-rose-950' : 'bg-stone-50 border-stone-200 text-stone-400')) }}">
+            @php
+                $cardClasses = match($mVal['status']) {
+                    'lunas' => 'bg-emerald-50/60 border-emerald-200 text-emerald-950',
+                    'sebagian' => 'bg-amber-50/60 border-amber-200 text-amber-950',
+                    'belum_bayar' => 'bg-rose-50/60 border-rose-200 text-rose-950',
+                    'mendatang' => 'bg-sky-50/60 border-sky-200 text-sky-950',
+                    default => 'bg-stone-50 border-stone-200 text-stone-400',
+                };
+            @endphp
+            <div class="p-3 rounded-xl border transition {{ $cardClasses }}">
                 <div class="flex items-center justify-between gap-1 mb-1">
                     <span class="text-xs font-black uppercase">{{ $mKey }}</span>
                     @if ($mVal['status'] === 'lunas')
@@ -29,6 +39,8 @@
                         <x-lucide-clock class="w-3.5 h-3.5 text-amber-600 shrink-0" />
                     @elseif ($mVal['status'] === 'belum_bayar')
                         <x-lucide-alert-circle class="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                    @elseif ($mVal['status'] === 'mendatang')
+                        <x-lucide-calendar class="w-3.5 h-3.5 text-sky-600 shrink-0" />
                     @else
                         <x-lucide-minus-circle class="w-3.5 h-3.5 text-stone-300 shrink-0" />
                     @endif
@@ -43,6 +55,8 @@
                             <span class="text-emerald-700">Lunas</span>
                         @elseif ($mVal['status'] === 'sebagian')
                             <span class="text-amber-700">Sisa: Rp {{ number_format($mVal['sisa'], 0, ',', '.') }}</span>
+                        @elseif ($mVal['status'] === 'mendatang')
+                            <span class="text-sky-700 font-extrabold">Mendatang</span>
                         @else
                             <span class="text-rose-700">Belum Bayar</span>
                         @endif

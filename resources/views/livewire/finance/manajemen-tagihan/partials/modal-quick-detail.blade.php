@@ -11,8 +11,15 @@
 >
     @if ($quickDetailSiswa)
         @php
+            $cutoffDate = now()->endOfMonth()->toDateString();
             $qTotalTagihan = $quickDetailSiswa->tagihans->sum('nominal');
             $qTotalDibayar = $quickDetailSiswa->tagihans->sum('total_dibayar');
+            
+            $qDueTagihans = $quickDetailSiswa->tagihans->filter(fn($t) => ($t->jatuh_tempo ? $t->jatuh_tempo->format('Y-m-d') <= $cutoffDate : true));
+            $qUpcomingTagihans = $quickDetailSiswa->tagihans->filter(fn($t) => ($t->jatuh_tempo && $t->jatuh_tempo->format('Y-m-d') > $cutoffDate));
+            
+            $qTunggakan = max(0, $qDueTagihans->sum('nominal') - $qDueTagihans->sum('total_dibayar'));
+            $qMendatang = max(0, $qUpcomingTagihans->sum('nominal') - $qUpcomingTagihans->sum('total_dibayar'));
             $qSisaPiutang = max(0, $qTotalTagihan - $qTotalDibayar);
             $qCountTagihan = $quickDetailSiswa->tagihans->count();
         @endphp
@@ -30,9 +37,15 @@
                     <span class="text-[10px] text-emerald-600 font-medium">{{ $quickDetailSiswa->tagihans->where('status', 'lunas')->count() }} Lunas</span>
                 </div>
                 <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl">
-                    <span class="text-[10px] font-bold text-rose-700 uppercase tracking-wider block">Sisa Piutang</span>
-                    <span class="text-sm font-black text-rose-800 block mt-0.5">Rp {{ number_format($qSisaPiutang, 0, ',', '.') }}</span>
-                    <span class="text-[10px] text-rose-600 font-medium">{{ $quickDetailSiswa->tagihans->where('status', '!=', 'lunas')->count() }} Belum Lunas</span>
+                    <span class="text-[10px] font-bold text-rose-700 uppercase tracking-wider block">Tunggakan Jatuh Tempo</span>
+                    <span class="text-sm font-black text-rose-800 block mt-0.5">Rp {{ number_format($qTunggakan, 0, ',', '.') }}</span>
+                    <span class="text-[10px] text-rose-600 font-medium">
+                        @if ($qMendatang > 0)
+                            + Rp {{ number_format($qMendatang, 0, ',', '.') }} mendatang
+                        @else
+                            {{ $qDueTagihans->where('status', '!=', 'lunas')->count() }} Belum Lunas
+                        @endif
+                    </span>
                 </div>
             </div>
 
@@ -73,8 +86,10 @@
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">Lunas</span>
                                     @elseif ($qt->status === 'sebagian')
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">Sisa: Rp {{ number_format($qtSisa, 0, ',', '.') }}</span>
+                                    @elseif ($qt->is_mendatang)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-sky-100 text-sky-800">Mendatang</span>
                                     @else
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800">Belum Bayar</span>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800">Tunggakan</span>
                                     @endif
                                 </div>
                             </div>

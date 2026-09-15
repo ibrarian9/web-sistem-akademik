@@ -11,6 +11,9 @@
         icon="file-text"
     >
         <x-slot:actions>
+            <x-button variant="secondary" size="md" icon="tags" wire:click="openKategoriModal">
+                Kelola Kategori Tagihan
+            </x-button>
             <x-button variant="primary" size="md" icon="plus" wire:click="openCreateModal">
                 Rilis Tagihan Siswa
             </x-button>
@@ -84,4 +87,7 @@
 
     <!-- Floating Card: Modal Rincian Cepat Seluruh Tagihan 1 Siswa -->
     @include('livewire.finance.manajemen-tagihan.partials.modal-quick-detail')
+
+    <!-- Floating Card: Modal Kelola Kategori Tagihan Siswa -->
+    @include('livewire.finance.manajemen-tagihan.partials.modal-kelola-kategori')
 </div>

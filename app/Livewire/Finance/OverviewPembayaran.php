@@ -63,17 +63,18 @@ class OverviewPembayaran extends Component
     public function kirimReminder(int $siswaId)
     {
         $siswa = Siswa::with('user')->findOrFail($siswaId);
+        $cutoff = now()->endOfMonth()->toDateString();
         
-        // Calculate sisa tunggakan
+        // Calculate sisa tunggakan riil (hanya tagihan jatuh tempo s/d bulan berjalan)
         $tunggakan = Tagihan::where('siswa_id', $siswaId)
             ->where('tahun_ajaran_id', $this->filterTahunAjaran)
-            ->where('status', '!=', 'lunas')
+            ->tunggakan($cutoff)
             ->get();
         
         $totalSisa = $tunggakan->sum(fn($t) => $t->nominal - $t->total_dibayar);
 
         if ($totalSisa <= 0) {
-            session()->flash('error', "Siswa {$siswa->user->nama} tidak memiliki tunggakan pada tahun ajaran ini.");
+            session()->flash('error', "Siswa {$siswa->user->nama} tidak memiliki tunggakan jatuh tempo pada tahun ajaran ini.");
             return;
         }
 
@@ -81,7 +82,7 @@ class OverviewPembayaran extends Component
         Notifikasi::create([
             'user_id' => $siswa->user_id,
             'judul' => 'Reminder Tunggakan SPP/Tagihan',
-            'isi_pesan' => 'Halo, mohon segera menyelesaikan tunggakan administrasi sekolah Anda sebesar Rp ' . number_format($totalSisa, 0, ',', '.') . ' untuk tahun ajaran aktif. Terima kasih.',
+            'isi_pesan' => 'Halo, mohon segera menyelesaikan tunggakan administrasi sekolah Anda sebesar Rp ' . number_format($totalSisa, 0, ',', '.') . ' untuk periode berjalan. Terima kasih.',
             'jenis' => 'tunggakan',
         ]);
 
@@ -92,6 +93,7 @@ class OverviewPembayaran extends Component
     {
         $tahunAjarans = TahunAjaran::orderBy('nama', 'desc')->get();
         $kelases = Kelas::all();
+        $cutoff = now()->endOfMonth()->toDateString();
 
         // Calculate statistics based on current school year filter
         $statQuery = Tagihan::query();
@@ -101,25 +103,34 @@ class OverviewPembayaran extends Component
 
         $totalNominal = (float) $statQuery->sum('nominal');
         $totalDibayar = (float) $statQuery->sum('total_dibayar');
-        $nominalTunggakan = $totalNominal - $totalDibayar;
+
+        // Nominal tunggakan jatuh tempo s/d bulan berjalan
+        $nominalTunggakan = (float) ((clone $statQuery)->tunggakan($cutoff)
+            ->selectRaw('SUM(nominal - total_dibayar) as aggregate')
+            ->value('aggregate') ?? 0.0);
+
+        // Nominal tagihan periode mendatang
+        $nominalMendatang = (float) ((clone $statQuery)->mendatang($cutoff)
+            ->selectRaw('SUM(nominal - total_dibayar) as aggregate')
+            ->value('aggregate') ?? 0.0);
         
         $realisasiPersen = $totalNominal > 0 ? round(($totalDibayar / $totalNominal) * 100, 1) : 0;
 
-        // Count of students in arrears vs fully paid
-        // Query to get student aggregates
-        $studentSub = Tagihan::select('siswa_id')
+        // Count of students in arrears vs fully paid (s/d bulan berjalan)
+        $studentDueSub = Tagihan::select('siswa_id')
             ->selectRaw('SUM(nominal) as total_n')
             ->selectRaw('SUM(total_dibayar) as total_d')
+            ->jatuhTempo($cutoff)
             ->when($this->filterTahunAjaran, fn($q) => $q->where('tahun_ajaran_id', $this->filterTahunAjaran))
             ->groupBy('siswa_id');
 
-        $tunggakanCount = DB::table(DB::raw("({$studentSub->toSql()}) as sub"))
-            ->mergeBindings($studentSub->getQuery())
+        $tunggakanCount = DB::table(DB::raw("({$studentDueSub->toSql()}) as sub"))
+            ->mergeBindings($studentDueSub->getQuery())
             ->whereRaw('total_n > total_d')
             ->count();
 
-        $lunasCount = DB::table(DB::raw("({$studentSub->toSql()}) as sub"))
-            ->mergeBindings($studentSub->getQuery())
+        $lunasCount = DB::table(DB::raw("({$studentDueSub->toSql()}) as sub"))
+            ->mergeBindings($studentDueSub->getQuery())
             ->whereRaw('total_n = total_d')
             ->count();
 
@@ -144,19 +155,32 @@ class OverviewPembayaran extends Component
         }
 
         // Aggregate per student for display & filtering in memory without executing extra queries
-        $siswas = $query->get()->map(function ($siswa) {
+        $siswas = $query->get()->map(function ($siswa) use ($cutoff) {
             $tagihans = $siswa->tagihans;
             $allPembayarans = $tagihans->flatMap(fn($t) => $t->pembayarans);
 
+            // Pisahkan tagihan jatuh tempo s/d bulan ini vs tagihan mendatang
+            $dueTagihans = $tagihans->filter(fn($t) => $t->is_tunggakan || $t->status === 'lunas');
+            $upcomingTagihans = $tagihans->filter(fn($t) => $t->is_mendatang);
+
+            $dueNominal = (float) $dueTagihans->sum('nominal');
+            $duePaid = (float) $dueTagihans->sum('total_dibayar');
+            $sisaTunggakan = max(0, $dueNominal - $duePaid);
+
+            $futureNominal = (float) $upcomingTagihans->sum('nominal');
+            $futurePaid = (float) $upcomingTagihans->sum('total_dibayar');
+            $sisaMendatang = max(0, $futureNominal - $futurePaid);
+
             $totalNominal = (float) $tagihans->sum('nominal');
             $totalPaid = (float) $tagihans->sum('total_dibayar');
-            $sisaTunggakan = $totalNominal - $totalPaid;
 
             $status = 'Lunas Semua';
             if ($tagihans->count() === 0) {
                 $status = 'Belum Ada Tagihan';
             } elseif ($sisaTunggakan > 0) {
                 $status = 'Ada Tunggakan';
+            } elseif ($sisaMendatang > 0) {
+                $status = 'Tertib Berjalan';
             }
 
             return [
@@ -170,6 +194,7 @@ class OverviewPembayaran extends Component
                 'total_nominal' => $totalNominal,
                 'total_dibayar' => $totalPaid,
                 'sisa_tunggakan' => $sisaTunggakan,
+                'sisa_mendatang' => $sisaMendatang,
                 'terakhir_bayar' => $allPembayarans->max('tanggal_bayar') ? \Carbon\Carbon::parse($allPembayarans->max('tanggal_bayar'))->format('d-m-Y') : '-',
                 'status' => $status,
             ];
@@ -179,7 +204,7 @@ class OverviewPembayaran extends Component
         if ($this->filterStatus) {
             $siswas = $siswas->filter(function ($item) {
                 if ($this->filterStatus === 'lunas') {
-                    return $item['status'] === 'Lunas Semua';
+                    return $item['status'] === 'Lunas Semua' || $item['status'] === 'Tertib Berjalan';
                 } elseif ($this->filterStatus === 'tunggakan') {
                     return $item['status'] === 'Ada Tunggakan';
                 }
@@ -205,6 +230,7 @@ class OverviewPembayaran extends Component
             'tunggakanCount' => $tunggakanCount,
             'lunasCount' => $lunasCount,
             'nominalTunggakan' => $nominalTunggakan,
+            'nominalMendatang' => $nominalMendatang,
             'realisasiPersen' => $realisasiPersen,
         ])->layout('components.layouts.app', ['title' => 'Overview Pembayaran Siswa']);
     }

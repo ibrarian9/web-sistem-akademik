@@ -66,6 +66,9 @@ class FinanceExportController extends Controller
             } elseif ($endDate) {
                 $query->whereDate('jatuh_tempo', '<=', $endDate);
             }
+        } else {
+            // Default: hanya tagihan yang sudah jatuh tempo s/d bulan berjalan
+            $query->jatuhTempo();
         }
 
         $records = $query->orderBy('created_at', 'desc')->get();

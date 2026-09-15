@@ -127,7 +127,13 @@
 
             <!-- Jenis Tagihan -->
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Jenis Tagihan <span class="text-rose-500">*</span></label>
+                <div class="flex items-center justify-between">
+                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Jenis Tagihan <span class="text-rose-500">*</span></label>
+                    <button type="button" wire:click="openKategoriModal" class="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 hover:underline flex items-center gap-1 cursor-pointer">
+                        <x-lucide-plus-circle class="w-3.5 h-3.5" />
+                        <span>Tambah Kategori Baru</span>
+                    </button>
+                </div>
                 <select wire:model.live="jenis_tagihan_id" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
                     <option value="">-- Pilih Kategori Tagihan --</option>
                     @foreach ($jenisTagihans as $jt)
@@ -377,7 +383,13 @@
 
             <!-- Jenis Tagihan Massal -->
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Jenis Tagihan <span class="text-rose-500">*</span></label>
+                <div class="flex items-center justify-between">
+                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Jenis Tagihan <span class="text-rose-500">*</span></label>
+                    <button type="button" wire:click="openKategoriModal" class="text-[11px] font-bold text-indigo-700 hover:text-indigo-800 hover:underline flex items-center gap-1 cursor-pointer">
+                        <x-lucide-plus class="w-3.5 h-3.5" />
+                        <span>+ Tambah Kategori Baru</span>
+                    </button>
+                </div>
                 <select wire:model.live="jenis_tagihan_id" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-indigo-600 shadow-2xs">
                     <option value="">-- Pilih Kategori Tagihan --</option>
                     @foreach ($jenisTagihans as $jt)

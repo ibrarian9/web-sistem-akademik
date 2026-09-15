@@ -64,6 +64,15 @@ class ManajemenTagihan extends Component
     public ?int $quickDetailSiswaId = null;
     public ?Siswa $quickDetailSiswa = null;
 
+    // Kategori Tagihan (Jenis Tagihan) Management properties
+    public bool $showKategoriModal = false;
+    public ?int $editingKategoriId = null;
+    public string $kategori_nama = '';
+    public string $kategori_tipe = 'rutin'; // 'rutin' | 'one_time' | 'tahunan'
+    public float $kategori_nominal = 0.00;
+    public bool $kategori_is_blocking = true;
+    public string $searchKategori = '';
+
     // Edit Tagihan Form properties
     public ?int $editingTagihanId = null;
     public ?int $edit_jenis_tagihan_id = null;
@@ -96,11 +105,7 @@ class ManajemenTagihan extends Component
     public function mount()
     {
         $this->classes = Kelas::orderBy('nama_kelas')->get()->toArray();
-        $this->jenisTagihans = JenisTagihan::where('nama', 'not like', '%Infaq%')
-            ->where('nama', 'not like', '%Sedekah%')
-            ->where('nama', 'not like', '%Donasi%')
-            ->get()
-            ->toArray();
+        $this->refreshJenisTagihans();
         $this->jatuh_tempo = date('Y-m-10');
     }
 
@@ -162,7 +167,11 @@ class ManajemenTagihan extends Component
                 $q->where('jenis_tagihan_id', $this->filterJenis);
             }
             if ($this->filterStatus) {
-                $q->where('status', $this->filterStatus);
+                if (in_array($this->filterStatus, ['belum_bayar', 'sebagian'])) {
+                    $q->where('status', $this->filterStatus)->jatuhTempo();
+                } else {
+                    $q->where('status', $this->filterStatus);
+                }
             }
             if ($this->filterBulan) {
                 $q->where('bulan', $this->filterBulan);
@@ -335,6 +344,214 @@ class ManajemenTagihan extends Component
         $this->showQuickDetailModal = false;
         $this->quickDetailSiswaId = null;
         $this->quickDetailSiswa = null;
+    }
+
+    // =========================================================================
+    // KATEGORI TAGIHAN (JENIS TAGIHAN) CRUD METHODS
+    // =========================================================================
+
+    public function openKategoriModal(?int $id = null)
+    {
+        if (auth()->user()->role?->nama === 'super_admin_2') {
+            $this->dispatch('show-alert', [
+                'title' => 'Akses Ditolak',
+                'message' => 'Super Admin 2 hanya memiliki hak akses Lihat Saja.',
+                'type' => 'danger',
+            ]);
+            return;
+        }
+
+        $this->resetValidation();
+        if ($id) {
+            $this->editKategori($id);
+        } else {
+            $this->resetKategoriForm();
+        }
+        $this->showKategoriModal = true;
+    }
+
+    public function closeKategoriModal()
+    {
+        $this->showKategoriModal = false;
+        $this->resetKategoriForm();
+        $this->resetValidation();
+    }
+
+    public function resetKategoriForm()
+    {
+        $this->editingKategoriId = null;
+        $this->kategori_nama = '';
+        $this->kategori_tipe = 'rutin';
+        $this->kategori_nominal = 0.00;
+        $this->kategori_is_blocking = true;
+    }
+
+    public function editKategori(int $id)
+    {
+        $jt = JenisTagihan::findOrFail($id);
+        $this->editingKategoriId = $jt->id;
+        $this->kategori_nama = $jt->nama;
+        $this->kategori_tipe = $jt->kategori;
+        $this->kategori_nominal = floatval($jt->default_nominal ?? 0.00);
+        $this->kategori_is_blocking = (bool) $jt->is_blocking;
+    }
+
+    public function saveKategori()
+    {
+        if (auth()->user()->role?->nama === 'super_admin_2') {
+            $this->dispatch('show-alert', [
+                'title' => 'Akses Ditolak',
+                'message' => 'Super Admin 2 hanya memiliki hak akses Lihat Saja.',
+                'type' => 'danger',
+            ]);
+            return;
+        }
+
+        $this->sanitizeCurrencies(['kategori_nominal']);
+
+        $this->validate([
+            'kategori_nama' => 'required|string|max:100',
+            'kategori_tipe' => 'required|in:rutin,one_time,tahunan',
+            'kategori_nominal' => 'required|numeric|min:0',
+            'kategori_is_blocking' => 'boolean',
+        ], [
+            'kategori_nama.required' => 'Nama kategori tagihan wajib diisi.',
+            'kategori_tipe.required' => 'Tipe frekuensi pembayaran wajib dipilih.',
+            'kategori_tipe.in' => 'Tipe frekuensi pembayaran tidak valid.',
+            'kategori_nominal.required' => 'Nominal standar wajib diisi.',
+            'kategori_nominal.numeric' => 'Nominal standar harus berupa angka.',
+            'kategori_nominal.min' => 'Nominal standar minimal Rp 0.',
+        ]);
+
+        try {
+            $isEdit = !empty($this->editingKategoriId);
+            if ($isEdit) {
+                $jt = JenisTagihan::findOrFail($this->editingKategoriId);
+                $jt->update([
+                    'nama' => trim($this->kategori_nama),
+                    'kategori' => $this->kategori_tipe,
+                    'default_nominal' => $this->kategori_nominal,
+                    'is_blocking' => (bool) $this->kategori_is_blocking,
+                ]);
+
+                \App\Services\AuditLogger::log('updated', 'Memperbarui kategori tagihan: ' . $jt->nama, $jt, [
+                    'log_name' => 'manajemen_tagihan',
+                ]);
+
+                $message = 'Kategori tagihan "' . $jt->nama . '" berhasil diperbarui.';
+                $title = 'Kategori Tagihan Diperbarui';
+                $type = 'edit';
+            } else {
+                $jt = JenisTagihan::create([
+                    'nama' => trim($this->kategori_nama),
+                    'kategori' => $this->kategori_tipe,
+                    'default_nominal' => $this->kategori_nominal,
+                    'is_blocking' => (bool) $this->kategori_is_blocking,
+                ]);
+
+                \App\Services\AuditLogger::log('created', 'Menambahkan kategori tagihan baru: ' . $jt->nama, $jt, [
+                    'log_name' => 'manajemen_tagihan',
+                ]);
+
+                $message = 'Kategori tagihan baru "' . $jt->nama . '" berhasil ditambahkan.';
+                $title = 'Kategori Tagihan Ditambahkan';
+                $type = 'create';
+
+                // Jika modal rilis tagihan sedang terbuka, otomatis pilih kategori yang baru dibuat
+                if ($this->showCreateModal) {
+                    $this->jenis_tagihan_id = $jt->id;
+                    $this->nominal = floatval($jt->default_nominal ?? 0.00);
+                }
+            }
+
+            $this->refreshJenisTagihans();
+            $this->resetKategoriForm();
+
+            $this->dispatch('show-alert', [
+                'title' => $title,
+                'message' => $message,
+                'type' => $type,
+            ]);
+        } catch (\Throwable $e) {
+            $this->dispatch('show-alert', [
+                'title' => 'Gagal Menyimpan Kategori',
+                'message' => $e->getMessage(),
+                'type' => 'danger',
+            ]);
+        }
+    }
+
+    public function deleteKategori(int $id)
+    {
+        if (auth()->user()->role?->nama === 'super_admin_2') {
+            $this->dispatch('show-alert', [
+                'title' => 'Akses Ditolak',
+                'message' => 'Super Admin 2 hanya memiliki hak akses Lihat Saja.',
+                'type' => 'danger',
+            ]);
+            return;
+        }
+
+        try {
+            $jt = JenisTagihan::findOrFail($id);
+            $countTagihan = Tagihan::where('jenis_tagihan_id', $id)->count();
+
+            if ($countTagihan > 0) {
+                $this->dispatch('show-alert', [
+                    'title' => 'Kategori Tidak Dapat Dihapus',
+                    'message' => 'Kategori "' . $jt->nama . '" sedang digunakan oleh ' . $countTagihan . ' data tagihan siswa. Kategori tidak dapat dihapus demi menjaga integritas data pembukuan.',
+                    'type' => 'warning',
+                ]);
+                return;
+            }
+
+            $nama = $jt->nama;
+            \App\Services\AuditLogger::log('deleted', 'Menghapus kategori tagihan: ' . $nama, $jt, [
+                'log_name' => 'manajemen_tagihan',
+            ]);
+
+            $jt->delete();
+            $this->refreshJenisTagihans();
+
+            if ($this->editingKategoriId === $id) {
+                $this->resetKategoriForm();
+            }
+
+            $this->dispatch('show-alert', [
+                'title' => 'Kategori Tagihan Dihapus',
+                'message' => 'Kategori tagihan "' . $nama . '" berhasil dihapus dari sistem.',
+                'type' => 'delete',
+            ]);
+        } catch (\Throwable $e) {
+            $this->dispatch('show-alert', [
+                'title' => 'Gagal Menghapus Kategori',
+                'message' => $e->getMessage(),
+                'type' => 'danger',
+            ]);
+        }
+    }
+
+    public function refreshJenisTagihans()
+    {
+        $this->jenisTagihans = JenisTagihan::where('nama', 'not like', '%Infaq%')
+            ->where('nama', 'not like', '%Sedekah%')
+            ->where('nama', 'not like', '%Donasi%')
+            ->orderBy('nama')
+            ->get()
+            ->toArray();
+    }
+
+    public function getKategoriListProperty()
+    {
+        $query = JenisTagihan::where('nama', 'not like', '%Infaq%')
+            ->where('nama', 'not like', '%Sedekah%')
+            ->where('nama', 'not like', '%Donasi%');
+
+        if (!empty(trim($this->searchKategori))) {
+            $query->where('nama', 'like', '%' . trim($this->searchKategori) . '%');
+        }
+
+        return $query->withCount('tagihans')->orderBy('nama')->get();
     }
 
     public function setPresetRange(string $start, string $end)
@@ -952,7 +1169,11 @@ class ManajemenTagihan extends Component
                 $q->where('jenis_tagihan_id', $this->filterJenis);
             }
             if ($this->filterStatus) {
-                $q->where('status', $this->filterStatus);
+                if (in_array($this->filterStatus, ['belum_bayar', 'sebagian'])) {
+                    $q->where('status', $this->filterStatus)->jatuhTempo();
+                } else {
+                    $q->where('status', $this->filterStatus);
+                }
             }
             if ($this->filterBulan) {
                 $q->where('bulan', $this->filterBulan);
@@ -963,7 +1184,11 @@ class ManajemenTagihan extends Component
                 $q->where('jenis_tagihan_id', $this->filterJenis);
             }
             if ($this->filterStatus) {
-                $q->where('status', $this->filterStatus);
+                if (in_array($this->filterStatus, ['belum_bayar', 'sebagian'])) {
+                    $q->where('status', $this->filterStatus)->jatuhTempo();
+                } else {
+                    $q->where('status', $this->filterStatus);
+                }
             }
             if ($this->filterBulan) {
                 $q->where('bulan', $this->filterBulan);

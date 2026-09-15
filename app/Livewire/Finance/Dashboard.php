@@ -13,6 +13,7 @@ class Dashboard extends Component
     public float $incomeThisMonth = 0.00;
     public float $expenseThisMonth = 0.00;
     public float $outstandingBills = 0.00;
+    public float $futureBills = 0.00;
     public float $totalStudentDeposit = 0.00;
     public array $recentPayments = [];
 
@@ -47,9 +48,16 @@ class Dashboard extends Component
                 ->sum('jumlah')
         );
 
-        // Outstanding Bills (unpaid amount direct DB calculation)
+        // Outstanding Bills (unpaid amount for bills due up to the end of current month)
         $this->outstandingBills = floatval(
-            Tagihan::whereIn('status', ['belum_bayar', 'sebagian'])
+            Tagihan::tunggakan()
+                ->selectRaw('SUM(nominal - total_dibayar) as aggregate')
+                ->value('aggregate') ?? 0.00
+        );
+
+        // Future scheduled bills (bills due after current month)
+        $this->futureBills = floatval(
+            Tagihan::mendatang()
                 ->selectRaw('SUM(nominal - total_dibayar) as aggregate')
                 ->value('aggregate') ?? 0.00
         );
@@ -104,14 +112,14 @@ class Dashboard extends Component
         $this->cashflowIncomes = $incomes;
         $this->cashflowExpenses = $expenses;
 
-        // 2. Tagihan SPP Status Distribution
-        $lunasCount = Tagihan::where('status', 'lunas')->count();
-        $belumBayarCount = Tagihan::where('status', 'belum_bayar')->count();
-        $sebagianCount = Tagihan::where('status', 'sebagian')->count();
+        // 2. Tagihan Status Distribution (s/d Periode Berjalan)
+        $lunasCount = Tagihan::jatuhTempo()->where('status', 'lunas')->count();
+        $belumBayarCount = Tagihan::tunggakan()->where('status', 'belum_bayar')->count();
+        $sebagianCount = Tagihan::tunggakan()->where('status', 'sebagian')->count();
 
-        $lunasNominal = floatval(Tagihan::where('status', 'lunas')->sum('nominal'));
-        $belumBayarNominal = floatval(Tagihan::where('status', 'belum_bayar')->sum('nominal'));
-        $sebagianNominal = floatval(Tagihan::where('status', 'sebagian')->sum('nominal'));
+        $lunasNominal = floatval(Tagihan::jatuhTempo()->where('status', 'lunas')->sum('nominal'));
+        $belumBayarNominal = floatval(Tagihan::tunggakan()->where('status', 'belum_bayar')->sum('nominal'));
+        $sebagianNominal = floatval(Tagihan::tunggakan()->where('status', 'sebagian')->sum('nominal'));
 
         $this->billStatusCounts = [$lunasCount, $belumBayarCount, $sebagianCount];
         $this->billStatusNominals = [$lunasNominal, $belumBayarNominal, $sebagianNominal];
