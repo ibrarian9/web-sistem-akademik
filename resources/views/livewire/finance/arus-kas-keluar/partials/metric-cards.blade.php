@@ -6,19 +6,22 @@
         subtitle="Akumulasi operasional, gaji, & kasbon terpilih"
         icon="trending-down" 
         variant="rose" 
+        badge="Total Beban"
     />
     <x-stat-card 
         title="Beban Operasional Yayasan" 
         :value="'Rp ' . number_format($totalOperasional, 0, ',', '.')" 
         subtitle="ATK, sarpras, utilitas, konsumsi, dsb."
         icon="building" 
-        variant="white" 
+        variant="soft-amber" 
+        badge="Operasional"
     />
     <x-stat-card 
         title="Realisasi Gaji & Honor Guru" 
         :value="'Rp ' . number_format($totalGaji, 0, ',', '.')" 
         subtitle="Gaji pokok & insentif terbayar"
         icon="wallet" 
-        variant="white" 
+        variant="soft-purple" 
+        badge="SDM Guru"
     />
 </div>

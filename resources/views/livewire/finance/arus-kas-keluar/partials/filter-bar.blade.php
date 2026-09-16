@@ -1,28 +1,28 @@
 <!-- Stream Tabs & Search Row -->
 <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-    <!-- Stream Selector Tabs -->
-    <div class="flex items-center p-1 bg-stone-100 border border-stone-200 rounded-xl overflow-x-auto shadow-2xs">
+    <!-- Stream Selector Tabs (Wrapped for Mobile & Tablet) -->
+    <div class="flex items-center gap-1.5 flex-wrap">
         <button type="button" 
             wire:click="selectStream('semua')" 
-            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition shrink-0 {{ $stream === 'semua' ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-600 hover:text-stone-900' }}">
+            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer {{ $stream === 'semua' ? 'bg-white text-stone-900 shadow-2xs border border-stone-200' : 'bg-stone-100 text-stone-600 hover:text-stone-900 border border-transparent' }}">
             Semua Stream
         </button>
         <button type="button" 
             wire:click="selectStream('operasional')" 
-            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition shrink-0 flex items-center gap-1.5 {{ $stream === 'operasional' ? 'bg-rose-600 text-white shadow-2xs' : 'text-stone-600 hover:text-stone-900' }}">
-            <span class="w-1.5 h-1.5 rounded-full bg-rose-300"></span>
+            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer {{ $stream === 'operasional' ? 'bg-rose-600 text-white shadow-2xs border border-rose-600' : 'bg-rose-50 text-rose-800 hover:bg-rose-100 border border-rose-200' }}">
+            <span class="w-1.5 h-1.5 rounded-full {{ $stream === 'operasional' ? 'bg-white' : 'bg-rose-500' }}"></span>
             <span>Operasional Yayasan</span>
         </button>
         <button type="button" 
             wire:click="selectStream('gaji')" 
-            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition shrink-0 flex items-center gap-1.5 {{ $stream === 'gaji' ? 'bg-purple-600 text-white shadow-2xs' : 'text-stone-600 hover:text-stone-900' }}">
-            <span class="w-1.5 h-1.5 rounded-full bg-purple-300"></span>
+            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer {{ $stream === 'gaji' ? 'bg-purple-600 text-white shadow-2xs border border-purple-600' : 'bg-purple-50 text-purple-800 hover:bg-purple-100 border border-purple-200' }}">
+            <span class="w-1.5 h-1.5 rounded-full {{ $stream === 'gaji' ? 'bg-white' : 'bg-purple-500' }}"></span>
             <span>Gaji Guru</span>
         </button>
         <button type="button" 
             wire:click="selectStream('peminjaman')" 
-            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition shrink-0 flex items-center gap-1.5 {{ $stream === 'peminjaman' ? 'bg-emerald-600 text-white shadow-2xs' : 'text-stone-600 hover:text-stone-900' }}">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-300"></span>
+            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer {{ $stream === 'peminjaman' ? 'bg-emerald-600 text-white shadow-2xs border border-emerald-600' : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200' }}">
+            <span class="w-1.5 h-1.5 rounded-full {{ $stream === 'peminjaman' ? 'bg-white' : 'bg-emerald-500' }}"></span>
             <span>Kasbon Guru</span>
         </button>
     </div>

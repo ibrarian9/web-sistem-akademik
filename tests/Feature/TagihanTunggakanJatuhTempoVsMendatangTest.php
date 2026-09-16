@@ -256,4 +256,20 @@ class TagihanTunggakanJatuhTempoVsMendatangTest extends TestCase
             ->assertViewHas('countTunggakan', 1)
             ->assertViewHas('countMendatang', 1);
     }
+
+    public function test_overview_pembayaran_filter_by_status_toggles_and_filters_students(): void
+    {
+        $this->actingAs($this->financeUser);
+
+        Livewire::test(OverviewPembayaran::class)
+            ->assertSet('filterStatus', '')
+            ->assertViewHas('totalNominal')
+            ->assertViewHas('totalDibayar')
+            ->call('filterByStatus', 'tunggakan')
+            ->assertSet('filterStatus', 'tunggakan')
+            ->call('filterByStatus', 'tunggakan')
+            ->assertSet('filterStatus', '')
+            ->call('filterByStatus', 'lunas')
+            ->assertSet('filterStatus', 'lunas');
+    }
 }

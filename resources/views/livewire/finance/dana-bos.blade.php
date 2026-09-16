@@ -67,24 +67,26 @@
     <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
         <!-- Tab Selector & Search Row -->
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <!-- Tab Buttons -->
-            <div class="flex items-center p-1 bg-stone-100 border border-stone-200 rounded-xl w-fit">
+            <!-- Tab Buttons (Responsive Grid on Mobile, Flex on Desktop) -->
+            <div class="w-full lg:w-auto p-1 bg-stone-100 border border-stone-200 rounded-xl grid grid-cols-3 sm:inline-flex sm:items-center gap-1 shadow-2xs">
                 <button type="button" 
                     wire:click="selectTab('semua')" 
-                    class="px-4 py-1.5 rounded-lg text-xs font-bold transition {{ $filterJenis === 'semua' ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-500 hover:text-stone-900' }}">
-                    Semua Transaksi
+                    class="flex items-center justify-center px-2.5 sm:px-4 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer text-center {{ $filterJenis === 'semua' ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-500 hover:text-stone-900' }}">
+                    <span class="hidden sm:inline">Semua Transaksi</span>
+                    <span class="sm:hidden text-[11px]">Semua</span>
                 </button>
                 <button type="button" 
                     wire:click="selectTab('masuk')" 
-                    class="px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 {{ $filterJenis === 'masuk' ? 'bg-emerald-600 text-white shadow-2xs' : 'text-stone-500 hover:text-stone-900' }}">
+                    class="flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer text-center {{ $filterJenis === 'masuk' ? 'bg-emerald-600 text-white shadow-2xs' : 'text-stone-500 hover:text-stone-900' }}">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-300"></span>
                     <span>Penerimaan</span>
                 </button>
                 <button type="button" 
                     wire:click="selectTab('keluar')" 
-                    class="px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 {{ $filterJenis === 'keluar' ? 'bg-rose-600 text-white shadow-2xs' : 'text-stone-500 hover:text-stone-900' }}">
+                    class="flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer text-center {{ $filterJenis === 'keluar' ? 'bg-rose-600 text-white shadow-2xs' : 'text-stone-500 hover:text-stone-900' }}">
                     <span class="w-1.5 h-1.5 rounded-full bg-rose-300"></span>
-                    <span>Belanja BOS</span>
+                    <span class="hidden sm:inline">Belanja BOS</span>
+                    <span class="sm:hidden text-[11px]">Belanja</span>
                 </button>
             </div>
 

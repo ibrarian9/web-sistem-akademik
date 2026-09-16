@@ -60,6 +60,16 @@ class OverviewPembayaran extends Component
         $this->resetPage();
     }
 
+    public function filterByStatus(string $status): void
+    {
+        if ($this->filterStatus === $status) {
+            $this->filterStatus = '';
+        } else {
+            $this->filterStatus = $status;
+        }
+        $this->resetPage();
+    }
+
     public function kirimReminder(int $siswaId)
     {
         $siswa = Siswa::with('user')->findOrFail($siswaId);
@@ -232,6 +242,8 @@ class OverviewPembayaran extends Component
             'nominalTunggakan' => $nominalTunggakan,
             'nominalMendatang' => $nominalMendatang,
             'realisasiPersen' => $realisasiPersen,
+            'totalNominal' => $totalNominal,
+            'totalDibayar' => $totalDibayar,
         ])->layout('components.layouts.app', ['title' => 'Overview Pembayaran Siswa']);
     }
 }

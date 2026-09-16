@@ -40,7 +40,7 @@
     @include('livewire.finance.arus-kas.partials.analytics-charts')
 
     <!-- MAIN JURNAL BUKU KAS TABLE PANEL -->
-    <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
+    <div class="bg-white border border-stone-200 rounded-2xl p-3.5 sm:p-6 shadow-xs space-y-4">
         @include('livewire.finance.arus-kas.partials.filter-bar')
         @include('livewire.finance.arus-kas.partials.table-transactions')
     </div>

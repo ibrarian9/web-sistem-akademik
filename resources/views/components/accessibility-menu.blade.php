@@ -2,7 +2,10 @@
 
 
 
-<div x-data="accessibilityMenu()" x-cloak class="fixed bottom-6 right-6 z-50">
+<div x-data="accessibilityMenu()" 
+     x-cloak 
+     class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 transition-all duration-300 transform"
+     :class="(isVisible || open) ? 'translate-y-0 opacity-100 pointer-events-auto' : 'translate-y-28 opacity-0 pointer-events-none'">
     {{-- Scoped CSS for Ultra-Sleek Range Slider & Controls --}}
     <style>
         .a11y-slider-track {
@@ -62,12 +65,12 @@
         }
     </style>
 
-    {{-- Toggle Floating Button --}}
+    {{-- Toggle Floating Button (Responsive sizing for Mobile & Desktop) --}}
     <button @click="open = !open"
-        class="w-13 h-13 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-emerald-300"
+        class="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg hover:shadow-2xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-emerald-300"
         title="Menu Aksesibilitas"
         aria-label="Buka menu aksesibilitas">
-        <x-lucide-accessibility class="w-6 h-6" />
+        <x-lucide-accessibility class="w-5 h-5 sm:w-6 sm:h-6" />
     </button>
 
     {{-- Panel --}}
@@ -191,12 +194,48 @@
     function accessibilityMenu() {
         return {
             open: false,
+            isVisible: true,
+            lastScrollY: 0,
+            scrollThreshold: 10,
             fontScale: parseInt(localStorage.getItem('a11y-font-scale')) || 100,
             highContrast: localStorage.getItem('a11y-high-contrast') === 'true',
             looseLines: localStorage.getItem('a11y-loose-lines') === 'true',
 
             init() {
                 this.applyAll();
+                this.initScroll();
+            },
+
+            initScroll() {
+                const getScrollPos = () => window.scrollY || window.pageYOffset || document.documentElement.scrollTop || (document.body ? document.body.scrollTop : 0) || 0;
+                this.lastScrollY = getScrollPos();
+                
+                const handleScroll = () => {
+                    const currentScrollY = getScrollPos();
+                    
+                    // If panel is currently open, always keep it visible
+                    if (this.open) {
+                        this.isVisible = true;
+                        this.lastScrollY = currentScrollY;
+                        return;
+                    }
+
+                    // Near the very top, always show
+                    if (currentScrollY <= 40) {
+                        this.isVisible = true;
+                    } else if (currentScrollY > this.lastScrollY + 6) {
+                        // Scrolling DOWN -> Hide button to avoid blocking content
+                        this.isVisible = false;
+                    } else if (currentScrollY < this.lastScrollY - 6) {
+                        // Scrolling UP -> Reveal button
+                        this.isVisible = true;
+                    }
+
+                    this.lastScrollY = currentScrollY;
+                };
+
+                window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
+                document.addEventListener('scroll', handleScroll, { passive: true, capture: true });
             },
 
             updateFontScale() {

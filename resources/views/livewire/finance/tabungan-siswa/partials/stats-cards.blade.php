@@ -5,27 +5,31 @@
         :value="'Rp ' . number_format($totalSaldoGlobal, 0, ',', '.')" 
         subtitle="Saldo kumulatif seluruh siswa"
         icon="wallet" 
-        variant="white" 
+        variant="soft-emerald" 
+        badge="Saldo Mengendap"
     />
     <x-stat-card 
         title="Total Akumulasi Setor" 
         :value="'Rp ' . number_format($totalSetorAll, 0, ',', '.')" 
         subtitle="Total dana masuk tabungan"
         icon="arrow-down-left" 
-        variant="white" 
+        variant="soft-teal" 
+        badge="Dana Masuk"
     />
     <x-stat-card 
         title="Total Akumulasi Tarik" 
         :value="'Rp ' . number_format($totalTarikAll, 0, ',', '.')" 
         subtitle="Total dana ditarik siswa"
         icon="arrow-up-right" 
-        variant="white" 
+        variant="soft-amber" 
+        badge="Pencairan"
     />
     <x-stat-card 
         title="Siswa Aktif Menabung" 
         :value="number_format($jumlahSiswaMenabung) . ' Siswa'" 
-        subtitle="Memiliki transaksi aktif"
+        subtitle="Memiliki saldo & transaksi aktif"
         icon="users" 
-        variant="white" 
+        variant="soft-indigo" 
+        badge="Partisipasi"
     />
 </div>

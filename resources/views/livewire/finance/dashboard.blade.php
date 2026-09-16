@@ -167,26 +167,30 @@
             title="Pemasukan Bulan Ini" 
             :value="'Rp ' . number_format($incomeThisMonth, 0, ',', '.')" 
             icon="trending-up" 
-            variant="white" 
+            variant="soft-emerald" 
+            badge="Kas Masuk"
         />
         <x-stat-card 
             title="Pengeluaran Bulan Ini" 
             :value="'Rp ' . number_format($expenseThisMonth, 0, ',', '.')" 
             icon="trending-down" 
-            variant="white" 
+            variant="soft-rose" 
+            badge="Kas Keluar"
         />
         <x-stat-card 
             title="Kas Bersih Bulan Ini" 
             :value="'Rp ' . number_format($netFlow, 0, ',', '.')" 
             icon="dollar-sign" 
-            variant="white" 
+            :variant="$netFlow >= 0 ? 'soft-teal' : 'soft-rose'" 
+            :badge="$netFlow >= 0 ? 'Surplus' : 'Defisit'"
         />
         <x-stat-card 
             title="Total Tunggakan Aktif" 
             :value="'Rp ' . number_format($outstandingBills, 0, ',', '.')" 
-            :subtitle="$futureBills > 0 ? 'Jatuh tempo s/d bulan ini (+ Rp ' . number_format($futureBills, 0, ',', '.') . ' tagihan mendatang)' : 'Jatuh tempo s/d bulan berjalan'"
+            :subtitle="$futureBills > 0 ? 'Jatuh tempo s/d bulan ini (+ Rp ' . number_format($futureBills, 0, ',', '.') . ' mendatang)' : 'Jatuh tempo s/d bulan berjalan'"
             icon="alert-triangle" 
-            variant="white" 
+            variant="soft-amber" 
+            badge="Piutang Aktif"
         />
 
         <div class="sm:col-span-2 lg:col-span-4">

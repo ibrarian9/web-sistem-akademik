@@ -44,6 +44,7 @@
             subtitle="Akumulasi seluruh penerimaan kas masuk (Klik tampilkan semua)"
             icon="trending-up" 
             variant="emerald" 
+            :badge="$stream === 'semua' ? 'Semua Kas ✓' : null"
             wire:click="selectStream('semua')"
             role="button"
             tabindex="0"
@@ -54,33 +55,36 @@
             :value="'Rp ' . number_format($totalTagihanSpp, 0, ',', '.')" 
             subtitle="SPP bulanan, gedung, tahunan (Klik filter)"
             icon="credit-card" 
-            variant="white" 
+            variant="soft-emerald" 
+            :badge="$stream === 'pembayaran_spp' ? 'Filter Aktif ✓' : 'SPP & Tagihan'"
             wire:click="selectStream('pembayaran_spp')"
             role="button"
             tabindex="0"
-            class="cursor-pointer select-none hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 {{ $stream === 'pembayaran_spp' ? 'ring-4 ring-emerald-600 ring-offset-2 shadow-md bg-emerald-50/50' : '' }}"
+            class="cursor-pointer select-none hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 {{ $stream === 'pembayaran_spp' ? 'ring-4 ring-emerald-600 ring-offset-2 shadow-md' : '' }}"
         />
         <x-stat-card 
             title="Kas Masuk Yayasan (Infaq & Donasi)" 
             :value="'Rp ' . number_format($totalKasYayasan, 0, ',', '.')" 
             subtitle="Infaq, sedekah subuh, donatur (Klik filter)"
             icon="heart-handshake" 
-            variant="white" 
+            variant="soft-amber" 
+            :badge="$stream === 'kas_yayasan' ? 'Filter Aktif ✓' : 'Infaq & Donasi'"
             wire:click="selectStream('kas_yayasan')"
             role="button"
             tabindex="0"
-            class="cursor-pointer select-none hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 {{ $stream === 'kas_yayasan' ? 'ring-4 ring-amber-500 ring-offset-2 shadow-md bg-amber-50/50' : '' }}"
+            class="cursor-pointer select-none hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 {{ $stream === 'kas_yayasan' ? 'ring-4 ring-amber-500 ring-offset-2 shadow-md' : '' }}"
         />
         <x-stat-card 
             title="Setoran Tabungan Siswa" 
             :value="'Rp ' . number_format($totalTabunganSetor, 0, ',', '.')" 
             subtitle="Dana tabungan masuk kas sekolah (Klik filter)"
             icon="wallet" 
-            variant="white" 
+            variant="soft-teal" 
+            :badge="$stream === 'tabungan' ? 'Filter Aktif ✓' : 'Tabungan'"
             wire:click="selectStream('tabungan')"
             role="button"
             tabindex="0"
-            class="cursor-pointer select-none hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 {{ $stream === 'tabungan' ? 'ring-4 ring-purple-600 ring-offset-2 shadow-md bg-purple-50/50' : '' }}"
+            class="cursor-pointer select-none hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 {{ $stream === 'tabungan' ? 'ring-4 ring-teal-600 ring-offset-2 shadow-md' : '' }}"
         />
     </div>
 
@@ -236,29 +240,29 @@
     <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
         <!-- Stream Tabs & Search Row -->
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <!-- Stream Selector Tabs -->
-            <div class="flex items-center p-1 bg-stone-100 border border-stone-200 rounded-xl overflow-x-auto shadow-2xs">
+            <!-- Stream Selector Tabs (Wrapped for Mobile & Tablet) -->
+            <div class="flex items-center gap-1.5 flex-wrap">
                 <button type="button" 
                     wire:click="selectStream('semua')" 
-                    class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition shrink-0 {{ $stream === 'semua' ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-600 hover:text-stone-900' }}">
+                    class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer {{ $stream === 'semua' ? 'bg-white text-stone-900 shadow-2xs border border-stone-200' : 'bg-stone-100 text-stone-600 hover:text-stone-900 border border-transparent' }}">
                     Semua Stream
                 </button>
                 <button type="button" 
                     wire:click="selectStream('pembayaran_spp')" 
-                    class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition shrink-0 flex items-center gap-1.5 {{ $stream === 'pembayaran_spp' ? 'bg-emerald-600 text-white shadow-2xs' : 'text-stone-600 hover:text-stone-900' }}">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-300"></span>
+                    class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer {{ $stream === 'pembayaran_spp' ? 'bg-emerald-600 text-white shadow-2xs border border-emerald-600' : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ $stream === 'pembayaran_spp' ? 'bg-white' : 'bg-emerald-500' }}"></span>
                     <span>SPP & Tagihan Siswa</span>
                 </button>
                 <button type="button" 
                     wire:click="selectStream('kas_yayasan')" 
-                    class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition shrink-0 flex items-center gap-1.5 {{ $stream === 'kas_yayasan' ? 'bg-amber-600 text-white shadow-2xs' : 'text-stone-600 hover:text-stone-900' }}">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-300"></span>
+                    class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer {{ $stream === 'kas_yayasan' ? 'bg-amber-600 text-white shadow-2xs border border-amber-600' : 'bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ $stream === 'kas_yayasan' ? 'bg-white' : 'bg-amber-500' }}"></span>
                     <span>Kas Yayasan (Infaq)</span>
                 </button>
                 <button type="button" 
                     wire:click="selectStream('tabungan')" 
-                    class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition shrink-0 flex items-center gap-1.5 {{ $stream === 'tabungan' ? 'bg-purple-600 text-white shadow-2xs' : 'text-stone-600 hover:text-stone-900' }}">
-                    <span class="w-1.5 h-1.5 rounded-full bg-purple-300"></span>
+                    class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer {{ $stream === 'tabungan' ? 'bg-purple-600 text-white shadow-2xs border border-purple-600' : 'bg-purple-50 text-purple-800 hover:bg-purple-100 border border-purple-200' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ $stream === 'tabungan' ? 'bg-white' : 'bg-purple-500' }}"></span>
                     <span>Setoran Tabungan</span>
                 </button>
             </div>

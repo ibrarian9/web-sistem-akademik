@@ -1,14 +1,15 @@
 <!-- TAB SELECTOR NAVIGATION -->
 <div class="flex items-center justify-between gap-4 border-b border-stone-200 pb-3 flex-wrap">
-    <div class="flex items-center p-1 bg-stone-100 border border-stone-200 rounded-xl overflow-x-auto shadow-2xs">
+    <div class="grid grid-cols-3 sm:inline-flex items-center gap-1.5 w-full sm:w-auto">
         <button 
             type="button" 
             wire:click="selectTab('daftar')" 
-            class="px-4 py-2 rounded-lg text-xs font-bold transition shrink-0 flex items-center gap-2 {{ $tab === 'daftar' ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-600 hover:text-stone-900' }}"
+            class="px-2.5 sm:px-4 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center sm:justify-start gap-1 sm:gap-2 cursor-pointer text-center sm:text-left {{ $tab === 'daftar' ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-600 hover:text-stone-900' }}"
         >
-            <x-lucide-clipboard-list class="w-4 h-4 {{ $tab === 'daftar' ? 'text-emerald-700' : 'text-stone-400' }}" />
-            <span>Jurnal Observasi Berkala</span>
-            <span class="px-1.5 py-0.2 rounded-full text-[10px] font-black {{ $tab === 'daftar' ? 'bg-emerald-100 text-emerald-800' : 'bg-stone-200 text-stone-600' }}">
+            <x-lucide-clipboard-list class="w-4 h-4 shrink-0 {{ $tab === 'daftar' ? 'text-emerald-700' : 'text-stone-400' }}" />
+            <span class="hidden sm:inline">Jurnal Observasi Berkala</span>
+            <span class="sm:hidden text-[11px] truncate">Observasi</span>
+            <span class="hidden md:inline-block px-1.5 py-0.2 rounded-full text-[10px] font-black {{ $tab === 'daftar' ? 'bg-emerald-100 text-emerald-800' : 'bg-stone-200 text-stone-600' }}">
                 {{ $catatans->total() }}
             </span>
         </button>
@@ -16,19 +17,21 @@
         <button 
             type="button" 
             wire:click="selectTab('rekap')" 
-            class="px-4 py-2 rounded-lg text-xs font-bold transition shrink-0 flex items-center gap-2 {{ $tab === 'rekap' ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-600 hover:text-stone-900' }}"
+            class="px-2.5 sm:px-4 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center sm:justify-start gap-1 sm:gap-2 cursor-pointer text-center sm:text-left {{ $tab === 'rekap' ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-600 hover:text-stone-900' }}"
         >
-            <x-lucide-bar-chart-2 class="w-4 h-4 {{ $tab === 'rekap' ? 'text-emerald-700' : 'text-stone-400' }}" />
-            <span>Rekapitulasi Perkembangan</span>
+            <x-lucide-bar-chart-2 class="w-4 h-4 shrink-0 {{ $tab === 'rekap' ? 'text-emerald-700' : 'text-stone-400' }}" />
+            <span class="hidden sm:inline">Rekapitulasi Perkembangan</span>
+            <span class="sm:hidden text-[11px] truncate">Rekap</span>
         </button>
 
         <button 
             type="button" 
             wire:click="selectTab('pratinjau')" 
-            class="px-4 py-2 rounded-lg text-xs font-bold transition shrink-0 flex items-center gap-2 {{ $tab === 'pratinjau' ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-600 hover:text-stone-900' }}"
+            class="px-2.5 sm:px-4 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center sm:justify-start gap-1 sm:gap-2 cursor-pointer text-center sm:text-left {{ $tab === 'pratinjau' ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-600 hover:text-stone-900' }}"
         >
-            <x-lucide-printer class="w-4 h-4 {{ $tab === 'pratinjau' ? 'text-emerald-700' : 'text-stone-400' }}" />
-            <span>Pratinjau & Cetak Laporan</span>
+            <x-lucide-printer class="w-4 h-4 shrink-0 {{ $tab === 'pratinjau' ? 'text-emerald-700' : 'text-stone-400' }}" />
+            <span class="hidden sm:inline">Pratinjau & Cetak Laporan</span>
+            <span class="sm:hidden text-[11px] truncate">Laporan</span>
         </button>
     </div>
 

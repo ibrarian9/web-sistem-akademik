@@ -10,21 +10,24 @@
 
         @if (!$hasOutstanding)
             <!-- TAB BUTTONS (Rekap Rapor, Nilai per-Bab, & Kokurikuler P5) -->
-            <div class="flex items-center gap-1.5 bg-stone-100 border border-stone-200 p-1.5 rounded-2xl overflow-x-auto shadow-xs">
+            <div class="grid grid-cols-3 sm:inline-flex items-center gap-1 sm:gap-1.5 bg-stone-100 border border-stone-200 p-1.5 rounded-2xl w-full sm:w-auto shadow-xs">
                 <button wire:click="setTab('rekap')" 
-                    class="px-4 py-2 rounded-xl text-xs font-bold transition duration-200 flex items-center gap-2 whitespace-nowrap {{ $activeTab === 'rekap' ? 'bg-emerald-600 text-white shadow-sm' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60' }}">
-                    <x-lucide-award class="w-4 h-4" />
-                    <span>Rekap Nilai Rapor</span>
+                    class="px-2.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition duration-200 flex items-center justify-center sm:justify-start gap-1 sm:gap-2 cursor-pointer text-center sm:text-left {{ $activeTab === 'rekap' ? 'bg-emerald-600 text-white shadow-sm' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60' }}">
+                    <x-lucide-award class="w-4 h-4 shrink-0" />
+                    <span class="hidden sm:inline">Rekap Nilai Rapor</span>
+                    <span class="sm:hidden text-[11px] truncate">Rapor</span>
                 </button>
                 <button wire:click="setTab('bab')" 
-                    class="px-4 py-2 rounded-xl text-xs font-bold transition duration-200 flex items-center gap-2 whitespace-nowrap {{ $activeTab === 'bab' ? 'bg-emerald-600 text-white shadow-sm' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60' }}">
-                    <x-lucide-layers class="w-4 h-4" />
-                    <span>Nilai per-Bab</span>
+                    class="px-2.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition duration-200 flex items-center justify-center sm:justify-start gap-1 sm:gap-2 cursor-pointer text-center sm:text-left {{ $activeTab === 'bab' ? 'bg-emerald-600 text-white shadow-sm' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60' }}">
+                    <x-lucide-layers class="w-4 h-4 shrink-0" />
+                    <span class="hidden sm:inline">Nilai per-Bab</span>
+                    <span class="sm:hidden text-[11px] truncate">Per-Bab</span>
                 </button>
                 <button wire:click="setTab('p5')" 
-                    class="px-4 py-2 rounded-xl text-xs font-bold transition duration-200 flex items-center gap-2 whitespace-nowrap {{ $activeTab === 'p5' ? 'bg-cyan-600 text-white shadow-sm' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60' }}">
-                    <x-lucide-star class="w-4 h-4" />
-                    <span>Kokurikuler (P5)</span>
+                    class="px-2.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition duration-200 flex items-center justify-center sm:justify-start gap-1 sm:gap-2 cursor-pointer text-center sm:text-left {{ $activeTab === 'p5' ? 'bg-cyan-600 text-white shadow-sm' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60' }}">
+                    <x-lucide-star class="w-4 h-4 shrink-0" />
+                    <span class="hidden sm:inline">Kokurikuler (P5)</span>
+                    <span class="sm:hidden text-[11px] truncate">P5</span>
                 </button>
             </div>
         @endif

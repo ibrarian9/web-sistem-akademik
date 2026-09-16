@@ -68,15 +68,15 @@
     @endif
 
     <!-- MAIN TABLE: DAFTAR TUNGGAKAN SISWA -->
-    <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
+    <div class="bg-white border border-stone-200 rounded-2xl p-3.5 sm:p-6 shadow-xs space-y-4">
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
             <div class="max-w-md w-full">
                 <x-search-input wire:model.live.debounce.300ms="search" placeholder="Cari nama siswa atau NIS..." />
             </div>
             
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
                 <span class="text-xs font-bold text-stone-600 uppercase tracking-wider shrink-0">Filter Kelas:</span>
-                <select wire:model.live="filterKelas" class="px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
+                <select wire:model.live="filterKelas" class="flex-1 sm:flex-initial sm:w-auto px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
                     <option value="">Semua Kelas</option>
                     @foreach ($classes as $c)
                         <option value="{{ $c['id'] }}">Kelas {{ $c['nama_kelas'] }}</option>

@@ -27,7 +27,7 @@
         </div>
     @endif
 
-    <div @if($overflow) class="overflow-x-auto custom-scrollbar" @endif>
+    <div @if($overflow) class="overflow-x-auto custom-scrollbar touch-pan-x" @endif>
         <table {{ $attributes->merge(['class' => 'w-full text-left border-separate border-spacing-0 text-xs text-stone-800']) }}>
             {{ $slot }}
         </table>

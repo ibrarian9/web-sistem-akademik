@@ -151,9 +151,10 @@ html.a11y-loose-lines label {
     line-height: 1.9 !important;
 }
 
-/* Custom scrollbar (light mode) */
+/* Custom scrollbar (light mode - vertical & horizontal) */
 .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
+    height: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
@@ -164,6 +165,15 @@ html.a11y-loose-lines label {
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background-color: #a8a29e;
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 /* Remove number input spinner arrows globally */

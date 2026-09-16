@@ -23,14 +23,36 @@
         </x-slot:actions>
     </x-page-header>
 
-    <!-- Info & Tutorial Box -->
+    <!-- Info & Tutorial Box (Updated with Relevant System Menus) -->
     <x-info-tutorial-box 
-        title="Petunjuk Monitoring Status Pembayaran Siswa"
+        title="Panduan Monitoring Realisasi Pembayaran SPP & Tagihan Siswa"
         :steps="[
-            ['title' => 'Filter Tahun Ajaran', 'desc' => 'Pilih tahun ajaran aktif pada pojok kanan atas untuk memuat statistik kelunasan siswa.'],
-            ['title' => 'Pencarian & Status', 'desc' => 'Cari berdasarkan nama/NIS atau filter status: Lunas, Ada Tunggakan, atau Belum Bayar.'],
-            ['title' => 'Detail Transaksi', 'desc' => 'Klik tombol Detail Pembayaran pada siswa untuk melihat riwayat tagihan dan cetak kuitansi resi.']
+            [
+                'title' => '1. Filter Tahun Ajaran & Kelas', 
+                'desc' => 'Pilih Tahun Ajaran pada pojok kanan atas serta kelas pada dropdown filter di bawah untuk memantau data realisasi serta rasio pelunasan angkatan siswa secara akurat.'
+            ],
+            [
+                'title' => '2. Filter Interaktif Lewat Kartu Statistik', 
+                'desc' => 'Klik langsung kartu Siswa Ada Tunggakan atau Siswa Lunas Semua di bawah untuk menyaring tabel secara instan. Klik kembali pada kartu aktif untuk mereset filter.'
+            ],
+            [
+                'title' => '3. Aksi Kasir Pembayaran Siswa', 
+                'desc' => 'Klik tombol hijau Bayar Sekarang (ikon kartu kredit) pada siswa yang menunggak untuk langsung membuka kasir pembayaran dengan data siswa otomatis terpilih.'
+            ],
+            [
+                'title' => '4. Kirim Reminder Notifikasi Tunggakan', 
+                'desc' => 'Klik tombol lonceng kuning pada baris siswa untuk mengirimkan notifikasi tagihan in-app resmi ke akun santri/wali murid mengenai nominal tunggakan berjalan.'
+            ],
+            [
+                'title' => '5. Rincian Kartu Kendali & Cetak Resi', 
+                'desc' => 'Klik tombol Detail untuk membuka kartu kendali transaksi perorangan, melihat histori cicilan, dan mencetak ulang resi bukti pembayaran sah.'
+            ],
+            [
+                'title' => '6. Integrasi Manajemen Tagihan & Laporan', 
+                'desc' => 'Terbitkan tagihan baru via menu Manajemen Tagihan, kelola deposit siswa di Tabungan Siswa, dan ekspor rekapitulasi via menu Laporan Tunggakan.'
+            ]
         ]"
+        notes="Nominal tunggakan pada kartu statistik dihitung berdasarkan tagihan yang telah jatuh tempo s/d bulan berjalan. Tagihan bulan mendatang dicatat terpisah agar tidak mendistorsi rasio kelunasan riil."
     />
 
     <!-- Alert / Toast Banner -->
@@ -41,43 +63,78 @@
         <x-alert-banner type="error" :message="session('error')" />
     @endif
 
-    <!-- Quick Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <x-stat-card 
-            title="Siswa Ada Tunggakan" 
-            :value="$tunggakanCount . ' Siswa'" 
-            subtitle="Belum melunasi tagihan aktif"
-            icon="alert-circle" 
-            variant="white" 
-        />
+    <!-- Quick Stats Grid (Vibrant, Informative & Interactive) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Card 1: Siswa Ada Tunggakan -->
+        <div class="relative group">
+            <x-stat-card 
+                title="Siswa Ada Tunggakan" 
+                :value="$tunggakanCount . ' Siswa'" 
+                subtitle="Belum melunasi tagihan jatuh tempo"
+                icon="alert-circle" 
+                variant="soft-rose" 
+                :badge="$filterStatus === 'tunggakan' ? 'Filter Aktif ✓' : ($tunggakanCount > 0 ? 'Perlu Follow-up' : 'Nihil')"
+                wire:click="filterByStatus('tunggakan')"
+                role="button"
+                tabindex="0"
+                class="cursor-pointer select-none hover:scale-[1.01] active:scale-[0.99] {{ $filterStatus === 'tunggakan' ? 'ring-4 ring-rose-400/80 ring-offset-2 shadow-md' : '' }}"
+            />
+            @if ($filterStatus === 'tunggakan')
+                <span class="absolute top-2 right-2 px-2 py-0.5 bg-rose-600 text-white text-[9px] font-black rounded-full shadow-2xs uppercase tracking-wider">
+                    Aktif
+                </span>
+            @endif
+        </div>
 
-        <x-stat-card 
-            title="Siswa Lunas Semua" 
-            :value="$lunasCount . ' Siswa'" 
-            subtitle="Tertib administrasi 100%"
-            icon="check-circle" 
-            variant="white" 
-        />
+        <!-- Card 2: Siswa Lunas Semua -->
+        <div class="relative group">
+            <x-stat-card 
+                title="Siswa Lunas Semua" 
+                :value="$lunasCount . ' Siswa'" 
+                subtitle="Tertib administrasi s/d bulan ini"
+                icon="check-circle" 
+                variant="soft-emerald" 
+                :badge="$filterStatus === 'lunas' ? 'Filter Aktif ✓' : 'Tertib 100%'"
+                wire:click="filterByStatus('lunas')"
+                role="button"
+                tabindex="0"
+                class="cursor-pointer select-none hover:scale-[1.01] active:scale-[0.99] {{ $filterStatus === 'lunas' ? 'ring-4 ring-emerald-400/80 ring-offset-2 shadow-md' : '' }}"
+            />
+            @if ($filterStatus === 'lunas')
+                <span class="absolute top-2 right-2 px-2 py-0.5 bg-emerald-600 text-white text-[9px] font-black rounded-full shadow-2xs uppercase tracking-wider">
+                    Aktif
+                </span>
+            @endif
+        </div>
 
-        <x-stat-card 
-            title="Nominal Tunggakan" 
-            :value="'Rp ' . number_format($nominalTunggakan, 0, ',', '.')" 
-            :subtitle="$nominalMendatang > 0 ? 'Jatuh tempo s/d bulan ini (+ Rp ' . number_format($nominalMendatang, 0, ',', '.') . ' mendatang)' : 'Piutang jatuh tempo s/d bulan ini'"
-            icon="wallet" 
-            variant="white" 
-        />
+        <!-- Card 3: Nominal Tunggakan -->
+        <div class="relative group">
+            <x-stat-card 
+                title="Nominal Tunggakan" 
+                :value="'Rp ' . number_format($nominalTunggakan, 0, ',', '.')" 
+                :subtitle="$nominalMendatang > 0 ? 'Jatuh tempo berjalan (+ Rp ' . number_format($nominalMendatang, 0, ',', '.') . ' mendatang)' : 'Total piutang s/d bulan berjalan'"
+                icon="wallet" 
+                variant="soft-amber" 
+                badge="Piutang Aktif"
+            />
+        </div>
 
-        <x-stat-card 
-            title="Realisasi Pembayaran" 
-            :value="$realisasiPersen . '%'" 
-            subtitle="Rasio pembayaran selesai"
-            icon="trending-up" 
-            variant="white" 
-        />
+        <!-- Card 4: Realisasi Pembayaran -->
+        <div class="relative group">
+            <x-stat-card 
+                title="Realisasi Pembayaran" 
+                :value="$realisasiPersen . '%'" 
+                :subtitle="'Rp ' . number_format($totalDibayar, 0, ',', '.') . ' / Rp ' . number_format($totalNominal, 0, ',', '.')"
+                icon="trending-up" 
+                variant="soft-indigo" 
+                :badge="$realisasiPersen >= 80 ? 'Sangat Baik' : ($realisasiPersen >= 50 ? 'Berjalan' : 'Perlu Ditingkatkan')"
+                :progress="$realisasiPersen"
+            />
+        </div>
     </div>
 
     <!-- Content Table Card (Full Width) -->
-    <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
+    <div class="bg-white border border-stone-200 rounded-2xl p-3.5 sm:p-6 shadow-xs space-y-4">
         <!-- Filter & Search Controls -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <!-- Search -->
