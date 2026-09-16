@@ -84,7 +84,7 @@ class CapaianPengembanganGuru extends Component
 
     public function openEvaluateModal($id)
     {
-        if (auth()->user()?->isSuperAdmin2()) {
+        if (auth()->user()?->role?->nama === 'super_admin_2') {
             return;
         }
 
@@ -111,7 +111,7 @@ class CapaianPengembanganGuru extends Component
 
     public function saveEvaluation()
     {
-        if (auth()->user()?->isSuperAdmin2()) {
+        if (auth()->user()?->role?->nama === 'super_admin_2') {
             return;
         }
 
@@ -142,7 +142,7 @@ class CapaianPengembanganGuru extends Component
 
     public function delete($id)
     {
-        if (auth()->user()?->isSuperAdmin2()) {
+        if (auth()->user()?->role?->nama === 'super_admin_2') {
             return;
         }
 

@@ -223,115 +223,25 @@ class DetailTagihanSiswa extends Component
 
     public function getMonthsBetween(string $start, string $end): array
     {
-        $academicOrder = [
-            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
-            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni'
-        ];
-
-        $calendarOrder = [
-            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-        ];
-
-        if ($start === $end) {
-            return [$start];
-        }
-
-        // Check in Academic Order first (most common for schools)
-        $acadStart = array_search($start, $academicOrder);
-        $acadEnd = array_search($end, $academicOrder);
-
-        if ($acadStart !== false && $acadEnd !== false && $acadStart <= $acadEnd) {
-            return array_slice($academicOrder, $acadStart, $acadEnd - $acadStart + 1);
-        }
-
-        // Check in Calendar Order
-        $calStart = array_search($start, $calendarOrder);
-        $calEnd = array_search($end, $calendarOrder);
-
-        if ($calStart !== false && $calEnd !== false && $calStart <= $calEnd) {
-            return array_slice($calendarOrder, $calStart, $calEnd - $calStart + 1);
-        }
-
-        // Cyclic fallback in Academic order
-        if ($acadStart !== false && $acadEnd !== false) {
-            $result = [];
-            $curr = $acadStart;
-            while (true) {
-                $result[] = $academicOrder[$curr];
-                if ($curr === $acadEnd) {
-                    break;
-                }
-                $curr = ($curr + 1) % 12;
-            }
-            return $result;
-        }
-
-        return [$start];
+        $form = new \App\Livewire\Forms\Finance\ReleaseTagihanForm($this, 'releaseForm');
+        return $form->getMonthsBetween($start, $end);
     }
 
     public function getTargetMonths(): array
     {
-        if ($this->periodeTipe === 'full_year_jan_des') {
-            return [
-                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-            ];
-        } elseif ($this->periodeTipe === 'full_year_juli_juni') {
-            return [
-                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
-                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni'
-            ];
-        } elseif ($this->periodeTipe === 'custom_range') {
-            return $this->getMonthsBetween($this->bulan_mulai, $this->bulan_selesai);
-        }
-        return [$this->bulan];
+        $form = new \App\Livewire\Forms\Finance\ReleaseTagihanForm($this, 'releaseForm');
+        $form->periodeTipe = $this->periodeTipe;
+        $form->bulan = $this->bulan;
+        $form->bulan_mulai = $this->bulan_mulai;
+        $form->bulan_selesai = $this->bulan_selesai;
+        return $form->getTargetMonths();
     }
 
     protected function calculateDueDateForMonth(string $monthName, ?string $baseDueDate = null, ?string $tahunAjaranNama = null): string
     {
-        $monthNumbers = [
-            'Januari' => 1, 'Februari' => 2, 'Maret' => 3, 'April' => 4,
-            'Mei' => 5, 'Juni' => 6, 'Juli' => 7, 'Agustus' => 8,
-            'September' => 9, 'Oktober' => 10, 'November' => 11, 'Desember' => 12
-        ];
-
-        if (!isset($monthNumbers[$monthName])) {
-            return date('Y-m-10');
-        }
-
-        $targetMonth = $monthNumbers[$monthName];
-        $targetDay = 10; // Fix tanggal 10 setiap bulannya
-
-        $year = (int) date('Y');
-        if ($tahunAjaranNama && str_contains($tahunAjaranNama, '/')) {
-            $parts = explode('/', $tahunAjaranNama);
-            $y1 = (int) trim($parts[0]);
-            $y2 = (int) trim($parts[1]);
-
-            if ($this->periodeTipe === 'full_year_jan_des') {
-                if (!empty($baseDueDate)) {
-                    try {
-                        $year = \Carbon\Carbon::parse($baseDueDate)->year;
-                    } catch (\Exception $e) {
-                        $year = $y2;
-                    }
-                } else {
-                    $year = $y2;
-                }
-            } else {
-                // Bulan Juli - Desember jatuh pada tahun ajaran pertama ($y1), Januari - Juni pada tahun kedua ($y2)
-                $year = ($targetMonth >= 7) ? $y1 : $y2;
-            }
-        } elseif (!empty($baseDueDate)) {
-            try {
-                $year = \Carbon\Carbon::parse($baseDueDate)->year;
-            } catch (\Exception $e) {
-                $year = (int) date('Y');
-            }
-        }
-
-        return sprintf('%04d-%02d-%02d', $year, $targetMonth, $targetDay);
+        $form = new \App\Livewire\Forms\Finance\ReleaseTagihanForm($this, 'releaseForm');
+        $form->periodeTipe = $this->periodeTipe;
+        return $form->calculateDueDateForMonth($monthName, $baseDueDate, $tahunAjaranNama);
     }
 
     public function createTagihan()
@@ -542,24 +452,7 @@ class DetailTagihanSiswa extends Component
             return;
         }
 
-        DB::transaction(function () use ($t) {
-            $siswa = $t->siswa ?: Siswa::find($this->siswaId);
-
-            // Revert and delete any payments associated with this tagihan
-            if ($t->pembayarans && $t->pembayarans->count() > 0) {
-                foreach ($t->pembayarans as $pembayaran) {
-                    if ($pembayaran->metode_bayar === 'Deposit' && $pembayaran->nominal_dibayar > 0 && $siswa) {
-                        $siswa->increment('saldo_deposit', $pembayaran->nominal_dibayar);
-                    }
-                    if ($pembayaran->kelebihan_bayar > 0 && $siswa) {
-                        $siswa->decrement('saldo_deposit', min(floatval($siswa->saldo_deposit), floatval($pembayaran->kelebihan_bayar)));
-                    }
-                    $pembayaran->delete();
-                }
-            }
-
-            $t->delete();
-        });
+        app(\App\Actions\Finance\DeleteTagihanAction::class)->execute($t, $this->siswaId);
 
         session()->flash('success', 'Data tagihan berhasil dihapus.');
     }

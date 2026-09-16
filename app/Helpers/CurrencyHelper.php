@@ -86,3 +86,45 @@ if (!function_exists('unmask_rupiah')) {
         return $isNegative ? -$result : $result;
     }
 }
+
+if (!function_exists('terbilang')) {
+    /**
+     * Mengubah angka menjadi kalimat terbilang Bahasa Indonesia.
+     *
+     * @param mixed $angka
+     * @return string
+     */
+    function terbilang(mixed $angka): string
+    {
+        $angka = abs((float) $angka);
+        $baca = [
+            '', 'Satu', 'Dua', 'Tiga', 'Empat', 'Lima',
+            'Enam', 'Tujuh', 'Delapan', 'Sembilan', 'Sepuluh', 'Sebelas'
+        ];
+
+        if ($angka < 12) {
+            return ' ' . $baca[(int) $angka];
+        } elseif ($angka < 20) {
+            return terbilang($angka - 10) . ' Belas';
+        } elseif ($angka < 100) {
+            return terbilang((int) ($angka / 10)) . ' Puluh' . terbilang($angka % 10);
+        } elseif ($angka < 200) {
+            return ' Seratus' . terbilang($angka - 100);
+        } elseif ($angka < 1000) {
+            return terbilang((int) ($angka / 100)) . ' Ratus' . terbilang($angka % 100);
+        } elseif ($angka < 2000) {
+            return ' Seribu' . terbilang($angka - 1000);
+        } elseif ($angka < 1000000) {
+            return terbilang((int) ($angka / 1000)) . ' Ribu' . terbilang($angka % 1000);
+        } elseif ($angka < 1000000000) {
+            return terbilang((int) ($angka / 1000000)) . ' Juta' . terbilang($angka % 1000000);
+        } elseif ($angka < 1000000000000) {
+            return terbilang((int) ($angka / 1000000000)) . ' Milyar' . terbilang(fmod($angka, 1000000000));
+        } elseif ($angka < 1000000000000000) {
+            return terbilang((int) ($angka / 1000000000000)) . ' Triliun' . terbilang(fmod($angka, 1000000000000));
+        }
+
+        return '';
+    }
+}
+

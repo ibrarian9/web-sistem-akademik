@@ -168,131 +168,44 @@ class ManajemenSiswa extends Component
             return;
         }
 
-        $userId = $this->siswaId ? Siswa::find($this->siswaId)?->user_id : null;
+        $form = new \App\Livewire\Forms\SuperAdmin\SiswaForm($this, 'siswaForm');
+        $form->siswaId = $this->siswaId;
+        $form->nama = $this->nama;
+        $form->username = $this->username;
+        $form->email = $this->email;
+        $form->password = $this->password;
+        $form->nis = $this->nis;
+        $form->nisn = $this->nisn;
+        $form->jenis_kelamin = $this->jenis_kelamin;
+        $form->tempat_lahir = $this->tempat_lahir;
+        $form->tanggal_lahir = $this->tanggal_lahir;
+        $form->alamat = $this->alamat;
+        $form->nama_wali = $this->nama_wali;
+        $form->no_hp_wali = $this->no_hp_wali;
+        $form->kelas_id = $this->kelas_id;
+        $form->kelas_tahfidz_id = $this->kelas_tahfidz_id;
+        $form->shadow_teacher_id = $this->shadow_teacher_id;
+        $form->tanggal_masuk = $this->tanggal_masuk;
+        $form->status = $this->status;
 
-        $rules = [
-            'nama' => 'required|string|max:255',
-            'username' => 'required|string|max:50|unique:users,username,' . ($userId ?: 'NULL'),
-            'email' => 'nullable|email|max:255|unique:users,email,' . ($userId ?: 'NULL'),
-            'nis' => 'required|string|max:20|unique:siswa,nis,' . ($this->siswaId ?: 'NULL'),
-            'nisn' => 'nullable|string|max:20|unique:siswa,nisn,' . ($this->siswaId ?: 'NULL'),
-            'jenis_kelamin' => 'required|in:L,P',
-            'kelas_id' => 'nullable|exists:kelas,id',
-            'kelas_tahfidz_id' => 'nullable|exists:kelas,id',
-            'shadow_teacher_id' => [
-                'nullable',
-                'exists:guru,id',
-                new EligibleShadowTeacher(),
-                new MaxOneShadowTeacherPerClass($this->kelas_id, $this->siswaId),
-            ],
-            'tanggal_masuk' => 'required|date',
-            'status' => 'required|in:aktif,lulus,pindah,keluar',
-        ];
-
-        if (!$this->siswaId) {
-            $rules['password'] = 'required|string|min:6';
-        }
-
-        $messages = [
-            'email.unique' => 'Alamat email ini sudah terdaftar untuk pengguna lain. Silakan gunakan email lain atau kosongkan.',
-            'email.email' => 'Format alamat email tidak valid.',
-            'username.unique' => 'Username ini sudah terdaftar di sistem. Silakan pilih username lain.',
-            'nis.unique' => 'NIS (Nomor Induk Siswa) ini sudah terdaftar untuk siswa lain.',
-            'nisn.unique' => 'NISN ini sudah terdaftar untuk siswa lain.',
-        ];
-
-        $this->validate($rules, $messages);
+        $this->validate($form->rules(), $form->messages());
 
         try {
             $isUpdate = (bool) $this->siswaId;
             $namaSiswa = $this->nama;
 
-            DB::transaction(function () use (&$isUpdate, &$namaSiswa) {
-                $roleMurid = Role::firstOrCreate(
-                    ['nama' => 'murid'],
-                    ['deskripsi' => 'Murid / Siswa']
+            DB::transaction(function () use ($form, &$isUpdate, &$namaSiswa) {
+                $siswa = $form->store();
+
+                \App\Services\AuditLogger::log(
+                    $isUpdate ? 'updated' : 'created',
+                    ($isUpdate ? 'Mengubah profil siswa: ' : 'Menambahkan siswa baru: ') . $namaSiswa,
+                    $siswa,
+                    [
+                        'log_name' => 'manajemen_siswa',
+                        'siswa_id' => $siswa->id,
+                    ]
                 );
-
-                if ($this->siswaId) {
-                    // Update
-                    $siswa = Siswa::findOrFail($this->siswaId);
-                    
-                    $siswa->user->update([
-                        'nama' => $this->nama,
-                        'username' => $this->username,
-                        'email' => $this->email ?: null,
-                        'no_hp' => $this->no_hp_wali,
-                        'alamat' => $this->alamat,
-                        'status' => $this->status === 'aktif' ? 'aktif' : 'nonaktif',
-                    ]);
-
-                    if ($this->password) {
-                        $siswa->user->update(['password' => Hash::make($this->password)]);
-                    }
-
-                    $siswa->update([
-                        'nis' => $this->nis,
-                        'nisn' => $this->nisn ?: null,
-                        'jenis_kelamin' => $this->jenis_kelamin,
-                        'tempat_lahir' => $this->tempat_lahir ?: null,
-                        'tanggal_lahir' => $this->tanggal_lahir ?: null,
-                        'alamat' => $this->alamat ?: null,
-                        'nama_wali' => $this->nama_wali ?: null,
-                        'no_hp_wali' => $this->no_hp_wali ?: null,
-                        'kelas_id' => $this->kelas_id ?: null,
-                        'kelas_tahfidz_id' => $this->kelas_tahfidz_id ?: null,
-                        'shadow_teacher_id' => $this->shadow_teacher_id ?: null,
-                        'tanggal_masuk' => $this->tanggal_masuk,
-                        'status' => $this->status,
-                    ]);
-
-                    // If student status changed to 'pindah' or 'keluar', cancel future unpaid bills
-                    if (in_array($this->status, ['pindah', 'keluar'])) {
-                        \App\Models\Tagihan::where('siswa_id', $siswa->id)
-                            ->where('status', 'belum_bayar')
-                            ->whereDate('jatuh_tempo', '>', now())
-                            ->update(['status' => 'batal']);
-                    }
-
-                    \App\Services\AuditLogger::log('updated', 'Mengubah profil siswa: ' . $namaSiswa, $siswa, [
-                        'log_name' => 'manajemen_siswa',
-                        'siswa_id' => $siswa->id,
-                    ]);
-                } else {
-                    // Create
-                    $user = User::create([
-                        'nama' => $this->nama,
-                        'username' => $this->username,
-                        'email' => $this->email ?: null,
-                        'password' => Hash::make($this->password),
-                        'role_id' => $roleMurid->id,
-                        'no_hp' => $this->no_hp_wali,
-                        'alamat' => $this->alamat,
-                        'status' => 'aktif',
-                    ]);
-
-                    $siswa = Siswa::create([
-                        'user_id' => $user->id,
-                        'nis' => $this->nis,
-                        'nisn' => $this->nisn ?: null,
-                        'jenis_kelamin' => $this->jenis_kelamin,
-                        'tempat_lahir' => $this->tempat_lahir ?: null,
-                        'tanggal_lahir' => $this->tanggal_lahir ?: null,
-                        'alamat' => $this->alamat ?: null,
-                        'nama_wali' => $this->nama_wali ?: null,
-                        'no_hp_wali' => $this->no_hp_wali ?: null,
-                        'kelas_id' => $this->kelas_id ?: null,
-                        'kelas_tahfidz_id' => $this->kelas_tahfidz_id ?: null,
-                        'shadow_teacher_id' => $this->shadow_teacher_id ?: null,
-                        'tanggal_masuk' => $this->tanggal_masuk,
-                        'status' => 'aktif',
-                    ]);
-
-                    \App\Services\AuditLogger::log('created', 'Menambahkan siswa baru: ' . $namaSiswa, $siswa, [
-                        'log_name' => 'manajemen_siswa',
-                        'siswa_id' => $siswa->id,
-                    ]);
-                }
             });
 
             $msg = 'Data siswa ' . $namaSiswa . ' berhasil ' . ($isUpdate ? 'perbarui.' : 'disimpan.');

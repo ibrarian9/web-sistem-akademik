@@ -50,23 +50,7 @@ class DanaBos extends Component
     public ?string $previewBuktiUrl = null;
     public ?string $previewBuktiTitle = null;
 
-    protected $rules = [
-        'jenis' => 'required|in:masuk,keluar',
-        'tanggal' => 'required|date',
-        'nominal' => 'required|numeric|min:0',
-        'kategori' => 'required|string|max:255',
-        'keterangan' => 'required|string|max:1000',
-        'bukti_foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-    ];
-
-    protected $messages = [
-        'bukti_foto.image' => 'File bukti transaksi harus berupa foto/gambar.',
-        'bukti_foto.mimes' => 'Format foto hanya boleh JPG, JPEG, PNG, atau WEBP.',
-        'bukti_foto.max' => 'Ukuran file foto bukti maksimal 2MB.',
-        'edit_bukti_foto.image' => 'File bukti transaksi harus berupa foto/gambar.',
-        'edit_bukti_foto.mimes' => 'Format foto hanya boleh JPG, JPEG, PNG, atau WEBP.',
-        'edit_bukti_foto.max' => 'Ukuran file foto bukti maksimal 2MB.',
-    ];
+    public \App\Livewire\Forms\Finance\DanaBosForm $form;
 
     public function mount()
     {
@@ -157,7 +141,7 @@ class DanaBos extends Component
 
         $this->sanitizeCurrencies(['nominal']);
 
-        $this->validate();
+        $this->validate($this->form->rules(), $this->form->messages());
 
         $activeTA = TahunAjaran::where('status_aktif', true)->first() ?? TahunAjaran::latest()->first();
         if (!$activeTA) {

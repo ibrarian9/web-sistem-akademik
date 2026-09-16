@@ -46,13 +46,15 @@ test('parents and students can view published rapor without blocked access', fun
         ->assertSee('Bahasa Indonesia');
 });
 
-test('parents can switch tab to view mid semester published report', function () {
+test('parents can switch tab to view bab and p5 reports', function () {
     $userSiswa = User::where('username', 'siswa')->first();
 
     Livewire::actingAs($userSiswa)
         ->test(RaporNilai::class)
-        ->set('activeTab', 'mid')
+        ->set('activeTab', 'bab')
         ->assertStatus(200)
         ->assertDontSee('Akses Rapor Terkunci')
-        ->assertSee('Hasil Nilai Sumatif Tengah Semester');
+        ->assertSee('Nilai per-Bab')
+        ->set('activeTab', 'p5')
+        ->assertSee('Kokurikuler (P5)');
 });

@@ -107,36 +107,21 @@ class ManajemenKaryawan extends Component
             return;
         }
 
-        $userId = $this->karyawanId;
-        $rules = [
-            'nama' => 'required|string|max:100',
-            'username' => ['required', 'string', 'max:50', 'alpha_dash', Rule::unique('users', 'username')->ignore($userId)],
-            'email' => ['nullable', 'email', 'max:100', Rule::unique('users', 'email')->ignore($userId)],
-            'role_id' => 'required|exists:roles,id',
-            'no_hp' => 'nullable|string|max:20',
-            'alamat' => 'nullable|string|max:255',
-            'status' => 'required|in:aktif,nonaktif',
-            'jenis_guru' => 'required|in:umum,tahfidz,pendamping,keduanya',
-            'status_kepegawaian' => 'required|in:tetap,honorer',
-        ];
+        $form = new \App\Livewire\Forms\TataUsaha\KaryawanForm($this, 'karyawanForm');
+        $form->karyawanId = $this->karyawanId;
+        $form->nama = $this->nama;
+        $form->username = $this->username;
+        $form->email = $this->email;
+        $form->password = $this->password;
+        $form->role_id = $this->role_id;
+        $form->nip = $this->nip;
+        $form->no_hp = $this->no_hp;
+        $form->alamat = $this->alamat;
+        $form->status = $this->status;
+        $form->jenis_guru = $this->jenis_guru;
+        $form->status_kepegawaian = $this->status_kepegawaian;
 
-        if (!$userId) {
-            $rules['password'] = 'required|string|min:6';
-        } else {
-            $rules['password'] = 'nullable|string|min:6';
-        }
-
-        $this->validate($rules);
-
-        $selectedRole = Role::findOrFail($this->role_id);
-
-        $userForGuru = $this->karyawanId ? User::find($this->karyawanId) : null;
-        $guruId = $userForGuru?->guru?->id;
-
-        if ($this->nip) {
-            $rules['nip'] = 'unique:guru,nip,' . ($guruId ?? 'NULL');
-        }
-
+        $this->validate($form->rules());
 
         $selectedRole = Role::find($this->role_id);
         if (!$selectedRole) {
@@ -158,50 +143,8 @@ class ManajemenKaryawan extends Component
             $isUpdate = (bool) $this->karyawanId;
             $namaKaryawan = $this->nama;
 
-            DB::transaction(function () use ($selectedRole, &$isUpdate, &$namaKaryawan) {
-                $userData = [
-                    'nama' => $this->nama,
-                    'username' => $this->username,
-                    'email' => $this->email ?: null,
-                    'role_id' => $this->role_id,
-                    'no_hp' => $this->no_hp ?: null,
-                    'alamat' => $this->alamat ?: null,
-                    'status' => $this->status,
-                ];
-
-                if ($this->password) {
-                    $userData['password'] = Hash::make($this->password);
-                }
-
-                if ($this->karyawanId) {
-                    $user = User::findOrFail($this->karyawanId);
-                    $user->update($userData);
-                } else {
-                    $user = User::create($userData);
-                }
-
-                // Sync Guru profile for teacher or staff roles
-                if ($user->guru) {
-                    $user->guru->update([
-                        'nip' => $this->nip ?: null,
-                        'jenis_guru' => $this->jenis_guru ?: 'umum',
-                        'status_kepegawaian' => $this->status_kepegawaian ?: 'honorer',
-                        'no_hp' => $this->no_hp ?: '-',
-                        'alamat' => $this->alamat ?: '-',
-                        'status_aktif' => $this->status === 'aktif',
-                    ]);
-                } else {
-                    Guru::create([
-                        'user_id' => $user->id,
-                        'nip' => $this->nip ?: ($selectedRole->nama === 'guru' ? null : 'STAFF-' . $user->id),
-                        'jenis_guru' => $this->jenis_guru ?: 'umum',
-                        'status_kepegawaian' => $this->status_kepegawaian ?: 'honorer',
-                        'no_hp' => $this->no_hp ?: '-',
-                        'alamat' => $this->alamat ?: '-',
-                        'tanggal_masuk' => date('Y-m-d'),
-                        'status_aktif' => $this->status === 'aktif',
-                    ]);
-                }
+            DB::transaction(function () use ($form, $selectedRole, &$isUpdate, &$namaKaryawan) {
+                $user = $form->store($selectedRole);
 
                 \App\Services\AuditLogger::log($isUpdate ? 'updated' : 'created', ($isUpdate ? 'Mengubah' : 'Menambahkan') . ' data karyawan: ' . $namaKaryawan, $user, [
                     'log_name' => 'manajemen_karyawan',

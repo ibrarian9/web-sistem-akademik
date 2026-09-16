@@ -34,7 +34,7 @@
                 <td class="p-3.5 border-b border-r border-stone-200">
                     <div class="flex items-center gap-3">
                         <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 font-black flex items-center justify-center text-xs shrink-0 shadow-2xs border border-emerald-200">
-                            {{ strtoupper(substr($sal->guru->user->nama ?? 'G', 0, 2)) }}
+                            {{ strtoupper(substr($sal->guru?->user?->nama ?? ($sal->jabatan ?: 'G'), 0, 2)) }}
                         </div>
                         <div class="min-w-0 flex-1">
                             <button 
@@ -43,23 +43,25 @@
                                 class="text-xs font-black text-stone-900 hover:text-emerald-700 leading-tight text-left transition cursor-pointer hover:underline block truncate"
                                 title="Klik untuk melihat rincian lengkap gaji"
                             >
-                                {{ $sal->guru->user->nama ?? '-' }}
+                                {{ $sal->guru?->user?->nama ?? ($sal->jabatan ? 'Pegawai (' . $sal->jabatan . ')' : 'Pegawai') }}
                             </button>
                             <div class="text-[11px] text-stone-500 font-medium mt-0.5 flex items-center gap-1.5 flex-wrap">
-                                <span class="text-emerald-800 font-bold">{{ $sal->jabatan ?: ($sal->guru->jabatan ?? 'Guru / Pegawai') }}</span>
-                                @if ($sal->guru->niy || $sal->guru->nip)
+                                <span class="text-emerald-800 font-bold">{{ $sal->jabatan ?: ($sal->guru?->jabatan ?? 'Guru / Pegawai') }}</span>
+                                @if ($sal->guru?->niy || $sal->guru?->nip)
                                     <span class="text-stone-300">&bull;</span>
-                                    <span class="font-mono text-[10px] text-stone-400">NIY: {{ $sal->guru->niy ?? $sal->guru->nip }}</span>
+                                    <span class="font-mono text-[10px] text-stone-400">NIY: {{ $sal->guru?->niy ?? $sal->guru?->nip }}</span>
                                 @endif
-                                <span class="text-stone-300">&bull;</span>
-                                <a 
-                                    href="{{ route('finance.gaji-guru.detail', $sal->guru_id) }}" 
-                                    class="text-[10px] font-bold text-emerald-700 hover:text-emerald-900 hover:underline inline-flex items-center gap-0.5" 
-                                    title="Buka seluruh riwayat penggajian pegawai ini"
-                                >
-                                    <x-lucide-history class="w-3 h-3 text-emerald-600" />
-                                    <span>Riwayat Gaji</span>
-                                </a>
+                                @if ($sal->guru_id)
+                                    <span class="text-stone-300">&bull;</span>
+                                    <a 
+                                        href="{{ route('finance.gaji-guru.detail', $sal->guru_id) }}" 
+                                        class="text-[10px] font-bold text-emerald-700 hover:text-emerald-900 hover:underline inline-flex items-center gap-0.5" 
+                                        title="Buka seluruh riwayat penggajian pegawai ini"
+                                    >
+                                        <x-lucide-history class="w-3 h-3 text-emerald-600" />
+                                        <span>Riwayat Gaji</span>
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     </div>

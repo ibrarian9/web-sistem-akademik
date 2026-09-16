@@ -108,108 +108,41 @@ class ManajemenGuru extends Component
             return;
         }
 
-        $guruUserId = $this->guruId ? Guru::find($this->guruId)?->user_id : null;
+        $form = new \App\Livewire\Forms\SuperAdmin\GuruForm($this, 'guruForm');
+        $form->guruId = $this->guruId;
+        $form->nama = $this->nama;
+        $form->username = $this->username;
+        $form->email = $this->email;
+        $form->password = $this->password;
+        $form->niy = $this->niy;
+        $form->nik = $this->nik;
+        $form->tempat_lahir = $this->tempat_lahir;
+        $form->tanggal_lahir = $this->tanggal_lahir;
+        $form->status_kepegawaian = $this->status_kepegawaian;
+        $form->jenis_guru = $this->jenis_guru;
+        $form->pendidikan = $this->pendidikan;
+        $form->grade_guru = $this->grade_guru;
+        $form->status_pernikahan = $this->status_pernikahan;
+        $form->tanggal_masuk = $this->tanggal_masuk;
+        $form->status_aktif = $this->status_aktif;
+        $form->no_hp = $this->no_hp;
+        $form->alamat = $this->alamat;
 
-        $rules = [
-            'nama' => 'required|string|max:255',
-            'username' => 'required|string|max:50|unique:users,username,' . ($guruUserId ?? 'NULL'),
-            'nik' => 'nullable|string|max:20',
-            'status_kepegawaian' => 'required|in:pns,gtt,honorer,tetap_yayasan,gty',
-            'jenis_guru' => 'required|in:umum,tahfidz,keduanya,pendamping',
-            'pendidikan' => 'nullable|string|max:100',
-            'grade_guru' => 'nullable|string|max:50',
-            'status_pernikahan' => 'required|in:belum_menikah,menikah,cerai_hidup,cerai_mati',
-            'tanggal_masuk' => 'required|date',
-            'tanggal_lahir' => 'nullable|date',
-            'status_aktif' => 'required|boolean',
-        ];
-
-        if ($this->niy) {
-            $rules['niy'] = 'unique:guru,nip,' . ($this->guruId ?? 'NULL');
-        }
-
-        if (!$this->guruId) {
-            $rules['password'] = 'required|string|min:6';
-        }
-
-        $this->validate($rules);
+        $this->validate($form->rules());
 
         try {
             $isUpdate = (bool) $this->guruId;
             $namaGuru = $this->nama;
 
-            DB::transaction(function () use (&$isUpdate, &$namaGuru) {
-                $roleGuru = Role::firstOrCreate(
-                    ['nama' => 'guru'],
-                    ['deskripsi' => 'Guru / Tenaga Pendidik']
+            DB::transaction(function () use ($form, &$isUpdate, &$namaGuru) {
+                $guru = $form->store();
+
+                \App\Services\AuditLogger::log(
+                    $isUpdate ? 'updated' : 'created',
+                    ($isUpdate ? 'Mengubah profil data guru: ' : 'Menambahkan guru baru: ') . $namaGuru,
+                    $guru,
+                    ['log_name' => 'manajemen_guru']
                 );
-
-                if ($this->guruId) {
-                    // Update
-                    $guru = Guru::findOrFail($this->guruId);
-                    
-                    $guru->user->update([
-                        'nama' => $this->nama,
-                        'username' => $this->username,
-                        'email' => $this->email ?: null,
-                        'no_hp' => $this->no_hp,
-                        'alamat' => $this->alamat,
-                        'status' => $this->status_aktif ? 'aktif' : 'nonaktif',
-                    ]);
-
-                    if ($this->password) {
-                        $guru->user->update(['password' => Hash::make($this->password)]);
-                    }
-
-                    $guru->update([
-                        'nip' => $this->niy ?: null,
-                        'nik' => $this->nik ?: null,
-                        'tempat_lahir' => $this->tempat_lahir ?: null,
-                        'tanggal_lahir' => $this->tanggal_lahir ?: null,
-                        'status_kepegawaian' => $this->status_kepegawaian,
-                        'jenis_guru' => $this->jenis_guru,
-                        'pendidikan' => $this->pendidikan ?: null,
-                        'grade_guru' => $this->grade_guru ?: null,
-                        'status_pernikahan' => $this->status_pernikahan,
-                        'tanggal_masuk' => $this->tanggal_masuk,
-                        'status_aktif' => $this->status_aktif,
-                    ]);
-
-                    \App\Services\AuditLogger::log('updated', 'Mengubah profil data guru: ' . $namaGuru, $guru, [
-                        'log_name' => 'manajemen_guru',
-                    ]);
-                } else {
-                    // Create
-                    $user = User::create([
-                        'nama' => $this->nama,
-                        'username' => $this->username,
-                        'email' => $this->email ?: null,
-                        'password' => Hash::make($this->password),
-                        'role_id' => $roleGuru->id,
-                        'no_hp' => $this->no_hp,
-                        'alamat' => $this->alamat,
-                        'status' => 'aktif',
-                    ]);
-
-                    $guru = Guru::create([
-                        'user_id' => $user->id,
-                        'nip' => $this->niy ?: ('GURU-' . str_pad($user->id, 5, '0', STR_PAD_LEFT)),
-                        'nik' => $this->nik ?: null,
-                        'tempat_lahir' => $this->tempat_lahir ?: null,
-                        'tanggal_lahir' => $this->tanggal_lahir ?: null,
-                        'status_kepegawaian' => $this->status_kepegawaian,
-                        'jenis_guru' => $this->jenis_guru,
-                        'pendidikan' => $this->pendidikan ?: null,
-                        'grade_guru' => $this->grade_guru ?: null,
-                        'status_pernikahan' => $this->status_pernikahan,
-                        'tanggal_masuk' => $this->tanggal_masuk,
-                        'status_aktif' => true,
-                    ]);
-
-                    \App\Services\AuditLogger::log('created', 'Menambahkan guru baru: ' . $namaGuru, $guru, [
-                        'log_name' => 'manajemen_guru',
-                    ]);
-                }
             });
 
             $msg = 'Data guru ' . $namaGuru . ' berhasil ' . ($isUpdate ? 'perbarui.' : 'disimpan.');

@@ -552,261 +552,21 @@ class ArusKas extends Component
      */
     public function getUnifiedTransactions(): \Illuminate\Support\Collection
     {
-        $transactions = collect();
-
-        // Check if an exclusive category filter is active
-        $hasCategoryKeluar = ($this->filterKategoriKeluar !== null && $this->filterKategoriKeluar !== '');
-        $hasCategoryMasuk = ($this->filterKategoriMasuk !== null && $this->filterKategoriMasuk !== '');
-
-        // 🟢 INFLOW STREAMS (Include when tab = 'semua' or 'masuk', unless filtering exclusively by Kas Keluar category)
-        if (($this->tab === 'semua' || $this->tab === 'masuk') && !$hasCategoryKeluar) {
-            // Stream 1: Pembayaran Tagihan / SPP
-            if ($this->stream === 'semua' || $this->stream === 'spp') {
-                $sppTbl = Pembayaran::with(['tagihan.siswa.user', 'tagihan.siswa.kelas', 'tagihan.jenisTagihan', 'petugas'])
-                    ->where('is_void', false)->latest('tanggal_bayar');
-
-                if ($hasCategoryMasuk) {
-                    $sppTbl->whereHas('tagihan.jenisTagihan', fn($sq) => $sq->where('nama', $this->filterKategoriMasuk));
-                }
-
-                if ($this->search !== '') {
-                    $sppTbl->where(function ($q) {
-                        $q->where('no_resi', 'like', '%' . $this->search . '%')
-                          ->orWhereHas('tagihan.siswa.user', fn($sq) => $sq->where('nama', 'like', '%' . $this->search . '%'))
-                          ->orWhereHas('tagihan.jenisTagihan', fn($sq) => $sq->where('nama', 'like', '%' . $this->search . '%'));
-                    });
-                }
-                $this->applyDateFilter($sppTbl, 'tanggal_bayar');
-
-                foreach ($sppTbl->get() as $item) {
-                    $siswaNama = $item->tagihan->siswa->user->nama ?? 'Siswa';
-                    $kelasNama = $item->tagihan->siswa->kelas->nama_kelas ?? '-';
-                    $jenisNama = $item->tagihan->jenisTagihan->nama ?? 'Tagihan';
-                    $bulan = $item->tagihan->bulan ? ' (' . $item->tagihan->bulan . ')' : '';
-
-                    $transactions->push((object) [
-                        'id' => 'spp_' . $item->id,
-                        'raw_id' => $item->id,
-                        'tanggal' => $item->tanggal_bayar ? Carbon::parse($item->tanggal_bayar) : Carbon::now(),
-                        'type' => 'masuk',
-                        'stream' => 'spp',
-                        'stream_label' => 'SPP & Tagihan',
-                        'stream_badge' => 'emerald',
-                        'kategori' => $jenisNama,
-                        'keterangan' => $siswaNama . ' - Kelas ' . $kelasNama . $bulan,
-                        'nominal_masuk' => (float) $item->nominal_dibayar,
-                        'nominal_keluar' => 0.00,
-                        'metode_resi' => $item->metode_bayar ?: 'Tunai',
-                        'no_resi' => $item->no_resi,
-                        'petugas' => $item->petugas->nama ?? 'Kasir',
-                        'can_delete' => false,
-                        'can_edit' => false,
-                        'bukti' => $item->bukti_bayar,
-                    ]);
-                }
-            }
-
-            // Stream 2: Kas Masuk Yayasan (Infaq / Donasi)
-            if ($this->stream === 'semua' || $this->stream === 'infaq') {
-                $kasTbl = PemasukanKas::with('petugas')->latest('tanggal');
-                if ($hasCategoryMasuk) {
-                    $kasTbl->where('kategori', $this->filterKategoriMasuk);
-                }
-                if ($this->search !== '') {
-                    $kasTbl->where(function ($q) {
-                        $q->where('kategori', 'like', '%' . $this->search . '%')
-                          ->orWhere('keterangan', 'like', '%' . $this->search . '%');
-                    });
-                }
-                $this->applyDateFilter($kasTbl, 'tanggal');
-
-                foreach ($kasTbl->get() as $item) {
-                    $transactions->push((object) [
-                        'id' => 'infaq_' . $item->id,
-                        'raw_id' => $item->id,
-                        'tanggal' => $item->tanggal ? Carbon::parse($item->tanggal) : Carbon::now(),
-                        'type' => 'masuk',
-                        'stream' => 'infaq',
-                        'stream_label' => 'Kas Yayasan',
-                        'stream_badge' => 'amber',
-                        'kategori' => $item->kategori,
-                        'keterangan' => $item->keterangan ?: 'Penerimaan infaq/donasi yayasan',
-                        'nominal_masuk' => (float) $item->jumlah,
-                        'nominal_keluar' => 0.00,
-                        'metode_resi' => 'Kas Tunai / Transfer Bank',
-                        'no_resi' => null,
-                        'petugas' => $item->petugas->nama ?? 'Bendahara',
-                        'can_delete' => true,
-                    ]);
-                }
-            }
-
-            // Stream 3: Setoran Tabungan Siswa
-            if (($this->stream === 'semua' || $this->stream === 'tabungan') && (!$hasCategoryMasuk || $this->filterKategoriMasuk === 'Tabungan Siswa' || str_contains(strtolower($this->filterKategoriMasuk), 'tabungan'))) {
-                $tabTbl = Tabungan::with(['siswa.user', 'siswa.kelas', 'petugas'])->where('jenis', 'setor')->latest('tanggal');
-                if ($this->search !== '') {
-                    $tabTbl->whereHas('siswa.user', fn($q) => $q->where('nama', 'like', '%' . $this->search . '%'));
-                }
-                $this->applyDateFilter($tabTbl, 'tanggal');
-
-                foreach ($tabTbl->get() as $item) {
-                    $siswaNama = $item->siswa->user->nama ?? 'Siswa';
-                    $kelasNama = $item->siswa->kelas->nama_kelas ?? '-';
-
-                    $transactions->push((object) [
-                        'id' => 'tab_' . $item->id,
-                        'raw_id' => $item->id,
-                        'tanggal' => $item->tanggal ? Carbon::parse($item->tanggal) : Carbon::now(),
-                        'type' => 'masuk',
-                        'stream' => 'tabungan',
-                        'stream_label' => 'Setoran Tabungan',
-                        'stream_badge' => 'purple',
-                        'kategori' => 'Tabungan Siswa',
-                        'keterangan' => 'Setor: ' . $siswaNama . ' (' . $kelasNama . ')',
-                        'nominal_masuk' => (float) $item->nominal,
-                        'nominal_keluar' => 0.00,
-                        'metode_resi' => 'Setoran Tunai',
-                        'no_resi' => null,
-                        'petugas' => $item->petugas->nama ?? 'Petugas Tabungan',
-                        'can_delete' => false,
-                    ]);
-                }
-            }
-        }
-
-        // 🔴 OUTFLOW STREAMS (Include when tab = 'semua' or 'keluar', unless filtering exclusively by Kas Masuk category)
-        if (($this->tab === 'semua' || $this->tab === 'keluar') && !$hasCategoryMasuk) {
-            // Stream 4: Operasional Yayasan
-            if ($this->stream === 'semua' || $this->stream === 'operasional') {
-                $opTbl = Pengeluaran::with(['kategori', 'petugas'])->latest('tanggal');
-                if ($hasCategoryKeluar) {
-                    $opTbl->where('kategori_pengeluaran_id', $this->filterKategoriKeluar);
-                }
-                if ($this->search !== '') {
-                    $opTbl->where(function ($q) {
-                        $q->where('keterangan', 'like', '%' . $this->search . '%')
-                          ->orWhereHas('kategori', fn($sq) => $sq->where('nama', 'like', '%' . $this->search . '%'));
-                    });
-                }
-                $this->applyDateFilter($opTbl, 'tanggal');
-
-                foreach ($opTbl->get() as $item) {
-                    $transactions->push((object) [
-                        'id' => 'op_' . $item->id,
-                        'raw_id' => $item->id,
-                        'tanggal' => $item->tanggal ? Carbon::parse($item->tanggal) : Carbon::now(),
-                        'type' => 'keluar',
-                        'stream' => 'operasional',
-                        'stream_label' => 'Operasional Yayasan',
-                        'stream_badge' => 'rose',
-                        'kategori' => $item->kategori->nama ?? 'Umum',
-                        'keterangan' => $item->keterangan ?: 'Beban operasional kas yayasan',
-                        'nominal_masuk' => 0.00,
-                        'nominal_keluar' => (float) $item->jumlah,
-                        'metode_resi' => 'Kas Tunai / Transfer Bank',
-                        'no_resi' => null,
-                        'petugas' => $item->petugas->nama ?? 'Bendahara',
-                        'can_delete' => true,
-                        'can_edit' => true,
-                        'bukti' => $item->bukti,
-                    ]);
-                }
-            }
-
-            // Stream 5: Gaji Guru (only when not filtering by specific KategoriPengeluaran ID)
-            if (($this->stream === 'semua' || $this->stream === 'gaji') && !$hasCategoryKeluar) {
-                $gajiTbl = GajiGuru::with(['guru.user'])->where('status', 'dibayar')->latest('tanggal_bayar');
-                if ($this->search !== '') {
-                    $gajiTbl->whereHas('guru.user', fn($q) => $q->where('nama', 'like', '%' . $this->search . '%'));
-                }
-                $this->applyDateFilter($gajiTbl, 'tanggal_bayar');
-
-                foreach ($gajiTbl->get() as $item) {
-                    $transactions->push((object) [
-                        'id' => 'gaji_' . $item->id,
-                        'raw_id' => $item->id,
-                        'tanggal' => $item->tanggal_bayar ? Carbon::parse($item->tanggal_bayar) : Carbon::now(),
-                        'type' => 'keluar',
-                        'stream' => 'gaji',
-                        'stream_label' => 'Gaji & Honor Guru',
-                        'stream_badge' => 'violet',
-                        'kategori' => 'Honorarium & Gaji',
-                        'keterangan' => 'Gaji ' . ($item->guru->user->nama ?? 'Guru') . ' (' . $item->bulan . ' ' . $item->tahun . ')',
-                        'nominal_masuk' => 0.00,
-                        'nominal_keluar' => (float) $item->total_diterima,
-                        'metode_resi' => 'Payroll Transfer',
-                        'no_resi' => null,
-                        'petugas' => 'Sistem Payroll',
-                        'can_delete' => false,
-                    ]);
-                }
-            }
-
-            // Stream 6: Kasbon Guru (only when not filtering by specific KategoriPengeluaran ID)
-            if (($this->stream === 'semua' || $this->stream === 'kasbon') && !$hasCategoryKeluar) {
-                $loanTbl = Peminjaman::with(['guru.user'])->latest('tanggal_pinjam');
-                if ($this->search !== '') {
-                    $loanTbl->whereHas('guru.user', fn($q) => $q->where('nama', 'like', '%' . $this->search . '%'));
-                }
-                $this->applyDateFilter($loanTbl, 'tanggal_pinjam');
-
-                foreach ($loanTbl->get() as $item) {
-                    $transactions->push((object) [
-                        'id' => 'loan_' . $item->id,
-                        'raw_id' => $item->id,
-                        'tanggal' => $item->tanggal_pinjam ? Carbon::parse($item->tanggal_pinjam) : Carbon::now(),
-                        'type' => 'keluar',
-                        'stream' => 'kasbon',
-                        'stream_label' => 'Kasbon Guru',
-                        'stream_badge' => 'teal',
-                        'kategori' => 'Fasilitas Kasbon',
-                        'keterangan' => 'Pencairan kasbon: ' . ($item->guru->user->nama ?? 'Guru') . ' (Tenor ' . $item->tenor_bulan . ' Bln)',
-                        'nominal_masuk' => 0.00,
-                        'nominal_keluar' => (float) $item->nominal,
-                        'metode_resi' => 'Pencairan Tunai / Transfer',
-                        'no_resi' => null,
-                        'petugas' => 'Finance',
-                        'can_delete' => false,
-                    ]);
-                }
-            }
-        }
-
-        // Filter by Nominal Range (Min/Max)
-        if ($this->nominalMin !== null && $this->nominalMin !== '') {
-            $minVal = unmask_rupiah($this->nominalMin);
-            $transactions = $transactions->filter(function ($t) use ($minVal) {
-                $val = $t->type === 'masuk' ? $t->nominal_masuk : $t->nominal_keluar;
-                return $val >= $minVal;
-            });
-        }
-
-        if ($this->nominalMax !== null && $this->nominalMax !== '') {
-            $maxVal = unmask_rupiah($this->nominalMax);
-            $transactions = $transactions->filter(function ($t) use ($maxVal) {
-                $val = $t->type === 'masuk' ? $t->nominal_masuk : $t->nominal_keluar;
-                return $val <= $maxVal;
-            });
-        }
-
-        // Filter by Payment Method
-        if ($this->filterMetode && $this->filterMetode !== 'semua') {
-            $transactions = $transactions->filter(function ($t) {
-                $method = strtolower($this->filterMetode);
-                $resi = strtolower($t->metode_resi ?? '');
-                if ($method === 'tunai') {
-                    return str_contains($resi, 'tunai') || str_contains($resi, 'cash');
-                } elseif ($method === 'transfer') {
-                    return str_contains($resi, 'transfer') || str_contains($resi, 'bank') || str_contains($resi, 'payroll');
-                } elseif ($method === 'qris') {
-                    return str_contains($resi, 'qris');
-                }
-                return str_contains($resi, $method);
-            });
-        }
-
-        return $transactions->sortByDesc(fn($item) => $item->tanggal->timestamp)->values();
+        return \App\Services\Finance\CashFlowService::getUnifiedTransactions([
+            'tab' => $this->tab,
+            'stream' => $this->stream,
+            'search' => $this->search,
+            'filter_periode' => $this->filterPeriode,
+            'start_date' => $this->startDate,
+            'end_date' => $this->endDate,
+            'filter_kategori_masuk' => $this->filterKategoriMasuk,
+            'filter_kategori_keluar' => $this->filterKategoriKeluar,
+            'nominal_min' => $this->nominalMin,
+            'nominal_max' => $this->nominalMax,
+            'filter_metode' => $this->filterMetode,
+        ]);
     }
+
 
     public function resetFilters()
     {
@@ -970,91 +730,17 @@ class ArusKas extends Component
 
     public function render()
     {
-        // 1. Calculate Inflow Metrics (Non-BOS)
-        $sppQuery = Pembayaran::where('is_void', false);
-        $this->applyDateFilter($sppQuery, 'tanggal_bayar');
-        $totalTagihanSpp = (float) $sppQuery->sum('nominal_dibayar');
+        $metrics = \App\Services\Finance\CashFlowService::calculateMetrics([
+            'filter_periode' => $this->filterPeriode,
+            'start_date' => $this->startDate,
+            'end_date' => $this->endDate,
+        ]);
 
-        $kasMasukQuery = PemasukanKas::query();
-        $this->applyDateFilter($kasMasukQuery, 'tanggal');
-        $totalKasYayasan = (float) $kasMasukQuery->sum('jumlah');
+        $trend = \App\Services\Finance\CashFlowService::calculateMonthlyTrend(6);
+        $monthlyChartData = $trend['monthlyChartData'];
+        $maxMonthVal = $trend['maxMonthVal'];
 
-        $tabunganQuery = Tabungan::where('jenis', 'setor');
-        $this->applyDateFilter($tabunganQuery, 'tanggal');
-        $totalTabunganSetor = (float) $tabunganQuery->sum('nominal');
-
-        $totalInflow = $totalTagihanSpp + $totalKasYayasan + $totalTabunganSetor;
-
-        // 2. Calculate Outflow Metrics (Non-BOS)
-        $opQuery = Pengeluaran::query();
-        $this->applyDateFilter($opQuery, 'tanggal');
-        $totalOperasional = (float) $opQuery->sum('jumlah');
-
-        $gajiQuery = GajiGuru::where('status', 'dibayar');
-        $this->applyDateFilter($gajiQuery, 'tanggal_bayar');
-        $totalGaji = (float) $gajiQuery->sum('total_diterima');
-
-        $loanQuery = Peminjaman::query();
-        $this->applyDateFilter($loanQuery, 'tanggal_pinjam');
-        $totalKasbon = (float) $loanQuery->sum('nominal');
-
-        $totalOutflow = $totalOperasional + $totalGaji + $totalKasbon;
-
-        // Net Cash Flow
-        $netCashFlow = $totalInflow - $totalOutflow;
-
-        // 3. Compute 6-Month Inflow vs Outflow Comparison Trend (Chart Data)
-        $monthlyChartData = [];
-        $maxMonthVal = 1;
-
-        for ($i = 5; $i >= 0; $i--) {
-            $mCarbon = Carbon::now()->subMonths($i);
-            $year = $mCarbon->year;
-            $monthNum = $mCarbon->month;
-            $monthLabel = $mCarbon->locale('id')->isoFormat('MMM YYYY');
-
-            // Inflow
-            $mSpp = (float) Pembayaran::where('is_void', false)->whereYear('tanggal_bayar', $year)->whereMonth('tanggal_bayar', $monthNum)->sum('nominal_dibayar');
-            $mInfaq = (float) PemasukanKas::whereYear('tanggal', $year)->whereMonth('tanggal', $monthNum)->sum('jumlah');
-            $mTab = (float) Tabungan::where('jenis', 'setor')->whereYear('tanggal', $year)->whereMonth('tanggal', $monthNum)->sum('nominal');
-            $mInflowTotal = $mSpp + $mInfaq + $mTab;
-
-            // Outflow
-            $mOp = (float) Pengeluaran::whereYear('tanggal', $year)->whereMonth('tanggal', $monthNum)->sum('jumlah');
-            $mGaji = (float) GajiGuru::where('status', 'dibayar')
-                ->where(function ($q) use ($year, $monthNum, $mCarbon) {
-                    $q->whereYear('tanggal_bayar', $year)->whereMonth('tanggal_bayar', $monthNum)
-                      ->orWhere(function ($sq) use ($year, $mCarbon) {
-                          $sq->where('tahun', $year)->where('bulan', $mCarbon->locale('id')->isoFormat('MMMM'));
-                      });
-                })->sum('total_diterima');
-            $mLoan = (float) Peminjaman::whereYear('tanggal_pinjam', $year)->whereMonth('tanggal_pinjam', $monthNum)->sum('nominal');
-            $mOutflowTotal = $mOp + $mGaji + $mLoan;
-
-            if ($mInflowTotal > $maxMonthVal) {
-                $maxMonthVal = $mInflowTotal;
-            }
-            if ($mOutflowTotal > $maxMonthVal) {
-                $maxMonthVal = $mOutflowTotal;
-            }
-
-            $monthlyChartData[] = [
-                'label' => $monthLabel,
-                'year' => $year,
-                'month' => $monthNum,
-                'inflow' => $mInflowTotal,
-                'outflow' => $mOutflowTotal,
-                'net' => $mInflowTotal - $mOutflowTotal,
-            ];
-        }
-
-        foreach ($monthlyChartData as &$mItem) {
-            $mItem['inflow_pct'] = $maxMonthVal > 0 ? round(($mItem['inflow'] / $maxMonthVal) * 100) : 0;
-            $mItem['outflow_pct'] = $maxMonthVal > 0 ? round(($mItem['outflow'] / $maxMonthVal) * 100) : 0;
-        }
-        unset($mItem);
-
-        // 4. Query Unified Transactions
+        // Query Unified Transactions
         $sortedTransactions = $this->getUnifiedTransactions();
 
         // Paginate manually
@@ -1078,19 +764,10 @@ class ArusKas extends Component
             ]
         );
 
-        return view('livewire.finance.arus-kas', [
+        return view('livewire.finance.arus-kas', array_merge([
             'paginatedTransactions' => $paginatedTransactions,
-            'totalInflow' => $totalInflow,
-            'totalOutflow' => $totalOutflow,
-            'netCashFlow' => $netCashFlow,
-            'totalTagihanSpp' => $totalTagihanSpp,
-            'totalKasYayasan' => $totalKasYayasan,
-            'totalTabunganSetor' => $totalTabunganSetor,
-            'totalOperasional' => $totalOperasional,
-            'totalGaji' => $totalGaji,
-            'totalKasbon' => $totalKasbon,
             'monthlyChartData' => $monthlyChartData,
             'maxMonthVal' => $maxMonthVal,
-        ])->layout('components.layouts.app', ['title' => 'Arus Kas (Cash Flow) Terpadu']);
+        ], $metrics))->layout('components.layouts.app', ['title' => 'Arus Kas (Cash Flow) Terpadu']);
     }
 }

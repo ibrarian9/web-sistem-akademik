@@ -270,7 +270,7 @@ test('detail tagihan siswa page renders correctly with filters and metrics', fun
         ->assertSee('700.000')
         ->assertSee('Total Terbayar')
         ->assertSee('350.000')
-        ->assertSee('Sisa Tunggakan')
+        ->assertSee('Tunggakan Jatuh Tempo')
         ->set('filterBulan', 'Agustus')
         ->assertSee(\Carbon\Carbon::parse(date('Y-m-d', strtotime('+60 days')))->locale('id')->isoFormat('D MMM YYYY')) // Due date of Agustus
         ->set('filterBulan', '')

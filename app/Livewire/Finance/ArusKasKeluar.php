@@ -3,6 +3,7 @@
 namespace App\Livewire\Finance;
 
 use Livewire\Component;
+use App\Livewire\Forms\Finance\KasKeluarForm;
 use App\Models\Pengeluaran;
 use App\Models\KategoriPengeluaran;
 use App\Models\GajiGuru;
@@ -18,6 +19,8 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class ArusKasKeluar extends Component
 {
     use WithPagination, WithDateFilter, WithFileUploads, WithCurrencySanitizer;
+
+    public KasKeluarForm $form;
 
     // Stream selector: 'semua', 'operasional', 'gaji', 'peminjaman' (Dana BOS dipisah)
     public string $stream = 'semua';
@@ -184,14 +187,16 @@ class ArusKasKeluar extends Component
 
         $this->sanitizeCurrencies(['jumlah']);
 
+        $rules = [
+            'jumlah' => 'required|numeric|min:0',
+            'tanggal' => 'required|date',
+            'keterangan' => 'nullable|string|max:500',
+            'bukti_foto' => 'nullable|image|max:2048',
+        ];
+
         if ($this->is_kategori_kustom && !empty(trim($this->kategori_keluar_kustom))) {
-            $this->validate([
-                'kategori_keluar_kustom' => 'required|string|max:100',
-                'jumlah' => 'required|numeric|min:0',
-                'tanggal' => 'required|date',
-                'keterangan' => 'nullable|string|max:500',
-                'bukti_foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            ]);
+            $rules['kategori_keluar_kustom'] = 'required|string|max:100';
+            $this->validate($rules, $this->form->messages());
 
             $kategori = KategoriPengeluaran::firstOrCreate([
                 'nama' => trim($this->kategori_keluar_kustom)
@@ -199,13 +204,8 @@ class ArusKasKeluar extends Component
             $this->kategori_pengeluaran_id = $kategori->id;
             $this->categories = KategoriPengeluaran::orderBy('nama')->get()->toArray();
         } else {
-            $this->validate([
-                'kategori_pengeluaran_id' => 'required|exists:kategori_pengeluaran,id',
-                'jumlah' => 'required|numeric|min:0',
-                'tanggal' => 'required|date',
-                'keterangan' => 'nullable|string|max:500',
-                'bukti_foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            ]);
+            $rules['kategori_pengeluaran_id'] = 'required|exists:kategori_pengeluaran,id';
+            $this->validate($rules, $this->form->messages());
         }
 
         $pathBukti = null;
@@ -266,13 +266,14 @@ class ArusKasKeluar extends Component
 
         $this->sanitizeCurrencies(['edit_jumlah']);
 
-        $this->validate([
-            'edit_kategori_pengeluaran_id' => 'required|exists:kategori_pengeluaran,id',
+        $rules = [
             'edit_jumlah' => 'required|numeric|min:0',
             'edit_tanggal' => 'required|date',
             'edit_keterangan' => 'nullable|string|max:500',
-            'edit_bukti_foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-        ]);
+            'edit_kategori_pengeluaran_id' => 'required|exists:kategori_pengeluaran,id',
+            'edit_bukti_foto' => 'nullable|image|max:2048',
+        ];
+        $this->validate($rules, $this->form->messages());
 
         $exp = Pengeluaran::findOrFail($this->editingPengeluaranId);
 
@@ -410,9 +411,11 @@ class ArusKasKeluar extends Component
             'totalPengeluaran' => $data->sum('jumlah'),
         ])->setPaper('a4', 'portrait');
 
-        return response()->streamDownload(function () use ($pdf) {
-            echo $pdf->output();
-        }, 'laporan_kas_keluar_' . date('Ymd_His') . '.pdf');
+        return \App\Services\Finance\FinanceReportService::renderPdf(
+            $pdf,
+            'laporan_kas_keluar_' . date('Ymd_His') . '.pdf',
+            true
+        );
     }
 
     public function exportExcel()
@@ -441,44 +444,19 @@ class ArusKasKeluar extends Component
             return;
         }
 
-        $filename = 'rekap-kas-keluar-' . date('Y-m-d') . '.csv';
-
-        $headers = [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
-            'Pragma' => 'no-cache',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0',
-        ];
-
-        $callback = function () use ($data) {
-            $file = fopen('php://output', 'w');
-            fputs($file, "\xEF\xBB\xBF");
-
-            fputcsv($file, [
-                'No',
-                'Tanggal',
-                'Kategori Pengeluaran',
-                'Nominal (Rp)',
-                'Keterangan',
-                'Petugas Pencatat'
-            ]);
-
-            foreach ($data as $index => $item) {
-                fputcsv($file, [
-                    $index + 1,
-                    $item->tanggal ? Carbon::parse($item->tanggal)->translatedFormat('d M Y') : '-',
-                    $item->kategori->nama ?? 'Umum',
-                    number_format($item->jumlah, 0, ',', '.'),
-                    $item->keterangan ?: '-',
-                    $item->petugas->nama ?? 'Sistem'
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return \App\Services\Finance\CsvExportService::stream(
+            'rekap-kas-keluar-' . date('Y-m-d') . '.csv',
+            ['No', 'Tanggal', 'Kategori Pengeluaran', 'Nominal (Rp)', 'Keterangan', 'Petugas Pencatat'],
+            $data,
+            fn($item, $index) => [
+                $index + 1,
+                $item->tanggal ? Carbon::parse($item->tanggal)->translatedFormat('d M Y') : '-',
+                $item->kategori->nama ?? 'Umum',
+                number_format($item->jumlah, 0, ',', '.'),
+                $item->keterangan ?: '-',
+                $item->petugas->nama ?? 'Sistem'
+            ]
+        );
     }
 
     public function render()

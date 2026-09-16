@@ -2,8 +2,8 @@
 @if ($showPayModal && $paySalaryRecord)
     <x-floating-card 
         :show="true" 
-        :title="'Input Pembayaran Gaji — ' . ($paySalaryRecord->guru->user->nama ?? 'Pegawai')" 
-        :subtitle="'Periode: ' . $paySalaryRecord->bulan . ' ' . $paySalaryRecord->tahun . ' • Jabatan: ' . ($paySalaryRecord->jabatan ?: 'Guru')" 
+        :title="'Input Pembayaran Gaji — ' . ($paySalaryRecord->guru?->user?->nama ?? ($paySalaryRecord->jabatan ? 'Pegawai (' . $paySalaryRecord->jabatan . ')' : 'Pegawai'))" 
+        :subtitle="'Periode: ' . $paySalaryRecord->bulan . ' ' . $paySalaryRecord->tahun . ' • Jabatan: ' . ($paySalaryRecord->jabatan ?: ($paySalaryRecord->guru?->jabatan ?? 'Guru'))" 
         badge="PEMBAYARAN GAJI" 
         badgeVariant="emerald" 
         icon="credit-card" 

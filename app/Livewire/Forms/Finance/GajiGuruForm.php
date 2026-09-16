@@ -81,4 +81,26 @@ class GajiGuruForm extends Form
 
         $this->total_diterima = max(0, $this->total_bruto - $this->total_potongan);
     }
+
+    public function rules(): array
+    {
+        return [
+            'guru_id' => 'required|exists:guru,id',
+            'bulan' => 'required|string',
+            'tahun' => 'required|integer|min:2020|max:2050',
+            'gaji_pokok' => 'required|numeric|min:0',
+            'gaji_berkala' => 'nullable|numeric|min:0',
+            'jumlah_ekskul' => 'nullable|integer|min:0',
+            'honor_ekskul' => 'nullable|numeric|min:0',
+            'insentif' => 'nullable|numeric|min:0',
+            'insentif_bpjs' => 'nullable|numeric|min:0',
+            'insentif_maghrib' => 'nullable|numeric|min:0',
+            'potongan_sosial' => 'nullable|numeric|min:0',
+            'potongan_pinjaman' => 'nullable|numeric|min:0',
+            'potongan_bpjstk' => 'nullable|numeric|min:0',
+            'potongan_lainnya' => 'nullable|numeric|min:0',
+            'sumber_dana' => 'required|string',
+        ];
+    }
 }
+

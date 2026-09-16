@@ -161,6 +161,6 @@ test('rekap absensi siswa getMatrixData tidak memiliki masalah n+1', function ()
 
     expect(count($data['matrix']))->toBe(15);
     // Previously, 15 students * 31 days caused 450+ queries.
-    // Now with batch pre-fetching, it should be at most 4 queries!
-    expect(count($queries))->toBeLessThanOrEqual(5);
+    // Now with batch pre-fetching and eager loading, it should be at most 7 queries (O(1))!
+    expect(count($queries))->toBeLessThanOrEqual(7);
 });

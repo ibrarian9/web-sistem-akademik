@@ -2,9 +2,12 @@
 
 namespace App\Livewire\Finance;
 
+
+
 use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\Tabungan;
+use App\Livewire\Forms\Finance\TabunganTransactionForm;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -14,6 +17,8 @@ use App\Traits\WithCurrencySanitizer;
 class TabunganSiswa extends Component
 {
     use WithPagination, WithCurrencySanitizer;
+
+    public TabunganTransactionForm $form;
 
     // Filter Saldo Siswa Table
     public $search = '';
@@ -179,13 +184,7 @@ class TabunganSiswa extends Component
 
         $this->sanitizeCurrencies(['nominal']);
 
-        $this->validate([
-            'siswa_id' => 'required|exists:siswa,id',
-            'jenis' => 'required|in:setor,tarik',
-            'nominal' => 'required|numeric|min:0',
-            'tanggal' => 'required|date',
-            'keterangan' => 'nullable|string|max:255',
-        ]);
+        $this->validate($this->form->rules(), $this->form->messages());
 
         $currentSaldo = $this->getCurrentSaldo($this->siswa_id);
 

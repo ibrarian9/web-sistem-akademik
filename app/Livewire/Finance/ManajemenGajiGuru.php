@@ -10,7 +10,7 @@ use App\Models\Pengeluaran;
 use App\Models\KategoriPengeluaran;
 use App\Services\NotificationService;
 use App\Services\SalaryCalculationService;
-use App\Actions\Finance\GenerateBulkGajiAction;
+use App\Services\Finance\SalaryBulkGeneratorService;
 use App\Actions\Finance\DisburseGajiAction;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
@@ -218,92 +218,14 @@ class ManajemenGajiGuru extends Component
 
     public function loadGeneratePreview()
     {
-        $activeGurus = Guru::with('user')->where('status_aktif', true)->get();
-        $this->generateItems = [];
-
-        foreach ($activeGurus as $guru) {
-            $alreadyExists = GajiGuru::where('guru_id', $guru->id)
-                ->where('bulan', $this->generateBulan)
-                ->where('tahun', $this->generateTahun)
-                ->exists();
-
-            if ($alreadyExists) {
-                continue;
-            }
-
-            $isTetap = in_array(strtolower($guru->status_kepegawaian ?? ''), ['tetap_yayasan', 'gty', 'pns']);
-            $gajiPokok = $isTetap ? 2000000.00 : 1000000.00;
-            $gajiBerkala = $isTetap ? 120000.00 : 0.00;
-            $jumlahEkskul = 0;
-            $honorEkskul = 0.00;
-            $insentif = $isTetap ? 500000.00 : 150000.00;
-            $insentifBpjs = $isTetap ? 17928.00 : 0.00;
-            $insentifMaghrib = 0.00;
-
-            $potonganSosial = 10000.00;
-            $potonganBpjstk = $isTetap ? 17928.00 : 0.00;
-            $potonganLainnya = 0.00;
-
-            $calc = app(SalaryCalculationService::class);
-            $potonganPeminjaman = $calc->resolveActiveLoanDeduction($guru->id);
-
-            $totalBruto = $calc->calculateBruto($gajiPokok, $gajiBerkala, $honorEkskul, $insentif, $insentifBpjs, $insentifMaghrib);
-            $totalPotongan = $calc->calculatePotongan($potonganSosial, $potonganPeminjaman, $potonganBpjstk, $potonganLainnya);
-            $totalDiterima = $calc->calculateNetTakeHomePay($totalBruto, $totalPotongan);
-
-            $jabatan = $guru->jabatan ?: ($guru->jenis_guru === 'tahfidz' ? 'Wali Tahfizh' : 'Guru Pengajar');
-            $jamKerja = $isTetap ? '07.00-14.00 (Fleksibel)' : '07.00-14.00';
-
-            $this->generateItems[$guru->id] = [
-                'selected' => true,
-                'guru_id' => $guru->id,
-                'nama' => $guru->user->nama ?? '-',
-                'nip' => $guru->niy ?? ($guru->nip ?? '-'),
-                'jabatan' => $jabatan,
-                'jam_kerja' => $jamKerja,
-                'sumber_dana' => 'Yayasan',
-                'gaji_pokok' => floatval($gajiPokok),
-                'gaji_berkala' => floatval($gajiBerkala),
-                'jumlah_ekskul' => intval($jumlahEkskul),
-                'honor_ekskul' => floatval($honorEkskul),
-                'insentif' => floatval($insentif),
-                'insentif_bpjs' => floatval($insentifBpjs),
-                'insentif_maghrib_mengaji' => floatval($insentifMaghrib),
-                'potongan_sosial' => floatval($potonganSosial),
-                'potongan_peminjaman' => floatval($potonganPeminjaman),
-                'potongan_bpjstk' => floatval($potonganBpjstk),
-                'potongan_lainnya' => floatval($potonganLainnya),
-                'total_bruto' => floatval($totalBruto),
-                'total_diterima' => floatval($totalDiterima),
-            ];
-        }
-
+        $this->generateItems = app(SalaryBulkGeneratorService::class)->buildPreviewItems($this->generateBulan, $this->generateTahun);
         $this->generateSelectAll = true;
     }
 
     public function recalculateGenerateRow($guruId)
     {
         if (isset($this->generateItems[$guruId])) {
-            $item = &$this->generateItems[$guruId];
-            $calc = app(SalaryCalculationService::class);
-            $bruto = $calc->calculateBruto(
-                floatval($item['gaji_pokok'] ?? 0),
-                floatval($item['gaji_berkala'] ?? 0),
-                floatval($item['honor_ekskul'] ?? 0),
-                floatval($item['insentif'] ?? 0),
-                floatval($item['insentif_bpjs'] ?? 0),
-                floatval($item['insentif_maghrib_mengaji'] ?? 0)
-            );
-
-            $potongan = $calc->calculatePotongan(
-                floatval($item['potongan_sosial'] ?? 0),
-                floatval($item['potongan_peminjaman'] ?? 0),
-                floatval($item['potongan_bpjstk'] ?? 0),
-                floatval($item['potongan_lainnya'] ?? 0)
-            );
-
-            $item['total_bruto'] = $bruto;
-            $item['total_diterima'] = $calc->calculateNetTakeHomePay($bruto, $potongan);
+            $this->generateItems[$guruId] = app(SalaryBulkGeneratorService::class)->recalculateRow($this->generateItems[$guruId]);
         }
     }
 
@@ -331,7 +253,7 @@ class ManajemenGajiGuru extends Component
             return;
         }
 
-        $createdCount = app(GenerateBulkGajiAction::class)->execute(
+        $createdCount = app(SalaryBulkGeneratorService::class)->generateDrafts(
             $selectedItems,
             $this->generateBulan,
             $this->generateTahun

@@ -1,4 +1,7 @@
 {{-- Accessibility Menu — Floating Button + Panel --}}
+
+
+
 <div x-data="accessibilityMenu()" x-cloak class="fixed bottom-6 right-6 z-50">
     {{-- Scoped CSS for Ultra-Sleek Range Slider & Controls --}}
     <style>

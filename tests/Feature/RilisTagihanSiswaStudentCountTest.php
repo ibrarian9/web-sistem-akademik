@@ -344,7 +344,7 @@ test('fitur cari dan tambah siswa lintas kelas menampilkan data lengkap nama nis
         ->assertSee('NIS: 7201 • Kelas 7B')
         ->call('addSiswaToBulk', $siswa2->id)
         // Verify 2 students selected
-        ->assertSee('Daftar Siswa Dipilih (2 Siswa)')
+        ->assertSee('2 Siswa Dipilih')
         ->assertSee('2 Siswa')
         ->assertSee('Terbitkan Tagihan (2 Siswa)')
         // Release bill

@@ -192,12 +192,25 @@ class Siswa extends Model
         return $query->where('status', 'aktif');
     }
 
+    public function scopeActive($query)
+    {
+        return $this->scopeAktif($query);
+    }
+
     /**
      * Local Scope: Filter students by class ID
      */
     public function scopeByKelas($query, $kelasId)
     {
         return $query->when($kelasId, fn($q) => $q->where('kelas_id', $kelasId));
+    }
+
+    /**
+     * Local Scope: Filter students by tahfidz class ID
+     */
+    public function scopeByKelasTahfidz($query, $kelasId)
+    {
+        return $query->when($kelasId, fn($q) => $q->where('kelas_tahfidz_id', $kelasId));
     }
 
     /**

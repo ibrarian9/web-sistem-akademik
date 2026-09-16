@@ -68,7 +68,7 @@ class ManajemenTagihan extends Component
     public bool $showKategoriModal = false;
     public ?int $editingKategoriId = null;
     public string $kategori_nama = '';
-    public string $kategori_tipe = 'rutin'; // 'rutin' | 'one_time' | 'tahunan'
+    public string $kategori_tipe = 'rutin'; // 'rutin' | 'one_time' | 'tahunan' | 'semester'
     public float $kategori_nominal = 0.00;
     public bool $kategori_is_blocking = true;
     public string $searchKategori = '';
@@ -411,7 +411,7 @@ class ManajemenTagihan extends Component
 
         $this->validate([
             'kategori_nama' => 'required|string|max:100',
-            'kategori_tipe' => 'required|in:rutin,one_time,tahunan',
+            'kategori_tipe' => 'required|in:rutin,one_time,tahunan,semester,per_6_bulan',
             'kategori_nominal' => 'required|numeric|min:0',
             'kategori_is_blocking' => 'boolean',
         ], [
@@ -424,53 +424,25 @@ class ManajemenTagihan extends Component
         ]);
 
         try {
-            $isEdit = !empty($this->editingKategoriId);
-            if ($isEdit) {
-                $jt = JenisTagihan::findOrFail($this->editingKategoriId);
-                $jt->update([
-                    'nama' => trim($this->kategori_nama),
-                    'kategori' => $this->kategori_tipe,
-                    'default_nominal' => $this->kategori_nominal,
-                    'is_blocking' => (bool) $this->kategori_is_blocking,
-                ]);
+            $result = app(\App\Actions\Finance\ManageKategoriTagihanAction::class)->save([
+                'nama' => $this->kategori_nama,
+                'tipe' => $this->kategori_tipe,
+                'nominal' => $this->kategori_nominal,
+                'is_blocking' => $this->kategori_is_blocking,
+            ], $this->editingKategoriId);
 
-                \App\Services\AuditLogger::log('updated', 'Memperbarui kategori tagihan: ' . $jt->nama, $jt, [
-                    'log_name' => 'manajemen_tagihan',
-                ]);
-
-                $message = 'Kategori tagihan "' . $jt->nama . '" berhasil diperbarui.';
-                $title = 'Kategori Tagihan Diperbarui';
-                $type = 'edit';
-            } else {
-                $jt = JenisTagihan::create([
-                    'nama' => trim($this->kategori_nama),
-                    'kategori' => $this->kategori_tipe,
-                    'default_nominal' => $this->kategori_nominal,
-                    'is_blocking' => (bool) $this->kategori_is_blocking,
-                ]);
-
-                \App\Services\AuditLogger::log('created', 'Menambahkan kategori tagihan baru: ' . $jt->nama, $jt, [
-                    'log_name' => 'manajemen_tagihan',
-                ]);
-
-                $message = 'Kategori tagihan baru "' . $jt->nama . '" berhasil ditambahkan.';
-                $title = 'Kategori Tagihan Ditambahkan';
-                $type = 'create';
-
-                // Jika modal rilis tagihan sedang terbuka, otomatis pilih kategori yang baru dibuat
-                if ($this->showCreateModal) {
-                    $this->jenis_tagihan_id = $jt->id;
-                    $this->nominal = floatval($jt->default_nominal ?? 0.00);
-                }
+            if (!$result['isEdit'] && $this->showCreateModal) {
+                $this->jenis_tagihan_id = $result['jt']->id;
+                $this->nominal = floatval($result['jt']->default_nominal ?? 0.00);
             }
 
             $this->refreshJenisTagihans();
             $this->resetKategoriForm();
 
             $this->dispatch('show-alert', [
-                'title' => $title,
-                'message' => $message,
-                'type' => $type,
+                'title' => $result['title'],
+                'message' => $result['message'],
+                'type' => $result['type'],
             ]);
         } catch (\Throwable $e) {
             $this->dispatch('show-alert', [
@@ -493,34 +465,19 @@ class ManajemenTagihan extends Component
         }
 
         try {
-            $jt = JenisTagihan::findOrFail($id);
-            $countTagihan = Tagihan::where('jenis_tagihan_id', $id)->count();
+            $result = app(\App\Actions\Finance\ManageKategoriTagihanAction::class)->delete($id);
 
-            if ($countTagihan > 0) {
-                $this->dispatch('show-alert', [
-                    'title' => 'Kategori Tidak Dapat Dihapus',
-                    'message' => 'Kategori "' . $jt->nama . '" sedang digunakan oleh ' . $countTagihan . ' data tagihan siswa. Kategori tidak dapat dihapus demi menjaga integritas data pembukuan.',
-                    'type' => 'warning',
-                ]);
-                return;
-            }
-
-            $nama = $jt->nama;
-            \App\Services\AuditLogger::log('deleted', 'Menghapus kategori tagihan: ' . $nama, $jt, [
-                'log_name' => 'manajemen_tagihan',
-            ]);
-
-            $jt->delete();
-            $this->refreshJenisTagihans();
-
-            if ($this->editingKategoriId === $id) {
-                $this->resetKategoriForm();
+            if ($result['success']) {
+                $this->refreshJenisTagihans();
+                if ($this->editingKategoriId === $id) {
+                    $this->resetKategoriForm();
+                }
             }
 
             $this->dispatch('show-alert', [
-                'title' => 'Kategori Tagihan Dihapus',
-                'message' => 'Kategori tagihan "' . $nama . '" berhasil dihapus dari sistem.',
-                'type' => 'delete',
+                'title' => $result['title'],
+                'message' => $result['message'],
+                'type' => $result['type'],
             ]);
         } catch (\Throwable $e) {
             $this->dispatch('show-alert', [
@@ -562,115 +519,25 @@ class ManajemenTagihan extends Component
 
     public function getMonthsBetween(string $start, string $end): array
     {
-        $academicOrder = [
-            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
-            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni'
-        ];
-
-        $calendarOrder = [
-            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-        ];
-
-        if ($start === $end) {
-            return [$start];
-        }
-
-        // Check in Academic Order first (most common for schools)
-        $acadStart = array_search($start, $academicOrder);
-        $acadEnd = array_search($end, $academicOrder);
-
-        if ($acadStart !== false && $acadEnd !== false && $acadStart <= $acadEnd) {
-            return array_slice($academicOrder, $acadStart, $acadEnd - $acadStart + 1);
-        }
-
-        // Check in Calendar Order
-        $calStart = array_search($start, $calendarOrder);
-        $calEnd = array_search($end, $calendarOrder);
-
-        if ($calStart !== false && $calEnd !== false && $calStart <= $calEnd) {
-            return array_slice($calendarOrder, $calStart, $calEnd - $calStart + 1);
-        }
-
-        // Cyclic fallback in Academic order
-        if ($acadStart !== false && $acadEnd !== false) {
-            $result = [];
-            $curr = $acadStart;
-            while (true) {
-                $result[] = $academicOrder[$curr];
-                if ($curr === $acadEnd) {
-                    break;
-                }
-                $curr = ($curr + 1) % 12;
-            }
-            return $result;
-        }
-
-        return [$start];
+        $form = new \App\Livewire\Forms\Finance\ReleaseTagihanForm($this, 'releaseForm');
+        return $form->getMonthsBetween($start, $end);
     }
 
     public function getTargetMonths(): array
     {
-        if ($this->periodeTipe === 'full_year_jan_des') {
-            return [
-                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-            ];
-        } elseif ($this->periodeTipe === 'full_year_juli_juni') {
-            return [
-                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
-                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni'
-            ];
-        } elseif ($this->periodeTipe === 'custom_range') {
-            return $this->getMonthsBetween($this->bulan_mulai, $this->bulan_selesai);
-        }
-        return [$this->bulan];
+        $form = new \App\Livewire\Forms\Finance\ReleaseTagihanForm($this, 'releaseForm');
+        $form->periodeTipe = $this->periodeTipe;
+        $form->bulan = $this->bulan;
+        $form->bulan_mulai = $this->bulan_mulai;
+        $form->bulan_selesai = $this->bulan_selesai;
+        return $form->getTargetMonths();
     }
 
     protected function calculateDueDateForMonth(string $monthName, ?string $baseDueDate = null, ?string $tahunAjaranNama = null): string
     {
-        $monthNumbers = [
-            'Januari' => 1, 'Februari' => 2, 'Maret' => 3, 'April' => 4,
-            'Mei' => 5, 'Juni' => 6, 'Juli' => 7, 'Agustus' => 8,
-            'September' => 9, 'Oktober' => 10, 'November' => 11, 'Desember' => 12
-        ];
-
-        if (!isset($monthNumbers[$monthName])) {
-            return date('Y-m-10');
-        }
-
-        $targetMonth = $monthNumbers[$monthName];
-        $targetDay = 10; // Fix tanggal 10 setiap bulannya
-
-        $year = (int) date('Y');
-        if ($tahunAjaranNama && str_contains($tahunAjaranNama, '/')) {
-            $parts = explode('/', $tahunAjaranNama);
-            $y1 = (int) trim($parts[0]);
-            $y2 = (int) trim($parts[1]);
-
-            if ($this->periodeTipe === 'full_year_jan_des') {
-                if (!empty($baseDueDate)) {
-                    try {
-                        $year = \Carbon\Carbon::parse($baseDueDate)->year;
-                    } catch (\Exception $e) {
-                        $year = $y2;
-                    }
-                } else {
-                    $year = $y2;
-                }
-            } else {
-                // Bulan Juli - Desember jatuh pada tahun ajaran pertama ($y1), Januari - Juni pada tahun kedua ($y2)
-                $year = ($targetMonth >= 7) ? $y1 : $y2;
-            }
-        } elseif (!empty($baseDueDate)) {
-            try {
-                $year = \Carbon\Carbon::parse($baseDueDate)->year;
-            } catch (\Exception $e) {
-                $year = (int) date('Y');
-            }
-        }
-
-        return sprintf('%04d-%02d-%02d', $year, $targetMonth, $targetDay);
+        $form = new \App\Livewire\Forms\Finance\ReleaseTagihanForm($this, 'releaseForm');
+        $form->periodeTipe = $this->periodeTipe;
+        return $form->calculateDueDateForMonth($monthName, $baseDueDate, $tahunAjaranNama);
     }
 
     public function createSingleTagihan()
@@ -875,7 +742,7 @@ class ManajemenTagihan extends Component
         });
 
         if ($createdCount === 0 && $skippedCount > 0) {
-            $msg = "Tidak ada tagihan baru yang diterbitkan. Seluruh tagihan untuk periode terpilih sudah pernah dibuat sebelumnya.";
+            $msg = "Tidak ada tagihan baru yang diterbitkan. {$skippedCount} siswa dilewati karena sudah memiliki tagihan ini.";
             session()->flash('warning', $msg);
             $this->dispatch('show-alert', [
                 'title' => 'Tagihan Sudah Ada',
@@ -1094,7 +961,7 @@ class ManajemenTagihan extends Component
             return;
         }
 
-        $tagihan->delete();
+        app(\App\Actions\Finance\DeleteTagihanAction::class)->execute($tagihan);
         $msg = 'Tagihan berhasil dihapus/dibatalkan.';
         session()->flash('message', $msg);
         $this->dispatch('show-alert', [

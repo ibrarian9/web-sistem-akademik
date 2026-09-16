@@ -201,6 +201,7 @@ class AcademicAndFinanceEnhancementsTest extends TestCase
     public function test_manajemen_siswa_handles_shadow_teacher(): void
     {
         $this->actingAs($this->superAdmin);
+        $this->guru->update(['jenis_guru' => 'pendamping']);
 
         Livewire::test(ManajemenSiswa::class)
             ->set('nama', 'Budi Santoso')

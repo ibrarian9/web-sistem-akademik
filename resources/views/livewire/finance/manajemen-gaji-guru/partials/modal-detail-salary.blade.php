@@ -3,7 +3,7 @@
     <x-floating-card 
         :show="true" 
         title="Rincian Lengkap Honorarium Pegawai" 
-        :subtitle="'Periode: ' . ($selectedSalaryDetail->bulan ?? '') . ' ' . ($selectedSalaryDetail->tahun ?? '') . ' — ' . ($selectedSalaryDetail->guru->user->nama ?? '-')" 
+        :subtitle="'Periode: ' . ($selectedSalaryDetail->bulan ?? '') . ' ' . ($selectedSalaryDetail->tahun ?? '') . ' — ' . ($selectedSalaryDetail->guru?->user?->nama ?? ($selectedSalaryDetail->jabatan ?? 'Pegawai'))" 
         badge="DETAIL RINCIAN GAJI" 
         badgeVariant="emerald" 
         icon="receipt" 
@@ -16,12 +16,12 @@
             <div class="bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 p-5 rounded-2xl text-white shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div class="flex items-center gap-4">
                     <div class="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-xl font-black text-white shrink-0 shadow-inner">
-                        {{ strtoupper(substr($selectedSalaryDetail->guru->user->nama ?? 'G', 0, 2)) }}
+                        {{ strtoupper(substr($selectedSalaryDetail->guru?->user?->nama ?? ($selectedSalaryDetail->jabatan ?: 'G'), 0, 2)) }}
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
                             <h3 class="text-base sm:text-lg font-black text-white leading-tight">
-                                {{ $selectedSalaryDetail->guru->user->nama ?? '-' }}
+                                {{ $selectedSalaryDetail->guru?->user?->nama ?? ($selectedSalaryDetail->jabatan ? 'Pegawai (' . $selectedSalaryDetail->jabatan . ')' : 'Pegawai') }}
                             </h3>
                             @if ($selectedSalaryDetail->status === 'dibayar')
                                 <span class="px-2.5 py-0.5 bg-emerald-500/30 border border-emerald-400/50 text-emerald-200 rounded-full text-[10px] font-extrabold uppercase">
@@ -34,7 +34,7 @@
                             @endif
                         </div>
                         <p class="text-xs text-emerald-100 font-semibold mt-0.5">
-                            {{ $selectedSalaryDetail->jabatan ?: ($selectedSalaryDetail->guru->jabatan ?? 'Guru / Pegawai') }} &bull; NIY: {{ $selectedSalaryDetail->guru->niy ?? ($selectedSalaryDetail->guru->nip ?? '-') }}
+                            {{ $selectedSalaryDetail->jabatan ?: ($selectedSalaryDetail->guru?->jabatan ?? 'Guru / Pegawai') }} &bull; NIY: {{ $selectedSalaryDetail->guru?->niy ?? ($selectedSalaryDetail->guru?->nip ?? '-') }}
                         </p>
                         <p class="text-[11px] text-emerald-200/80 font-mono mt-0.5">
                             Periode: <strong class="text-white">{{ $selectedSalaryDetail->bulan }} {{ $selectedSalaryDetail->tahun }}</strong> &bull; Jam Kerja: {{ $selectedSalaryDetail->jam_kerja ?: '07.00-14.00' }} &bull; Sumber: {{ $selectedSalaryDetail->sumber_dana ?: 'Yayasan' }}
@@ -42,14 +42,16 @@
                     </div>
                 </div>
 
-                <a 
-                    href="{{ route('finance.gaji-guru.detail', $selectedSalaryDetail->guru_id) }}" 
-                    class="px-3.5 py-2 bg-white/15 hover:bg-white/25 text-white border border-white/30 rounded-xl text-xs font-bold transition flex items-center gap-2 shrink-0 shadow-xs"
-                    title="Buka seluruh histori penggajian pegawai ini"
-                >
-                    <x-lucide-history class="w-4 h-4 text-emerald-300" />
-                    <span>Riwayat Gaji Pegawai</span>
-                </a>
+                @if ($selectedSalaryDetail->guru_id)
+                    <a 
+                        href="{{ route('finance.gaji-guru.detail', $selectedSalaryDetail->guru_id) }}" 
+                        class="px-3.5 py-2 bg-white/15 hover:bg-white/25 text-white border border-white/30 rounded-xl text-xs font-bold transition flex items-center gap-2 shrink-0 shadow-xs"
+                        title="Buka seluruh histori penggajian pegawai ini"
+                    >
+                        <x-lucide-history class="w-4 h-4 text-emerald-300" />
+                        <span>Riwayat Gaji Pegawai</span>
+                    </a>
+                @endif
             </div>
 
             <!-- 2-Column Earnings & Deductions Breakdown -->

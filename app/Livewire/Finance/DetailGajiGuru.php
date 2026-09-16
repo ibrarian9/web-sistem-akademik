@@ -48,7 +48,7 @@ class DetailGajiGuru extends Component
     public function mount(int $guruId)
     {
         $this->guruId = $guruId;
-        $this->guru = Guru::with(['user', 'peminjamans'])->findOrFail($guruId);
+        $this->guru = Guru::withTrashed()->with(['user', 'peminjamans'])->findOrFail($guruId);
     }
 
     public function updatedSearch()

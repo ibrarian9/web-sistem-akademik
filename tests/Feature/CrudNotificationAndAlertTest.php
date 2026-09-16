@@ -239,7 +239,8 @@ test('bulk tagihan release per kelas and all students works with duplicate preve
         ->call('createBulkTagihan')
         ->assertHasNoErrors()
         ->assertDispatched('show-alert')
-        ->assertSee('Berhasil merilis tagihan untuk 2 siswa');
+        ->assertSee('Berhasil merilis')
+        ->assertSee('untuk 2 siswa');
 
     expect(Tagihan::where('bulan', 'Agustus')->count())->toBe(2);
 
@@ -328,7 +329,8 @@ test('multi student custom selection across different classes with same nominal 
         ->call('createBulkTagihan')
         ->assertHasNoErrors()
         ->assertDispatched('show-alert')
-        ->assertSee('Berhasil merilis tagihan untuk 2 siswa');
+        ->assertSee('Berhasil merilis')
+        ->assertSee('untuk 2 siswa');
 
     $tagihanA = Tagihan::where('siswa_id', $this->siswa->id)->where('bulan', 'Oktober')->first();
     $tagihanB = Tagihan::where('siswa_id', $siswaB->id)->where('bulan', 'Oktober')->first();

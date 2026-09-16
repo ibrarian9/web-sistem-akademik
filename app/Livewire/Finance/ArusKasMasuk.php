@@ -3,6 +3,7 @@
 namespace App\Livewire\Finance;
 
 use Livewire\Component;
+use App\Livewire\Forms\Finance\KasMasukForm;
 use App\Models\PemasukanKas;
 use App\Models\Pembayaran;
 use App\Models\Tabungan;
@@ -15,6 +16,8 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class ArusKasMasuk extends Component
 {
     use WithPagination, WithDateFilter, WithCurrencySanitizer;
+
+    public KasMasukForm $form;
 
     // Stream selector: 'semua', 'pembayaran_spp', 'kas_yayasan', 'tabungan'
     public string $stream = 'semua';
@@ -162,32 +165,15 @@ class ArusKasMasuk extends Component
 
         $this->sanitizeCurrencies(['jumlah']);
 
-        if ($this->is_kategori_kustom) {
-            $this->validate([
-                'kategori_kustom' => 'required|string|max:100',
-                'jumlah' => 'required|numeric|min:0',
-                'tanggal' => 'required|date',
-                'keterangan' => 'nullable|string|max:500',
-            ], [
-                'kategori_kustom.required' => 'Nama kategori penerimaan baru wajib diisi.',
-                'kategori_kustom.max' => 'Nama kategori maksimal 100 karakter.',
-                'jumlah.required' => 'Nominal penerimaan wajib diisi.',
-                'jumlah.min' => 'Nominal penerimaan tidak boleh bernilai negatif.',
-            ]);
-            $kategori = trim($this->kategori_kustom);
-        } else {
-            $this->validate([
-                'kategori' => 'required|string|max:100',
-                'jumlah' => 'required|numeric|min:0',
-                'tanggal' => 'required|date',
-                'keterangan' => 'nullable|string|max:500',
-            ], [
-                'kategori.required' => 'Kategori penerimaan wajib dipilih.',
-                'jumlah.required' => 'Nominal penerimaan wajib diisi.',
-                'jumlah.min' => 'Nominal penerimaan tidak boleh bernilai negatif.',
-            ]);
-            $kategori = $this->kategori;
-        }
+        $this->form->kategori = $this->kategori;
+        $this->form->is_kategori_kustom = $this->is_kategori_kustom;
+        $this->form->kategori_kustom = $this->kategori_kustom;
+        $this->form->jumlah = $this->jumlah;
+        $this->form->tanggal = $this->tanggal;
+        $this->form->keterangan = $this->keterangan;
+
+        $this->form->validate();
+        $kategori = $this->form->getEffectiveKategori();
 
         PemasukanKas::create([
             'kategori' => $kategori,
@@ -293,9 +279,11 @@ class ArusKasMasuk extends Component
             'totalPemasukan' => $data->sum('jumlah'),
         ])->setPaper('a4', 'portrait');
 
-        return response()->streamDownload(function () use ($pdf) {
-            echo $pdf->output();
-        }, 'laporan_kas_masuk_' . date('Ymd_His') . '.pdf');
+        return \App\Services\Finance\FinanceReportService::renderPdf(
+            $pdf,
+            'laporan_kas_masuk_' . date('Ymd_His') . '.pdf',
+            true
+        );
     }
 
     public function exportExcel()
@@ -322,44 +310,19 @@ class ArusKasMasuk extends Component
             return;
         }
 
-        $filename = 'rekap-kas-masuk-' . date('Y-m-d') . '.csv';
-
-        $headers = [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
-            'Pragma' => 'no-cache',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0',
-        ];
-
-        $callback = function () use ($data) {
-            $file = fopen('php://output', 'w');
-            fputs($file, "\xEF\xBB\xBF");
-
-            fputcsv($file, [
-                'No',
-                'Tanggal',
-                'Kategori Pemasukan',
-                'Nominal (Rp)',
-                'Keterangan',
-                'Petugas Pencatat'
-            ]);
-
-            foreach ($data as $index => $item) {
-                fputcsv($file, [
-                    $index + 1,
-                    $item->tanggal ? Carbon::parse($item->tanggal)->translatedFormat('d M Y') : '-',
-                    $item->kategori,
-                    number_format($item->jumlah, 0, ',', '.'),
-                    $item->keterangan ?: '-',
-                    $item->petugas->nama ?? 'Sistem'
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return \App\Services\Finance\CsvExportService::stream(
+            'rekap-kas-masuk-' . date('Y-m-d') . '.csv',
+            ['No', 'Tanggal', 'Kategori Pemasukan', 'Nominal (Rp)', 'Keterangan', 'Petugas Pencatat'],
+            $data,
+            fn($item, $index) => [
+                $index + 1,
+                $item->tanggal ? Carbon::parse($item->tanggal)->translatedFormat('d M Y') : '-',
+                $item->kategori,
+                number_format($item->jumlah, 0, ',', '.'),
+                $item->keterangan ?: '-',
+                $item->petugas->nama ?? 'Sistem'
+            ]
+        );
     }
 
     public function render()

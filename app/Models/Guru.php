@@ -108,6 +108,21 @@ class Guru extends Model
         return $this->hasMany(Siswa::class, 'shadow_teacher_id');
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where('status_aktif', true);
+    }
+
+    public function scopeAktif($query)
+    {
+        return $query->where('status_aktif', true);
+    }
+
+    public function scopeJenis($query, string $jenis)
+    {
+        return $query->where('jenis_guru', $jenis);
+    }
+
     public function scopeShadowTeacher($query)
     {
         return $query->where(function ($q) {

@@ -129,7 +129,7 @@ test('laporan tunggakan dapat difilter per hari ini menggunakan date filter', fu
     Livewire::test(LaporanTunggakan::class)
         ->set('tahun_ajaran_id', $this->tahunAjaran->id)
         ->assertSee('Santri Tunggakan Hari Ini')
-        ->assertSee('Santri Tunggakan Bulan Depan')
+        ->assertDontSee('Santri Tunggakan Bulan Depan')
         ->set('filterPeriode', 'hari_ini')
         ->assertSee('Santri Tunggakan Hari Ini')
         ->assertDontSee('Santri Tunggakan Bulan Depan');

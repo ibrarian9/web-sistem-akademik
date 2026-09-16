@@ -238,4 +238,29 @@ class KategoriTagihanCustomManagementTest extends TestCase
             'status' => 'belum_bayar',
         ]);
     }
+
+    public function test_finance_can_create_category_with_semester_frequency(): void
+    {
+        Livewire::actingAs($this->financeUser)
+            ->test(ManajemenTagihan::class)
+            ->call('openKategoriModal')
+            ->set('kategori_nama', 'Uang Kegiatan Semester')
+            ->set('kategori_tipe', 'semester')
+            ->set('kategori_nominal', 450000)
+            ->set('kategori_is_blocking', true)
+            ->call('saveKategori')
+            ->assertHasNoErrors()
+            ->assertDispatched('show-alert', function ($name, $params) {
+                $payload = $params[0] ?? $params;
+                return ($payload['type'] ?? '') === 'create' && str_contains($payload['title'] ?? '', 'Ditambahkan');
+            });
+
+        $this->assertDatabaseHas('jenis_tagihan', [
+            'nama' => 'Uang Kegiatan Semester',
+            'kategori' => 'semester',
+            'default_nominal' => 450000.00,
+            'is_blocking' => 1,
+        ]);
+    }
 }
+

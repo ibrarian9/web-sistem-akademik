@@ -24,7 +24,15 @@ class ESignatureTest extends TestCase
 
     public function test_public_verification_route_loads_successfully()
     {
-        $code = ESignatureService::generateCode('RES', 99, '2026-07-21');
+        $surat = \App\Models\RiwayatSurat::create([
+            'nomor_surat' => '001/TEST/2026',
+            'jenis_surat' => 'aktif_sekolah',
+            'penerima_nama' => 'Santri Hasan',
+            'tanggal_surat' => '2026-07-21',
+            'status' => 'selesai',
+        ]);
+
+        $code = ESignatureService::generateCode('SUR', $surat->id, '2026-07-21');
         
         $response = $this->get('/verifikasi-dokumen/' . $code);
 

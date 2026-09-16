@@ -163,13 +163,13 @@
     <table class="info-grid-table">
         <tr>
             <td class="lbl">Nama Pegawai Tetap</td>
-            <td class="val">: <strong>{{ strtoupper($gaji->guru->user->nama ?? '-') }}</strong></td>
+            <td class="val">: <strong>{{ strtoupper($gaji->guru?->user?->nama ?? ($gaji->jabatan ? 'Pegawai (' . $gaji->jabatan . ')' : '-')) }}</strong></td>
             <td class="lbl">Bulan / Tahun</td>
             <td class="val">: {{ $gaji->bulan }} {{ $gaji->tahun }}</td>
         </tr>
         <tr>
             <td class="lbl">Jabatan</td>
-            <td class="val">: {{ $gaji->jabatan ?: ($gaji->guru->jabatan ?? 'Guru / Pegawai') }}</td>
+            <td class="val">: {{ $gaji->jabatan ?: ($gaji->guru?->jabatan ?? 'Guru / Pegawai') }}</td>
             <td class="lbl">Tanggal Pembayaran</td>
             <td class="val">: {{ $gaji->tanggal_bayar ? $gaji->tanggal_bayar->format('d/m/Y') : date('d/m/Y') }}</td>
         </tr>
@@ -181,7 +181,7 @@
         </tr>
         <tr>
             <td class="lbl">NIY / NIP</td>
-            <td class="val">: {{ $gaji->guru->niy ?? ($gaji->guru->nip ?? '-') }}</td>
+            <td class="val">: {{ $gaji->guru?->niy ?? ($gaji->guru?->nip ?? '-') }}</td>
             <td class="lbl">Status Pembayaran</td>
             <td class="val">: 
                 @if ($gaji->status === 'dibayar')
