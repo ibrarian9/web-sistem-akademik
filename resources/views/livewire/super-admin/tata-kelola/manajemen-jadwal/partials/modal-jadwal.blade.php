@@ -19,7 +19,7 @@
                     <optgroup label="KELAS {{ strtoupper($namaKelas) }}">
                         @foreach ($group as $asg)
                             <option value="{{ $asg->id }}">
-                                Kelas {{ $namaKelas }} — {{ $asg->mapel->nama_mapel ?? '-' }} (Pengampu: {{ $asg->guru->user->nama ?? '-' }})
+                                Kelas {{ $namaKelas }} | {{ $asg->mapel->nama_mapel ?? '-' }} (Pengampu: {{ $asg->guru->user->nama ?? '-' }})
                             </option>
                         @endforeach
                     </optgroup>

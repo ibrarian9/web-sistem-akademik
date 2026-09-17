@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="utf-8">
-    <title>Bulk Slip Gaji — {{ $bulan ?? '' }} {{ $tahun ?? '' }}</title>
+    <title>Bulk Slip Gaji | {{ $bulan ?? '' }} {{ $tahun ?? '' }}</title>
     <style>
         @page {
             size: A4 portrait;

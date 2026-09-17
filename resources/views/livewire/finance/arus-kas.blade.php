@@ -3,8 +3,6 @@
     <x-page-header 
         title="Arus Kas (Cash Flow)" 
         subtitle="Buku kas & jurnal terpadu arus masuk (SPP, Infaq, Tabungan) serta arus keluar (Operasional, Gaji, Kasbon)."
-        badge="BUKU KAS UTAMA"
-        badgeVariant="emerald"
         icon="layers"
     >
         <x-slot:actions>

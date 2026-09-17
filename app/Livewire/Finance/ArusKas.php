@@ -304,7 +304,7 @@ class ArusKas extends Component
 
             session()->flash('message', 'Permohonan penghapusan pemasukan kas telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.');
             $this->dispatch('show-alert', [
-                'title' => 'Menunggu Approval',
+                'title' => 'Menunggu Persetujuan',
                 'message' => 'Permohonan penghapusan pemasukan kas telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.',
                 'type' => 'info',
             ]);
@@ -531,7 +531,7 @@ class ArusKas extends Component
 
             session()->flash('message', 'Permohonan penghapusan pengeluaran kas telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.');
             $this->dispatch('show-alert', [
-                'title' => 'Menunggu Approval',
+                'title' => 'Menunggu Persetujuan',
                 'message' => 'Permohonan penghapusan pengeluaran kas telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.',
                 'type' => 'info',
             ]);

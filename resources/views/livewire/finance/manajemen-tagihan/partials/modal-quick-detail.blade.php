@@ -61,8 +61,9 @@
                         @php
                             $qtSisa = max(0, $qt->nominal - $qt->total_dibayar);
                             $isSpp = str_contains(strtoupper($qt->jenisTagihan->nama ?? ''), 'SPP');
+                            $isPendingDelete = in_array($qt->id, $pendingApprovalTagihanIds ?? []);
                         @endphp
-                        <div class="p-3 flex items-center justify-between gap-3 hover:bg-stone-50 transition">
+                        <div class="p-3 flex items-center justify-between gap-3 {{ $isPendingDelete ? 'bg-amber-50/80 border-l-4 border-l-amber-500 hover:bg-amber-100/80' : 'hover:bg-stone-50' }} transition">
                             <div class="min-w-0">
                                 <div class="flex items-center gap-2">
                                     <span class="text-xs font-extrabold text-stone-900">{{ $qt->jenisTagihan->nama ?? '-' }}</span>
@@ -82,7 +83,9 @@
                                     Rp {{ number_format($qt->nominal, 0, ',', '.') }}
                                 </div>
                                 <div class="mt-0.5">
-                                    @if ($qt->status === 'lunas')
+                                    @if ($isPendingDelete)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs">Pengajuan Hapus</span>
+                                    @elseif ($qt->status === 'lunas')
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">Lunas</span>
                                     @elseif ($qt->status === 'sebagian')
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">Sisa: Rp {{ number_format($qtSisa, 0, ',', '.') }}</span>

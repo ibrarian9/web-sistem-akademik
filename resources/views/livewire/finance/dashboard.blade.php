@@ -146,8 +146,6 @@
     <x-page-header 
         title="Dashboard Keuangan Sekolah" 
         subtitle="Pantau arus kas yayasan, realisasi SPP siswa, dan pengeluaran operasional secara terpusat."
-        badge="PUSAT KENDALI KEUANGAN"
-        badgeVariant="emerald"
         icon="wallet"
     >
         <x-slot:actions>
@@ -162,44 +160,52 @@
     @php
         $netFlow = $incomeThisMonth - $expenseThisMonth;
     @endphp
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <x-stat-card 
             title="Pemasukan Bulan Ini" 
             :value="'Rp ' . number_format($incomeThisMonth, 0, ',', '.')" 
+            subtitle="Penerimaan kas bulan berjalan"
             icon="trending-up" 
             variant="soft-emerald" 
             badge="Kas Masuk"
+            class="h-full flex-1"
         />
         <x-stat-card 
             title="Pengeluaran Bulan Ini" 
             :value="'Rp ' . number_format($expenseThisMonth, 0, ',', '.')" 
+            subtitle="Pengeluaran kas bulan berjalan"
             icon="trending-down" 
             variant="soft-rose" 
             badge="Kas Keluar"
+            class="h-full flex-1"
         />
         <x-stat-card 
             title="Kas Bersih Bulan Ini" 
             :value="'Rp ' . number_format($netFlow, 0, ',', '.')" 
+            subtitle="Selisih kas masuk & keluar"
             icon="dollar-sign" 
             :variant="$netFlow >= 0 ? 'soft-teal' : 'soft-rose'" 
             :badge="$netFlow >= 0 ? 'Surplus' : 'Defisit'"
+            class="h-full flex-1"
         />
         <x-stat-card 
             title="Total Tunggakan Aktif" 
             :value="'Rp ' . number_format($outstandingBills, 0, ',', '.')" 
-            :subtitle="$futureBills > 0 ? 'Jatuh tempo s/d bulan ini (+ Rp ' . number_format($futureBills, 0, ',', '.') . ' mendatang)' : 'Jatuh tempo s/d bulan berjalan'"
+            :subtitle="$futureBills > 0 ? 'Jatuh tempo (+ Rp ' . number_format($futureBills, 0, ',', '.') . ' mdtg)' : 'Jatuh tempo s/d bulan berjalan'"
             icon="alert-triangle" 
             variant="soft-amber" 
             badge="Piutang Aktif"
+            class="h-full flex-1"
         />
 
-        <div class="sm:col-span-2 lg:col-span-4">
+        <div class="sm:col-span-2 xl:col-span-4">
             <x-stat-card 
                 title="Total Saldo Deposit Siswa Mengendap" 
                 :value="'Rp ' . number_format($totalStudentDeposit, 0, ',', '.')" 
                 subtitle="Akumulasi kelebihan pembayaran tagihan dari seluruh siswa yang dapat dialokasikan untuk tagihan berikutnya."
                 icon="wallet" 
                 variant="emerald" 
+                class="h-full"
             />
         </div>
     </div>

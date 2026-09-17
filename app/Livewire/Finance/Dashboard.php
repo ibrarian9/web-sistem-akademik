@@ -32,21 +32,10 @@ class Dashboard extends Component
 
     public function loadFinanceStats()
     {
-        $startOfMonth = Carbon::now()->startOfMonth()->toDateString();
-        $endOfMonth = Carbon::now()->endOfMonth()->toDateString();
-
-        // Income this month (excluding void)
-        $this->incomeThisMonth = floatval(
-            Pembayaran::where('is_void', false)
-                ->whereBetween('tanggal_bayar', [$startOfMonth, $endOfMonth])
-                ->sum('nominal_dibayar')
-        );
-
-        // Expense this month
-        $this->expenseThisMonth = floatval(
-            Pengeluaran::whereBetween('tanggal', [$startOfMonth, $endOfMonth])
-                ->sum('jumlah')
-        );
+        // 1. Cashflow metrics for current month using centralized CashFlowService
+        $cashMetrics = \App\Services\Finance\CashFlowService::calculateMetrics(['filter_periode' => 'bulan_ini']);
+        $this->incomeThisMonth = (float) $cashMetrics['totalInflow'];
+        $this->expenseThisMonth = (float) $cashMetrics['totalOutflow'];
 
         // Outstanding Bills (unpaid amount for bills due up to the end of current month)
         $this->outstandingBills = floatval(
@@ -85,32 +74,11 @@ class Dashboard extends Component
 
     public function loadChartData()
     {
-        // 1. 6-Month Cashflow Trend
-        $labels = [];
-        $incomes = [];
-        $expenses = [];
-
-        for ($i = 5; $i >= 0; $i--) {
-            $month = Carbon::now()->subMonths($i);
-            $start = $month->copy()->startOfMonth()->toDateString();
-            $end = $month->copy()->endOfMonth()->toDateString();
-
-            $monthName = $month->locale('id')->isoFormat('MMM YY');
-            $labels[] = $monthName;
-
-            $inc = Pembayaran::where('is_void', false)
-                ->whereBetween('tanggal_bayar', [$start, $end])
-                ->sum('nominal_dibayar');
-            $incomes[] = floatval($inc);
-
-            $exp = Pengeluaran::whereBetween('tanggal', [$start, $end])
-                ->sum('jumlah');
-            $expenses[] = floatval($exp);
-        }
-
-        $this->cashflowLabels = $labels;
-        $this->cashflowIncomes = $incomes;
-        $this->cashflowExpenses = $expenses;
+        // 1. 6-Month Cashflow Trend using centralized CashFlowService
+        $monthlyTrend = \App\Services\Finance\CashFlowService::calculateMonthlyTrend(6);
+        $this->cashflowLabels = array_column($monthlyTrend['monthlyChartData'], 'label');
+        $this->cashflowIncomes = array_column($monthlyTrend['monthlyChartData'], 'inflow');
+        $this->cashflowExpenses = array_column($monthlyTrend['monthlyChartData'], 'outflow');
 
         // 2. Tagihan Status Distribution (s/d Periode Berjalan)
         $lunasCount = Tagihan::jatuhTempo()->where('status', 'lunas')->count();

@@ -31,6 +31,10 @@
         <x-alert-banner type="success" :message="session('success')" />
     @endif
 
+    @if (session()->has('warning'))
+        <x-alert-banner type="warning" :message="session('warning')" />
+    @endif
+
     @if (session()->has('error'))
         <x-alert-banner type="danger" :message="session('error')" />
     @endif

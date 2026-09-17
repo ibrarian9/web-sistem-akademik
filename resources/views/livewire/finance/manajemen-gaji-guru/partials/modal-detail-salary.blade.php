@@ -3,7 +3,7 @@
     <x-floating-card 
         :show="true" 
         title="Rincian Lengkap Honorarium Pegawai" 
-        :subtitle="'Periode: ' . ($selectedSalaryDetail->bulan ?? '') . ' ' . ($selectedSalaryDetail->tahun ?? '') . ' — ' . ($selectedSalaryDetail->guru?->user?->nama ?? ($selectedSalaryDetail->jabatan ?? 'Pegawai'))" 
+        :subtitle="'Periode: ' . ($selectedSalaryDetail->bulan ?? '') . ' ' . ($selectedSalaryDetail->tahun ?? '') . ' | ' . ($selectedSalaryDetail->guru?->user?->nama ?? ($selectedSalaryDetail->jabatan ?? 'Pegawai'))" 
         badge="DETAIL RINCIAN GAJI" 
         badgeVariant="emerald" 
         icon="receipt" 

@@ -108,8 +108,13 @@
 
     <!-- Invoices Table -->
     <x-table loadingTarget="filterBulan, filterJenis, filterStatus, filterTahunAjaran, search">
-        <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+        <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900 text-xs">
             <tr>
+                @if (!auth()->user()->isSuperAdmin2())
+                    <th class="w-10 p-3.5 text-center border-r border-emerald-700/60">
+                        <input type="checkbox" wire:model.live="selectAllTagihan" class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer" title="Pilih semua tagihan" />
+                    </th>
+                @endif
                 <x-table.th class="w-10 text-center">No</x-table.th>
                 <x-table.th class="w-44">Kategori Tagihan</x-table.th>
                 <x-table.th class="w-28">Bulan Tagihan</x-table.th>
@@ -118,15 +123,26 @@
                 <x-table.th class="w-28 text-right">Dibayar</x-table.th>
                 <x-table.th class="w-28 text-right">Sisa</x-table.th>
                 <x-table.th class="w-24 text-center">Status</x-table.th>
-                <x-table.th align="center" class="w-36">Aksi & Resi</x-table.th>
+                <x-table.th align="center" class="w-28">Aksi</x-table.th>
             </tr>
         </thead>
         <tbody class="divide-y divide-stone-200 bg-white">
             @forelse ($tagihans as $index => $item)
                 @php
                     $sisa = max(0, $item->nominal - $item->total_dibayar);
+                    $isPendingDelete = in_array($item->id, $pendingApprovalTagihanIds ?? []);
+                    $isSelectedTagihan = in_array((string)$item->id, array_map('strval', $selectedTagihanIds ?? []));
                 @endphp
-                <tr class="hover:bg-stone-50 transition">
+                <tr class="{{ $isPendingDelete ? 'bg-amber-50/75 hover:bg-amber-100/75 border-l-4 border-l-amber-500' : ($isSelectedTagihan ? 'bg-emerald-50/40' : 'hover:bg-stone-50') }} transition">
+                    @if (!auth()->user()->isSuperAdmin2())
+                        <td class="p-3.5 text-center border-r border-stone-200">
+                            @if ($isPendingDelete)
+                                <span class="text-amber-500 font-bold" title="Sedang menunggu persetujuan Super Admin">•</span>
+                            @else
+                                <input type="checkbox" wire:model.live="selectedTagihanIds" value="{{ $item->id }}" class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer" />
+                            @endif
+                        </td>
+                    @endif
                     <td class="p-3.5 text-center text-xs font-mono font-bold text-stone-500 border-r border-stone-200">
                         {{ $tagihans->firstItem() + $index }}
                     </td>
@@ -154,61 +170,59 @@
                         Rp {{ number_format($sisa, 0, ',', '.') }}
                     </td>
                     <td class="p-3.5 text-center border-r border-stone-200">
-                        @if ($item->status === 'lunas')
+                        @if ($isPendingDelete)
+                            <x-badge variant="amber" size="xs" :dot="true">Pengajuan Hapus</x-badge>
+                        @elseif ($item->status === 'lunas')
                             <x-badge variant="emerald" size="xs">Lunas</x-badge>
                         @elseif ($item->status === 'sebagian')
                             <x-badge variant="amber" size="xs">Sebagian</x-badge>
+                        @elseif ($item->is_mendatang)
+                            <x-badge variant="sky" size="xs">Mendatang</x-badge>
                         @else
                             <x-badge variant="rose" size="xs">Belum Bayar</x-badge>
                         @endif
                     </td>
                     <td class="p-3.5 text-center">
                         <div class="flex items-center justify-center gap-1.5 flex-wrap">
-                            @if (!auth()->user()->isSuperAdmin2())
-                                <!-- Edit Button -->
-                                <x-button 
-                                    type="button" 
-                                    variant="secondary" 
-                                    size="xs" 
-                                    icon="edit-3" 
-                                    wire:click="openEditModal({{ $item->id }})" 
-                                    title="Edit Tagihan">
-                                    Edit
-                                </x-button>
-
-                                <!-- Delete Button (Finance & Founder) -->
-                                @if ($this->isFinanceOrAdmin())
+                            @if ($isPendingDelete)
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-100/90 px-2 py-1 rounded-lg border border-amber-300 shadow-2xs" title="Tagihan ini sedang dalam proses permohonan penghapusan ke Super Admin">
+                                    <x-lucide-clock class="w-3 h-3" />
+                                    <span>Menunggu Persetujuan</span>
+                                </span>
+                            @else
+                                @if (!auth()->user()->isSuperAdmin2())
+                                    <!-- Edit Button -->
                                     <x-button 
                                         type="button" 
-                                        variant="danger" 
+                                        variant="secondary" 
                                         size="xs" 
-                                        icon="trash-2" 
-                                        wire:click="deleteTagihan({{ $item->id }})" 
-                                        wire:confirm="{{ auth()->user()->role?->nama === 'finance' ? 'Aksi penghapusan oleh Keuangan membutuhkan persetujuan Super Admin atau Super Admin 2. Ajukan penghapusan tagihan ini?' : 'Apakah Anda yakin ingin menghapus tagihan ini?' }}" 
-                                        title="Hapus Tagihan">
-                                        Hapus
+                                        icon="edit-3" 
+                                        wire:click="openEditModal({{ $item->id }})" 
+                                        title="Edit Tagihan">
+                                        Edit
                                     </x-button>
-                                @endif
-                            @endif
 
-                            <!-- Print Receipt if paid -->
-                            @if ($item->pembayarans && $item->pembayarans->count() > 0)
-                                <x-button 
-                                    variant="outline" 
-                                    size="xs" 
-                                    icon="printer" 
-                                    href="{{ route('finance.pembayaran.resi', $item->pembayarans->first()->id) }}" 
-                                    target="_blank" 
-                                    title="Cetak Kuitansi Resi">
-                                    Resi
-                                </x-button>
+                                    <!-- Delete Button (Finance & Founder) -->
+                                    @if ($this->isFinanceOrAdmin())
+                                        <x-button 
+                                            type="button" 
+                                            variant="danger" 
+                                            size="xs" 
+                                            icon="trash-2" 
+                                            wire:click="deleteTagihan({{ $item->id }})" 
+                                            wire:confirm="{{ auth()->user()->role?->nama === 'finance' ? 'Aksi penghapusan oleh Keuangan membutuhkan persetujuan Super Admin atau Super Admin 2. Ajukan penghapusan tagihan ini?' : 'Apakah Anda yakin ingin menghapus tagihan ini?' }}" 
+                                            title="Hapus Tagihan">
+                                            Hapus
+                                        </x-button>
+                                    @endif
+                                @endif
                             @endif
                         </div>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="9" class="py-12 text-center text-stone-400">
+                    <td colspan="{{ !auth()->user()->isSuperAdmin2() ? 10 : 9 }}" class="py-12 text-center text-stone-400">
                         <x-table.empty title="Tidak ada tagihan yang sesuai" subtitle="Tidak ada item tagihan yang ditemukan untuk filter yang dipilih." />
                     </td>
                 </tr>
@@ -220,4 +234,45 @@
     <div class="pt-2">
         {{ $tagihans->links() }}
     </div>
+
+    <!-- Floating Bulk Action Bar: Tagihan Terpilih -->
+    @if (count($selectedTagihanIds) > 0)
+        <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-stone-900/95 backdrop-blur-md text-white px-5 py-3 rounded-2xl shadow-2xl border border-stone-700 flex items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-200 max-w-[95vw] sm:max-w-md flex-wrap sm:flex-nowrap justify-between sm:justify-start">
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                <span class="text-xs font-black tracking-wide whitespace-nowrap">{{ count($selectedTagihanIds) }} Tagihan Terpilih</span>
+            </div>
+
+            <div class="h-4 w-px bg-stone-700 hidden sm:block"></div>
+
+            <div class="flex items-center gap-2">
+                @if (auth()->user()->role?->nama === 'finance')
+                    <button 
+                        type="button" 
+                        wire:click="bulkDeleteTagihan" 
+                        wire:confirm="Ajukan permohonan penghapusan untuk {{ count($selectedTagihanIds) }} tagihan terpilih ke Super Admin?"
+                        class="min-h-[38px] px-3.5 py-2 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-stone-950 font-black text-xs rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                        <x-lucide-send class="w-3.5 h-3.5 shrink-0" />
+                        <span>Ajukan Hapus Terpilih</span>
+                    </button>
+                @else
+                    <button 
+                        type="button" 
+                        wire:click="bulkDeleteTagihan" 
+                        wire:confirm="Yakin ingin menghapus {{ count($selectedTagihanIds) }} tagihan terpilih? Tagihan yang sudah memiliki pembayaran akan dilewati secara otomatis."
+                        class="min-h-[38px] px-3.5 py-2 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-black text-xs rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                        <x-lucide-trash-2 class="w-3.5 h-3.5 shrink-0" />
+                        <span>Hapus Terpilih</span>
+                    </button>
+                @endif
+
+                <button 
+                    type="button" 
+                    wire:click="resetTagihanSelection" 
+                    class="min-h-[38px] px-3 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white font-bold text-xs rounded-xl transition cursor-pointer">
+                    Batal
+                </button>
+            </div>
+        </div>
+    @endif
 </div>

@@ -88,8 +88,6 @@
     <x-page-header 
         title="Selamat Datang, {{ auth()->user()->nama }}" 
         subtitle="Pusat kendali eksekutif, rekapitulasi data akademik yayasan, dan tata kelola sistem terpadu."
-        badge="PANEL SUPER ADMIN"
-        badgeVariant="emerald"
         icon="shield-check"
     />
 
@@ -104,11 +102,11 @@
     />
 
     <!-- Stat Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <x-stat-card title="Total Siswa Aktif" :value="$totalSiswa" icon="users" color="green" />
-        <x-stat-card title="Total Guru & Staf" :value="$totalGuru" icon="user-check" color="blue" />
-        <x-stat-card title="Total Kelas" :value="$totalKelas" icon="calendar" color="amber" />
-        <x-stat-card title="Tunggakan SPP" :value="$totalTunggakan" icon="wallet" color="red" />
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <x-stat-card title="Total Siswa Aktif" :value="$totalSiswa" subtitle="Siswa terdaftar aktif" icon="users" variant="soft-emerald" class="h-full" />
+        <x-stat-card title="Total Guru & Staf" :value="$totalGuru" subtitle="Tenaga pendidik & staf" icon="user-check" variant="soft-indigo" class="h-full" />
+        <x-stat-card title="Total Kelas" :value="$totalKelas" subtitle="Rombongan belajar aktif" icon="calendar" variant="soft-amber" class="h-full" />
+        <x-stat-card title="Tunggakan SPP" :value="$totalTunggakan" subtitle="Akumulasi piutang SPP" icon="wallet" variant="soft-rose" class="h-full" />
     </div>
 
     <!-- Visual Interactive Charts Row -->

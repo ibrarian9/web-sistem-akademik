@@ -3,7 +3,6 @@
     <x-page-header 
         title="Catatan Pendampingan Siswa Berkebutuhan Khusus" 
         subtitle="Modul terdedikasi Guru Pendamping untuk mendokumentasikan observasi berkala, standarisasi capaian kualitatif (BB, MB, BSH, BSB), rekapitulasi capaian per aspek, serta penerbitan laporan resmi."
-        badge="GURU PENDAMPING & ABK"
         icon="clipboard-list"
     >
         <x-slot:actions>

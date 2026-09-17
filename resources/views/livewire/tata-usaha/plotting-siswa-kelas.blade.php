@@ -81,7 +81,7 @@
                             $cnt = $isT ? $k->siswasTahfidz()->count() : $k->siswas()->count();
                         @endphp
                         <option value="{{ $k->id }}">
-                            {{ $labelJenis }} {{ $k->nama_kelas }} — Pengampu: {{ $pengampu }} ({{ $cnt }} Siswa)
+                            {{ $labelJenis }} {{ $k->nama_kelas }} | Pengampu: {{ $pengampu }} ({{ $cnt }} Siswa)
                         </option>
                     @empty
                         <option value="">-- Belum Ada Kelas Dibuat --</option>

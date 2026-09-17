@@ -44,7 +44,7 @@
             <select wire:model.live="selectedGmkId" class="w-full bg-stone-50 border border-stone-300 text-stone-900 rounded-xl px-3.5 py-2.5 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 shadow-xs">
                 @forelse ($assignments as $a)
                     <option value="{{ $a['id'] }}">
-                        Kelas {{ $a['kelas']['nama_kelas'] ?? '-' }} — {{ $a['mapel']['nama_mapel'] ?? '-' }} ({{ strtoupper($a['mapel']['jenis'] ?? 'UMUM') }})
+                        Kelas {{ $a['kelas']['nama_kelas'] ?? '-' }} | {{ $a['mapel']['nama_mapel'] ?? '-' }} ({{ strtoupper($a['mapel']['jenis'] ?? 'UMUM') }})
                     </option>
                 @empty
                     <option value="">-- Belum ada penugasan mengajar --</option>

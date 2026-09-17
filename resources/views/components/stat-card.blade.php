@@ -4,6 +4,7 @@
     'subtitle' => null,
     'icon' => null,
     'variant' => 'white', // 'white', 'soft-rose', 'soft-emerald', 'soft-amber', 'soft-indigo', 'soft-sky', 'soft-teal', 'soft-purple', 'emerald', 'rose', 'sky', 'amber', 'purple', 'teal'
+    'color' => null,      // backward compatibility: 'green', 'blue', 'amber', 'red', 'purple', 'indigo', etc.
     'trend' => null,
     'badge' => null,
     'badgeVariant' => null,
@@ -11,6 +12,20 @@
 ])
 
 @php
+    // Backward compatibility for color prop
+    if ($color && $variant === 'white') {
+        $variant = match ($color) {
+            'green', 'emerald' => 'soft-emerald',
+            'blue', 'sky' => 'soft-sky',
+            'indigo' => 'soft-indigo',
+            'amber', 'yellow' => 'soft-amber',
+            'red', 'rose' => 'soft-rose',
+            'purple' => 'soft-purple',
+            'teal' => 'soft-teal',
+            default => 'white',
+        };
+    }
+
     $isDarkGradient = in_array($variant, ['emerald', 'rose', 'sky', 'amber', 'purple', 'teal']);
     $isSoft = str_starts_with($variant, 'soft-');
 
@@ -102,43 +117,59 @@
     };
 @endphp
 
-<div {{ $attributes->merge(['class' => "$cardClasses rounded-2xl p-4 sm:p-5 space-y-2.5 transition-all duration-200 relative overflow-hidden"]) }}>
-    <div class="flex items-center justify-between gap-2">
-        <span class="text-[11px] sm:text-xs font-black uppercase tracking-wider block {{ $titleColor }} truncate">{{ $title }}</span>
-        @if ($badge)
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shrink-0 {{ $badgeClass }}">
-                {{ $badge }}
+<div {{ $attributes->merge(['class' => "$cardClasses rounded-2xl p-4 sm:p-5 flex flex-col justify-between h-full transition-all duration-200 relative overflow-hidden space-y-3"]) }}>
+    <!-- Top Content Area (Title, Badge, Value, Subtitle, Icon) -->
+    <div class="space-y-2 flex-1 min-w-0">
+        <!-- Title & Badge Row (Ensures identical baseline for metric values) -->
+        <div class="flex items-start justify-between gap-1.5 min-h-[2.25rem]">
+            <span class="text-[11px] font-black uppercase tracking-wide block {{ $titleColor }} leading-tight break-normal flex-1 min-w-0">
+                {{ $title }}
             </span>
-        @endif
-    </div>
-
-    <div class="flex items-center justify-between gap-3 pt-0.5">
-        <div class="space-y-0.5 min-w-0 flex-1">
-            <h3 class="text-xl sm:text-2xl font-black tracking-tight {{ $valueColor }} truncate">{{ $value }}</h3>
-            @if ($subtitle)
-                <p class="text-[11px] font-semibold {{ $subtitleColor }} line-clamp-1 sm:line-clamp-2 leading-relaxed">{{ $subtitle }}</p>
+            @if ($badge)
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider shrink-0 {{ $badgeClass }} whitespace-nowrap ml-1">
+                    {{ $badge }}
+                </span>
             @endif
         </div>
-        @if ($icon)
-            <div class="p-2.5 rounded-xl {{ $iconBg }} shrink-0">
-                <x-dynamic-component :component="'lucide-' . $icon" class="w-5 h-5" />
+
+        <!-- Metric Value, Subtitle & Icon Row -->
+        <div class="flex items-start justify-between gap-2.5 pt-0.5">
+            <div class="space-y-1 min-w-0 flex-1">
+                <h3 class="text-xl sm:text-2xl font-black tracking-tight {{ $valueColor }} break-words leading-tight">
+                    {{ $value }}
+                </h3>
+                @if ($subtitle)
+                    <p class="text-[11px] font-semibold {{ $subtitleColor }} leading-relaxed break-normal">
+                        {{ $subtitle }}
+                    </p>
+                @endif
             </div>
-        @endif
+            @if ($icon)
+                <div class="p-2.5 rounded-xl {{ $iconBg }} shrink-0 mt-0.5">
+                    <x-dynamic-component :component="'lucide-' . $icon" class="w-5 h-5" />
+                </div>
+            @endif
+        </div>
     </div>
 
-    @if ($progress !== null)
-        <div class="pt-1 space-y-1">
-            <div class="w-full bg-stone-200/70 rounded-full h-2 overflow-hidden">
-                <div class="{{ $progressBarClass }} h-2 rounded-full transition-all duration-500" style="width: {{ min(100, max(0, floatval($progress))) }}%"></div>
-            </div>
+    <!-- Bottom Content Area (Progress Bar, Trend, Slot) -->
+    @if ($progress !== null || $trend || (isset($slot) && $slot->isNotEmpty()))
+        <div class="pt-2 mt-auto space-y-1.5 border-t border-black/5 dark:border-white/5">
+            @if ($progress !== null)
+                <div class="space-y-1">
+                    <div class="w-full bg-stone-200/80 rounded-full h-2 overflow-hidden">
+                        <div class="{{ $progressBarClass }} h-2 rounded-full transition-all duration-500" style="width: {{ min(100, max(0, floatval($progress))) }}%"></div>
+                    </div>
+                </div>
+            @endif
+
+            @if ($trend)
+                <div class="text-[11px] font-bold {{ $isDarkGradient ? 'text-white' : 'text-emerald-700' }}">
+                    {{ $trend }}
+                </div>
+            @endif
+
+            {{ $slot ?? '' }}
         </div>
     @endif
-
-    @if ($trend)
-        <div class="pt-1 text-[11px] font-bold {{ $isDarkGradient ? 'text-white' : 'text-emerald-700' }}">
-            {{ $trend }}
-        </div>
-    @endif
-
-    {{ $slot ?? '' }}
 </div>

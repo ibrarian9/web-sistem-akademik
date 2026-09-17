@@ -78,6 +78,11 @@
     <x-table loadingTarget="filterBayarBulan, filterBayarJenis, filterBayarMetode, filterBayarTahunAjaran, searchBayar, pembayaranPage">
         <thead class="bg-stone-800 text-white font-extrabold uppercase tracking-wider border-b border-stone-900 text-xs">
             <tr>
+                @if (!auth()->user()->isSuperAdmin2())
+                    <th class="w-10 p-3.5 text-center border-r border-stone-700/60">
+                        <input type="checkbox" wire:model.live="selectAllPembayaran" class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer" title="Pilih semua riwayat pembayaran" />
+                    </th>
+                @endif
                 <x-table.th class="w-10 text-center">No</x-table.th>
                 <x-table.th class="w-32">No Resi</x-table.th>
                 <x-table.th class="w-28 text-center">Tanggal Bayar</x-table.th>
@@ -91,7 +96,20 @@
         </thead>
         <tbody class="divide-y divide-stone-200 bg-white">
             @forelse ($recentPayments as $pIndex => $rp)
-                <tr class="hover:bg-stone-50 transition">
+                @php
+                    $isPendingDeleteBayar = in_array($rp->id, $pendingApprovalPembayaranIds ?? []);
+                    $isSelectedBayar = in_array((string)$rp->id, array_map('strval', $selectedPembayaranIds ?? []));
+                @endphp
+                <tr class="{{ $isPendingDeleteBayar ? 'bg-amber-50/75 hover:bg-amber-100/75 border-l-4 border-l-amber-500' : ($isSelectedBayar ? 'bg-emerald-50/40' : 'hover:bg-stone-50') }} transition">
+                    @if (!auth()->user()->isSuperAdmin2())
+                        <td class="p-3.5 text-center border-r border-stone-200">
+                            @if ($isPendingDeleteBayar)
+                                <span class="text-amber-500 font-bold" title="Sedang menunggu persetujuan Super Admin">•</span>
+                            @else
+                                <input type="checkbox" wire:model.live="selectedPembayaranIds" value="{{ $rp->id }}" class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer" />
+                            @endif
+                        </td>
+                    @endif
                     <td class="p-3.5 text-center text-xs font-mono font-bold text-stone-500 border-r border-stone-200">
                         {{ $recentPayments->firstItem() + $pIndex }}
                     </td>
@@ -139,10 +157,12 @@
                     </td>
                     <td class="p-3.5 text-center">
                         <div class="flex items-center justify-center gap-1.5 flex-wrap">
-                            <x-button variant="outline" size="xs" icon="printer" href="{{ route('finance.pembayaran.resi', $rp->id) }}" target="_blank" title="Cetak Kuitansi Resi">
-                                Resi
-                            </x-button>
-                            @if ($this->isFinanceOrAdmin() && !auth()->user()->isSuperAdmin2())
+                            @if ($isPendingDeleteBayar)
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-100/90 px-2 py-1 rounded-lg border border-amber-300 shadow-2xs" title="Pembatalan pembayaran sedang menunggu persetujuan Super Admin">
+                                    <x-lucide-clock class="w-3 h-3" />
+                                    <span>Menunggu Persetujuan</span>
+                                </span>
+                            @elseif ($this->isFinanceOrAdmin() && !auth()->user()->isSuperAdmin2())
                                 <x-button 
                                     type="button" 
                                     variant="danger" 
@@ -159,7 +179,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="9" class="py-12 text-center text-stone-400">
+                    <td colspan="{{ !auth()->user()->isSuperAdmin2() ? 10 : 9 }}" class="py-12 text-center text-stone-400">
                         <x-table.empty title="Tidak ada riwayat pembayaran yang sesuai" subtitle="Tidak ada transaksi pembayaran ditemukan untuk filter yang dipilih." />
                     </td>
                 </tr>
@@ -171,4 +191,45 @@
     <div class="pt-2">
         {{ $recentPayments->links() }}
     </div>
+
+    <!-- Floating Bulk Action Bar: Pembayaran Terpilih -->
+    @if (count($selectedPembayaranIds) > 0)
+        <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-stone-900/95 backdrop-blur-md text-white px-5 py-3 rounded-2xl shadow-2xl border border-stone-700 flex items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-200">
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-xs font-black tracking-wide">{{ count($selectedPembayaranIds) }} Pembayaran Terpilih</span>
+            </div>
+
+            <div class="h-4 w-px bg-stone-700"></div>
+
+            <div class="flex items-center gap-2">
+                @if (auth()->user()->role?->nama === 'finance')
+                    <button 
+                        type="button" 
+                        wire:click="bulkDeletePembayaran" 
+                        wire:confirm="Ajukan permohonan pembatalan untuk {{ count($selectedPembayaranIds) }} transaksi pembayaran terpilih ke Super Admin?"
+                        class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-stone-950 font-black text-xs rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                        <x-lucide-send class="w-3.5 h-3.5" />
+                        <span>Ajukan Pembatalan Terpilih</span>
+                    </button>
+                @else
+                    <button 
+                        type="button" 
+                        wire:click="bulkDeletePembayaran" 
+                        wire:confirm="Yakin ingin membatalkan dan menghapus {{ count($selectedPembayaranIds) }} transaksi pembayaran terpilih? Saldo tagihan dan deposit akan disesuaikan otomatis."
+                        class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-black text-xs rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                        <x-lucide-trash-2 class="w-3.5 h-3.5" />
+                        <span>Batalkan & Hapus Terpilih</span>
+                    </button>
+                @endif
+
+                <button 
+                    type="button" 
+                    wire:click="resetPembayaranSelection" 
+                    class="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white font-bold text-xs rounded-xl transition cursor-pointer">
+                    Batal
+                </button>
+            </div>
+        </div>
+    @endif
 </div>

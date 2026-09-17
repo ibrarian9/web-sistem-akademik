@@ -35,7 +35,7 @@
 
         <div class="max-h-64 overflow-y-auto divide-y divide-stone-100 custom-scrollbar">
             @forelse ($notifications as $notif)
-                <a href="#" class="block px-4 py-3 hover:bg-stone-50 transition duration-200">
+                <div class="block px-4 py-3 hover:bg-stone-50 transition duration-200 cursor-default">
                     <div class="flex items-start gap-3">
                         <div class="mt-0.5 shrink-0">
                             @switch($notif->jenis)
@@ -58,7 +58,7 @@
                             <p class="text-xs text-stone-400 mt-1 font-medium">{{ $notif->created_at->diffForHumans() }}</p>
                         </div>
                     </div>
-                </a>
+                </div>
             @empty
                 <div class="py-8 text-center">
                     <x-lucide-bell-off class="w-8 h-8 text-stone-300 mx-auto stroke-1.5" />

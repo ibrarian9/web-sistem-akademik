@@ -99,6 +99,18 @@
     var MICRO_MODAL_ROUNDED_BADGE = @json($badgeRounded);
     var MICRO_MODAL_ROUNDED_CATEGORY = @json($categoryRounded);
 
+    // Dedicated helper to safely and cleanly close MicroModal confirmation dialog
+    window.closeConfirmModal = function() {
+        const modalElem = document.getElementById('modal-confirm');
+        if (typeof MicroModal !== 'undefined') {
+            try { MicroModal.close('modal-confirm'); } catch(e) {}
+        }
+        if (modalElem) {
+            modalElem.classList.remove('is-open');
+            modalElem.setAttribute('aria-hidden', 'true');
+        }
+    };
+
     document.addEventListener('DOMContentLoaded', function() {
         if (typeof MicroModal !== 'undefined') {
             MicroModal.init({
@@ -119,6 +131,13 @@
                 toastIsPaused = false;
             });
         }
+
+        // Setup explicit close handlers for confirmation modal
+        document.querySelectorAll('#modal-confirm [data-micromodal-close]').forEach(function(el) {
+            el.addEventListener('click', function() {
+                window.closeConfirmModal();
+            });
+        });
     });
 
     // Close Floating Toast Notification
@@ -394,8 +413,7 @@
         const targetBtn = e.target.closest('[data-confirm], [wire\\:confirm]');
         if (targetBtn) {
             if (targetBtn.dataset.micromodalConfirmed === 'true') {
-                delete targetBtn.dataset.micromodalConfirmed;
-                return;
+                return; // Let confirmed click proceed to Livewire / event handlers
             }
             
             e.preventDefault();
@@ -413,17 +431,21 @@
             window.showAlert('Konfirmasi Tindakan', message, function() {
                 targetBtn.dataset.micromodalConfirmed = 'true';
                 
-                targetBtn.dispatchEvent(new MouseEvent('click', {
-                    bubbles: true,
-                    cancelable: true,
-                    view: window
-                }));
-
-                // Fallback in case dispatchEvent does not clear the flag
-                if (targetBtn.dataset.micromodalConfirmed === 'true') {
-                    delete targetBtn.dataset.micromodalConfirmed;
+                try {
                     targetBtn.click();
+                } catch (err) {
+                    targetBtn.dispatchEvent(new MouseEvent('click', {
+                        bubbles: true,
+                        cancelable: true,
+                        composed: true,
+                        view: window
+                    }));
                 }
+
+                // Keep flag alive for this event cycle then clean up
+                setTimeout(function() {
+                    delete targetBtn.dataset.micromodalConfirmed;
+                }, 400);
             }, isDelete ? 'delete' : 'warning');
         }
     }, true);
@@ -460,6 +482,11 @@
         if (isConfirmation) {
             // === MODE 1: CONFIRMATION DIALOG (#modal-confirm via MicroModal) ===
             const modalElem = document.getElementById('modal-confirm');
+            if (modalElem) {
+                modalElem.classList.remove('is-open');
+                modalElem.setAttribute('aria-hidden', 'true');
+            }
+
             const accentElem = document.getElementById('modal-confirm-accent');
             const badgeElem = document.getElementById('modal-confirm-badge');
             const categoryElem = document.getElementById('modal-confirm-category');
@@ -504,22 +531,25 @@
                 actionBtn.innerText = btnText;
                 actionBtn.className = 'px-6 py-2.5 ' + btnClass + ' ' + MICRO_MODAL_ROUNDED_BADGE + ' text-xs font-extrabold shadow-md transition cursor-pointer';
                 actionBtn.onclick = function() {
-                    if (typeof MicroModal !== 'undefined') {
-                        try { MicroModal.close('modal-confirm'); } catch(e) {}
+                    window.closeConfirmModal();
+                    if (typeof onConfirm === 'function') {
+                        onConfirm();
                     }
-                    onConfirm();
                 };
             }
 
             if (typeof MicroModal !== 'undefined') {
                 try {
-                    MicroModal.show('modal-confirm');
-                } catch (e) {
-                    if (modalElem) {
-                        modalElem.setAttribute('aria-hidden', 'false');
-                        modalElem.classList.add('is-open');
-                    }
-                }
+                    MicroModal.show('modal-confirm', {
+                        awaitCloseAnimation: false,
+                        awaitOpenAnimation: false,
+                        disableScroll: false,
+                    });
+                } catch (e) {}
+            }
+            if (modalElem) {
+                modalElem.classList.add('is-open');
+                modalElem.setAttribute('aria-hidden', 'false');
             }
         } else {
             // === MODE 2: FLOATING TOAST NOTIFICATION ===

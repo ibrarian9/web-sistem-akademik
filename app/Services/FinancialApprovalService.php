@@ -16,6 +16,36 @@ use Illuminate\Support\Facades\DB;
 class FinancialApprovalService
 {
     /**
+     * Get natural Indonesian label for an action type.
+     */
+    public static function getActionLabel(string $action): string
+    {
+        return match (strtolower(trim($action))) {
+            'hapus' => 'penghapusan',
+            'edit', 'ubah' => 'perubahan',
+            'tambah' => 'penambahan',
+            'batal' => 'pembatalan',
+            default => $action,
+        };
+    }
+
+    /**
+     * Get natural Indonesian label for a financial feature.
+     */
+    public static function getFeatureLabel(string $feature): string
+    {
+        return match (strtolower(trim($feature))) {
+            'tagihan' => 'tagihan siswa',
+            'pembayaran' => 'transaksi pembayaran siswa',
+            'tabungan_siswa' => 'transaksi tabungan siswa',
+            'arus_kas' => 'catatan arus kas',
+            'dana_bos' => 'transaksi Dana BOS',
+            'gaji_guru' => 'data penggajian guru',
+            default => str_replace('_', ' ', $feature),
+        };
+    }
+
+    /**
      * Create a new financial approval request.
      */
     public static function createRequest(
@@ -46,11 +76,14 @@ class FinancialApprovalService
         $approverRoles = Role::whereIn('nama', ['super_admin', 'super_admin_2', 'founder'])->pluck('id');
         $approvers = User::whereIn('role_id', $approverRoles)->where('status', 'aktif')->get();
 
+        $actionLabel = self::getActionLabel($actionType);
+        $featureLabel = self::getFeatureLabel($feature);
+
         foreach ($approvers as $approver) {
             Notifikasi::create([
                 'user_id' => $approver->id,
-                'judul' => 'Pengajuan Approval: ' . $title,
-                'isi_pesan' => "Staf keuangan {$pemohon->nama} mengajukan " . strtoupper($actionType) . " pada {$feature}. Alasan: {$reason}.",
+                'judul' => 'Permohonan Persetujuan: ' . $title,
+                'isi_pesan' => "Staf keuangan {$pemohon->nama} mengajukan permohonan {$actionLabel} {$featureLabel}. Alasan: {$reason}.",
                 'jenis' => 'keuangan',
                 'channel' => 'in_app',
                 'status_kirim' => 'terkirim',
@@ -137,6 +170,7 @@ class FinancialApprovalService
                             }
                         }
 
+                        $target->update(['is_void' => true]);
                         $target->delete();
 
                         if ($tagihan) {
@@ -162,6 +196,7 @@ class FinancialApprovalService
                                 if ($pembayaran->kelebihan_bayar > 0 && $siswa) {
                                     $siswa->decrement('saldo_deposit', min(floatval($siswa->saldo_deposit), floatval($pembayaran->kelebihan_bayar)));
                                 }
+                                $pembayaran->update(['is_void' => true]);
                                 $pembayaran->delete();
                             }
                         }
@@ -212,10 +247,13 @@ class FinancialApprovalService
             ]);
 
             // Notify requester
+            $actionLabel = self::getActionLabel($actionType);
+            $featureLabel = self::getFeatureLabel($approval->fitur);
+
             Notifikasi::create([
                 'user_id' => $approval->pemohon_id,
-                'judul' => 'Pengajuan Disetujui: ' . $approval->judul,
-                'isi_pesan' => "Pengajuan " . strtoupper($actionType) . " data {$approval->fitur} telah disetujui oleh {$approver->nama}." . ($note ? " Catatan: {$note}" : ''),
+                'judul' => 'Permohonan Disetujui: ' . $approval->judul,
+                'isi_pesan' => "Permohonan {$actionLabel} {$featureLabel} telah disetujui oleh {$approver->nama}." . ($note ? " Catatan: {$note}" : ''),
                 'jenis' => 'keuangan',
                 'channel' => 'in_app',
                 'status_kirim' => 'terkirim',
@@ -258,10 +296,13 @@ class FinancialApprovalService
             ]);
 
             // Notify requester
+            $actionLabel = self::getActionLabel($approval->tipe_aksi);
+            $featureLabel = self::getFeatureLabel($approval->fitur);
+
             Notifikasi::create([
                 'user_id' => $approval->pemohon_id,
-                'judul' => 'Pengajuan Ditolak: ' . $approval->judul,
-                'isi_pesan' => "Pengajuan " . strtoupper($approval->tipe_aksi) . " data {$approval->fitur} ditolak oleh {$approver->nama}. Alasan: {$reason}",
+                'judul' => 'Permohonan Ditolak: ' . $approval->judul,
+                'isi_pesan' => "Permohonan {$actionLabel} {$featureLabel} ditolak oleh {$approver->nama}. Alasan: {$reason}",
                 'jenis' => 'keuangan',
                 'channel' => 'in_app',
                 'status_kirim' => 'terkirim',
@@ -306,12 +347,15 @@ class FinancialApprovalService
                 'catatan_approval' => $catatan,
             ]);
 
+            $actionLabel = self::getActionLabel($approval->tipe_aksi);
+            $featureLabel = self::getFeatureLabel($approval->fitur);
+
             // Notify parties
             if ($canceller->id !== $approval->pemohon_id) {
                 Notifikasi::create([
                     'user_id' => $approval->pemohon_id,
-                    'judul' => 'Pengajuan Dibatalkan: ' . $approval->judul,
-                    'isi_pesan' => "Pengajuan " . strtoupper($approval->tipe_aksi) . " data {$approval->fitur} telah dibatalkan oleh {$canceller->nama}." . ($reason ? " Catatan: {$reason}" : ''),
+                    'judul' => 'Permohonan Dibatalkan: ' . $approval->judul,
+                    'isi_pesan' => "Permohonan {$actionLabel} {$featureLabel} telah dibatalkan oleh {$canceller->nama}." . ($reason ? " Catatan: {$reason}" : ''),
                     'jenis' => 'keuangan',
                     'channel' => 'in_app',
                     'status_kirim' => 'terkirim',
@@ -326,8 +370,8 @@ class FinancialApprovalService
                 foreach ($approvers as $approver) {
                     Notifikasi::create([
                         'user_id' => $approver->id,
-                        'judul' => 'Pengajuan Dibatalkan: ' . $approval->judul,
-                        'isi_pesan' => "Staf keuangan {$canceller->nama} membatalkan pengajuan " . strtoupper($approval->tipe_aksi) . " pada {$approval->fitur}." . ($reason ? " Catatan: {$reason}" : ''),
+                        'judul' => 'Permohonan Dibatalkan: ' . $approval->judul,
+                        'isi_pesan' => "Staf keuangan {$canceller->nama} membatalkan permohonan {$actionLabel} {$featureLabel}." . ($reason ? " Catatan: {$reason}" : ''),
                         'jenis' => 'keuangan',
                         'channel' => 'in_app',
                         'status_kirim' => 'terkirim',

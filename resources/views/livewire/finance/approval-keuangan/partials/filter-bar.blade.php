@@ -12,7 +12,7 @@
     <select wire:model.live="filterStatus"
             class="w-full md:w-44 px-3 py-2 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500">
         <option value="semua">Semua Status</option>
-        <option value="menunggu">Menunggu Approval</option>
+        <option value="menunggu">Menunggu Persetujuan</option>
         <option value="disetujui">Disetujui</option>
         <option value="ditolak">Ditolak</option>
         <option value="dibatalkan">Dibatalkan</option>

@@ -149,24 +149,73 @@
                     Pilihan Periode Tagihan <span class="text-rose-500">*</span>
                 </label>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <label class="p-2 border rounded-xl flex items-center gap-2 cursor-pointer transition {{ $periodeTipe === 'full_year_jan_des' ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-bold ring-2 ring-emerald-500/20' : 'border-stone-200 text-stone-700 hover:bg-stone-50' }}">
-                        <input type="radio" wire:model.live="periodeTipe" value="full_year_jan_des" class="text-emerald-600 focus:ring-emerald-500" />
-                        <span class="text-xs">1 Thn (Jan - Des)</span>
-                    </label>
-                    <label class="p-2 border rounded-xl flex items-center gap-2 cursor-pointer transition {{ $periodeTipe === 'full_year_juli_juni' ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-bold ring-2 ring-emerald-500/20' : 'border-stone-200 text-stone-700 hover:bg-stone-50' }}">
-                        <input type="radio" wire:model.live="periodeTipe" value="full_year_juli_juni" class="text-emerald-600 focus:ring-emerald-500" />
-                        <span class="text-xs">1 T.A. (Juli - Juni)</span>
+                    <label class="p-2 border rounded-xl flex items-center gap-2 cursor-pointer transition {{ in_array($periodeTipe, ['single', 'one_time']) ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-bold ring-2 ring-emerald-500/20' : 'border-stone-200 text-stone-700 hover:bg-stone-50' }}">
+                        <input type="radio" wire:model.live="periodeTipe" value="single" class="text-emerald-600 focus:ring-emerald-500" />
+                        <span class="text-xs">Satu Kali Bayar</span>
                     </label>
                     <label class="p-2 border rounded-xl flex items-center gap-2 cursor-pointer transition {{ $periodeTipe === 'custom_range' ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-bold ring-2 ring-emerald-500/20' : 'border-stone-200 text-stone-700 hover:bg-stone-50' }}">
                         <input type="radio" wire:model.live="periodeTipe" value="custom_range" class="text-emerald-600 focus:ring-emerald-500" />
                         <span class="text-xs">Rentang Bulan</span>
                     </label>
-                    <label class="p-2 border rounded-xl flex items-center gap-2 cursor-pointer transition {{ $periodeTipe === 'single' ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-bold ring-2 ring-emerald-500/20' : 'border-stone-200 text-stone-700 hover:bg-stone-50' }}">
-                        <input type="radio" wire:model.live="periodeTipe" value="single" class="text-emerald-600 focus:ring-emerald-500" />
-                        <span class="text-xs">1 Bulan Saja</span>
+                    <label class="p-2 border rounded-xl flex items-center gap-2 cursor-pointer transition {{ $periodeTipe === 'full_year_juli_juni' ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-bold ring-2 ring-emerald-500/20' : 'border-stone-200 text-stone-700 hover:bg-stone-50' }}">
+                        <input type="radio" wire:model.live="periodeTipe" value="full_year_juli_juni" class="text-emerald-600 focus:ring-emerald-500" />
+                        <span class="text-xs">1 T.A. (Juli - Juni)</span>
+                    </label>
+                    <label class="p-2 border rounded-xl flex items-center gap-2 cursor-pointer transition {{ $periodeTipe === 'full_year_jan_des' ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-bold ring-2 ring-emerald-500/20' : 'border-stone-200 text-stone-700 hover:bg-stone-50' }}">
+                        <input type="radio" wire:model.live="periodeTipe" value="full_year_jan_des" class="text-emerald-600 focus:ring-emerald-500" />
+                        <span class="text-xs">1 Thn (Jan - Des)</span>
                     </label>
                 </div>
             </div>
+
+            @if (in_array($periodeTipe, ['single', 'one_time']))
+                <!-- Konfigurasi Satu Kali Bayar (Per Semester / Bulanan) -->
+                <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-2.5">
+                    <div class="flex items-center justify-between flex-wrap gap-1">
+                        <span class="text-xs font-bold text-stone-700 uppercase tracking-wider">Pilihan Bulan Tagihan (1 Kali Bayar)</span>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <button type="button" wire:click="setSingleMonthPreset('Juli')" class="px-2 py-0.5 text-[11px] font-bold rounded-md border transition {{ $bulan === 'Juli' ? 'bg-emerald-200 border-emerald-400 text-emerald-900' : 'bg-emerald-100 border-emerald-200 text-emerald-800 hover:bg-emerald-200' }}">
+                                Sem. Ganjil (Juli)
+                            </button>
+                            <button type="button" wire:click="setSingleMonthPreset('Januari')" class="px-2 py-0.5 text-[11px] font-bold rounded-md border transition {{ $bulan === 'Januari' ? 'bg-blue-200 border-blue-400 text-blue-900' : 'bg-blue-100 border-blue-200 text-blue-800 hover:bg-blue-200' }}">
+                                Sem. Genap (Januari)
+                            </button>
+                            <button type="button" wire:click="setSingleMonthPreset('{{ $standardMonths[date('n') - 1] ?? 'Juli' }}')" class="px-2 py-0.5 text-[11px] font-bold rounded-md border transition bg-stone-200/80 border-stone-300 text-stone-700 hover:bg-stone-300">
+                                Bulan Ini ({{ $standardMonths[date('n') - 1] ?? 'Juli' }})
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-stone-600 mb-1">Pilih Bulan / Label Tagihan <span class="text-rose-500">*</span></label>
+                            <select wire:model.live="bulan" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
+                                <optgroup label="Bulan Kalender & Akademik">
+                                    @foreach ($standardMonths as $b)
+                                        <option value="{{ $b }}">{{ $b }}</option>
+                                    @endforeach
+                                </optgroup>
+                                <optgroup label="Pilihan Label Semester / Khusus">
+                                    <option value="Semester Ganjil">Semester Ganjil</option>
+                                    <option value="Semester Genap">Semester Genap</option>
+                                    <option value="Tahunan">Tahunan</option>
+                                </optgroup>
+                            </select>
+                            @error('bulan') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-stone-600 mb-1">Jatuh Tempo Pembayaran <span class="text-rose-500">*</span></label>
+                            <input type="date" wire:model.live="jatuh_tempo" class="w-full px-3 py-1.5 bg-white border border-stone-300 rounded-lg text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" />
+                            <span class="text-[10px] text-stone-500 block mt-0.5">Dapat disesuaikan jika ada tanggal khusus (default tgl 10)</span>
+                            @error('jatuh_tempo') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+                    <div class="text-xs text-emerald-900 bg-emerald-50 border border-emerald-200 p-2 rounded-lg flex items-center gap-2">
+                        <x-lucide-check-circle-2 class="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span class="font-bold">Menerbitkan 1 Tagihan Tunggal:</span>
+                        <span class="text-[11px]">Periode <strong>{{ $bulan }}</strong> (Jatuh tempo: <strong>{{ !empty($jatuh_tempo) ? date('d/m/Y', strtotime($jatuh_tempo)) : '-' }}</strong>)</span>
+                    </div>
+                </div>
+            @endif
 
             @if ($periodeTipe === 'custom_range')
                 <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-2.5">
@@ -212,37 +261,28 @@
                 </div>
             @endif
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                @if ($periodeTipe === 'single')
-                    <!-- Bulan Tagihan -->
-                    <div class="space-y-1.5">
-                        <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Bulan Tagihan <span class="text-rose-500">*</span></label>
-                        <select wire:model="bulan" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
-                            @foreach ($bulanOptions as $b)
-                                <option value="{{ $b }}">{{ $b }}</option>
-                            @endforeach
-                        </select>
-                        @error('bulan') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror
-                    </div>
-                @elseif ($periodeTipe !== 'custom_range')
-                    <div class="space-y-1.5">
-                        <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Cakupan Otomatis</label>
-                        <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 font-bold flex items-center gap-2">
-                            <x-lucide-check-circle-2 class="w-4 h-4 text-emerald-600 shrink-0" />
-                            <span>12 Bulan Sekaligus</span>
+            @if (!in_array($periodeTipe, ['single', 'one_time']))
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    @if ($periodeTipe !== 'custom_range')
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Cakupan Otomatis</label>
+                            <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 font-bold flex items-center gap-2">
+                                <x-lucide-check-circle-2 class="w-4 h-4 text-emerald-600 shrink-0" />
+                                <span>12 Bulan Sekaligus</span>
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Jatuh Tempo (Fix Tanggal 10) -->
+                    <div class="space-y-1.5 {{ $periodeTipe === 'custom_range' ? 'sm:col-span-2' : '' }}">
+                        <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Jatuh Tempo</label>
+                        <div class="p-2.5 bg-amber-50/80 border border-amber-200/80 rounded-xl text-xs text-amber-900 font-medium flex items-center gap-2">
+                            <x-lucide-calendar class="w-4 h-4 text-amber-600 shrink-0" />
+                            <span>Fix tgl <strong>10</strong> setiap bulannya</span>
                         </div>
                     </div>
-                @endif
-
-                <!-- Jatuh Tempo (Fix Tanggal 10) -->
-                <div class="space-y-1.5 {{ $periodeTipe === 'custom_range' ? 'sm:col-span-2' : '' }}">
-                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Jatuh Tempo</label>
-                    <div class="p-2.5 bg-amber-50/80 border border-amber-200/80 rounded-xl text-xs text-amber-900 font-medium flex items-center gap-2">
-                        <x-lucide-calendar class="w-4 h-4 text-amber-600 shrink-0" />
-                        <span>Fix tgl <strong>10</strong> setiap bulannya</span>
-                    </div>
                 </div>
-            </div>
+            @endif
 
             <!-- Nominal Tagihan -->
             <x-input-currency 
@@ -405,24 +445,73 @@
                     Pilihan Periode Tagihan <span class="text-rose-500">*</span>
                 </label>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <label class="p-2 border rounded-xl flex items-center gap-2 cursor-pointer transition {{ $periodeTipe === 'full_year_jan_des' ? 'border-indigo-600 bg-indigo-50 text-indigo-950 font-bold ring-2 ring-indigo-500/20' : 'border-stone-200 text-stone-700 hover:bg-stone-50' }}">
-                        <input type="radio" wire:model.live="periodeTipe" value="full_year_jan_des" class="text-indigo-600 focus:ring-indigo-500" />
-                        <span class="text-xs">1 Thn (Jan - Des)</span>
-                    </label>
-                    <label class="p-2 border rounded-xl flex items-center gap-2 cursor-pointer transition {{ $periodeTipe === 'full_year_juli_juni' ? 'border-indigo-600 bg-indigo-50 text-indigo-950 font-bold ring-2 ring-indigo-500/20' : 'border-stone-200 text-stone-700 hover:bg-stone-50' }}">
-                        <input type="radio" wire:model.live="periodeTipe" value="full_year_juli_juni" class="text-indigo-600 focus:ring-indigo-500" />
-                        <span class="text-xs">1 T.A. (Juli - Juni)</span>
+                    <label class="p-2 border rounded-xl flex items-center gap-2 cursor-pointer transition {{ in_array($periodeTipe, ['single', 'one_time']) ? 'border-indigo-600 bg-indigo-50 text-indigo-950 font-bold ring-2 ring-indigo-500/20' : 'border-stone-200 text-stone-700 hover:bg-stone-50' }}">
+                        <input type="radio" wire:model.live="periodeTipe" value="single" class="text-indigo-600 focus:ring-indigo-500" />
+                        <span class="text-xs">Satu Kali Bayar</span>
                     </label>
                     <label class="p-2 border rounded-xl flex items-center gap-2 cursor-pointer transition {{ $periodeTipe === 'custom_range' ? 'border-indigo-600 bg-indigo-50 text-indigo-950 font-bold ring-2 ring-indigo-500/20' : 'border-stone-200 text-stone-700 hover:bg-stone-50' }}">
                         <input type="radio" wire:model.live="periodeTipe" value="custom_range" class="text-indigo-600 focus:ring-indigo-500" />
                         <span class="text-xs">Rentang Bulan</span>
                     </label>
-                    <label class="p-2 border rounded-xl flex items-center gap-2 cursor-pointer transition {{ $periodeTipe === 'single' ? 'border-indigo-600 bg-indigo-50 text-indigo-950 font-bold ring-2 ring-indigo-500/20' : 'border-stone-200 text-stone-700 hover:bg-stone-50' }}">
-                        <input type="radio" wire:model.live="periodeTipe" value="single" class="text-indigo-600 focus:ring-indigo-500" />
-                        <span class="text-xs">1 Bulan Saja</span>
+                    <label class="p-2 border rounded-xl flex items-center gap-2 cursor-pointer transition {{ $periodeTipe === 'full_year_juli_juni' ? 'border-indigo-600 bg-indigo-50 text-indigo-950 font-bold ring-2 ring-indigo-500/20' : 'border-stone-200 text-stone-700 hover:bg-stone-50' }}">
+                        <input type="radio" wire:model.live="periodeTipe" value="full_year_juli_juni" class="text-indigo-600 focus:ring-indigo-500" />
+                        <span class="text-xs">1 T.A. (Juli - Juni)</span>
+                    </label>
+                    <label class="p-2 border rounded-xl flex items-center gap-2 cursor-pointer transition {{ $periodeTipe === 'full_year_jan_des' ? 'border-indigo-600 bg-indigo-50 text-indigo-950 font-bold ring-2 ring-indigo-500/20' : 'border-stone-200 text-stone-700 hover:bg-stone-50' }}">
+                        <input type="radio" wire:model.live="periodeTipe" value="full_year_jan_des" class="text-indigo-600 focus:ring-indigo-500" />
+                        <span class="text-xs">1 Thn (Jan - Des)</span>
                     </label>
                 </div>
             </div>
+
+            @if (in_array($periodeTipe, ['single', 'one_time']))
+                <!-- Konfigurasi Satu Kali Bayar Massal (Per Semester / Bulanan) -->
+                <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-2.5">
+                    <div class="flex items-center justify-between flex-wrap gap-1">
+                        <span class="text-xs font-bold text-stone-700 uppercase tracking-wider">Pilihan Bulan Tagihan Massal (1 Kali Bayar)</span>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <button type="button" wire:click="setSingleMonthPreset('Juli')" class="px-2 py-0.5 text-[11px] font-bold rounded-md border transition {{ $bulan === 'Juli' ? 'bg-indigo-200 border-indigo-400 text-indigo-900' : 'bg-indigo-100 border-indigo-200 text-indigo-800 hover:bg-indigo-200' }}">
+                                Sem. Ganjil (Juli)
+                            </button>
+                            <button type="button" wire:click="setSingleMonthPreset('Januari')" class="px-2 py-0.5 text-[11px] font-bold rounded-md border transition {{ $bulan === 'Januari' ? 'bg-blue-200 border-blue-400 text-blue-900' : 'bg-blue-100 border-blue-200 text-blue-800 hover:bg-blue-200' }}">
+                                Sem. Genap (Januari)
+                            </button>
+                            <button type="button" wire:click="setSingleMonthPreset('{{ $standardMonths[date('n') - 1] ?? 'Juli' }}')" class="px-2 py-0.5 text-[11px] font-bold rounded-md border transition bg-stone-200/80 border-stone-300 text-stone-700 hover:bg-stone-300">
+                                Bulan Ini ({{ $standardMonths[date('n') - 1] ?? 'Juli' }})
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-stone-600 mb-1">Pilih Bulan / Label Tagihan <span class="text-rose-500">*</span></label>
+                            <select wire:model.live="bulan" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-stone-900 text-xs font-bold focus:ring-2 focus:ring-indigo-600">
+                                <optgroup label="Bulan Kalender & Akademik">
+                                    @foreach ($standardMonths as $b)
+                                        <option value="{{ $b }}">{{ $b }}</option>
+                                    @endforeach
+                                </optgroup>
+                                <optgroup label="Pilihan Label Semester / Khusus">
+                                    <option value="Semester Ganjil">Semester Ganjil</option>
+                                    <option value="Semester Genap">Semester Genap</option>
+                                    <option value="Tahunan">Tahunan</option>
+                                </optgroup>
+                            </select>
+                            @error('bulan') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-stone-600 mb-1">Jatuh Tempo Pembayaran <span class="text-rose-500">*</span></label>
+                            <input type="date" wire:model.live="jatuh_tempo" class="w-full px-3 py-1.5 bg-white border border-stone-300 rounded-lg text-stone-900 text-xs font-bold focus:ring-2 focus:ring-indigo-600" />
+                            <span class="text-[10px] text-stone-500 block mt-0.5">Dapat disesuaikan jika ada tanggal khusus (default tgl 10)</span>
+                            @error('jatuh_tempo') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+                    <div class="text-xs text-indigo-900 bg-indigo-50 border border-indigo-200 p-2 rounded-lg flex items-center gap-2">
+                        <x-lucide-check-circle-2 class="w-4 h-4 text-indigo-600 shrink-0" />
+                        <span class="font-bold">Menerbitkan 1 Tagihan Tunggal per Siswa:</span>
+                        <span class="text-[11px]">Periode <strong>{{ $bulan }}</strong> (Jatuh tempo: <strong>{{ !empty($jatuh_tempo) ? date('d/m/Y', strtotime($jatuh_tempo)) : '-' }}</strong>)</span>
+                    </div>
+                </div>
+            @endif
 
             @if ($periodeTipe === 'custom_range')
                 <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-2.5">
@@ -468,37 +557,28 @@
                 </div>
             @endif
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                @if ($periodeTipe === 'single')
-                    <!-- Bulan Tagihan -->
-                    <div class="space-y-1.5">
-                        <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Bulan Tagihan <span class="text-rose-500">*</span></label>
-                        <select wire:model="bulan" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-indigo-600 shadow-2xs">
-                            @foreach ($bulanOptions as $b)
-                                <option value="{{ $b }}">{{ $b }}</option>
-                            @endforeach
-                        </select>
-                        @error('bulan') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror
-                    </div>
-                @elseif ($periodeTipe !== 'custom_range')
-                    <div class="space-y-1.5">
-                        <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Cakupan Otomatis</label>
-                        <div class="p-2.5 bg-indigo-50 border border-indigo-200 rounded-xl text-xs text-indigo-900 font-bold flex items-center gap-2">
-                            <x-lucide-check-circle-2 class="w-4 h-4 text-indigo-600 shrink-0" />
-                            <span>12 Bulan Sekaligus</span>
+            @if (!in_array($periodeTipe, ['single', 'one_time']))
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    @if ($periodeTipe !== 'custom_range')
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Cakupan Otomatis</label>
+                            <div class="p-2.5 bg-indigo-50 border border-indigo-200 rounded-xl text-xs text-indigo-900 font-bold flex items-center gap-2">
+                                <x-lucide-check-circle-2 class="w-4 h-4 text-indigo-600 shrink-0" />
+                                <span>12 Bulan Sekaligus</span>
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Jatuh Tempo (Fix Tanggal 10) -->
+                    <div class="space-y-1.5 {{ $periodeTipe === 'custom_range' ? 'sm:col-span-2' : '' }}">
+                        <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Jatuh Tempo</label>
+                        <div class="p-2.5 bg-amber-50/80 border border-amber-200/80 rounded-xl text-xs text-amber-900 font-medium flex items-center gap-2">
+                            <x-lucide-calendar class="w-4 h-4 text-amber-600 shrink-0" />
+                            <span>Fix tgl <strong>10</strong> setiap bulannya</span>
                         </div>
                     </div>
-                @endif
-
-                <!-- Jatuh Tempo (Fix Tanggal 10) -->
-                <div class="space-y-1.5 {{ $periodeTipe === 'custom_range' ? 'sm:col-span-2' : '' }}">
-                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Jatuh Tempo</label>
-                    <div class="p-2.5 bg-amber-50/80 border border-amber-200/80 rounded-xl text-xs text-amber-900 font-medium flex items-center gap-2">
-                        <x-lucide-calendar class="w-4 h-4 text-amber-600 shrink-0" />
-                        <span>Fix tgl <strong>10</strong> setiap bulannya</span>
-                    </div>
                 </div>
-            </div>
+            @endif
 
             <!-- Nominal Tagihan -->
             <x-input-currency 

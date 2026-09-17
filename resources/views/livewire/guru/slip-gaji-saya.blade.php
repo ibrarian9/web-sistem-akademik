@@ -227,7 +227,7 @@
     @if ($showPreviewModal && $previewSalary)
         <x-floating-card 
             :show="true" 
-            :title="'Pratinjau Slip Gaji — ' . $previewSalary->bulan . ' ' . $previewSalary->tahun" 
+            :title="'Pratinjau Slip Gaji: ' . $previewSalary->bulan . ' ' . $previewSalary->tahun" 
             :subtitle="'Dokumen Resmi Penggajian Guru & GTK: ' . ($previewSalary->guru->user->nama ?? '-')"
             badge="SLIP GAJI RESMI"
             badgeVariant="emerald"

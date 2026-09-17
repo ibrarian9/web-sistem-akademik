@@ -26,18 +26,21 @@
             :value="'Rp ' . number_format($totalMasuk, 0, ',', '.')" 
             icon="arrow-down-left" 
             variant="emerald" 
+            class="h-full"
         />
         <x-stat-card 
             title="Total Realisasi Belanja BOS" 
             :value="'Rp ' . number_format($totalKeluar, 0, ',', '.')" 
             icon="arrow-up-right" 
             variant="rose" 
+            class="h-full"
         />
         <x-stat-card 
             title="Sisa Saldo Kas Dana BOS" 
             :value="'Rp ' . number_format($saldoBos, 0, ',', '.')" 
             icon="wallet" 
             variant="sky" 
+            class="h-full"
         />
     </div>
 

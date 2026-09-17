@@ -21,12 +21,14 @@ class DetailTagihanSiswa extends Component
     public int $siswaId;
     public ?Siswa $siswa = null;
 
-    // Tagihan Filters
+    // Tagihan Filters & Selection
     public string $filterBulan = '';
     public ?int $filterJenis = null;
     public string $filterStatus = '';
     public ?int $filterTahunAjaran = null;
     public string $search = '';
+    public array $selectedTagihanIds = [];
+    public bool $selectAllTagihan = false;
 
     // Riwayat Pembayaran Filters
     public string $searchBayar = '';
@@ -34,6 +36,8 @@ class DetailTagihanSiswa extends Component
     public ?int $filterBayarJenis = null;
     public string $filterBayarMetode = '';
     public ?int $filterBayarTahunAjaran = null;
+    public array $selectedPembayaranIds = [];
+    public bool $selectAllPembayaran = false;
 
     // Bukti Pembayaran Modal & Properties
     public bool $showBuktiModal = false;
@@ -110,37 +114,44 @@ class DetailTagihanSiswa extends Component
     public function updatingSearch()
     {
         $this->resetPage();
+        $this->selectAllTagihan = false;
     }
 
     public function updatingFilterBulan()
     {
         $this->resetPage();
+        $this->selectAllTagihan = false;
     }
 
     public function updatingFilterJenis()
     {
         $this->resetPage();
+        $this->selectAllTagihan = false;
     }
 
     public function updatingFilterStatus()
     {
         $this->resetPage();
+        $this->selectAllTagihan = false;
     }
 
     public function updatingFilterTahunAjaran()
     {
         $this->resetPage();
+        $this->selectAllTagihan = false;
     }
 
     public function setCategoryTab(string $tab)
     {
         $this->activeCategoryTab = $tab;
         $this->resetPage();
+        $this->selectAllTagihan = false;
     }
 
     public function updatingPerPage()
     {
         $this->resetPage();
+        $this->selectAllTagihan = false;
     }
 
     public function resetFilters()
@@ -148,6 +159,7 @@ class DetailTagihanSiswa extends Component
         $this->reset(['filterBulan', 'filterJenis', 'filterStatus', 'filterTahunAjaran', 'search']);
         $this->activeCategoryTab = 'all';
         $this->resetPage();
+        $this->resetTagihanSelection();
     }
 
     public function updatingSearchBayar()
@@ -209,9 +221,28 @@ class DetailTagihanSiswa extends Component
     {
         if ($val) {
             $jt = JenisTagihan::find($val);
-            if ($jt && $jt->nominal_default > 0) {
-                $this->nominal = (float) $jt->nominal_default;
+            if ($jt) {
+                $this->nominal = (float) ($jt->default_nominal ?? $jt->nominal_default ?? 0.00);
+                if (in_array($jt->kategori, ['one_time', 'semester', 'per_6_bulan', 'tahunan'])) {
+                    $this->periodeTipe = 'single';
+                }
             }
+        }
+    }
+
+    public function setSingleMonthPreset(string $month)
+    {
+        $this->bulan = $month;
+        $this->periodeTipe = 'single';
+        $activeTA = TahunAjaran::where('status_aktif', true)->first();
+        $this->jatuh_tempo = $this->calculateDueDateForMonth($month, null, $activeTA?->nama);
+    }
+
+    public function updatedBulan($val)
+    {
+        if (in_array($this->periodeTipe, ['single', 'one_time'])) {
+            $activeTA = TahunAjaran::where('status_aktif', true)->first();
+            $this->jatuh_tempo = $this->calculateDueDateForMonth($val, null, $activeTA?->nama);
         }
     }
 
@@ -258,7 +289,7 @@ class DetailTagihanSiswa extends Component
             'nominal' => 'required|numeric|min:0',
         ];
 
-        if ($this->periodeTipe === 'single') {
+        if (in_array($this->periodeTipe, ['single', 'one_time'])) {
             $rules['bulan'] = 'required|string|max:50';
         } elseif ($this->periodeTipe === 'custom_range') {
             $rules['bulan_mulai'] = 'required|string|in:' . implode(',', $this->standardMonths);
@@ -437,6 +468,17 @@ class DetailTagihanSiswa extends Component
         $userRole = auth()->user()->role->nama ?? '';
 
         if ($userRole === 'finance') {
+            $alreadyPending = \App\Models\ApprovalKeuangan::where('model_type', Tagihan::class)
+                ->where('model_id', $t->id)
+                ->where('status', 'menunggu')
+                ->where('tipe_aksi', 'hapus')
+                ->exists();
+
+            if ($alreadyPending) {
+                session()->flash('warning', 'Permohonan penghapusan tagihan ini sedang menunggu persetujuan Super Admin.');
+                return;
+            }
+
             $reason = $alasan ?: ($this->delete_alasan ?: 'Penghapusan tagihan diajukan oleh staf keuangan');
             \App\Services\FinancialApprovalService::createRequest(
                 auth()->user(),
@@ -511,7 +553,8 @@ class DetailTagihanSiswa extends Component
                 }
             }
 
-            // 2. Delete payment record
+            // 2. Mark void and delete payment record
+            $pembayaran->update(['is_void' => true]);
             $pembayaran->delete();
 
             // 3. Recalculate tagihan total paid and status
@@ -534,6 +577,354 @@ class DetailTagihanSiswa extends Component
 
             session()->flash('success', "Riwayat pembayaran ({$noResi}) berhasil dihapus dan saldo tagihan telah disesuaikan.");
         });
+    }
+
+    public function updatedSelectAllPembayaran($value)
+    {
+        if ($value) {
+            $this->selectedTagihanIds = [];
+            $this->selectAllTagihan = false;
+            $this->selectedPembayaranIds = $this->getPembayaranQuery()
+                ->pluck('id')
+                ->map(fn($id) => (string)$id)
+                ->toArray();
+        } else {
+            $this->selectedPembayaranIds = [];
+        }
+    }
+
+    public function updatedSelectedPembayaranIds()
+    {
+        if (!empty($this->selectedPembayaranIds)) {
+            $this->selectedTagihanIds = [];
+            $this->selectAllTagihan = false;
+        }
+    }
+
+    public function resetPembayaranSelection()
+    {
+        $this->selectedPembayaranIds = [];
+        $this->selectAllPembayaran = false;
+    }
+
+    public function updatedSelectAllTagihan($value)
+    {
+        if ($value) {
+            $this->selectedPembayaranIds = [];
+            $this->selectAllPembayaran = false;
+
+            $pendingIds = \App\Models\ApprovalKeuangan::where('model_type', Tagihan::class)
+                ->where('status', 'menunggu')
+                ->where('tipe_aksi', 'hapus')
+                ->pluck('model_id')
+                ->toArray();
+
+            $this->selectedTagihanIds = $this->getTagihanQuery()
+                ->whereNotIn('id', $pendingIds)
+                ->pluck('id')
+                ->map(fn($id) => (string)$id)
+                ->toArray();
+        } else {
+            $this->selectedTagihanIds = [];
+        }
+    }
+
+    public function updatedSelectedTagihanIds()
+    {
+        if (!empty($this->selectedTagihanIds)) {
+            $this->selectedPembayaranIds = [];
+            $this->selectAllPembayaran = false;
+        }
+    }
+
+    public function resetTagihanSelection()
+    {
+        $this->selectedTagihanIds = [];
+        $this->selectAllTagihan = false;
+    }
+
+    public function bulkDeleteTagihan(?string $alasan = null)
+    {
+        if (auth()->user()->isSuperAdmin2() || auth()->user()->role?->nama === 'super_admin_2') {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            $this->dispatch('show-alert', [
+                'title' => 'Akses Ditolak',
+                'message' => 'Super Admin 2 hanya memiliki hak akses Lihat Saja.',
+                'type' => 'danger',
+            ]);
+            return;
+        }
+
+        if (!$this->isFinanceOrAdmin()) {
+            session()->flash('error', 'Akses Ditolak: Anda tidak memiliki wewenang untuk menghapus tagihan.');
+            $this->dispatch('show-alert', [
+                'title' => 'Akses Ditolak',
+                'message' => 'Anda tidak memiliki wewenang untuk menghapus tagihan.',
+                'type' => 'danger',
+            ]);
+            return;
+        }
+
+        if (empty($this->selectedTagihanIds)) {
+            session()->flash('warning', 'Pilih minimal satu tagihan untuk dihapus.');
+            return;
+        }
+
+        $tagihans = Tagihan::with(['pembayarans', 'siswa.user', 'jenisTagihan'])
+            ->where('siswa_id', $this->siswaId)
+            ->whereIn('id', $this->selectedTagihanIds)
+            ->get();
+
+        if ($tagihans->isEmpty()) {
+            $this->resetTagihanSelection();
+            return;
+        }
+
+        $userRole = auth()->user()->role->nama ?? '';
+
+        if ($userRole === 'finance') {
+            $reason = $alasan ?: ($this->delete_alasan ?: 'Penghapusan tagihan massal diajukan oleh staf keuangan');
+            $submittedCount = 0;
+            $pendingCount = 0;
+            $skippedPaidCount = 0;
+
+            foreach ($tagihans as $t) {
+                if ($t->total_dibayar > 0) {
+                    $skippedPaidCount++;
+                    continue;
+                }
+
+                $alreadyPending = \App\Models\ApprovalKeuangan::where('model_type', Tagihan::class)
+                    ->where('model_id', $t->id)
+                    ->where('status', 'menunggu')
+                    ->where('tipe_aksi', 'hapus')
+                    ->exists();
+
+                if ($alreadyPending) {
+                    $pendingCount++;
+                    continue;
+                }
+
+                \App\Services\FinancialApprovalService::createRequest(
+                    auth()->user(),
+                    'hapus',
+                    'tagihan',
+                    $t,
+                    null,
+                    $reason,
+                    "Hapus Tagihan: " . ($this->siswa->user->nama ?? 'Siswa') . " : {$t->bulan} (Rp " . number_format($t->nominal, 0, ',', '.') . ")"
+                );
+                $submittedCount++;
+            }
+
+            $this->resetTagihanSelection();
+
+            if ($submittedCount === 0) {
+                $msg = 'Tidak ada tagihan yang diajukan untuk dihapus.';
+                if ($skippedPaidCount > 0) {
+                    $msg .= " {$skippedPaidCount} tagihan dilewati karena sudah memiliki transaksi pembayaran.";
+                }
+                if ($pendingCount > 0) {
+                    $msg .= " {$pendingCount} tagihan sudah dalam status menunggu persetujuan.";
+                }
+                session()->flash('warning', $msg);
+                $this->dispatch('show-alert', [
+                    'title' => 'Perhatian',
+                    'message' => $msg,
+                    'type' => 'warning',
+                ]);
+                return;
+            }
+
+            $msg = "Permohonan penghapusan {$submittedCount} tagihan berhasil diajukan ke Super Admin / Super Admin 2.";
+            if ($pendingCount > 0) {
+                $msg .= " ({$pendingCount} tagihan dilewati karena sudah menunggu persetujuan).";
+            }
+            if ($skippedPaidCount > 0) {
+                $msg .= " ({$skippedPaidCount} tagihan dilewati karena sudah ada pembayaran).";
+            }
+
+            session()->flash('success', $msg);
+            $this->dispatch('show-alert', [
+                'title' => 'Menunggu Persetujuan',
+                'message' => $msg,
+                'type' => 'info',
+            ]);
+            return;
+        }
+
+        // Super Admin / Founder direct deletion
+        $deletedCount = 0;
+        $skippedPaidCount = 0;
+
+        foreach ($tagihans as $t) {
+            if ($t->total_dibayar > 0) {
+                $skippedPaidCount++;
+                continue;
+            }
+
+            app(\App\Actions\Finance\DeleteTagihanAction::class)->execute($t, $this->siswaId);
+            $deletedCount++;
+        }
+
+        $this->resetTagihanSelection();
+
+        if ($deletedCount === 0 && $skippedPaidCount > 0) {
+            $msg = "Tidak ada tagihan yang dihapus. {$skippedPaidCount} tagihan terpilih dilewati karena sudah memiliki riwayat pembayaran.";
+            session()->flash('warning', $msg);
+            $this->dispatch('show-alert', [
+                'title' => 'Perhatian',
+                'message' => $msg,
+                'type' => 'warning',
+            ]);
+            return;
+        }
+
+        $msg = "Berhasil menghapus {$deletedCount} data tagihan.";
+        if ($skippedPaidCount > 0) {
+            $msg .= " ({$skippedPaidCount} tagihan dilewati karena sudah ada pembayaran).";
+        }
+
+        session()->flash('success', $msg);
+        $this->dispatch('show-alert', [
+            'title' => 'Berhasil',
+            'message' => $msg,
+            'type' => 'success',
+        ]);
+    }
+
+    public function bulkDeletePembayaran(?string $alasan = null)
+    {
+        if (auth()->user()->role?->nama === 'super_admin_2') {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        if (!$this->isFinanceOrAdmin()) {
+            session()->flash('error', 'Akses Ditolak: Anda tidak memiliki izin untuk membatalkan riwayat pembayaran.');
+            return;
+        }
+
+        if (empty($this->selectedPembayaranIds)) {
+            session()->flash('warning', 'Pilih minimal satu transaksi pembayaran untuk dibatalkan/dihapus.');
+            return;
+        }
+
+        $pembayarans = Pembayaran::with('tagihan')
+            ->whereHas('tagihan', fn($q) => $q->where('siswa_id', $this->siswaId))
+            ->whereIn('id', $this->selectedPembayaranIds)
+            ->get();
+
+        if ($pembayarans->isEmpty()) {
+            return;
+        }
+
+        $userRole = auth()->user()->role->nama ?? '';
+
+        if ($userRole === 'finance') {
+            $reason = $alasan ?: ($this->delete_alasan ?: 'Pembatalan pembayaran massal diajukan oleh staf keuangan');
+            $submittedCount = 0;
+            $pendingCount = 0;
+
+            foreach ($pembayarans as $p) {
+                $alreadyPending = \App\Models\ApprovalKeuangan::where('model_type', Pembayaran::class)
+                    ->where('model_id', $p->id)
+                    ->where('status', 'menunggu')
+                    ->where('tipe_aksi', 'hapus')
+                    ->exists();
+
+                if ($alreadyPending) {
+                    $pendingCount++;
+                    continue;
+                }
+
+                \App\Services\FinancialApprovalService::createRequest(
+                    auth()->user(),
+                    'hapus',
+                    'pembayaran',
+                    $p,
+                    null,
+                    $reason,
+                    "Hapus Pembayaran: {$p->no_resi} - " . ($this->siswa->user->nama ?? 'Siswa') . " (Rp " . number_format($p->nominal_dibayar, 0, ',', '.') . ")"
+                );
+                $submittedCount++;
+            }
+
+            $this->resetPembayaranSelection();
+
+            $msg = "Permohonan pembatalan {$submittedCount} transaksi pembayaran telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.";
+            if ($pendingCount > 0) {
+                $msg .= " ({$pendingCount} pembayaran dilewati karena sudah dalam proses pengajuan).";
+            }
+
+            session()->flash('success', $msg);
+            $this->dispatch('show-alert', [
+                'title' => 'Menunggu Persetujuan',
+                'message' => $msg,
+                'type' => 'info',
+            ]);
+            return;
+        }
+
+        // Super Admin / Founder: Langsung Hapus & Rollback
+        DB::transaction(function () use ($pembayarans) {
+            $siswa = $this->siswa ?: Siswa::find($this->siswaId);
+            $affectedTagihanIds = [];
+
+            foreach ($pembayarans as $p) {
+                $nominalDibayar = floatval($p->nominal_dibayar);
+                $kelebihan = floatval($p->kelebihan_bayar);
+                $metode = $p->metode_bayar;
+
+                if ($siswa) {
+                    if (strtolower($metode) === 'deposit') {
+                        $siswa->increment('saldo_deposit', $nominalDibayar);
+                    }
+                    if ($kelebihan > 0) {
+                        $currentDeposit = floatval($siswa->saldo_deposit);
+                        $siswa->decrement('saldo_deposit', min($currentDeposit, $kelebihan));
+                    }
+                }
+
+                if ($p->tagihan_id) {
+                    $affectedTagihanIds[] = $p->tagihan_id;
+                }
+
+                $p->update(['is_void' => true]);
+                $p->delete();
+            }
+
+            // Recalculate affected tagihans
+            foreach (array_unique($affectedTagihanIds) as $tagihanId) {
+                $tagihan = Tagihan::find($tagihanId);
+                if ($tagihan) {
+                    $remainingPaid = floatval($tagihan->pembayarans()->sum('nominal_dibayar'));
+                    $tagihanNominal = floatval($tagihan->nominal);
+
+                    $newStatus = 'belum_bayar';
+                    if ($tagihanNominal <= 0 || $remainingPaid >= $tagihanNominal) {
+                        $newStatus = 'lunas';
+                    } elseif ($remainingPaid > 0) {
+                        $newStatus = 'sebagian';
+                    }
+
+                    $tagihan->update([
+                        'total_dibayar' => $remainingPaid,
+                        'status' => $newStatus,
+                    ]);
+                }
+            }
+        });
+
+        $count = $pembayarans->count();
+        $this->resetPembayaranSelection();
+
+        session()->flash('success', "Berhasil membatalkan dan menghapus {$count} riwayat transaksi pembayaran.");
+        $this->dispatch('show-alert', [
+            'title' => 'Berhasil',
+            'message' => "Berhasil membatalkan dan menghapus {$count} riwayat transaksi pembayaran.",
+            'type' => 'delete',
+        ]);
     }
 
     public function openBuktiModal(int $pembayaranId)
@@ -627,34 +1018,7 @@ class DetailTagihanSiswa extends Component
         $countMendatang = (clone $allTagihanQuery)->mendatang($cutoffDate)->count();
 
         // Paginated filtered invoices
-        $tagihanQuery = Tagihan::with(['jenisTagihan', 'tahunAjaran', 'pembayarans'])
-            ->where('siswa_id', $this->siswaId)
-            ->when($this->activeCategoryTab === 'spp', function ($q) {
-                $q->whereHas('jenisTagihan', fn($jt) => $jt->where('nama', 'like', '%SPP%'));
-            })
-            ->when($this->activeCategoryTab === 'non_spp', function ($q) {
-                $q->whereHas('jenisTagihan', fn($jt) => $jt->where('nama', 'not like', '%SPP%'));
-            })
-            ->when($this->filterBulan, function ($q) {
-                $q->where('bulan', $this->filterBulan);
-            })
-            ->when($this->filterJenis, function ($q) {
-                $q->where('jenis_tagihan_id', $this->filterJenis);
-            })
-            ->when($this->filterStatus, function ($q) {
-                $q->where('status', $this->filterStatus);
-            })
-            ->when($this->filterTahunAjaran, function ($q) {
-                $q->where('tahun_ajaran_id', $this->filterTahunAjaran);
-            })
-            ->when($this->search, function ($q) {
-                $q->where(function ($sub) {
-                    $sub->whereHas('jenisTagihan', function ($jt) {
-                        $jt->where('nama', 'like', '%' . $this->search . '%');
-                    })
-                    ->orWhere('bulan', 'like', '%' . $this->search . '%');
-                });
-            })
+        $tagihanQuery = $this->getTagihanQuery()
             ->orderBy('jatuh_tempo', 'desc')
             ->orderBy('id', 'desc');
 
@@ -707,7 +1071,79 @@ class DetailTagihanSiswa extends Component
             ];
         }
 
-        // Paginated & filtered payment transactions for this student
+        $recentPayments = $this->getPembayaranQuery()
+            ->orderBy('tanggal_bayar', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate(10, ['*'], 'pembayaranPage');
+
+        $pendingApprovalTagihanIds = \App\Models\ApprovalKeuangan::where('model_type', Tagihan::class)
+            ->where('status', 'menunggu')
+            ->where('tipe_aksi', 'hapus')
+            ->pluck('model_id')
+            ->toArray();
+
+        $pendingApprovalPembayaranIds = \App\Models\ApprovalKeuangan::where('model_type', Pembayaran::class)
+            ->where('status', 'menunggu')
+            ->where('tipe_aksi', 'hapus')
+            ->pluck('model_id')
+            ->toArray();
+
+        return view('livewire.finance.detail-tagihan-siswa', [
+            'tagihans' => $tagihans,
+            'pendingApprovalTagihanIds' => $pendingApprovalTagihanIds,
+            'pendingApprovalPembayaranIds' => $pendingApprovalPembayaranIds,
+            'recentPayments' => $recentPayments,
+            'totalNominal' => $totalNominal,
+            'totalTerbayar' => $totalTerbayar,
+            'totalSisa' => $totalSisa,
+            'totalTunggakan' => $totalTunggakan,
+            'totalMendatang' => $totalMendatang,
+            'countLunas' => $countLunas,
+            'countBelumLunas' => $countBelumLunas,
+            'countTunggakan' => $countTunggakan,
+            'countMendatang' => $countMendatang,
+            'countAll' => $countAll,
+            'countSpp' => $countSpp,
+            'countNonSpp' => $countNonSpp,
+            'sppMatrix' => $sppMatrix,
+            'activeTAName' => $activeTA->nama ?? '-',
+        ])->layout('components.layouts.app', ['title' => 'Rincian Tagihan - ' . ($this->siswa->user->nama ?? 'Siswa')]);
+    }
+
+    public function getTagihanQuery()
+    {
+        return Tagihan::with(['jenisTagihan', 'tahunAjaran', 'pembayarans'])
+            ->where('siswa_id', $this->siswaId)
+            ->when($this->activeCategoryTab === 'spp', function ($q) {
+                $q->whereHas('jenisTagihan', fn($jt) => $jt->where('nama', 'like', '%SPP%'));
+            })
+            ->when($this->activeCategoryTab === 'non_spp', function ($q) {
+                $q->whereHas('jenisTagihan', fn($jt) => $jt->where('nama', 'not like', '%SPP%'));
+            })
+            ->when($this->filterBulan, function ($q) {
+                $q->where('bulan', $this->filterBulan);
+            })
+            ->when($this->filterJenis, function ($q) {
+                $q->where('jenis_tagihan_id', $this->filterJenis);
+            })
+            ->when($this->filterStatus, function ($q) {
+                $q->where('status', $this->filterStatus);
+            })
+            ->when($this->filterTahunAjaran, function ($q) {
+                $q->where('tahun_ajaran_id', $this->filterTahunAjaran);
+            })
+            ->when($this->search, function ($q) {
+                $q->where(function ($sub) {
+                    $sub->whereHas('jenisTagihan', function ($jt) {
+                        $jt->where('nama', 'like', '%' . $this->search . '%');
+                    })
+                    ->orWhere('bulan', 'like', '%' . $this->search . '%');
+                });
+            });
+    }
+
+    public function getPembayaranQuery()
+    {
         $pembayaranQuery = Pembayaran::with(['tagihan.jenisTagihan', 'tagihan.tahunAjaran', 'petugas'])
             ->whereHas('tagihan', function ($q) {
                 $q->where('siswa_id', $this->siswaId);
@@ -751,27 +1187,6 @@ class DetailTagihanSiswa extends Component
             });
         }
 
-        $recentPayments = $pembayaranQuery->orderBy('tanggal_bayar', 'desc')
-            ->orderBy('id', 'desc')
-            ->paginate(10, ['*'], 'pembayaranPage');
-
-        return view('livewire.finance.detail-tagihan-siswa', [
-            'tagihans' => $tagihans,
-            'recentPayments' => $recentPayments,
-            'totalNominal' => $totalNominal,
-            'totalTerbayar' => $totalTerbayar,
-            'totalSisa' => $totalSisa,
-            'totalTunggakan' => $totalTunggakan,
-            'totalMendatang' => $totalMendatang,
-            'countLunas' => $countLunas,
-            'countBelumLunas' => $countBelumLunas,
-            'countTunggakan' => $countTunggakan,
-            'countMendatang' => $countMendatang,
-            'countAll' => $countAll,
-            'countSpp' => $countSpp,
-            'countNonSpp' => $countNonSpp,
-            'sppMatrix' => $sppMatrix,
-            'activeTAName' => $activeTA->nama ?? '-',
-        ])->layout('components.layouts.app', ['title' => 'Rincian Tagihan - ' . ($this->siswa->user->nama ?? 'Siswa')]);
+        return $pembayaranQuery;
     }
 }

@@ -38,9 +38,11 @@
                 <option value="akhir_semester">Akhir Semester</option>
             </select>
 
-            <x-button type="button" variant="secondary" size="sm" icon="rotate-ccw" wire:click="resetFilters" title="Bersihkan Filter">
-                Reset
-            </x-button>
+            @if ($this->hasActiveFilters)
+                <x-button type="button" variant="secondary" size="sm" icon="rotate-ccw" wire:click="resetFilters" title="Bersihkan Filter">
+                    Reset
+                </x-button>
+            @endif
         </div>
     </div>
 

@@ -2,7 +2,7 @@
 <x-table loadingTarget="search, filterBulan, filterKelas, filterJenis, filterStatus, filterPeriode, startDate, endDate, page">
     <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900 text-xs">
         <tr>
-            @if ($isFounder)
+            @if (!auth()->user()->isSuperAdmin2())
                 <th class="w-12 p-3.5 text-center border-r border-emerald-700/60">
                     <input type="checkbox" wire:model.live="selectAll" class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer" />
                 </th>
@@ -39,8 +39,14 @@
 
                 $countTagihan = $siswa->tagihans->count();
                 
+                // Cek apakah ada tagihan siswa ini yang sedang dalam proses pengajuan hapus
+                $pendingTagihanCount = $siswa->tagihans->whereIn('id', $pendingApprovalTagihanIds ?? [])->count();
+                $hasPendingDeletion = $pendingTagihanCount > 0;
+                
                 $globalStatus = 'lunas';
-                if ($sisaTunggakan > 0 && $dueDibayar > 0) {
+                if ($hasPendingDeletion) {
+                    $globalStatus = 'pengajuan_hapus';
+                } elseif ($sisaTunggakan > 0 && $dueDibayar > 0) {
                     $globalStatus = 'sebagian';
                 } elseif ($sisaTunggakan > 0 && $dueDibayar == 0) {
                     $globalStatus = 'belum_bayar';
@@ -48,8 +54,8 @@
                     $globalStatus = 'tertib_berjalan';
                 }
             @endphp
-            <tr class="hover:bg-stone-50 transition duration-150 text-xs">
-                @if ($isFounder)
+            <tr class="{{ $hasPendingDeletion ? 'bg-amber-50/75 hover:bg-amber-100/75 border-l-4 border-l-amber-500' : 'hover:bg-stone-50' }} transition duration-150 text-xs">
+                @if (!auth()->user()->isSuperAdmin2())
                     <td class="p-3.5 text-center border-r border-stone-200">
                         <input type="checkbox" wire:model.live="selectedIds" value="{{ $siswa->id }}" class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer" />
                     </td>
@@ -109,7 +115,12 @@
 
                 <!-- Status Global -->
                 <td class="p-3.5 text-center border-r border-stone-200">
-                    @if ($globalStatus === 'lunas')
+                    @if ($globalStatus === 'pengajuan_hapus')
+                        <x-badge variant="amber" size="xs" :dot="true">Pengajuan Hapus</x-badge>
+                        @if ($pendingTagihanCount < $countTagihan)
+                            <span class="text-[9px] text-amber-700 font-bold block mt-0.5">{{ $pendingTagihanCount }} diajukan</span>
+                        @endif
+                    @elseif ($globalStatus === 'lunas')
                         <x-badge variant="emerald" size="xs">Semua Lunas</x-badge>
                     @elseif ($globalStatus === 'tertib_berjalan')
                         <x-badge variant="emerald" size="xs">Tertib (Bulan Ini)</x-badge>
@@ -139,7 +150,7 @@
             </tr>
         @empty
             <tr>
-                <td colspan="{{ $isFounder ? 9 : 8 }}" class="py-12 text-center text-stone-400">
+                <td colspan="{{ !auth()->user()->isSuperAdmin2() ? 9 : 8 }}" class="py-12 text-center text-stone-400">
                     <x-table.empty title="Tidak ada data tagihan ditemukan" subtitle="Gunakan filter pencarian atau buat rilis tagihan baru." />
                 </td>
             </tr>

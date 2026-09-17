@@ -3,8 +3,6 @@
     <x-page-header 
         title="Gabungan Arus Kas Masuk" 
         subtitle="Pusat analitik & rekapitulasi seluruh penerimaan: Pembayaran SPP/Tagihan Siswa, Infaq & Donasi Yayasan, serta Setoran Tabungan."
-        badge="MONITORING & KAS MASUK"
-        badgeVariant="emerald"
         icon="trending-up"
     >
         <x-slot:actions>
@@ -34,6 +32,10 @@
 
     @if (session()->has('message'))
         <x-alert-banner type="success" :message="session('message')" />
+    @endif
+
+    @if (session()->has('error'))
+        <x-alert-banner type="error" :message="session('error')" />
     @endif
 
     <!-- 4-Stat Metric Cards Row (Non-BOS) -->

@@ -50,7 +50,7 @@
 
     <x-floating-card 
         :show="true" 
-        :title="'Rincian Lengkap Gaji — ' . ($sd->guru->user->nama ?? '-')" 
+        :title="'Rincian Lengkap Gaji: ' . ($sd->guru->user->nama ?? '-')" 
         :subtitle="'Periode ' . $sd->bulan . ' ' . $sd->tahun . ' • Status: ' . strtoupper($sd->status)" 
         badge="RINCIAN PAYROLL" 
         badgeVariant="emerald" 

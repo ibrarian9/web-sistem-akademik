@@ -6,8 +6,6 @@
     <x-page-header 
         title="Input Pembayaran Siswa" 
         subtitle="Pilih dari daftar siswa yang memiliki tagihan aktif di bawah untuk memproses transaksi setoran kasir."
-        badge="KASIR PEMBAYARAN SISWA"
-        badgeVariant="emerald"
         icon="plus-circle"
     />
 

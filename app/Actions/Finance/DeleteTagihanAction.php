@@ -25,6 +25,7 @@ class DeleteTagihanAction
                     if ($pembayaran->kelebihan_bayar > 0 && $siswa) {
                         $siswa->decrement('saldo_deposit', min(floatval($siswa->saldo_deposit), floatval($pembayaran->kelebihan_bayar)));
                     }
+                    $pembayaran->update(['is_void' => true]);
                     $pembayaran->delete();
                 }
             }

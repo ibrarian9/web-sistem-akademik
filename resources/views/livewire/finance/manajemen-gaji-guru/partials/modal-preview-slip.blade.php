@@ -3,7 +3,7 @@
     <x-floating-card 
         :show="true" 
         title="Pratinjau Dokumen Slip Gaji Digital" 
-        :subtitle="'Periode: ' . $previewSalary->bulan . ' ' . $previewSalary->tahun . ' — ' . ($previewSalary->guru?->user?->nama ?? ($previewSalary->jabatan ?? '-'))"
+        :subtitle="'Periode: ' . $previewSalary->bulan . ' ' . $previewSalary->tahun . ' | ' . ($previewSalary->guru?->user?->nama ?? ($previewSalary->jabatan ?? '-'))"
         badge="SLIP GAJI RESMI"
         badgeVariant="emerald"
         icon="file-text"

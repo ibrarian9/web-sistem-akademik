@@ -463,7 +463,7 @@ class ArusKasKeluar extends Component
     {
         // 1. Calculate Summary Metrics for the Active Date Filter (Tanpa Dana BOS)
         // Operational Outflow (Yayasan)
-        $opQuery = Pengeluaran::query();
+        $opQuery = Pengeluaran::whereDoesntHave('gajiGuru');
         $this->applyDateFilter($opQuery, 'tanggal');
         $totalOperasional = (float) $opQuery->sum('jumlah');
 
@@ -489,7 +489,7 @@ class ArusKasKeluar extends Component
             $monthNum = $monthCarbon->month;
             $monthLabel = $monthCarbon->locale('id')->isoFormat('MMM YYYY');
 
-            $mOp = (float) Pengeluaran::whereYear('tanggal', $year)->whereMonth('tanggal', $monthNum)->sum('jumlah');
+            $mOp = (float) Pengeluaran::whereDoesntHave('gajiGuru')->whereYear('tanggal', $year)->whereMonth('tanggal', $monthNum)->sum('jumlah');
             $mGaji = (float) GajiGuru::where('status', 'dibayar')
                 ->where(function ($q) use ($year, $monthNum, $monthCarbon) {
                     $q->whereYear('tanggal_bayar', $year)->whereMonth('tanggal_bayar', $monthNum)
@@ -526,7 +526,8 @@ class ArusKasKeluar extends Component
 
         // 3. Compute Top Expense Category Breakdown
         $categoryBreakdown = [];
-        $rawCategories = Pengeluaran::with('kategori')
+        $rawCategories = Pengeluaran::whereDoesntHave('gajiGuru')
+            ->with('kategori')
             ->selectRaw('kategori_pengeluaran_id, sum(jumlah) as total_nominal')
             ->groupBy('kategori_pengeluaran_id')
             ->orderByDesc('total_nominal')
@@ -549,7 +550,7 @@ class ArusKasKeluar extends Component
 
         // Stream 1: Operasional Yayasan
         if ($this->stream === 'semua' || $this->stream === 'operasional') {
-            $opTableQuery = Pengeluaran::with(['kategori', 'petugas'])->latest('tanggal');
+            $opTableQuery = Pengeluaran::with(['kategori', 'petugas'])->whereDoesntHave('gajiGuru')->latest('tanggal');
             if ($this->filterKategori) {
                 $opTableQuery->where('kategori_pengeluaran_id', $this->filterKategori);
             }

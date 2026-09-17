@@ -1,7 +1,4 @@
-{{-- Accessibility Menu — Floating Button + Panel --}}
-
-
-
+{{-- Accessibility Menu: Floating Button + Panel --}}
 <div x-data="accessibilityMenu()" 
      x-cloak 
      class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 transition-all duration-300 transform"

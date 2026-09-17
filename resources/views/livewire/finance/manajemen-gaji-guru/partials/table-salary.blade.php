@@ -108,7 +108,7 @@
                 </td>
                 <td class="p-3.5 text-center border-b border-r border-stone-200">
                     @if (in_array($sal->id, $pendingApprovalIds ?? []))
-                        <x-badge variant="amber" size="xs" :dot="true">Menunggu Approval Hapus</x-badge>
+                        <x-badge variant="amber" size="xs" :dot="true">Menunggu Persetujuan Hapus</x-badge>
                     @elseif ($sal->status === 'dibayar')
                         <div class="inline-flex flex-col items-center gap-1">
                             <x-badge variant="emerald" size="xs" :dot="true">Dibayar</x-badge>

@@ -27,9 +27,9 @@
 
         <!-- Stats Grid for Pendamping -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <x-stat-card title="Siswa Didampingi" value="{{ $totalSiswaDidampingi }}" icon="users" trend="" color="indigo" />
-            <x-stat-card title="Catatan Bulan Ini" value="{{ $totalCatatanBulanIni }}" icon="file-text" trend="" color="emerald" />
-            <x-stat-card title="Jam Masuk Target" value="{{ $targetJamMasuk }} WIB" icon="calendar" trend="" color="amber" />
+            <x-stat-card title="Siswa Didampingi" value="{{ $totalSiswaDidampingi }}" icon="users" trend="" color="indigo" class="h-full" />
+            <x-stat-card title="Catatan Bulan Ini" value="{{ $totalCatatanBulanIni }}" icon="file-text" trend="" color="emerald" class="h-full" />
+            <x-stat-card title="Jam Masuk Target" value="{{ $targetJamMasuk }} WIB" icon="calendar" trend="" color="amber" class="h-full" />
             
             <!-- Attendance Stat Card -->
             <div class="bg-white border border-stone-200 rounded-2xl p-5 shadow-sm flex items-center justify-between relative overflow-hidden group">
@@ -232,9 +232,9 @@
 
         <!-- Stats Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <x-stat-card title="Total Kelas Diajar" value="{{ $totalKelas }}" icon="layers" trend="" color="indigo" />
-            <x-stat-card title="Mata Pelajaran" value="{{ $totalMapel }}" icon="book-open" trend="" color="emerald" />
-            <x-stat-card title="Jadwal Hari Ini" value="{{ $jadwalHariIni }}" icon="calendar" trend="" color="amber" />
+            <x-stat-card title="Total Kelas Diajar" value="{{ $totalKelas }}" icon="layers" trend="" color="indigo" class="h-full" />
+            <x-stat-card title="Mata Pelajaran" value="{{ $totalMapel }}" icon="book-open" trend="" color="emerald" class="h-full" />
+            <x-stat-card title="Jadwal Hari Ini" value="{{ $jadwalHariIni }}" icon="calendar" trend="" color="amber" class="h-full" />
             
             <!-- Custom Attendance Stat Card -->
             <div class="bg-white border border-stone-200 rounded-2xl p-5 shadow-sm flex items-center justify-between relative overflow-hidden group">

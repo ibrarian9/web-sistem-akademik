@@ -83,11 +83,11 @@
                             </div>
                         </label>
 
-                        <label class="p-2.5 border rounded-xl flex items-start gap-2.5 cursor-pointer transition {{ in_array($kategori_tipe, ['semester', 'per_6_bulan']) ? 'border-emerald-600 bg-emerald-50/80 text-emerald-950 ring-1 ring-emerald-500/20' : 'border-stone-200 bg-white hover:bg-stone-50 text-stone-700' }}">
+                        <label class="p-2.5 border rounded-xl flex items-start gap-2.5 cursor-pointer transition {{ in_array($kategori_tipe, ['semester', 'per_6_bulan', 'sekali_semester']) ? 'border-emerald-600 bg-emerald-50/80 text-emerald-950 ring-1 ring-emerald-500/20' : 'border-stone-200 bg-white hover:bg-stone-50 text-stone-700' }}">
                             <input type="radio" wire:model.live="kategori_tipe" value="semester" class="mt-0.5 text-emerald-600 focus:ring-emerald-500" />
                             <div>
-                                <span class="font-extrabold text-xs block">Per-6 Bulan (Semesteran)</span>
-                                <span class="text-[10px] text-stone-500 font-medium block">Ditagihkan 6 bulan sekali (per semester / ujian semester).</span>
+                                <span class="font-extrabold text-xs block">Pembayaran Sekali untuk 1 Semester</span>
+                                <span class="text-[10px] text-stone-500 font-medium block">Ditagihkan sekali dalam satu semester (misal: ujian semester, praktikum, modul, atau daftar ulang semester).</span>
                             </div>
                         </label>
                     </div>
@@ -180,7 +180,7 @@
                             'rutin' => ['label' => 'Rutin (SPP)', 'class' => 'bg-emerald-100 text-emerald-800 border-emerald-300'],
                             'one_time' => ['label' => 'Sekali Bayar', 'class' => 'bg-amber-100 text-amber-900 border-amber-300'],
                             'tahunan' => ['label' => 'Tahunan', 'class' => 'bg-indigo-100 text-indigo-900 border-indigo-300'],
-                            'semester', 'per_6_bulan' => ['label' => 'Per-6 Bulan', 'class' => 'bg-cyan-100 text-cyan-900 border-cyan-300'],
+                            'semester', 'per_6_bulan', 'sekali_semester' => ['label' => '1 Semester (Sekali Bayar)', 'class' => 'bg-cyan-100 text-cyan-900 border-cyan-300'],
                             default => ['label' => ucfirst($kategori->kategori), 'class' => 'bg-stone-100 text-stone-700 border-stone-300'],
                         };
                     @endphp

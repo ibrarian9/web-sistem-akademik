@@ -13,8 +13,10 @@
     <script src="https://cdn.jsdelivr.net/npm/micromodal/dist/micromodal.min.js"></script>
     <style>
         .modal { font-family: inherit; }
-        .modal[aria-hidden="true"] { display: none; }
-        .modal[aria-hidden="false"] { display: block; }
+        .modal[aria-hidden="true"] { display: none !important; }
+        .modal[aria-hidden="false"] { display: block !important; }
+        .modal.is-open { display: block !important; }
+        .modal:not(.is-open) { display: none !important; }
         .modal__overlay { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); }
 
         /* Smooth SPA Navigation Transitions (React/Vue Feel) */

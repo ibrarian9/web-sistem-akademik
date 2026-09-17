@@ -6,8 +6,6 @@
     <x-page-header 
         title="Overview Pembayaran Siswa" 
         subtitle="Pantau rangkuman realisasi lunas dan sisa tunggakan tagihan administrasi/SPP siswa per tahun ajaran."
-        badge="MONITORING REALISASI SPP"
-        badgeVariant="emerald"
         icon="eye"
     >
         <x-slot:actions>
@@ -64,21 +62,26 @@
     @endif
 
     <!-- Quick Stats Grid (Vibrant, Informative & Interactive) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <!-- Card 1: Siswa Ada Tunggakan -->
-        <div class="relative group">
+        <div class="relative group h-full flex flex-col">
             <x-stat-card 
                 title="Siswa Ada Tunggakan" 
                 :value="$tunggakanCount . ' Siswa'" 
-                subtitle="Belum melunasi tagihan jatuh tempo"
+                subtitle="Belum lunas s/d jatuh tempo"
                 icon="alert-circle" 
                 variant="soft-rose" 
-                :badge="$filterStatus === 'tunggakan' ? 'Filter Aktif ✓' : ($tunggakanCount > 0 ? 'Perlu Follow-up' : 'Nihil')"
+                :badge="$filterStatus === 'tunggakan' ? 'Filter Aktif ✓' : ($tunggakanCount > 0 ? 'Follow-up' : 'Nihil')"
                 wire:click="filterByStatus('tunggakan')"
                 role="button"
                 tabindex="0"
-                class="cursor-pointer select-none hover:scale-[1.01] active:scale-[0.99] {{ $filterStatus === 'tunggakan' ? 'ring-4 ring-rose-400/80 ring-offset-2 shadow-md' : '' }}"
-            />
+                class="h-full flex-1 cursor-pointer select-none hover:scale-[1.01] active:scale-[0.99] {{ $filterStatus === 'tunggakan' ? 'ring-4 ring-rose-400/80 ring-offset-2 shadow-md' : '' }}"
+            >
+                <div class="flex items-center justify-between text-[11px] font-bold text-rose-700">
+                    <span>Klik untuk filter data</span>
+                    <x-lucide-chevron-right class="w-3.5 h-3.5" />
+                </div>
+            </x-stat-card>
             @if ($filterStatus === 'tunggakan')
                 <span class="absolute top-2 right-2 px-2 py-0.5 bg-rose-600 text-white text-[9px] font-black rounded-full shadow-2xs uppercase tracking-wider">
                     Aktif
@@ -87,7 +90,7 @@
         </div>
 
         <!-- Card 2: Siswa Lunas Semua -->
-        <div class="relative group">
+        <div class="relative group h-full flex flex-col">
             <x-stat-card 
                 title="Siswa Lunas Semua" 
                 :value="$lunasCount . ' Siswa'" 
@@ -98,8 +101,13 @@
                 wire:click="filterByStatus('lunas')"
                 role="button"
                 tabindex="0"
-                class="cursor-pointer select-none hover:scale-[1.01] active:scale-[0.99] {{ $filterStatus === 'lunas' ? 'ring-4 ring-emerald-400/80 ring-offset-2 shadow-md' : '' }}"
-            />
+                class="h-full flex-1 cursor-pointer select-none hover:scale-[1.01] active:scale-[0.99] {{ $filterStatus === 'lunas' ? 'ring-4 ring-emerald-400/80 ring-offset-2 shadow-md' : '' }}"
+            >
+                <div class="flex items-center justify-between text-[11px] font-bold text-emerald-700">
+                    <span>Klik untuk filter data</span>
+                    <x-lucide-chevron-right class="w-3.5 h-3.5" />
+                </div>
+            </x-stat-card>
             @if ($filterStatus === 'lunas')
                 <span class="absolute top-2 right-2 px-2 py-0.5 bg-emerald-600 text-white text-[9px] font-black rounded-full shadow-2xs uppercase tracking-wider">
                     Aktif
@@ -108,27 +116,34 @@
         </div>
 
         <!-- Card 3: Nominal Tunggakan -->
-        <div class="relative group">
+        <div class="relative group h-full flex flex-col">
             <x-stat-card 
                 title="Nominal Tunggakan" 
                 :value="'Rp ' . number_format($nominalTunggakan, 0, ',', '.')" 
-                :subtitle="$nominalMendatang > 0 ? 'Jatuh tempo berjalan (+ Rp ' . number_format($nominalMendatang, 0, ',', '.') . ' mendatang)' : 'Total piutang s/d bulan berjalan'"
+                :subtitle="$nominalMendatang > 0 ? 'Jatuh tempo (+ Rp ' . number_format($nominalMendatang, 0, ',', '.') . ' mdtg)' : 'Total piutang s/d bulan berjalan'"
                 icon="wallet" 
                 variant="soft-amber" 
                 badge="Piutang Aktif"
-            />
+                class="h-full flex-1"
+            >
+                <div class="flex items-center justify-between text-[11px] font-bold text-amber-800">
+                    <span>Status piutang tahun ajaran</span>
+                    <x-lucide-info class="w-3.5 h-3.5" />
+                </div>
+            </x-stat-card>
         </div>
 
         <!-- Card 4: Realisasi Pembayaran -->
-        <div class="relative group">
+        <div class="relative group h-full flex flex-col">
             <x-stat-card 
                 title="Realisasi Pembayaran" 
                 :value="$realisasiPersen . '%'" 
                 :subtitle="'Rp ' . number_format($totalDibayar, 0, ',', '.') . ' / Rp ' . number_format($totalNominal, 0, ',', '.')"
                 icon="trending-up" 
                 variant="soft-indigo" 
-                :badge="$realisasiPersen >= 80 ? 'Sangat Baik' : ($realisasiPersen >= 50 ? 'Berjalan' : 'Perlu Ditingkatkan')"
+                :badge="$realisasiPersen >= 80 ? 'Sangat Baik' : ($realisasiPersen >= 50 ? 'Berjalan' : 'Perlu Tindak')"
                 :progress="$realisasiPersen"
+                class="h-full flex-1"
             />
         </div>
     </div>

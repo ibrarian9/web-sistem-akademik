@@ -159,7 +159,7 @@ class CashFlowService
         if (($tab === 'semua' || $tab === 'keluar') && !$hasCategoryMasuk) {
             // Stream 4: Operasional Yayasan
             if ($stream === 'semua' || $stream === 'operasional') {
-                $opTbl = Pengeluaran::with(['kategori', 'petugas'])->latest('tanggal');
+                $opTbl = Pengeluaran::with(['kategori', 'petugas'])->whereDoesntHave('gajiGuru')->latest('tanggal');
                 if ($hasCategoryKeluar) {
                     $opTbl->where('kategori_pengeluaran_id', $filterKategoriKeluar);
                 }
@@ -318,7 +318,7 @@ class CashFlowService
         $totalInflow = $totalTagihanSpp + $totalKasYayasan + $totalTabunganSetor;
 
         // Outflow
-        $opQuery = Pengeluaran::query();
+        $opQuery = Pengeluaran::whereDoesntHave('gajiGuru');
         FinanceReportService::applyDateFilter($opQuery, 'tanggal', $filterPeriode, $startDate, $endDate);
         $totalOperasional = (float) $opQuery->sum('jumlah');
 
@@ -366,7 +366,7 @@ class CashFlowService
             $mInflowTotal = $mSpp + $mInfaq + $mTab;
 
             // Outflow
-            $mOp = (float) Pengeluaran::whereYear('tanggal', $year)->whereMonth('tanggal', $monthNum)->sum('jumlah');
+            $mOp = (float) Pengeluaran::whereDoesntHave('gajiGuru')->whereYear('tanggal', $year)->whereMonth('tanggal', $monthNum)->sum('jumlah');
             $mGaji = (float) GajiGuru::where('status', 'dibayar')
                 ->where(function ($q) use ($year, $monthNum, $mCarbon) {
                     $q->whereYear('tanggal_bayar', $year)->whereMonth('tanggal_bayar', $monthNum)

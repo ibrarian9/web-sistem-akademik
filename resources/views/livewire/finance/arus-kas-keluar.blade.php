@@ -3,8 +3,6 @@
     <x-page-header 
         title="Gabungan Arus Kas Keluar" 
         subtitle="Pusat analitik & rekapitulasi seluruh pengeluaran: Operasional Yayasan, Gaji Guru, serta Fasilitas Kasbon (Non-BOS)."
-        badge="MONITORING & KAS KELUAR"
-        badgeVariant="rose"
         icon="trending-down"
     >
         <x-slot:actions>
@@ -34,6 +32,10 @@
 
     @if (session()->has('message'))
         <x-alert-banner type="success" :message="session('message')" />
+    @endif
+
+    @if (session()->has('error'))
+        <x-alert-banner type="error" :message="session('error')" />
     @endif
 
     @include('livewire.finance.arus-kas-keluar.partials.metric-cards')

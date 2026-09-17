@@ -1,6 +1,7 @@
 @props([
     'selectedCount' => 0,
     'deleteAction' => 'bulkDelete',
+    'deleteLabel' => 'Hapus Terpilih',
     'cancelAction' => 'resetSelection',
     'confirmText' => 'Apakah Anda yakin ingin menghapus seluruh data yang dipilih?',
 ])
@@ -29,7 +30,7 @@
                         wire:click="{{ $deleteAction }}" 
                         data-confirm="{{ $confirmText }}"
                         loadingTarget="{{ $deleteAction }}">
-                        Hapus Terpilih
+                        {{ $deleteLabel }}
                     </x-button>
                 @endif
 

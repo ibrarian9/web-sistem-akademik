@@ -20,11 +20,11 @@
     />
 
     <!-- Stat Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <x-stat-card title="Siswa Aktif" :value="$totalSiswa" icon="users" color="green" />
-        <x-stat-card title="Guru Aktif" :value="$totalGuru" icon="user-check" color="blue" />
-        <x-stat-card title="Total Rombel" :value="$totalKelas" icon="layers" color="amber" />
-        <x-stat-card title="Jadwal Pelajaran" :value="$totalJadwal" icon="calendar" color="purple" />
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <x-stat-card title="Siswa Aktif" :value="$totalSiswa" subtitle="Total siswa terdaftar" icon="users" variant="soft-emerald" class="h-full" />
+        <x-stat-card title="Guru Aktif" :value="$totalGuru" subtitle="Tenaga pendidik aktif" icon="user-check" variant="soft-indigo" class="h-full" />
+        <x-stat-card title="Total Rombel" :value="$totalKelas" subtitle="Rombongan belajar aktif" icon="layers" variant="soft-amber" class="h-full" />
+        <x-stat-card title="Jadwal Pelajaran" :value="$totalJadwal" subtitle="Alokasi jam pelajaran" icon="calendar" variant="soft-purple" class="h-full" />
     </div>
 
     <!-- Quick Access -->

@@ -13,10 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
         openTrigger: 'data-micromodal-trigger',
         closeTrigger: 'data-micromodal-close',
         openClass: 'is-open',
-        disableScroll: true,
+        disableScroll: false,
         disableFocus: false,
-        awaitOpenAnimation: true,
-        awaitCloseAnimation: true,
+        awaitOpenAnimation: false,
+        awaitCloseAnimation: false,
         debugMode: false,
     });
 });
@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
 // Global Helper: Show Alert Dialog via MicroModal
 let currentAlertCallback = null;
 window.showModalAlert = function ({ title = 'Pemberitahuan', message = '', type = 'info', okText = 'Mengerti', onOk = null }) {
+    if (typeof window.showAlert === 'function') {
+        window.showAlert(title, message, onOk, type);
+        return;
+    }
+
     const modalEl = document.getElementById('global-alert-modal');
     if (!modalEl) {
         alert(message || title);
@@ -88,6 +93,11 @@ window.showModalConfirm = function ({
     onConfirm = null,
     onCancel = null,
 }) {
+    if (typeof window.showAlert === 'function') {
+        window.showAlert(title, message, onConfirm, type);
+        return;
+    }
+
     const modalEl = document.getElementById('global-confirm-modal');
     if (!modalEl) {
         if (confirm(message)) {

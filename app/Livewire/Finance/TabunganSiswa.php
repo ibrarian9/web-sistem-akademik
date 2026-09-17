@@ -295,10 +295,10 @@ class TabunganSiswa extends Component
                 "Edit Transaksi Tabungan {$tx->kode_transaksi}: " . ($tx->siswa->user->nama ?? 'Siswa') . " (" . strtoupper($tx->jenis) . " Rp " . number_format($tx->nominal, 0, ',', '.') . " -> " . strtoupper($this->edit_jenis) . " Rp " . number_format($this->edit_nominal, 0, ',', '.') . ")"
             );
 
-            $msg = 'Permohonan edit transaksi tabungan telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.';
+            $msg = 'Permohonan perbaikan transaksi tabungan telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.';
             session()->flash('success', $msg);
             $this->dispatch('show-alert', [
-                'title' => 'Menunggu Approval',
+                'title' => 'Menunggu Persetujuan',
                 'message' => $msg,
                 'type' => 'info',
             ]);
@@ -358,7 +358,7 @@ class TabunganSiswa extends Component
             $msg = 'Permohonan penghapusan transaksi tabungan telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.';
             session()->flash('success', $msg);
             $this->dispatch('show-alert', [
-                'title' => 'Menunggu Approval',
+                'title' => 'Menunggu Persetujuan',
                 'message' => $msg,
                 'type' => 'info',
             ]);

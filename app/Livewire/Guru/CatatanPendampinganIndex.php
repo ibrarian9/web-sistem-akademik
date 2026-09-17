@@ -154,6 +154,18 @@ class CatatanPendampinganIndex extends Component
         $this->resetPage();
     }
 
+    public function getHasActiveFiltersProperty(): bool
+    {
+        return !empty(trim($this->search))
+            || !empty($this->filterKelasId)
+            || !empty($this->filterSiswaId)
+            || !empty($this->filterAspek)
+            || !empty($this->filterHasil)
+            || ($this->filterPeriode !== 'semua' && !empty($this->filterPeriode))
+            || !empty($this->filterTanggalMulai)
+            || !empty($this->filterTanggalSelesai);
+    }
+
     public function openCreateModal()
     {
         $this->resetValidation();

@@ -38,7 +38,7 @@ class ReleaseTagihanForm extends Form
             $rules['single_siswa_id'] = 'required|exists:siswa,id';
         }
 
-        if ($this->periodeTipe === 'single') {
+        if (in_array($this->periodeTipe, ['single', 'one_time'])) {
             $rules['bulan'] = 'required|string|max:50';
         } elseif ($this->periodeTipe === 'custom_range') {
             $rules['bulan_mulai'] = 'required|string|in:' . implode(',', $this->standardMonths);
@@ -117,17 +117,35 @@ class ReleaseTagihanForm extends Form
 
     public function calculateDueDateForMonth(string $monthName, ?string $baseDueDate = null, ?string $tahunAjaranNama = null): string
     {
+        // If single / one_time payment and user explicitly supplied baseDueDate, prioritize that exact date
+        if (in_array($this->periodeTipe, ['single', 'one_time']) && !empty($baseDueDate)) {
+            try {
+                return Carbon::parse($baseDueDate)->format('Y-m-d');
+            } catch (\Exception $e) {
+                // fallback to calculated
+            }
+        }
+
         $monthNumbers = [
             'Januari' => 1, 'Februari' => 2, 'Maret' => 3, 'April' => 4,
             'Mei' => 5, 'Juni' => 6, 'Juli' => 7, 'Agustus' => 8,
             'September' => 9, 'Oktober' => 10, 'November' => 11, 'Desember' => 12
         ];
 
-        if (!isset($monthNumbers[$monthName])) {
-            return date('Y-m-10');
+        $specialSemesterMap = [
+            'Semester Ganjil' => 7,
+            'Semester Genap' => 1,
+            'Tahunan' => 7,
+        ];
+
+        if (isset($specialSemesterMap[$monthName])) {
+            $targetMonth = $specialSemesterMap[$monthName];
+        } elseif (isset($monthNumbers[$monthName])) {
+            $targetMonth = $monthNumbers[$monthName];
+        } else {
+            return !empty($baseDueDate) ? $baseDueDate : date('Y-m-10');
         }
 
-        $targetMonth = $monthNumbers[$monthName];
         $targetDay = 10;
 
         $year = (int) date('Y');

@@ -14,7 +14,9 @@
                     <th class="py-3 px-4">Aksi & Modul</th>
                     <th class="py-3 px-4">Ringkasan & Alasan</th>
                     <th class="py-3 px-4 text-center">Status</th>
-                    <th class="py-3 px-4 text-center">Approver</th>
+                    @if ($filterStatus !== 'menunggu')
+                        <th class="py-3 px-4 text-center">Approver</th>
+                    @endif
                     <th class="py-3 px-4 text-right">Tindakan</th>
                 </tr>
             </thead>
@@ -98,15 +100,17 @@
                             @endif
                         </td>
 
-                        <!-- Approver -->
-                        <td class="py-3.5 px-4 text-center whitespace-nowrap text-xs text-stone-600">
-                            @if ($item->approver)
-                                <p class="font-semibold text-stone-800">{{ $item->approver->nama }}</p>
-                                <p class="text-[11px] text-stone-400 font-mono">{{ $item->tanggal_disetujui?->isoFormat('D MMM YYYY, HH:mm') }}</p>
-                            @else
-                                <span class="text-stone-300 italic">-</span>
-                            @endif
-                        </td>
+                        @if ($filterStatus !== 'menunggu')
+                            <!-- Approver -->
+                            <td class="py-3.5 px-4 text-center whitespace-nowrap text-xs text-stone-600">
+                                @if ($item->approver)
+                                    <p class="font-semibold text-stone-800">{{ $item->approver->nama }}</p>
+                                    <p class="text-[11px] text-stone-400 font-mono">{{ $item->tanggal_disetujui?->isoFormat('D MMM YYYY, HH:mm') }}</p>
+                                @else
+                                    <span class="text-stone-300 italic">-</span>
+                                @endif
+                            </td>
+                        @endif
 
                         <!-- Actions -->
                         <td class="py-3.5 px-4 text-right whitespace-nowrap">
@@ -142,7 +146,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="py-12 text-center text-stone-400">
+                        <td colspan="{{ $filterStatus === 'menunggu' ? 7 : 8 }}" class="py-12 text-center text-stone-400">
                             <x-lucide-inbox class="w-12 h-12 mx-auto mb-2 text-stone-300" />
                             <p class="text-sm font-medium">Tidak ada permohonan persetujuan yang cocok dengan kriteria filter.</p>
                         </td>

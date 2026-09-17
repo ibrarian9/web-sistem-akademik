@@ -4,7 +4,7 @@
     <button wire:click="$set('filterStatus', 'menunggu')" type="button"
             class="text-left p-4 rounded-2xl border transition-all duration-200 {{ $filterStatus === 'menunggu' ? 'bg-amber-50/70 border-amber-300 ring-2 ring-amber-400 shadow-sm' : 'bg-white border-stone-200 hover:border-stone-300 hover:shadow-sm' }}">
         <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Menunggu Approval</span>
+            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Menunggu Persetujuan</span>
             <span class="p-2 rounded-xl bg-amber-100 text-amber-600">
                 <x-lucide-clock class="w-4 h-4" />
             </span>

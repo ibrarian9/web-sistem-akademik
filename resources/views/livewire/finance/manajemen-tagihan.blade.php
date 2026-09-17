@@ -6,8 +6,6 @@
     <x-page-header 
         title="Manajemen Tagihan Siswa" 
         subtitle="Buat, filter, edit, dan pantau status tagihan operasional/SPP siswa sesuai nominal masing-masing anak."
-        badge="MANAJEMEN TAGIHAN & SPP"
-        badgeVariant="emerald"
         icon="file-text"
     >
         <x-slot:actions>
@@ -90,4 +88,15 @@
 
     <!-- Floating Card: Modal Kelola Kategori Tagihan Siswa -->
     @include('livewire.finance.manajemen-tagihan.partials.modal-kelola-kategori')
+
+    <!-- Floating Bulk Actions Bar -->
+    @if(!auth()->user()->isSuperAdmin2())
+        <x-bulk-actions 
+            :selectedCount="count($selectedIds)" 
+            deleteAction="bulkDelete" 
+            :deleteLabel="auth()->user()->role?->nama === 'finance' ? 'Ajukan Hapus Terpilih' : 'Hapus Terpilih'"
+            cancelAction="resetSelection" 
+            :confirmText="auth()->user()->role?->nama === 'finance' ? 'Ajukan permohonan penghapusan seluruh tagihan siswa yang dipilih ke Super Admin?' : 'Apakah Anda yakin ingin menghapus seluruh tagihan siswa yang dipilih? (Tagihan yang sudah dibayar sebagian atau lunas akan dilewati).'" 
+        />
+    @endif
 </div>

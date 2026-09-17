@@ -99,7 +99,7 @@
                         <select wire:model="shadow_teacher_id" class="w-full px-3 py-2 bg-white border border-indigo-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-indigo-600 shadow-2xs">
                             <option value="">-- Tanpa Guru Pendamping --</option>
                             @forelse ($shadowTeachers as $guru)
-                                <option value="{{ $guru->id }}">{{ $guru->user->nama ?? 'Guru' }} — Guru Pendamping ({{ $guru->nip ?: 'NIP -' }})</option>
+                                <option value="{{ $guru->id }}">{{ $guru->user->nama ?? 'Guru' }} | Guru Pendamping ({{ $guru->nip ?: 'NIP -' }})</option>
                             @empty
                                 <option value="" disabled>Belum ada guru berkategori Pendamping (Shadow Teacher)</option>
                             @endforelse
