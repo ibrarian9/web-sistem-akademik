@@ -46,8 +46,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_actions_finance_disbursegajiaction",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 32,
+      "community_name": "Pengeluaran",
       "norm_label": "disbursegajiaction.php"
     },
     {
@@ -59,8 +59,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_actions_finance_disbursegajiaction_disbursegajiaction",
-      "community": 64,
-      "community_name": "Peminjaman",
+      "community": 32,
+      "community_name": "Pengeluaran",
       "norm_label": "disbursegajiaction"
     },
     {
@@ -71,8 +71,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_actions_finance_disbursegajiaction_disbursegajiaction_execute",
-      "community": 64,
-      "community_name": "Peminjaman",
+      "community": 32,
+      "community_name": "Pengeluaran",
       "norm_label": ".execute()"
     },
     {
@@ -130,8 +130,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_actions_finance_managekategoritagihanaction",
-      "community": 264,
-      "community_name": "Kelas.php",
+      "community": 267,
+      "community_name": "AuditLogger.php",
       "norm_label": "managekategoritagihanaction.php"
     },
     {
@@ -143,8 +143,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_actions_finance_managekategoritagihanaction_managekategoritagihanaction",
-      "community": 36,
-      "community_name": "JenisTagihan",
+      "community": 267,
+      "community_name": "AuditLogger.php",
       "norm_label": "managekategoritagihanaction"
     },
     {
@@ -155,8 +155,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_actions_finance_managekategoritagihanaction_managekategoritagihanaction_save",
-      "community": 36,
-      "community_name": "JenisTagihan",
+      "community": 267,
+      "community_name": "AuditLogger.php",
       "norm_label": ".save()"
     },
     {
@@ -167,8 +167,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_actions_finance_managekategoritagihanaction_managekategoritagihanaction_delete",
-      "community": 36,
-      "community_name": "JenisTagihan",
+      "community": 267,
+      "community_name": "AuditLogger.php",
       "norm_label": ".delete()"
     },
     {
@@ -404,8 +404,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_http_controllers_controller",
-      "community": 2,
-      "community_name": "AuditLogger",
+      "community": 259,
+      "community_name": "Pengaturan",
       "norm_label": "controller.php"
     },
     {
@@ -417,8 +417,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_http_controllers_controller_controller",
-      "community": 2,
-      "community_name": "AuditLogger",
+      "community": 259,
+      "community_name": "Pengaturan",
       "norm_label": "controller"
     },
     {
@@ -464,8 +464,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_http_controllers_financeexportcontroller",
-      "community": 74,
-      "community_name": "FinanceExportController",
+      "community": 267,
+      "community_name": "AuditLogger.php",
       "norm_label": "financeexportcontroller.php"
     },
     {
@@ -477,8 +477,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_http_controllers_financeexportcontroller_financeexportcontroller",
-      "community": 74,
-      "community_name": "FinanceExportController",
+      "community": 2,
+      "community_name": "AuditLogger",
       "norm_label": "financeexportcontroller"
     },
     {
@@ -489,8 +489,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_http_controllers_financeexportcontroller_financeexportcontroller_exporttunggakan",
-      "community": 74,
-      "community_name": "FinanceExportController",
+      "community": 2,
+      "community_name": "AuditLogger",
       "norm_label": ".exporttunggakan()"
     },
     {
@@ -501,8 +501,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_http_controllers_financeexportcontroller_financeexportcontroller_exportpemasukan",
-      "community": 74,
-      "community_name": "FinanceExportController",
+      "community": 2,
+      "community_name": "AuditLogger",
       "norm_label": ".exportpemasukan()"
     },
     {
@@ -513,8 +513,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_http_controllers_financeexportcontroller_financeexportcontroller_exportpengeluaran",
-      "community": 74,
-      "community_name": "FinanceExportController",
+      "community": 2,
+      "community_name": "AuditLogger",
       "norm_label": ".exportpengeluaran()"
     },
     {
@@ -525,8 +525,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_http_controllers_financeexportcontroller_financeexportcontroller_exportdanabos",
-      "community": 74,
-      "community_name": "FinanceExportController",
+      "community": 2,
+      "community_name": "AuditLogger",
       "norm_label": ".exportdanabos()"
     },
     {
@@ -537,8 +537,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_http_controllers_financeexportcontroller_financeexportcontroller_exportrekapgaji",
-      "community": 74,
-      "community_name": "FinanceExportController",
+      "community": 2,
+      "community_name": "AuditLogger",
       "norm_label": ".exportrekapgaji()"
     },
     {
@@ -549,8 +549,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_http_controllers_financeexportcontroller_financeexportcontroller_exporttabungan",
-      "community": 74,
-      "community_name": "FinanceExportController",
+      "community": 2,
+      "community_name": "AuditLogger",
       "norm_label": ".exporttabungan()"
     },
     {
@@ -728,8 +728,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_http_controllers_pendampinganreportcontroller",
-      "community": 67,
-      "community_name": "Semester.php",
+      "community": 259,
+      "community_name": "Pengaturan",
       "norm_label": "pendampinganreportcontroller.php"
     },
     {
@@ -741,8 +741,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_http_controllers_pendampinganreportcontroller_pendampinganreportcontroller",
-      "community": 2,
-      "community_name": "AuditLogger",
+      "community": 259,
+      "community_name": "Pengaturan",
       "norm_label": "pendampinganreportcontroller"
     },
     {
@@ -753,8 +753,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_http_controllers_pendampinganreportcontroller_pendampinganreportcontroller_cetaklaporan",
-      "community": 2,
-      "community_name": "AuditLogger",
+      "community": 259,
+      "community_name": "Pengaturan",
       "norm_label": ".cetaklaporan()"
     },
     {
@@ -861,7 +861,7 @@
       "_origin": "ast",
       "id": "app_http_middleware_rolemiddleware",
       "community": 301,
-      "community_name": "Closure",
+      "community_name": "EligibleShadowTeacher.php",
       "norm_label": "rolemiddleware.php"
     },
     {
@@ -874,7 +874,7 @@
       "_origin": "ast",
       "id": "app_http_middleware_rolemiddleware_rolemiddleware",
       "community": 301,
-      "community_name": "Closure",
+      "community_name": "EligibleShadowTeacher.php",
       "norm_label": "rolemiddleware"
     },
     {
@@ -886,7 +886,7 @@
       "_origin": "ast",
       "id": "app_http_middleware_rolemiddleware_rolemiddleware_handle",
       "community": 301,
-      "community_name": "Closure",
+      "community_name": "EligibleShadowTeacher.php",
       "norm_label": ".handle()"
     },
     {
@@ -897,7 +897,7 @@
       "_origin": "ast",
       "id": "app_livewire_auth_login",
       "community": 267,
-      "community_name": "Login.php",
+      "community_name": "AuditLogger.php",
       "norm_label": "login.php"
     },
     {
@@ -910,7 +910,7 @@
       "_origin": "ast",
       "id": "app_livewire_auth_login_login",
       "community": 267,
-      "community_name": "Login.php",
+      "community_name": "AuditLogger.php",
       "norm_label": "login"
     },
     {
@@ -922,7 +922,7 @@
       "_origin": "ast",
       "id": "app_livewire_auth_login_login_login",
       "community": 267,
-      "community_name": "Login.php",
+      "community_name": "AuditLogger.php",
       "norm_label": ".login()"
     },
     {
@@ -934,7 +934,7 @@
       "_origin": "ast",
       "id": "app_livewire_auth_login_login_render",
       "community": 267,
-      "community_name": "Login.php",
+      "community_name": "AuditLogger.php",
       "norm_label": ".render()"
     },
     {
@@ -944,8 +944,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_finance_approvalkeuanganindex",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "approvalkeuanganindex.php"
     },
     {
@@ -2312,8 +2312,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_finance_arusmasuk_arusmasuk_render",
-      "community": 268,
-      "community_name": "DanaBos",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": ".render()"
     },
     {
@@ -2456,8 +2456,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_finance_danabos_danabos_savetransaction",
-      "community": 212,
-      "community_name": "TahunAjaran",
+      "community": 40,
+      "community_name": "DanaBos",
       "norm_label": ".savetransaction()"
     },
     {
@@ -2647,8 +2647,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_finance_detailgajiguru",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 26,
+      "community_name": "KategoriPengeluaran",
       "norm_label": "detailgajiguru.php"
     },
     {
@@ -2661,7 +2661,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_detailgajiguru_detailgajiguru",
       "community": 15,
-      "community_name": "DetailGajiGuru",
+      "community_name": "Peminjaman",
       "norm_label": "detailgajiguru"
     },
     {
@@ -2673,7 +2673,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_detailgajiguru_detailgajiguru_mount",
       "community": 15,
-      "community_name": "DetailGajiGuru",
+      "community_name": "Peminjaman",
       "norm_label": ".mount()"
     },
     {
@@ -2685,7 +2685,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_detailgajiguru_detailgajiguru_updatedsearch",
       "community": 15,
-      "community_name": "DetailGajiGuru",
+      "community_name": "Peminjaman",
       "norm_label": ".updatedsearch()"
     },
     {
@@ -2697,7 +2697,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_detailgajiguru_detailgajiguru_updatedfiltertahun",
       "community": 15,
-      "community_name": "DetailGajiGuru",
+      "community_name": "Peminjaman",
       "norm_label": ".updatedfiltertahun()"
     },
     {
@@ -2709,7 +2709,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_detailgajiguru_detailgajiguru_updatedfilterbulan",
       "community": 15,
-      "community_name": "DetailGajiGuru",
+      "community_name": "Peminjaman",
       "norm_label": ".updatedfilterbulan()"
     },
     {
@@ -2721,7 +2721,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_detailgajiguru_detailgajiguru_updatedfilterstatus",
       "community": 15,
-      "community_name": "DetailGajiGuru",
+      "community_name": "Peminjaman",
       "norm_label": ".updatedfilterstatus()"
     },
     {
@@ -2733,7 +2733,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_detailgajiguru_detailgajiguru_updatedselectall",
       "community": 15,
-      "community_name": "DetailGajiGuru",
+      "community_name": "Peminjaman",
       "norm_label": ".updatedselectall()"
     },
     {
@@ -2745,7 +2745,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_detailgajiguru_detailgajiguru_clearfilters",
       "community": 15,
-      "community_name": "DetailGajiGuru",
+      "community_name": "Peminjaman",
       "norm_label": ".clearfilters()"
     },
     {
@@ -2757,7 +2757,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_detailgajiguru_detailgajiguru_opendetailmodal",
       "community": 15,
-      "community_name": "DetailGajiGuru",
+      "community_name": "Peminjaman",
       "norm_label": ".opendetailmodal()"
     },
     {
@@ -2769,7 +2769,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_detailgajiguru_detailgajiguru_closedetailmodal",
       "community": 15,
-      "community_name": "DetailGajiGuru",
+      "community_name": "Peminjaman",
       "norm_label": ".closedetailmodal()"
     },
     {
@@ -2781,7 +2781,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_detailgajiguru_detailgajiguru_updatesalarybuktifoto",
       "community": 15,
-      "community_name": "DetailGajiGuru",
+      "community_name": "Peminjaman",
       "norm_label": ".updatesalarybuktifoto()"
     },
     {
@@ -2793,7 +2793,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_detailgajiguru_detailgajiguru_deletesalarybuktifoto",
       "community": 15,
-      "community_name": "DetailGajiGuru",
+      "community_name": "Peminjaman",
       "norm_label": ".deletesalarybuktifoto()"
     },
     {
@@ -2805,7 +2805,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_detailgajiguru_detailgajiguru_openpreview",
       "community": 15,
-      "community_name": "DetailGajiGuru",
+      "community_name": "Peminjaman",
       "norm_label": ".openpreview()"
     },
     {
@@ -2817,7 +2817,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_detailgajiguru_detailgajiguru_closepreview",
       "community": 15,
-      "community_name": "DetailGajiGuru",
+      "community_name": "Peminjaman",
       "norm_label": ".closepreview()"
     },
     {
@@ -2828,7 +2828,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_finance_detailgajiguru_detailgajiguru_deletesalary",
-      "community": 64,
+      "community": 15,
       "community_name": "Peminjaman",
       "norm_label": ".deletesalary()"
     },
@@ -2840,7 +2840,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_finance_detailgajiguru_detailgajiguru_deleteselected",
-      "community": 64,
+      "community": 15,
       "community_name": "Peminjaman",
       "norm_label": ".deleteselected()"
     },
@@ -2853,7 +2853,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_detailgajiguru_detailgajiguru_getbasequery",
       "community": 15,
-      "community_name": "DetailGajiGuru",
+      "community_name": "Peminjaman",
       "norm_label": ".getbasequery()"
     },
     {
@@ -2865,7 +2865,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_detailgajiguru_detailgajiguru_render",
       "community": 15,
-      "community_name": "DetailGajiGuru",
+      "community_name": "Peminjaman",
       "norm_label": ".render()"
     },
     {
@@ -2900,8 +2900,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_finance_detailtagihansiswa_detailtagihansiswa_mount",
-      "community": 212,
-      "community_name": "TahunAjaran",
+      "community": 36,
+      "community_name": "JenisTagihan",
       "norm_label": ".mount()"
     },
     {
@@ -3643,8 +3643,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_finance_laporan_laporanpemasukan",
-      "community": 264,
-      "community_name": "Kelas.php",
+      "community": 26,
+      "community_name": "KategoriPengeluaran",
       "norm_label": "laporanpemasukan.php"
     },
     {
@@ -3823,8 +3823,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_finance_laporan_laporanpengeluaran",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 26,
+      "community_name": "KategoriPengeluaran",
       "norm_label": "laporanpengeluaran.php"
     },
     {
@@ -4267,8 +4267,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_finance_manajemengajiguru",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 26,
+      "community_name": "KategoriPengeluaran",
       "norm_label": "manajemengajiguru.php"
     },
     {
@@ -4676,7 +4676,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_finance_manajemengajiguru_manajemengajiguru_reverttodraft",
-      "community": 64,
+      "community": 15,
       "community_name": "Peminjaman",
       "norm_label": ".reverttodraft()"
     },
@@ -4712,7 +4712,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_finance_manajemengajiguru_manajemengajiguru_deleteselected",
-      "community": 64,
+      "community": 15,
       "community_name": "Peminjaman",
       "norm_label": ".deleteselected()"
     },
@@ -4748,8 +4748,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_finance_manajemengajiguru_manajemengajiguru_openhistorymodal",
-      "community": 18,
-      "community_name": "GajiGuru",
+      "community": 235,
+      "community_name": "Guru",
       "norm_label": ".openhistorymodal()"
     },
     {
@@ -4807,8 +4807,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_finance_manajemenpeminjaman",
-      "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community": 26,
+      "community_name": "KategoriPengeluaran",
       "norm_label": "manajemenpeminjaman.php"
     },
     {
@@ -4821,7 +4821,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_manajemenpeminjaman_manajemenpeminjaman",
       "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community_name": "WithDateFilter.php",
       "norm_label": "manajemenpeminjaman"
     },
     {
@@ -4833,7 +4833,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_manajemenpeminjaman_manajemenpeminjaman_mount",
       "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community_name": "WithDateFilter.php",
       "norm_label": ".mount()"
     },
     {
@@ -4845,7 +4845,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_manajemenpeminjaman_manajemenpeminjaman_opencreatemodal",
       "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community_name": "WithDateFilter.php",
       "norm_label": ".opencreatemodal()"
     },
     {
@@ -4857,7 +4857,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_manajemenpeminjaman_manajemenpeminjaman_closecreatemodal",
       "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community_name": "WithDateFilter.php",
       "norm_label": ".closecreatemodal()"
     },
     {
@@ -4869,7 +4869,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_manajemenpeminjaman_manajemenpeminjaman_updatingsearch",
       "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community_name": "WithDateFilter.php",
       "norm_label": ".updatingsearch()"
     },
     {
@@ -4881,7 +4881,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_manajemenpeminjaman_manajemenpeminjaman_updatingfilterstatus",
       "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community_name": "WithDateFilter.php",
       "norm_label": ".updatingfilterstatus()"
     },
     {
@@ -4893,7 +4893,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_manajemenpeminjaman_manajemenpeminjaman_updatingfilterperiode",
       "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community_name": "WithDateFilter.php",
       "norm_label": ".updatingfilterperiode()"
     },
     {
@@ -4905,7 +4905,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_manajemenpeminjaman_manajemenpeminjaman_updatingstartdate",
       "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community_name": "WithDateFilter.php",
       "norm_label": ".updatingstartdate()"
     },
     {
@@ -4917,7 +4917,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_manajemenpeminjaman_manajemenpeminjaman_updatingenddate",
       "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community_name": "WithDateFilter.php",
       "norm_label": ".updatingenddate()"
     },
     {
@@ -4929,7 +4929,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_manajemenpeminjaman_manajemenpeminjaman_resetfilters",
       "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community_name": "WithDateFilter.php",
       "norm_label": ".resetfilters()"
     },
     {
@@ -4941,7 +4941,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_manajemenpeminjaman_manajemenpeminjaman_getactivefiltercountproperty",
       "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community_name": "WithDateFilter.php",
       "norm_label": ".getactivefiltercountproperty()"
     },
     {
@@ -4953,7 +4953,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_manajemenpeminjaman_manajemenpeminjaman_savepeminjaman",
       "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community_name": "WithDateFilter.php",
       "norm_label": ".savepeminjaman()"
     },
     {
@@ -4965,7 +4965,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_manajemenpeminjaman_manajemenpeminjaman_render",
       "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community_name": "WithDateFilter.php",
       "norm_label": ".render()"
     },
     {
@@ -5120,8 +5120,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_finance_manajementagihan_manajementagihan_updatedjenistagihanid",
-      "community": 36,
-      "community_name": "JenisTagihan",
+      "community": 48,
+      "community_name": "ManajemenTagihan",
       "norm_label": ".updatedjenistagihanid()"
     },
     {
@@ -5420,8 +5420,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_finance_manajementagihan_manajementagihan_getkategorilistproperty",
-      "community": 36,
-      "community_name": "JenisTagihan",
+      "community": 48,
+      "community_name": "ManajemenTagihan",
       "norm_label": ".getkategorilistproperty()"
     },
     {
@@ -5695,8 +5695,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_finance_pengajuandanaindex",
-      "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community": 26,
+      "community_name": "KategoriPengeluaran",
       "norm_label": "pengajuandanaindex.php"
     },
     {
@@ -5709,7 +5709,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_pengajuandanaindex_pengajuandanaindex",
       "community": 33,
-      "community_name": "PengajuanDanaIndex",
+      "community_name": ".run",
       "norm_label": "pengajuandanaindex"
     },
     {
@@ -5721,7 +5721,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_updatingsearch",
       "community": 33,
-      "community_name": "PengajuanDanaIndex",
+      "community_name": ".run",
       "norm_label": ".updatingsearch()"
     },
     {
@@ -5733,7 +5733,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_updatingfilterstatus",
       "community": 33,
-      "community_name": "PengajuanDanaIndex",
+      "community_name": ".run",
       "norm_label": ".updatingfilterstatus()"
     },
     {
@@ -5745,7 +5745,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_openmodal",
       "community": 33,
-      "community_name": "PengajuanDanaIndex",
+      "community_name": ".run",
       "norm_label": ".openmodal()"
     },
     {
@@ -5757,7 +5757,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_closemodal",
       "community": 33,
-      "community_name": "PengajuanDanaIndex",
+      "community_name": ".run",
       "norm_label": ".closemodal()"
     },
     {
@@ -5769,7 +5769,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_createpengajuan",
       "community": 33,
-      "community_name": "PengajuanDanaIndex",
+      "community_name": ".run",
       "norm_label": ".createpengajuan()"
     },
     {
@@ -5781,7 +5781,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_approvebypengawas",
       "community": 33,
-      "community_name": "PengajuanDanaIndex",
+      "community_name": ".run",
       "norm_label": ".approvebypengawas()"
     },
     {
@@ -5793,7 +5793,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_approvebykoordinator",
       "community": 33,
-      "community_name": "PengajuanDanaIndex",
+      "community_name": ".run",
       "norm_label": ".approvebykoordinator()"
     },
     {
@@ -5805,7 +5805,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_approvebykepalayayasan",
       "community": 33,
-      "community_name": "PengajuanDanaIndex",
+      "community_name": ".run",
       "norm_label": ".approvebykepalayayasan()"
     },
     {
@@ -5817,7 +5817,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_openrejectmodal",
       "community": 33,
-      "community_name": "PengajuanDanaIndex",
+      "community_name": ".run",
       "norm_label": ".openrejectmodal()"
     },
     {
@@ -5829,7 +5829,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_rejectpengajuan",
       "community": 33,
-      "community_name": "PengajuanDanaIndex",
+      "community_name": ".run",
       "norm_label": ".rejectpengajuan()"
     },
     {
@@ -5841,7 +5841,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_realisasikandana",
       "community": 33,
-      "community_name": "PengajuanDanaIndex",
+      "community_name": ".run",
       "norm_label": ".realisasikandana()"
     },
     {
@@ -5853,7 +5853,7 @@
       "_origin": "ast",
       "id": "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_render",
       "community": 33,
-      "community_name": "PengajuanDanaIndex",
+      "community_name": ".run",
       "norm_label": ".render()"
     },
     {
@@ -5863,8 +5863,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_finance_tabungansiswa",
-      "community": 26,
-      "community_name": "KategoriPengeluaran",
+      "community": 264,
+      "community_name": "Kelas.php",
       "norm_label": "tabungansiswa.php"
     },
     {
@@ -6151,8 +6151,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_forms_finance_danabosform",
-      "community": 320,
-      "community_name": "KepalaSekolahDanaBosMonitoringTest",
+      "community": 268,
+      "community_name": "DanaBos",
       "norm_label": "danabosform.php"
     },
     {
@@ -6164,8 +6164,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_livewire_forms_finance_danabosform_danabosform",
-      "community": 446,
-      "community_name": "DanaBosForm",
+      "community": 268,
+      "community_name": "DanaBos",
       "norm_label": "danabosform"
     },
     {
@@ -6176,8 +6176,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_forms_finance_danabosform_danabosform_rules",
-      "community": 446,
-      "community_name": "DanaBosForm",
+      "community": 268,
+      "community_name": "DanaBos",
       "norm_label": ".rules()"
     },
     {
@@ -6188,8 +6188,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_forms_finance_danabosform_danabosform_messages",
-      "community": 446,
-      "community_name": "DanaBosForm",
+      "community": 268,
+      "community_name": "DanaBos",
       "norm_label": ".messages()"
     },
     {
@@ -6200,8 +6200,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_forms_finance_danabosform_danabosform_settransaction",
-      "community": 446,
-      "community_name": "DanaBosForm",
+      "community": 268,
+      "community_name": "DanaBos",
       "norm_label": ".settransaction()"
     },
     {
@@ -6212,8 +6212,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_forms_finance_danabosform_danabosform_resetform",
-      "community": 446,
-      "community_name": "DanaBosForm",
+      "community": 268,
+      "community_name": "DanaBos",
       "norm_label": ".resetform()"
     },
     {
@@ -6283,8 +6283,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_forms_finance_kaskeluarform",
-      "community": 32,
-      "community_name": "Pengeluaran",
+      "community": 320,
+      "community_name": "KasKeluarForm",
       "norm_label": "kaskeluarform.php"
     },
     {
@@ -6296,8 +6296,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_livewire_forms_finance_kaskeluarform_kaskeluarform",
-      "community": 32,
-      "community_name": "Pengeluaran",
+      "community": 320,
+      "community_name": "KasKeluarForm",
       "norm_label": "kaskeluarform"
     },
     {
@@ -6308,8 +6308,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_forms_finance_kaskeluarform_kaskeluarform_rules",
-      "community": 32,
-      "community_name": "Pengeluaran",
+      "community": 320,
+      "community_name": "KasKeluarForm",
       "norm_label": ".rules()"
     },
     {
@@ -6320,8 +6320,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_forms_finance_kaskeluarform_kaskeluarform_messages",
-      "community": 32,
-      "community_name": "Pengeluaran",
+      "community": 320,
+      "community_name": "KasKeluarForm",
       "norm_label": ".messages()"
     },
     {
@@ -6332,8 +6332,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_forms_finance_kaskeluarform_kaskeluarform_setpengeluaran",
-      "community": 32,
-      "community_name": "Pengeluaran",
+      "community": 320,
+      "community_name": "KasKeluarForm",
       "norm_label": ".setpengeluaran()"
     },
     {
@@ -6344,8 +6344,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_forms_finance_kaskeluarform_kaskeluarform_resetform",
-      "community": 32,
-      "community_name": "Pengeluaran",
+      "community": 320,
+      "community_name": "KasKeluarForm",
       "norm_label": ".resetform()"
     },
     {
@@ -6355,8 +6355,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_forms_finance_kasmasukform",
-      "community": 254,
-      "community_name": "Livewire\\Form",
+      "community": 321,
+      "community_name": "KasMasukForm",
       "norm_label": "kasmasukform.php"
     },
     {
@@ -6368,8 +6368,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_livewire_forms_finance_kasmasukform_kasmasukform",
-      "community": 254,
-      "community_name": "Livewire\\Form",
+      "community": 321,
+      "community_name": "KasMasukForm",
       "norm_label": "kasmasukform"
     },
     {
@@ -6380,8 +6380,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_forms_finance_kasmasukform_kasmasukform_rules",
-      "community": 254,
-      "community_name": "Livewire\\Form",
+      "community": 321,
+      "community_name": "KasMasukForm",
       "norm_label": ".rules()"
     },
     {
@@ -6392,8 +6392,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_forms_finance_kasmasukform_kasmasukform_messages",
-      "community": 254,
-      "community_name": "Livewire\\Form",
+      "community": 321,
+      "community_name": "KasMasukForm",
       "norm_label": ".messages()"
     },
     {
@@ -6404,8 +6404,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_forms_finance_kasmasukform_kasmasukform_geteffectivekategori",
-      "community": 254,
-      "community_name": "Livewire\\Form",
+      "community": 321,
+      "community_name": "KasMasukForm",
       "norm_label": ".geteffectivekategori()"
     },
     {
@@ -6416,8 +6416,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_forms_finance_kasmasukform_kasmasukform_resetform",
-      "community": 254,
-      "community_name": "Livewire\\Form",
+      "community": 321,
+      "community_name": "KasMasukForm",
       "norm_label": ".resetform()"
     },
     {
@@ -6859,8 +6859,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_guru_absensidiri",
-      "community": 351,
-      "community_name": "AbsensiDiri",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "absensidiri.php"
     },
     {
@@ -6872,8 +6872,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_livewire_guru_absensidiri_absensidiri",
-      "community": 351,
-      "community_name": "AbsensiDiri",
+      "community": 344,
+      "community_name": "AbsensiGuru",
       "norm_label": "absensidiri"
     },
     {
@@ -6884,8 +6884,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_absensidiri_absensidiri_mount",
-      "community": 351,
-      "community_name": "AbsensiDiri",
+      "community": 344,
+      "community_name": "AbsensiGuru",
       "norm_label": ".mount()"
     },
     {
@@ -6896,8 +6896,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_absensidiri_absensidiri_loadsettings",
-      "community": 351,
-      "community_name": "AbsensiDiri",
+      "community": 344,
+      "community_name": "AbsensiGuru",
       "norm_label": ".loadsettings()"
     },
     {
@@ -6908,8 +6908,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_absensidiri_absensidiri_checktodayattendance",
-      "community": 351,
-      "community_name": "AbsensiDiri",
+      "community": 344,
+      "community_name": "AbsensiGuru",
       "norm_label": ".checktodayattendance()"
     },
     {
@@ -6920,8 +6920,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_absensidiri_absensidiri_loadhistory",
-      "community": 351,
-      "community_name": "AbsensiDiri",
+      "community": 344,
+      "community_name": "AbsensiGuru",
       "norm_label": ".loadhistory()"
     },
     {
@@ -6932,8 +6932,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_absensidiri_absensidiri_checkin",
-      "community": 351,
-      "community_name": "AbsensiDiri",
+      "community": 344,
+      "community_name": "AbsensiGuru",
       "norm_label": ".checkin()"
     },
     {
@@ -6944,8 +6944,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_absensidiri_absensidiri_checkout",
-      "community": 351,
-      "community_name": "AbsensiDiri",
+      "community": 344,
+      "community_name": "AbsensiGuru",
       "norm_label": ".checkout()"
     },
     {
@@ -6956,8 +6956,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_absensidiri_absensidiri_render",
-      "community": 351,
-      "community_name": "AbsensiDiri",
+      "community": 344,
+      "community_name": "AbsensiGuru",
       "norm_label": ".render()"
     },
     {
@@ -6967,8 +6967,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_guru_absensisiswa",
-      "community": 204,
-      "community_name": "AbsensiSiswa",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "guru/absensisiswa.php"
     },
     {
@@ -7111,8 +7111,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_guru_capaianpengembangandiri",
-      "community": 450,
-      "community_name": "FatalAndStrangeScenariosTest.php",
+      "community": 39,
+      "community_name": "Role.php",
       "norm_label": "capaianpengembangandiri.php"
     },
     {
@@ -7243,8 +7243,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_guru_catatanpendampinganindex",
-      "community": 67,
-      "community_name": "Semester.php",
+      "community": 39,
+      "community_name": "Role.php",
       "norm_label": "catatanpendampinganindex.php"
     },
     {
@@ -7519,8 +7519,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_guru_dashboard",
-      "community": 65,
-      "community_name": "Pengaturan.php",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "guru/dashboard.php"
     },
     {
@@ -7532,8 +7532,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_livewire_guru_dashboard_dashboard",
-      "community": 65,
-      "community_name": "Pengaturan.php",
+      "community": 4,
+      "community_name": "JadwalPelajaran",
       "norm_label": "dashboard"
     },
     {
@@ -7544,8 +7544,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_dashboard_dashboard_mount",
-      "community": 65,
-      "community_name": "Pengaturan.php",
+      "community": 4,
+      "community_name": "JadwalPelajaran",
       "norm_label": ".mount()"
     },
     {
@@ -7556,8 +7556,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_dashboard_dashboard_render",
-      "community": 65,
-      "community_name": "Pengaturan.php",
+      "community": 4,
+      "community_name": "JadwalPelajaran",
       "norm_label": ".render()"
     },
     {
@@ -7747,8 +7747,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_guru_inputnilaisiswa",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "inputnilaisiswa.php"
     },
     {
@@ -7760,8 +7760,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_livewire_guru_inputnilaisiswa_inputnilaisiswa",
-      "community": 321,
-      "community_name": "InputNilaiSiswa",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": "inputnilaisiswa"
     },
     {
@@ -7772,8 +7772,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_inputnilaisiswa_inputnilaisiswa_mount",
-      "community": 321,
-      "community_name": "InputNilaiSiswa",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".mount()"
     },
     {
@@ -7784,8 +7784,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_inputnilaisiswa_inputnilaisiswa_loadfilters",
-      "community": 321,
-      "community_name": "InputNilaiSiswa",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".loadfilters()"
     },
     {
@@ -7796,8 +7796,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_inputnilaisiswa_inputnilaisiswa_loadstudents",
-      "community": 321,
-      "community_name": "InputNilaiSiswa",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".loadstudents()"
     },
     {
@@ -7808,8 +7808,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_inputnilaisiswa_inputnilaisiswa_updatedkelasid",
-      "community": 321,
-      "community_name": "InputNilaiSiswa",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".updatedkelasid()"
     },
     {
@@ -7820,8 +7820,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_inputnilaisiswa_inputnilaisiswa_updatedmapelid",
-      "community": 321,
-      "community_name": "InputNilaiSiswa",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".updatedmapelid()"
     },
     {
@@ -7832,8 +7832,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_inputnilaisiswa_inputnilaisiswa_updatedkomponennilaiid",
-      "community": 321,
-      "community_name": "InputNilaiSiswa",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".updatedkomponennilaiid()"
     },
     {
@@ -7844,8 +7844,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_inputnilaisiswa_inputnilaisiswa_updatedtanggal",
-      "community": 321,
-      "community_name": "InputNilaiSiswa",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".updatedtanggal()"
     },
     {
@@ -7856,8 +7856,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_inputnilaisiswa_inputnilaisiswa_save",
-      "community": 321,
-      "community_name": "InputNilaiSiswa",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".save()"
     },
     {
@@ -7868,8 +7868,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_inputnilaisiswa_inputnilaisiswa_render",
-      "community": 321,
-      "community_name": "InputNilaiSiswa",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".render()"
     },
     {
@@ -7879,8 +7879,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_guru_inputnilaisumatif",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "inputnilaisumatif.php"
     },
     {
@@ -7976,8 +7976,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_inputnilaisumatif_inputnilaisumatif_render",
-      "community": 30,
-      "community_name": "NilaiSas",
+      "community": 210,
+      "community_name": "MataPelajaran",
       "norm_label": ".render()"
     },
     {
@@ -8167,8 +8167,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_guru_jadwalmengajar",
-      "community": 449,
-      "community_name": "TutorialDanFaq",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "jadwalmengajar.php"
     },
     {
@@ -8180,8 +8180,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_livewire_guru_jadwalmengajar_jadwalmengajar",
-      "community": 449,
-      "community_name": "TutorialDanFaq",
+      "community": 4,
+      "community_name": "JadwalPelajaran",
       "norm_label": "jadwalmengajar"
     },
     {
@@ -8192,8 +8192,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_jadwalmengajar_jadwalmengajar_mount",
-      "community": 449,
-      "community_name": "TutorialDanFaq",
+      "community": 4,
+      "community_name": "JadwalPelajaran",
       "norm_label": ".mount()"
     },
     {
@@ -8204,8 +8204,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_jadwalmengajar_jadwalmengajar_render",
-      "community": 449,
-      "community_name": "TutorialDanFaq",
+      "community": 4,
+      "community_name": "JadwalPelajaran",
       "norm_label": ".render()"
     },
     {
@@ -8215,8 +8215,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_guru_kelolarapor",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "kelolarapor.php"
     },
     {
@@ -8229,7 +8229,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_kelolarapor_kelolarapor",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": "kelolarapor"
     },
     {
@@ -8241,7 +8241,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_kelolarapor_kelolarapor_mount",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": ".mount()"
     },
     {
@@ -8253,7 +8253,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_kelolarapor_kelolarapor_updatedkelasid",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": ".updatedkelasid()"
     },
     {
@@ -8265,7 +8265,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_kelolarapor_kelolarapor_updatedsiswaid",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": ".updatedsiswaid()"
     },
     {
@@ -8277,7 +8277,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_kelolarapor_kelolarapor_updatedtiperapor",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": ".updatedtiperapor()"
     },
     {
@@ -8289,7 +8289,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_kelolarapor_kelolarapor_getcalculatedpreviewgradesproperty",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": ".getcalculatedpreviewgradesproperty()"
     },
     {
@@ -8301,7 +8301,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_kelolarapor_kelolarapor_getcalculatedtahfidzpreviewproperty",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": ".getcalculatedtahfidzpreviewproperty()"
     },
     {
@@ -8313,7 +8313,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_kelolarapor_kelolarapor_publishrapor",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": ".publishrapor()"
     },
     {
@@ -8325,7 +8325,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_kelolarapor_kelolarapor_render",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": ".render()"
     },
     {
@@ -8335,8 +8335,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_guru_manajemenkurikulummerdeka",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "manajemenkurikulummerdeka.php"
     },
     {
@@ -8349,7 +8349,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka",
       "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community_name": "MataPelajaran",
       "norm_label": "manajemenkurikulummerdeka"
     },
     {
@@ -8361,7 +8361,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_mount",
       "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community_name": "MataPelajaran",
       "norm_label": ".mount()"
     },
     {
@@ -8373,7 +8373,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_updatedmapelid",
       "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community_name": "MataPelajaran",
       "norm_label": ".updatedmapelid()"
     },
     {
@@ -8385,7 +8385,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_loadmapeldata",
       "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community_name": "MataPelajaran",
       "norm_label": ".loadmapeldata()"
     },
     {
@@ -8396,8 +8396,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_savetemplate",
-      "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community": 30,
+      "community_name": "NilaiSas",
       "norm_label": ".savetemplate()"
     },
     {
@@ -8409,7 +8409,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_openlmmodal",
       "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community_name": "MataPelajaran",
       "norm_label": ".openlmmodal()"
     },
     {
@@ -8421,7 +8421,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_editlingkupmateri",
       "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community_name": "MataPelajaran",
       "norm_label": ".editlingkupmateri()"
     },
     {
@@ -8433,7 +8433,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_closelmmodal",
       "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community_name": "MataPelajaran",
       "norm_label": ".closelmmodal()"
     },
     {
@@ -8445,7 +8445,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_savelm",
       "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community_name": "MataPelajaran",
       "norm_label": ".savelm()"
     },
     {
@@ -8457,7 +8457,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_savelingkupmateri",
       "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community_name": "MataPelajaran",
       "norm_label": ".savelingkupmateri()"
     },
     {
@@ -8469,7 +8469,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_deletelm",
       "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community_name": "MataPelajaran",
       "norm_label": ".deletelm()"
     },
     {
@@ -8481,7 +8481,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_deletelingkupmateri",
       "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community_name": "MataPelajaran",
       "norm_label": ".deletelingkupmateri()"
     },
     {
@@ -8493,7 +8493,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_opentpmodal",
       "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community_name": "MataPelajaran",
       "norm_label": ".opentpmodal()"
     },
     {
@@ -8505,7 +8505,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_edittp",
       "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community_name": "MataPelajaran",
       "norm_label": ".edittp()"
     },
     {
@@ -8517,7 +8517,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_closetpmodal",
       "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community_name": "MataPelajaran",
       "norm_label": ".closetpmodal()"
     },
     {
@@ -8529,7 +8529,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_savetp",
       "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community_name": "MataPelajaran",
       "norm_label": ".savetp()"
     },
     {
@@ -8541,7 +8541,7 @@
       "_origin": "ast",
       "id": "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_deletetp",
       "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community_name": "MataPelajaran",
       "norm_label": ".deletetp()"
     },
     {
@@ -8552,7 +8552,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_render",
-      "community": 4,
+      "community": 210,
       "community_name": "MataPelajaran",
       "norm_label": ".render()"
     },
@@ -8563,8 +8563,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_guru_manajemenremedial",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "manajemenremedial.php"
     },
     {
@@ -8731,8 +8731,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_guru_pengaturanbobotnilai",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "pengaturanbobotnilai.php"
     },
     {
@@ -8744,8 +8744,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_livewire_guru_pengaturanbobotnilai_pengaturanbobotnilai",
-      "community": 323,
-      "community_name": "BobotNilaiGuru",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": "pengaturanbobotnilai"
     },
     {
@@ -8756,8 +8756,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_pengaturanbobotnilai_pengaturanbobotnilai_mount",
-      "community": 323,
-      "community_name": "BobotNilaiGuru",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".mount()"
     },
     {
@@ -8768,8 +8768,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_pengaturanbobotnilai_pengaturanbobotnilai_loadassignments",
-      "community": 323,
-      "community_name": "BobotNilaiGuru",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".loadassignments()"
     },
     {
@@ -8780,8 +8780,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_pengaturanbobotnilai_pengaturanbobotnilai_updatedselectedgmkid",
-      "community": 323,
-      "community_name": "BobotNilaiGuru",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".updatedselectedgmkid()"
     },
     {
@@ -8792,8 +8792,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_pengaturanbobotnilai_pengaturanbobotnilai_loadbobot",
-      "community": 323,
-      "community_name": "BobotNilaiGuru",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".loadbobot()"
     },
     {
@@ -8804,8 +8804,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_pengaturanbobotnilai_pengaturanbobotnilai_savebobot",
-      "community": 323,
-      "community_name": "BobotNilaiGuru",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".savebobot()"
     },
     {
@@ -8816,8 +8816,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_guru_pengaturanbobotnilai_pengaturanbobotnilai_render",
-      "community": 323,
-      "community_name": "BobotNilaiGuru",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".render()"
     },
     {
@@ -8923,8 +8923,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_guru_slipgajisaya",
-      "community": 49,
-      "community_name": "SlipGajiSaya",
+      "community": 26,
+      "community_name": "KategoriPengeluaran",
       "norm_label": "slipgajisaya.php"
     },
     {
@@ -9043,8 +9043,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_kepalasekolah_dashboard",
-      "community": 67,
-      "community_name": "Semester.php",
+      "community": 264,
+      "community_name": "Kelas.php",
       "norm_label": "kepalasekolah/dashboard.php"
     },
     {
@@ -9057,7 +9057,7 @@
       "_origin": "ast",
       "id": "app_livewire_kepalasekolah_dashboard_dashboard",
       "community": 438,
-      "community_name": "Nilai",
+      "community_name": ".mount",
       "norm_label": "dashboard"
     },
     {
@@ -9069,7 +9069,7 @@
       "_origin": "ast",
       "id": "app_livewire_kepalasekolah_dashboard_dashboard_mount",
       "community": 438,
-      "community_name": "Nilai",
+      "community_name": ".mount",
       "norm_label": ".mount()"
     },
     {
@@ -9081,7 +9081,7 @@
       "_origin": "ast",
       "id": "app_livewire_kepalasekolah_dashboard_dashboard_render",
       "community": 438,
-      "community_name": "Nilai",
+      "community_name": ".mount",
       "norm_label": ".render()"
     },
     {
@@ -9091,8 +9091,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_koordinator_manajemenkoreksinilai",
-      "community": 287,
-      "community_name": "PengajuanKoreksiNilai",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "koordinator/manajemenkoreksinilai.php"
     },
     {
@@ -9163,8 +9163,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_murid_dashboard",
-      "community": 3,
-      "community_name": "Siswa",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "murid/dashboard.php"
     },
     {
@@ -9223,8 +9223,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_murid_ekstrakurikulersaya",
-      "community": 278,
-      "community_name": "Ekstrakurikuler",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "ekstrakurikulersaya.php"
     },
     {
@@ -9236,8 +9236,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_livewire_murid_ekstrakurikulersaya_ekstrakurikulersaya",
-      "community": 278,
-      "community_name": "Ekstrakurikuler",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "ekstrakurikulersaya"
     },
     {
@@ -9259,8 +9259,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_murid_jadwalpelajaran",
-      "community": 1,
-      "community_name": "ManajemenJadwal",
+      "community": 4,
+      "community_name": "JadwalPelajaran",
       "norm_label": "murid/jadwalpelajaran.php"
     },
     {
@@ -9272,8 +9272,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_livewire_murid_jadwalpelajaran_jadwalpelajaran",
-      "community": 1,
-      "community_name": "ManajemenJadwal",
+      "community": 4,
+      "community_name": "JadwalPelajaran",
       "norm_label": "jadwalpelajaran"
     },
     {
@@ -9284,8 +9284,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_murid_jadwalpelajaran_jadwalpelajaran_mount",
-      "community": 1,
-      "community_name": "ManajemenJadwal",
+      "community": 4,
+      "community_name": "JadwalPelajaran",
       "norm_label": ".mount()"
     },
     {
@@ -9296,8 +9296,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_murid_jadwalpelajaran_jadwalpelajaran_loadschedule",
-      "community": 1,
-      "community_name": "ManajemenJadwal",
+      "community": 4,
+      "community_name": "JadwalPelajaran",
       "norm_label": ".loadschedule()"
     },
     {
@@ -9308,8 +9308,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_murid_jadwalpelajaran_jadwalpelajaran_render",
-      "community": 1,
-      "community_name": "ManajemenJadwal",
+      "community": 4,
+      "community_name": "JadwalPelajaran",
       "norm_label": ".render()"
     },
     {
@@ -9319,8 +9319,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_murid_jadwalremedial",
-      "community": 54,
-      "community_name": "ManajemenRemedial",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "murid/jadwalremedial.php"
     },
     {
@@ -9355,8 +9355,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_murid_kehadiransaya",
-      "community": 340,
-      "community_name": "KehadiranSaya",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "kehadiransaya.php"
     },
     {
@@ -9439,8 +9439,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_murid_rapornilai",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "rapornilai.php"
     },
     {
@@ -9524,8 +9524,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_livewire_murid_riwayataktivitas_riwayataktivitas",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 441,
+      "community_name": "RiwayatAktivitas",
       "norm_label": "riwayataktivitas"
     },
     {
@@ -9536,8 +9536,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_murid_riwayataktivitas_riwayataktivitas_setfilter",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 441,
+      "community_name": "RiwayatAktivitas",
       "norm_label": ".setfilter()"
     },
     {
@@ -9548,8 +9548,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_murid_riwayataktivitas_riwayataktivitas_updatingsearch",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 441,
+      "community_name": "RiwayatAktivitas",
       "norm_label": ".updatingsearch()"
     },
     {
@@ -9560,8 +9560,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_murid_riwayataktivitas_riwayataktivitas_formatlogitem",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 441,
+      "community_name": "RiwayatAktivitas",
       "norm_label": ".formatlogitem()"
     },
     {
@@ -9572,8 +9572,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_murid_riwayataktivitas_riwayataktivitas_getactivitylogsproperty",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 441,
+      "community_name": "RiwayatAktivitas",
       "norm_label": ".getactivitylogsproperty()"
     },
     {
@@ -9584,8 +9584,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_murid_riwayataktivitas_riwayataktivitas_render",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 441,
+      "community_name": "RiwayatAktivitas",
       "norm_label": ".render()"
     },
     {
@@ -9679,8 +9679,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_murid_tabungansaya",
-      "community": 26,
-      "community_name": "KategoriPengeluaran",
+      "community": 3,
+      "community_name": "Siswa",
       "norm_label": "tabungansaya.php"
     },
     {
@@ -9692,8 +9692,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_livewire_murid_tabungansaya_tabungansaya",
-      "community": 26,
-      "community_name": "KategoriPengeluaran",
+      "community": 3,
+      "community_name": "Siswa",
       "norm_label": "tabungansaya"
     },
     {
@@ -9704,8 +9704,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_murid_tabungansaya_tabungansaya_render",
-      "community": 26,
-      "community_name": "KategoriPengeluaran",
+      "community": 3,
+      "community_name": "Siswa",
       "norm_label": ".render()"
     },
     {
@@ -9728,8 +9728,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_livewire_murid_tagihanspp_tagihanspp",
-      "community": 299,
-      "community_name": "Tagihan",
+      "community": 323,
+      "community_name": "TagihanSpp",
       "norm_label": "tagihanspp"
     },
     {
@@ -9740,8 +9740,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_murid_tagihanspp_tagihanspp_mount",
-      "community": 299,
-      "community_name": "Tagihan",
+      "community": 323,
+      "community_name": "TagihanSpp",
       "norm_label": ".mount()"
     },
     {
@@ -9752,8 +9752,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_murid_tagihanspp_tagihanspp_loadtagihan",
-      "community": 299,
-      "community_name": "Tagihan",
+      "community": 323,
+      "community_name": "TagihanSpp",
       "norm_label": ".loadtagihan()"
     },
     {
@@ -9764,8 +9764,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_murid_tagihanspp_tagihanspp_render",
-      "community": 299,
-      "community_name": "Tagihan",
+      "community": 323,
+      "community_name": "TagihanSpp",
       "norm_label": ".render()"
     },
     {
@@ -9799,8 +9799,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_shared_laporan_rekapabsensiguru",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "rekapabsensiguru.php"
     },
     {
@@ -9812,8 +9812,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_livewire_shared_laporan_rekapabsensiguru_rekapabsensiguru",
-      "community": 441,
-      "community_name": "RekapAbsensiGuru",
+      "community": 344,
+      "community_name": "AbsensiGuru",
       "norm_label": "rekapabsensiguru"
     },
     {
@@ -9824,8 +9824,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_shared_laporan_rekapabsensiguru_rekapabsensiguru_mount",
-      "community": 441,
-      "community_name": "RekapAbsensiGuru",
+      "community": 344,
+      "community_name": "AbsensiGuru",
       "norm_label": ".mount()"
     },
     {
@@ -9836,8 +9836,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_shared_laporan_rekapabsensiguru_rekapabsensiguru_setperiodpreset",
-      "community": 441,
-      "community_name": "RekapAbsensiGuru",
+      "community": 344,
+      "community_name": "AbsensiGuru",
       "norm_label": ".setperiodpreset()"
     },
     {
@@ -9848,8 +9848,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_shared_laporan_rekapabsensiguru_rekapabsensiguru_getmatrixdata",
-      "community": 441,
-      "community_name": "RekapAbsensiGuru",
+      "community": 344,
+      "community_name": "AbsensiGuru",
       "norm_label": ".getmatrixdata()"
     },
     {
@@ -9860,8 +9860,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_shared_laporan_rekapabsensiguru_rekapabsensiguru_downloadexcel",
-      "community": 441,
-      "community_name": "RekapAbsensiGuru",
+      "community": 344,
+      "community_name": "AbsensiGuru",
       "norm_label": ".downloadexcel()"
     },
     {
@@ -9872,8 +9872,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_shared_laporan_rekapabsensiguru_rekapabsensiguru_downloadpdf",
-      "community": 441,
-      "community_name": "RekapAbsensiGuru",
+      "community": 344,
+      "community_name": "AbsensiGuru",
       "norm_label": ".downloadpdf()"
     },
     {
@@ -9884,8 +9884,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_shared_laporan_rekapabsensiguru_rekapabsensiguru_render",
-      "community": 441,
-      "community_name": "RekapAbsensiGuru",
+      "community": 344,
+      "community_name": "AbsensiGuru",
       "norm_label": ".render()"
     },
     {
@@ -9895,8 +9895,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_shared_laporan_rekapabsensisiswa",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "rekapabsensisiswa.php"
     },
     {
@@ -9908,8 +9908,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_livewire_shared_laporan_rekapabsensisiswa_rekapabsensisiswa",
-      "community": 444,
-      "community_name": "RekapAbsensiSiswa",
+      "community": 17,
+      "community_name": "Kelas",
       "norm_label": "rekapabsensisiswa"
     },
     {
@@ -9920,8 +9920,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_shared_laporan_rekapabsensisiswa_rekapabsensisiswa_mount",
-      "community": 444,
-      "community_name": "RekapAbsensiSiswa",
+      "community": 17,
+      "community_name": "Kelas",
       "norm_label": ".mount()"
     },
     {
@@ -9932,8 +9932,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_shared_laporan_rekapabsensisiswa_rekapabsensisiswa_setperiodpreset",
-      "community": 444,
-      "community_name": "RekapAbsensiSiswa",
+      "community": 17,
+      "community_name": "Kelas",
       "norm_label": ".setperiodpreset()"
     },
     {
@@ -9944,8 +9944,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_shared_laporan_rekapabsensisiswa_rekapabsensisiswa_getavailableclasses",
-      "community": 444,
-      "community_name": "RekapAbsensiSiswa",
+      "community": 17,
+      "community_name": "Kelas",
       "norm_label": ".getavailableclasses()"
     },
     {
@@ -9956,8 +9956,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_shared_laporan_rekapabsensisiswa_rekapabsensisiswa_getmatrixdata",
-      "community": 444,
-      "community_name": "RekapAbsensiSiswa",
+      "community": 17,
+      "community_name": "Kelas",
       "norm_label": ".getmatrixdata()"
     },
     {
@@ -9968,8 +9968,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_shared_laporan_rekapabsensisiswa_rekapabsensisiswa_downloadpdf",
-      "community": 444,
-      "community_name": "RekapAbsensiSiswa",
+      "community": 17,
+      "community_name": "Kelas",
       "norm_label": ".downloadpdf()"
     },
     {
@@ -9980,8 +9980,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_shared_laporan_rekapabsensisiswa_rekapabsensisiswa_render",
-      "community": 444,
-      "community_name": "RekapAbsensiSiswa",
+      "community": 17,
+      "community_name": "Kelas",
       "norm_label": ".render()"
     },
     {
@@ -9991,8 +9991,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_shared_laporan_rekapnilai",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "rekapnilai.php"
     },
     {
@@ -10099,8 +10099,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_shared_notificationdropdown",
-      "community": 16,
-      "community_name": "Notifikasi",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "notificationdropdown.php"
     },
     {
@@ -10196,8 +10196,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_livewire_shared_notificationslist_notificationslist",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 16,
+      "community_name": "Notifikasi",
       "norm_label": "notificationslist"
     },
     {
@@ -10208,8 +10208,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_shared_notificationslist_notificationslist_updatedfilter",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 16,
+      "community_name": "Notifikasi",
       "norm_label": ".updatedfilter()"
     },
     {
@@ -10220,8 +10220,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_shared_notificationslist_notificationslist_markasread",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 16,
+      "community_name": "Notifikasi",
       "norm_label": ".markasread()"
     },
     {
@@ -10232,8 +10232,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_shared_notificationslist_notificationslist_markallasread",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 16,
+      "community_name": "Notifikasi",
       "norm_label": ".markallasread()"
     },
     {
@@ -10244,8 +10244,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_shared_notificationslist_notificationslist_getnotifications",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 16,
+      "community_name": "Notifikasi",
       "norm_label": ".getnotifications()"
     },
     {
@@ -10256,8 +10256,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_shared_notificationslist_notificationslist_render",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 16,
+      "community_name": "Notifikasi",
       "norm_label": ".render()"
     },
     {
@@ -10411,8 +10411,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_superadmin_dashboard",
-      "community": 264,
-      "community_name": "Kelas.php",
+      "community": 39,
+      "community_name": "Role.php",
       "norm_label": "superadmin/dashboard.php"
     },
     {
@@ -10471,8 +10471,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_superadmin_monitoringakademik",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "monitoringakademik.php"
     },
     {
@@ -10627,8 +10627,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_auditlog",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 264,
+      "community_name": "Kelas.php",
       "norm_label": "auditlog.php"
     },
     {
@@ -10747,8 +10747,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_capaianpengembanganguru",
-      "community": 450,
-      "community_name": "FatalAndStrangeScenariosTest.php",
+      "community": 39,
+      "community_name": "Role.php",
       "norm_label": "capaianpengembanganguru.php"
     },
     {
@@ -10988,8 +10988,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenguru_manajemenguru_delete",
-      "community": 1,
-      "community_name": "ManajemenJadwal",
+      "community": 4,
+      "community_name": "JadwalPelajaran",
       "norm_label": ".delete()"
     },
     {
@@ -11023,8 +11023,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenjadwal",
-      "community": 1,
-      "community_name": "ManajemenJadwal",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "manajemenjadwal.php"
     },
     {
@@ -11156,8 +11156,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenjadwal_manajemenjadwal_save",
-      "community": 1,
-      "community_name": "ManajemenJadwal",
+      "community": 351,
+      "community_name": ".save",
       "norm_label": ".save()"
     },
     {
@@ -11168,8 +11168,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenjadwal_manajemenjadwal_delete",
-      "community": 1,
-      "community_name": "ManajemenJadwal",
+      "community": 4,
+      "community_name": "JadwalPelajaran",
       "norm_label": ".delete()"
     },
     {
@@ -11228,8 +11228,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenjadwal_manajemenjadwal_render",
-      "community": 1,
-      "community_name": "ManajemenJadwal",
+      "community": 4,
+      "community_name": "JadwalPelajaran",
       "norm_label": ".render()"
     },
     {
@@ -11239,8 +11239,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenkelas",
-      "community": 67,
-      "community_name": "Semester.php",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "manajemenkelas.php"
     },
     {
@@ -11252,8 +11252,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas",
-      "community": 17,
-      "community_name": "Kelas",
+      "community": 74,
+      "community_name": "ManajemenKelas",
       "norm_label": "manajemenkelas"
     },
     {
@@ -11264,8 +11264,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas_updatingsearch",
-      "community": 17,
-      "community_name": "Kelas",
+      "community": 74,
+      "community_name": "ManajemenKelas",
       "norm_label": ".updatingsearch()"
     },
     {
@@ -11276,8 +11276,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas_updatingfilterjenis",
-      "community": 17,
-      "community_name": "Kelas",
+      "community": 74,
+      "community_name": "ManajemenKelas",
       "norm_label": ".updatingfilterjenis()"
     },
     {
@@ -11288,8 +11288,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas_updatedgurutahfidzid",
-      "community": 17,
-      "community_name": "Kelas",
+      "community": 74,
+      "community_name": "ManajemenKelas",
       "norm_label": ".updatedgurutahfidzid()"
     },
     {
@@ -11300,8 +11300,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas_updatedjeniskelas",
-      "community": 17,
-      "community_name": "Kelas",
+      "community": 74,
+      "community_name": "ManajemenKelas",
       "norm_label": ".updatedjeniskelas()"
     },
     {
@@ -11312,8 +11312,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas_opencreate",
-      "community": 17,
-      "community_name": "Kelas",
+      "community": 74,
+      "community_name": "ManajemenKelas",
       "norm_label": ".opencreate()"
     },
     {
@@ -11324,8 +11324,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas_openedit",
-      "community": 17,
-      "community_name": "Kelas",
+      "community": 74,
+      "community_name": "ManajemenKelas",
       "norm_label": ".openedit()"
     },
     {
@@ -11336,8 +11336,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas_save",
-      "community": 17,
-      "community_name": "Kelas",
+      "community": 74,
+      "community_name": "ManajemenKelas",
       "norm_label": ".save()"
     },
     {
@@ -11348,8 +11348,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas_delete",
-      "community": 17,
-      "community_name": "Kelas",
+      "community": 74,
+      "community_name": "ManajemenKelas",
       "norm_label": ".delete()"
     },
     {
@@ -11360,8 +11360,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas_resetform",
-      "community": 17,
-      "community_name": "Kelas",
+      "community": 74,
+      "community_name": "ManajemenKelas",
       "norm_label": ".resetform()"
     },
     {
@@ -11372,8 +11372,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas_render",
-      "community": 17,
-      "community_name": "Kelas",
+      "community": 74,
+      "community_name": "ManajemenKelas",
       "norm_label": ".render()"
     },
     {
@@ -11383,8 +11383,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenkomponennilai",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "manajemenkomponennilai.php"
     },
     {
@@ -11552,7 +11552,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenmapel_manajemenmapel",
-      "community": 4,
+      "community": 210,
       "community_name": "MataPelajaran",
       "norm_label": "manajemenmapel"
     },
@@ -11564,7 +11564,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenmapel_manajemenmapel_updatingsearch",
-      "community": 4,
+      "community": 210,
       "community_name": "MataPelajaran",
       "norm_label": ".updatingsearch()"
     },
@@ -11576,7 +11576,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenmapel_manajemenmapel_opencreate",
-      "community": 4,
+      "community": 210,
       "community_name": "MataPelajaran",
       "norm_label": ".opencreate()"
     },
@@ -11588,7 +11588,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenmapel_manajemenmapel_openedit",
-      "community": 4,
+      "community": 210,
       "community_name": "MataPelajaran",
       "norm_label": ".openedit()"
     },
@@ -11600,7 +11600,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenmapel_manajemenmapel_save",
-      "community": 4,
+      "community": 210,
       "community_name": "MataPelajaran",
       "norm_label": ".save()"
     },
@@ -11612,7 +11612,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenmapel_manajemenmapel_delete",
-      "community": 4,
+      "community": 210,
       "community_name": "MataPelajaran",
       "norm_label": ".delete()"
     },
@@ -11624,7 +11624,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenmapel_manajemenmapel_resetform",
-      "community": 4,
+      "community": 210,
       "community_name": "MataPelajaran",
       "norm_label": ".resetform()"
     },
@@ -11636,7 +11636,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenmapel_manajemenmapel_render",
-      "community": 4,
+      "community": 210,
       "community_name": "MataPelajaran",
       "norm_label": ".render()"
     },
@@ -11660,8 +11660,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenpengaturan_manajemenpengaturan",
-      "community": 452,
-      "community_name": "ManajemenPengaturan",
+      "community": 259,
+      "community_name": "Pengaturan",
       "norm_label": "manajemenpengaturan"
     },
     {
@@ -11672,8 +11672,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenpengaturan_manajemenpengaturan_mount",
-      "community": 452,
-      "community_name": "ManajemenPengaturan",
+      "community": 259,
+      "community_name": "Pengaturan",
       "norm_label": ".mount()"
     },
     {
@@ -11684,8 +11684,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenpengaturan_manajemenpengaturan_loadsettings",
-      "community": 452,
-      "community_name": "ManajemenPengaturan",
+      "community": 259,
+      "community_name": "Pengaturan",
       "norm_label": ".loadsettings()"
     },
     {
@@ -11696,8 +11696,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenpengaturan_manajemenpengaturan_save",
-      "community": 452,
-      "community_name": "ManajemenPengaturan",
+      "community": 259,
+      "community_name": "Pengaturan",
       "norm_label": ".save()"
     },
     {
@@ -11708,8 +11708,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_manajemenpengaturan_manajemenpengaturan_render",
-      "community": 452,
-      "community_name": "ManajemenPengaturan",
+      "community": 259,
+      "community_name": "Pengaturan",
       "norm_label": ".render()"
     },
     {
@@ -12091,8 +12091,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_superadmin_tatakelola_systemerrorlog",
-      "community": 76,
-      "community_name": "SystemErrorLog",
+      "community": 39,
+      "community_name": "Role.php",
       "norm_label": "systemerrorlog.php"
     },
     {
@@ -12211,8 +12211,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_tatausaha_dashboard",
-      "community": 3,
-      "community_name": "Siswa",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "tatausaha/dashboard.php"
     },
     {
@@ -12259,8 +12259,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_tatausaha_dataalumni",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 3,
+      "community_name": "Siswa",
       "norm_label": "dataalumni.php"
     },
     {
@@ -12272,8 +12272,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_livewire_tatausaha_dataalumni_dataalumni",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 3,
+      "community_name": "Siswa",
       "norm_label": "dataalumni"
     },
     {
@@ -12284,8 +12284,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_tatausaha_dataalumni_dataalumni_updatingsearch",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 3,
+      "community_name": "Siswa",
       "norm_label": ".updatingsearch()"
     },
     {
@@ -12296,8 +12296,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_tatausaha_dataalumni_dataalumni_updatingfiltertahun",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 3,
+      "community_name": "Siswa",
       "norm_label": ".updatingfiltertahun()"
     },
     {
@@ -12308,8 +12308,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_tatausaha_dataalumni_dataalumni_editalumni",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 3,
+      "community_name": "Siswa",
       "norm_label": ".editalumni()"
     },
     {
@@ -12320,8 +12320,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_tatausaha_dataalumni_dataalumni_savealumni",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 3,
+      "community_name": "Siswa",
       "norm_label": ".savealumni()"
     },
     {
@@ -12332,8 +12332,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_tatausaha_dataalumni_dataalumni_canceledit",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 3,
+      "community_name": "Siswa",
       "norm_label": ".canceledit()"
     },
     {
@@ -12344,8 +12344,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_tatausaha_dataalumni_dataalumni_render",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 3,
+      "community_name": "Siswa",
       "norm_label": ".render()"
     },
     {
@@ -12499,8 +12499,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_tatausaha_manajemenekstrakurikuler",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "manajemenekstrakurikuler.php"
     },
     {
@@ -12655,8 +12655,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_livewire_tatausaha_manajemenkalenderakademik",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "manajemenkalenderakademik.php"
     },
     {
@@ -13040,8 +13040,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_livewire_tatausaha_manajemenkaryawan_manajemenkaryawan_delete",
-      "community": 1,
-      "community_name": "ManajemenJadwal",
+      "community": 281,
+      "community_name": "ManajemenKaryawan",
       "norm_label": ".delete()"
     },
     {
@@ -13663,8 +13663,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_absensiguru",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "absensiguru.php"
     },
     {
@@ -13771,8 +13771,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_approvalkeuangan",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "approvalkeuangan.php"
     },
     {
@@ -13928,8 +13928,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_models_bobotnilaiguru_bobotnilaiguru",
-      "community": 323,
-      "community_name": "BobotNilaiGuru",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": "bobotnilaiguru"
     },
     {
@@ -13940,8 +13940,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_bobotnilaiguru_bobotnilaiguru_gurumapelkelas",
-      "community": 323,
-      "community_name": "BobotNilaiGuru",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".gurumapelkelas()"
     },
     {
@@ -13952,8 +13952,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_bobotnilaiguru_bobotnilaiguru_komponennilai",
-      "community": 323,
-      "community_name": "BobotNilaiGuru",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".komponennilai()"
     },
     {
@@ -13963,8 +13963,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_capaianguru",
-      "community": 450,
-      "community_name": "FatalAndStrangeScenariosTest.php",
+      "community": 39,
+      "community_name": "Role.php",
       "norm_label": "capaianguru.php"
     },
     {
@@ -14035,8 +14035,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_catatanpendampingan",
-      "community": 67,
-      "community_name": "Semester.php",
+      "community": 25,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": "catatanpendampingan.php"
     },
     {
@@ -14695,8 +14695,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_gurumapelkelas",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "gurumapelkelas.php"
     },
     {
@@ -14971,8 +14971,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_kalenderakademik",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "kalenderakademik.php"
     },
     {
@@ -15331,8 +15331,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_komponennilai",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "komponennilai.php"
     },
     {
@@ -15367,8 +15367,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_lingkupmateri",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "lingkupmateri.php"
     },
     {
@@ -15380,8 +15380,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_models_lingkupmateri_lingkupmateri",
-      "community": 206,
-      "community_name": "GuruMapelKelas",
+      "community": 210,
+      "community_name": "MataPelajaran",
       "norm_label": "lingkupmateri"
     },
     {
@@ -15405,7 +15405,7 @@
       "_origin": "ast",
       "id": "app_models_lingkupmateri_lingkupmateri_tujuanpembelajaran",
       "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community_name": "MataPelajaran",
       "norm_label": ".tujuanpembelajaran()"
     },
     {
@@ -15415,8 +15415,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_matapelajaran",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "matapelajaran.php"
     },
     {
@@ -15428,7 +15428,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_models_matapelajaran_matapelajaran",
-      "community": 4,
+      "community": 210,
       "community_name": "MataPelajaran",
       "norm_label": "matapelajaran"
     },
@@ -15440,7 +15440,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_matapelajaran_matapelajaran_gurumapelkelas",
-      "community": 4,
+      "community": 210,
       "community_name": "MataPelajaran",
       "norm_label": ".gurumapelkelas()"
     },
@@ -15452,7 +15452,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_matapelajaran_matapelajaran_nilais",
-      "community": 4,
+      "community": 210,
       "community_name": "MataPelajaran",
       "norm_label": ".nilais()"
     },
@@ -15464,7 +15464,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_matapelajaran_matapelajaran_rapordetails",
-      "community": 4,
+      "community": 210,
       "community_name": "MataPelajaran",
       "norm_label": ".rapordetails()"
     },
@@ -15475,8 +15475,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_nilai",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "nilai.php"
     },
     {
@@ -15488,8 +15488,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_models_nilai_nilai",
-      "community": 438,
-      "community_name": "Nilai",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": "nilai"
     },
     {
@@ -15500,8 +15500,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_nilai_nilai_siswa",
-      "community": 438,
-      "community_name": "Nilai",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".siswa()"
     },
     {
@@ -15512,8 +15512,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_nilai_nilai_mapel",
-      "community": 438,
-      "community_name": "Nilai",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".mapel()"
     },
     {
@@ -15524,8 +15524,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_nilai_nilai_guru",
-      "community": 438,
-      "community_name": "Nilai",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".guru()"
     },
     {
@@ -15536,8 +15536,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_nilai_nilai_kelas",
-      "community": 438,
-      "community_name": "Nilai",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".kelas()"
     },
     {
@@ -15548,8 +15548,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_nilai_nilai_semester",
-      "community": 438,
-      "community_name": "Nilai",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".semester()"
     },
     {
@@ -15560,8 +15560,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_nilai_nilai_komponennilai",
-      "community": 438,
-      "community_name": "Nilai",
+      "community": 53,
+      "community_name": "KomponenNilai",
       "norm_label": ".komponennilai()"
     },
     {
@@ -15643,8 +15643,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_nilaisas",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "nilaisas.php"
     },
     {
@@ -15727,8 +15727,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_nilaisumatiftp",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "nilaisumatiftp.php"
     },
     {
@@ -15835,8 +15835,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_notifikasi",
-      "community": 264,
-      "community_name": "Kelas.php",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "notifikasi.php"
     },
     {
@@ -16004,7 +16004,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_models_peminjaman_peminjaman",
-      "community": 64,
+      "community": 15,
       "community_name": "Peminjaman",
       "norm_label": "peminjaman"
     },
@@ -16016,7 +16016,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_peminjaman_peminjaman_guru",
-      "community": 64,
+      "community": 15,
       "community_name": "Peminjaman",
       "norm_label": ".guru()"
     },
@@ -16027,8 +16027,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_pengajuandana",
-      "community": 26,
-      "community_name": "KategoriPengeluaran",
+      "community": 25,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": "pengajuandana.php"
     },
     {
@@ -16041,7 +16041,7 @@
       "_origin": "ast",
       "id": "app_models_pengajuandana_pengajuandana",
       "community": 33,
-      "community_name": "PengajuanDanaIndex",
+      "community_name": ".run",
       "norm_label": "pengajuandana"
     },
     {
@@ -16053,7 +16053,7 @@
       "_origin": "ast",
       "id": "app_models_pengajuandana_pengajuandana_pemohon",
       "community": 33,
-      "community_name": "PengajuanDanaIndex",
+      "community_name": ".run",
       "norm_label": ".pemohon()"
     },
     {
@@ -16065,7 +16065,7 @@
       "_origin": "ast",
       "id": "app_models_pengajuandana_pengajuandana_disetujuikoordinator",
       "community": 33,
-      "community_name": "PengajuanDanaIndex",
+      "community_name": ".run",
       "norm_label": ".disetujuikoordinator()"
     },
     {
@@ -16077,7 +16077,7 @@
       "_origin": "ast",
       "id": "app_models_pengajuandana_pengajuandana_disetujuikepalayayasan",
       "community": 33,
-      "community_name": "PengajuanDanaIndex",
+      "community_name": ".run",
       "norm_label": ".disetujuikepalayayasan()"
     },
     {
@@ -16089,7 +16089,7 @@
       "_origin": "ast",
       "id": "app_models_pengajuandana_pengajuandana_pengeluaran",
       "community": 33,
-      "community_name": "PengajuanDanaIndex",
+      "community_name": ".run",
       "norm_label": ".pengeluaran()"
     },
     {
@@ -16399,8 +16399,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_rapor",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "rapor.php"
     },
     {
@@ -16413,7 +16413,7 @@
       "_origin": "ast",
       "id": "app_models_rapor_rapor",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": "rapor"
     },
     {
@@ -16425,7 +16425,7 @@
       "_origin": "ast",
       "id": "app_models_rapor_rapor_siswa",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": ".siswa()"
     },
     {
@@ -16437,7 +16437,7 @@
       "_origin": "ast",
       "id": "app_models_rapor_rapor_semester",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": ".semester()"
     },
     {
@@ -16449,7 +16449,7 @@
       "_origin": "ast",
       "id": "app_models_rapor_rapor_kelas",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": ".kelas()"
     },
     {
@@ -16461,7 +16461,7 @@
       "_origin": "ast",
       "id": "app_models_rapor_rapor_details",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": ".details()"
     },
     {
@@ -16471,8 +16471,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_rapordetail",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "rapordetail.php"
     },
     {
@@ -16485,7 +16485,7 @@
       "_origin": "ast",
       "id": "app_models_rapordetail_rapordetail",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": "rapordetail"
     },
     {
@@ -16497,7 +16497,7 @@
       "_origin": "ast",
       "id": "app_models_rapordetail_rapordetail_rapor",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": ".rapor()"
     },
     {
@@ -16509,7 +16509,7 @@
       "_origin": "ast",
       "id": "app_models_rapordetail_rapordetail_mapel",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": ".mapel()"
     },
     {
@@ -17228,8 +17228,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_models_tabungan_tabungan",
-      "community": 26,
-      "community_name": "KategoriPengeluaran",
+      "community": 3,
+      "community_name": "Siswa",
       "norm_label": "tabungan"
     },
     {
@@ -17240,8 +17240,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_tabungan_tabungan_siswa",
-      "community": 26,
-      "community_name": "KategoriPengeluaran",
+      "community": 3,
+      "community_name": "Siswa",
       "norm_label": ".siswa()"
     },
     {
@@ -17252,8 +17252,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_tabungan_tabungan_petugas",
-      "community": 26,
-      "community_name": "KategoriPengeluaran",
+      "community": 3,
+      "community_name": "Siswa",
       "norm_label": ".petugas()"
     },
     {
@@ -17599,8 +17599,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_templatedeskripsi",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "templatedeskripsi.php"
     },
     {
@@ -17612,8 +17612,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_models_templatedeskripsi_templatedeskripsi",
-      "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community": 30,
+      "community_name": "NilaiSas",
       "norm_label": "templatedeskripsi"
     },
     {
@@ -17624,8 +17624,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_templatedeskripsi_templatedeskripsi_mapel",
-      "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community": 30,
+      "community_name": "NilaiSas",
       "norm_label": ".mapel()"
     },
     {
@@ -17635,8 +17635,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_tujuanpembelajaran",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "tujuanpembelajaran.php"
     },
     {
@@ -17649,7 +17649,7 @@
       "_origin": "ast",
       "id": "app_models_tujuanpembelajaran_tujuanpembelajaran",
       "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community_name": "MataPelajaran",
       "norm_label": "tujuanpembelajaran"
     },
     {
@@ -17673,7 +17673,7 @@
       "_origin": "ast",
       "id": "app_models_tujuanpembelajaran_tujuanpembelajaran_nilaisumatif",
       "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community_name": "MataPelajaran",
       "norm_label": ".nilaisumatif()"
     },
     {
@@ -17828,7 +17828,7 @@
       "_origin": "ast",
       "id": "app_providers_appserviceprovider",
       "community": 267,
-      "community_name": "Login.php",
+      "community_name": "AuditLogger.php",
       "norm_label": "appserviceprovider.php"
     },
     {
@@ -17841,7 +17841,7 @@
       "_origin": "ast",
       "id": "app_providers_appserviceprovider_appserviceprovider",
       "community": 267,
-      "community_name": "Login.php",
+      "community_name": "AuditLogger.php",
       "norm_label": "appserviceprovider"
     },
     {
@@ -17853,7 +17853,7 @@
       "_origin": "ast",
       "id": "app_providers_appserviceprovider_appserviceprovider_register",
       "community": 267,
-      "community_name": "Login.php",
+      "community_name": "AuditLogger.php",
       "norm_label": ".register()"
     },
     {
@@ -17865,7 +17865,7 @@
       "_origin": "ast",
       "id": "app_providers_appserviceprovider_appserviceprovider_boot",
       "community": 267,
-      "community_name": "Login.php",
+      "community_name": "AuditLogger.php",
       "norm_label": ".boot()"
     },
     {
@@ -17875,8 +17875,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_rules_eligibleshadowteacher",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 301,
+      "community_name": "EligibleShadowTeacher.php",
       "norm_label": "eligibleshadowteacher.php"
     },
     {
@@ -17889,7 +17889,7 @@
       "_origin": "ast",
       "id": "app_rules_eligibleshadowteacher_eligibleshadowteacher",
       "community": 301,
-      "community_name": "Closure",
+      "community_name": "EligibleShadowTeacher.php",
       "norm_label": "eligibleshadowteacher"
     },
     {
@@ -17901,7 +17901,7 @@
       "_origin": "ast",
       "id": "app_rules_eligibleshadowteacher_eligibleshadowteacher_validate",
       "community": 301,
-      "community_name": "Closure",
+      "community_name": "EligibleShadowTeacher.php",
       "norm_label": ".validate()"
     },
     {
@@ -17925,7 +17925,7 @@
       "_origin": "ast",
       "id": "app_rules_maxoneshadowteacherperclass_maxoneshadowteacherperclass",
       "community": 301,
-      "community_name": "Closure",
+      "community_name": "EligibleShadowTeacher.php",
       "norm_label": "maxoneshadowteacherperclass"
     },
     {
@@ -17937,7 +17937,7 @@
       "_origin": "ast",
       "id": "app_rules_maxoneshadowteacherperclass_maxoneshadowteacherperclass_construct",
       "community": 301,
-      "community_name": "Closure",
+      "community_name": "EligibleShadowTeacher.php",
       "norm_label": ".__construct()"
     },
     {
@@ -17949,7 +17949,7 @@
       "_origin": "ast",
       "id": "app_rules_maxoneshadowteacherperclass_maxoneshadowteacherperclass_validate",
       "community": 301,
-      "community_name": "Closure",
+      "community_name": "EligibleShadowTeacher.php",
       "norm_label": ".validate()"
     },
     {
@@ -18091,8 +18091,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_services_auditlogger",
-      "community": 67,
-      "community_name": "Semester.php",
+      "community": 267,
+      "community_name": "AuditLogger.php",
       "norm_label": "auditlogger.php"
     },
     {
@@ -18127,8 +18127,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_services_autonarasiservice",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "autonarasiservice.php"
     },
     {
@@ -18260,8 +18260,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_services_finance_cashflowservice_cashflowservice",
-      "community": 64,
-      "community_name": "Peminjaman",
+      "community": 7,
+      "community_name": "PemasukanKas",
       "norm_label": "cashflowservice"
     },
     {
@@ -18272,8 +18272,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_services_finance_cashflowservice_cashflowservice_getunifiedtransactions",
-      "community": 64,
-      "community_name": "Peminjaman",
+      "community": 7,
+      "community_name": "PemasukanKas",
       "norm_label": ".getunifiedtransactions()"
     },
     {
@@ -18284,8 +18284,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_services_finance_cashflowservice_cashflowservice_calculatemetrics",
-      "community": 64,
-      "community_name": "Peminjaman",
+      "community": 7,
+      "community_name": "PemasukanKas",
       "norm_label": ".calculatemetrics()"
     },
     {
@@ -18296,8 +18296,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_services_finance_cashflowservice_cashflowservice_calculatemonthlytrend",
-      "community": 64,
-      "community_name": "Peminjaman",
+      "community": 7,
+      "community_name": "PemasukanKas",
       "norm_label": ".calculatemonthlytrend()"
     },
     {
@@ -18307,8 +18307,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_services_finance_csvexportservice",
-      "community": 74,
-      "community_name": "FinanceExportController",
+      "community": 267,
+      "community_name": "AuditLogger.php",
       "norm_label": "csvexportservice.php"
     },
     {
@@ -18320,8 +18320,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_services_finance_csvexportservice_csvexportservice",
-      "community": 74,
-      "community_name": "FinanceExportController",
+      "community": 2,
+      "community_name": "AuditLogger",
       "norm_label": "csvexportservice"
     },
     {
@@ -18332,8 +18332,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_services_finance_csvexportservice_csvexportservice_stream",
-      "community": 74,
-      "community_name": "FinanceExportController",
+      "community": 267,
+      "community_name": "AuditLogger.php",
       "norm_label": ".stream()"
     },
     {
@@ -18405,7 +18405,7 @@
       "_origin": "ast",
       "id": "app_services_finance_financereportservice_financereportservice_renderpdf",
       "community": 301,
-      "community_name": "Closure",
+      "community_name": "EligibleShadowTeacher.php",
       "norm_label": ".renderpdf()"
     },
     {
@@ -18595,8 +18595,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_services_finance_salarybulkgeneratorservice",
-      "community": 307,
-      "community_name": "SalaryCalculationService",
+      "community": 26,
+      "community_name": "KategoriPengeluaran",
       "norm_label": "salarybulkgeneratorservice.php"
     },
     {
@@ -18667,8 +18667,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_services_financialapprovalservice",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "financialapprovalservice.php"
     },
     {
@@ -18775,8 +18775,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_services_jadwalservice",
-      "community": 1,
-      "community_name": "ManajemenJadwal",
+      "community": 351,
+      "community_name": ".save",
       "norm_label": "jadwalservice.php"
     },
     {
@@ -18788,8 +18788,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_services_jadwalservice_jadwalservice",
-      "community": 1,
-      "community_name": "ManajemenJadwal",
+      "community": 351,
+      "community_name": ".save",
       "norm_label": "jadwalservice"
     },
     {
@@ -18800,8 +18800,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_services_jadwalservice_jadwalservice_checkconflict",
-      "community": 1,
-      "community_name": "ManajemenJadwal",
+      "community": 351,
+      "community_name": ".save",
       "norm_label": ".checkconflict()"
     },
     {
@@ -18847,8 +18847,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_services_salarycalculationservice",
-      "community": 307,
-      "community_name": "SalaryCalculationService",
+      "community": 26,
+      "community_name": "KategoriPengeluaran",
       "norm_label": "salarycalculationservice.php"
     },
     {
@@ -19060,8 +19060,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_traits_withcurrencysanitizer",
-      "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community": 26,
+      "community_name": "KategoriPengeluaran",
       "norm_label": "withcurrencysanitizer.php"
     },
     {
@@ -19096,7 +19096,7 @@
       "_origin": "ast",
       "id": "app_traits_withdatefilter",
       "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community_name": "WithDateFilter.php",
       "norm_label": "withdatefilter.php"
     },
     {
@@ -19108,7 +19108,7 @@
       "_origin": "ast",
       "id": "app_traits_withdatefilter_updatedfilterperiode",
       "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community_name": "WithDateFilter.php",
       "norm_label": "updatedfilterperiode()"
     },
     {
@@ -19120,7 +19120,7 @@
       "_origin": "ast",
       "id": "app_traits_withdatefilter_updatedstartdate",
       "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community_name": "WithDateFilter.php",
       "norm_label": "updatedstartdate()"
     },
     {
@@ -19132,7 +19132,7 @@
       "_origin": "ast",
       "id": "app_traits_withdatefilter_updatedenddate",
       "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community_name": "WithDateFilter.php",
       "norm_label": "updatedenddate()"
     },
     {
@@ -19144,7 +19144,7 @@
       "_origin": "ast",
       "id": "app_traits_withdatefilter_setperiode",
       "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community_name": "WithDateFilter.php",
       "norm_label": "setperiode()"
     },
     {
@@ -19156,7 +19156,7 @@
       "_origin": "ast",
       "id": "app_traits_withdatefilter_applydatefilter",
       "community": 11,
-      "community_name": "WithCurrencySanitizer.php",
+      "community_name": "WithDateFilter.php",
       "norm_label": "applydatefilter()"
     },
     {
@@ -19260,7 +19260,7 @@
       "_origin": "ast",
       "id": "bootstrap_providers",
       "community": 267,
-      "community_name": "Login.php",
+      "community_name": "AuditLogger.php",
       "norm_label": "providers.php"
     },
     {
@@ -20162,7 +20162,7 @@
       "_origin": "ast",
       "id": "config_auth",
       "community": 267,
-      "community_name": "Login.php",
+      "community_name": "AuditLogger.php",
       "norm_label": "auth.php"
     },
     {
@@ -22038,8 +22038,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "database_seeders_financeseeder_financeseeder_run",
-      "community": 41,
-      "community_name": "Illuminate\\Database\\Seeder",
+      "community": 33,
+      "community_name": ".run",
       "norm_label": ".run()"
     },
     {
@@ -22242,8 +22242,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "database_seeders_productiondataseeder_productiondataseeder",
-      "community": 280,
-      "community_name": ".run",
+      "community": 41,
+      "community_name": "Illuminate\\Database\\Seeder",
       "norm_label": "productiondataseeder"
     },
     {
@@ -22254,7 +22254,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "database_seeders_productiondataseeder_productiondataseeder_run",
-      "community": 280,
+      "community": 33,
       "community_name": ".run",
       "norm_label": ".run()"
     },
@@ -22265,8 +22265,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "database_seeders_rapororangtuaseeder",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "rapororangtuaseeder.php"
     },
     {
@@ -22279,7 +22279,7 @@
       "_origin": "ast",
       "id": "database_seeders_rapororangtuaseeder_rapororangtuaseeder",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": "rapororangtuaseeder"
     },
     {
@@ -22291,7 +22291,7 @@
       "_origin": "ast",
       "id": "database_seeders_rapororangtuaseeder_rapororangtuaseeder_run",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": ".run()"
     },
     {
@@ -22373,8 +22373,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "database_seeders_tahfidzmutabaahseeder",
-      "community": 67,
-      "community_name": "Semester.php",
+      "community": 39,
+      "community_name": "Role.php",
       "norm_label": "tahfidzmutabaahseeder.php"
     },
     {
@@ -22670,32 +22670,10 @@
       "norm_label": "chart.js"
     },
     {
-      "label": "driver.js",
-      "file_type": "code",
-      "source_file": "package.json",
-      "source_location": "L18",
-      "_origin": "ast",
-      "id": "package_dependencies_driver_js",
-      "community": 19,
-      "community_name": "package.json",
-      "norm_label": "driver.js"
-    },
-    {
-      "label": "driver.js",
-      "file_type": "concept",
-      "source_file": "package.json",
-      "source_location": "L18",
-      "_origin": "ast",
-      "id": "driver_js",
-      "community": 19,
-      "community_name": "package.json",
-      "norm_label": "driver.js"
-    },
-    {
       "label": "micromodal",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L19",
+      "source_location": "L18",
       "_origin": "ast",
       "id": "package_dependencies_micromodal",
       "community": 19,
@@ -22706,7 +22684,7 @@
       "label": "micromodal",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L19",
+      "source_location": "L18",
       "_origin": "ast",
       "id": "micromodal",
       "community": 19,
@@ -30531,7 +30509,7 @@
       "_origin": "ast",
       "id": "routes_web",
       "community": 267,
-      "community_name": "Login.php",
+      "community_name": "AuditLogger.php",
       "norm_label": "web.php"
     },
     {
@@ -30541,8 +30519,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_absensiguruexcelexporttest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "absensiguruexcelexporttest.php"
     },
     {
@@ -30660,8 +30638,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_academicandfinanceenhancementstest_academicandfinanceenhancementstest_test_gaji_guru_edit_period_and_syncs_pengeluaran",
-      "community": 14,
-      "community_name": "AcademicAndFinanceEnhancementsTest",
+      "community": 32,
+      "community_name": "Pengeluaran",
       "norm_label": ".test_gaji_guru_edit_period_and_syncs_pengeluaran()"
     },
     {
@@ -30718,8 +30696,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_approvalkeuanganbulkactionstest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "approvalkeuanganbulkactionstest.php"
     },
     {
@@ -30995,8 +30973,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_aruskasfilterinvestigationtest_aruskasfilterinvestigationtest_test_filter_periode_bulan_lalu_and_tahun_ini",
-      "community": 7,
-      "community_name": "PemasukanKas",
+      "community": 277,
+      "community_name": "ArusKasFilterInvestigationTest",
       "norm_label": ".test_filter_periode_bulan_lalu_and_tahun_ini()"
     },
     {
@@ -31018,8 +30996,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_auditlogandperformancetest",
-      "community": 26,
-      "community_name": "KategoriPengeluaran",
+      "community": 264,
+      "community_name": "Kelas.php",
       "norm_label": "auditlogandperformancetest.php"
     },
     {
@@ -31029,8 +31007,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_auditlogcoveragetest",
-      "community": 264,
-      "community_name": "Kelas.php",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "auditlogcoveragetest.php"
     },
     {
@@ -31097,8 +31075,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_feature_automatedsppgenerationtest_automatedsppgenerationtest",
-      "community": 454,
-      "community_name": "AutomatedSppGenerationTest",
+      "community": 212,
+      "community_name": "TahunAjaran",
       "norm_label": "automatedsppgenerationtest"
     },
     {
@@ -31109,8 +31087,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_automatedsppgenerationtest_automatedsppgenerationtest_setup",
-      "community": 454,
-      "community_name": "AutomatedSppGenerationTest",
+      "community": 212,
+      "community_name": "TahunAjaran",
       "norm_label": ".setup()"
     },
     {
@@ -31121,8 +31099,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_automatedsppgenerationtest_automatedsppgenerationtest_test_artisan_command_generates_spp_for_active_students",
-      "community": 454,
-      "community_name": "AutomatedSppGenerationTest",
+      "community": 212,
+      "community_name": "TahunAjaran",
       "norm_label": ".test_artisan_command_generates_spp_for_active_students()"
     },
     {
@@ -31133,8 +31111,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_automatedsppgenerationtest_automatedsppgenerationtest_test_artisan_command_prevents_duplicate_generation",
-      "community": 454,
-      "community_name": "AutomatedSppGenerationTest",
+      "community": 212,
+      "community_name": "TahunAjaran",
       "norm_label": ".test_artisan_command_prevents_duplicate_generation()"
     },
     {
@@ -31145,8 +31123,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_automatedsppgenerationtest_automatedsppgenerationtest_test_livewire_action_generates_spp_bulanan",
-      "community": 454,
-      "community_name": "AutomatedSppGenerationTest",
+      "community": 212,
+      "community_name": "TahunAjaran",
       "norm_label": ".test_livewire_action_generates_spp_bulanan()"
     },
     {
@@ -31178,8 +31156,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_businesslogicsecurityandintegritytest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "businesslogicsecurityandintegritytest.php"
     },
     {
@@ -31191,8 +31169,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_feature_businesslogicsecurityandintegritytest_businesslogicsecurityandintegritytest",
-      "community": 212,
-      "community_name": "TahunAjaran",
+      "community": 36,
+      "community_name": "JenisTagihan",
       "norm_label": "businesslogicsecurityandintegritytest"
     },
     {
@@ -31203,8 +31181,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_businesslogicsecurityandintegritytest_businesslogicsecurityandintegritytest_setup",
-      "community": 212,
-      "community_name": "TahunAjaran",
+      "community": 36,
+      "community_name": "JenisTagihan",
       "norm_label": ".setup()"
     },
     {
@@ -31215,8 +31193,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_businesslogicsecurityandintegritytest_businesslogicsecurityandintegritytest_test_qr_verification_rejects_fake_or_nonexistent_ttd_code",
-      "community": 212,
-      "community_name": "TahunAjaran",
+      "community": 36,
+      "community_name": "JenisTagihan",
       "norm_label": ".test_qr_verification_rejects_fake_or_nonexistent_ttd_code()"
     },
     {
@@ -31227,8 +31205,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_businesslogicsecurityandintegritytest_businesslogicsecurityandintegritytest_test_qr_verification_rejects_voided_payment",
-      "community": 212,
-      "community_name": "TahunAjaran",
+      "community": 36,
+      "community_name": "JenisTagihan",
       "norm_label": ".test_qr_verification_rejects_voided_payment()"
     },
     {
@@ -31239,8 +31217,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_businesslogicsecurityandintegritytest_businesslogicsecurityandintegritytest_test_rapor_pdf_preview_blocked_if_student_has_overdue_spp",
-      "community": 212,
-      "community_name": "TahunAjaran",
+      "community": 36,
+      "community_name": "JenisTagihan",
       "norm_label": ".test_rapor_pdf_preview_blocked_if_student_has_overdue_spp()"
     },
     {
@@ -31252,7 +31230,7 @@
       "_origin": "ast",
       "id": "tests_feature_businesslogicsecurityandintegritytest_businesslogicsecurityandintegritytest_test_rapor_pdf_returns_404_if_not_published_instead_of_auto_creating",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": ".test_rapor_pdf_returns_404_if_not_published_instead_of_auto_creating()"
     },
     {
@@ -31263,8 +31241,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_businesslogicsecurityandintegritytest_businesslogicsecurityandintegritytest_test_auto_narasi_returns_truthful_empty_state_without_fake_high_grades",
-      "community": 212,
-      "community_name": "TahunAjaran",
+      "community": 36,
+      "community_name": "JenisTagihan",
       "norm_label": ".test_auto_narasi_returns_truthful_empty_state_without_fake_high_grades()"
     },
     {
@@ -31274,8 +31252,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_capaianpengembangangurutest",
-      "community": 450,
-      "community_name": "FatalAndStrangeScenariosTest.php",
+      "community": 39,
+      "community_name": "Role.php",
       "norm_label": "capaianpengembangangurutest.php"
     },
     {
@@ -31296,8 +31274,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_catatanpendampingantest",
-      "community": 26,
-      "community_name": "KategoriPengeluaran",
+      "community": 39,
+      "community_name": "Role.php",
       "norm_label": "catatanpendampingantest.php"
     },
     {
@@ -31472,8 +31450,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_dashboardchartsandindexperformancetest",
-      "community": 264,
-      "community_name": "Kelas.php",
+      "community": 65,
+      "community_name": "Pengaturan.php",
       "norm_label": "dashboardchartsandindexperformancetest.php"
     },
     {
@@ -31579,8 +31557,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_esignaturetest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "esignaturetest.php"
     },
     {
@@ -31639,8 +31617,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_ekstrakurikulermoduletest",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "ekstrakurikulermoduletest.php"
     },
     {
@@ -31652,8 +31630,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_feature_ekstrakurikulermoduletest_ekstrakurikulermoduletest",
-      "community": 235,
-      "community_name": "Guru",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "ekstrakurikulermoduletest"
     },
     {
@@ -31664,8 +31642,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_ekstrakurikulermoduletest_ekstrakurikulermoduletest_setup",
-      "community": 235,
-      "community_name": "Guru",
+      "community": 71,
+      "community_name": "Semester",
       "norm_label": ".setup()"
     },
     {
@@ -31676,8 +31654,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_ekstrakurikulermoduletest_ekstrakurikulermoduletest_test_tata_usaha_can_assign_pembina_and_register_student",
-      "community": 235,
-      "community_name": "Guru",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": ".test_tata_usaha_can_assign_pembina_and_register_student()"
     },
     {
@@ -31688,8 +31666,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_ekstrakurikulermoduletest_ekstrakurikulermoduletest_test_admin_can_manage_ekstrakurikuler_schedule_and_admin2_is_read_only",
-      "community": 235,
-      "community_name": "Guru",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": ".test_admin_can_manage_ekstrakurikuler_schedule_and_admin2_is_read_only()"
     },
     {
@@ -31722,8 +31700,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_fatalandstrangescenariostest",
-      "community": 450,
-      "community_name": "FatalAndStrangeScenariosTest.php",
+      "community": 39,
+      "community_name": "Role.php",
       "norm_label": "fatalandstrangescenariostest.php"
     },
     {
@@ -31777,8 +31755,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_financelaporanpreviewandemptytest",
-      "community": 264,
-      "community_name": "Kelas.php",
+      "community": 26,
+      "community_name": "KategoriPengeluaran",
       "norm_label": "financelaporanpreviewandemptytest.php"
     },
     {
@@ -31788,8 +31766,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_financemoduletest",
-      "community": 26,
-      "community_name": "KategoriPengeluaran",
+      "community": 264,
+      "community_name": "Kelas.php",
       "norm_label": "financemoduletest.php"
     },
     {
@@ -31799,8 +31777,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_financestage2test",
-      "community": 264,
-      "community_name": "Kelas.php",
+      "community": 26,
+      "community_name": "KategoriPengeluaran",
       "norm_label": "financestage2test.php"
     },
     {
@@ -31810,8 +31788,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_financialapprovalcancellationtest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "financialapprovalcancellationtest.php"
     },
     {
@@ -31906,8 +31884,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_gajigurubuktipembayarantest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 26,
+      "community_name": "KategoriPengeluaran",
       "norm_label": "gajigurubuktipembayarantest.php"
     },
     {
@@ -31917,8 +31895,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_guruakademiktest",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "guruakademiktest.php"
     },
     {
@@ -31928,8 +31906,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_gurudashboardtest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "gurudashboardtest.php"
     },
     {
@@ -31941,8 +31919,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_feature_gurudashboardtest_gurudashboardtest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "gurudashboardtest"
     },
     {
@@ -31964,8 +31942,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_gurumenuusabilityenhancementtest",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "gurumenuusabilityenhancementtest.php"
     },
     {
@@ -31975,8 +31953,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_gururoleaccesstest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "gururoleaccesstest.php"
     },
     {
@@ -31988,8 +31966,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_feature_gururoleaccesstest_gururoleaccesstest",
-      "community": 55,
-      "community_name": "User",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "gururoleaccesstest"
     },
     {
@@ -32000,8 +31978,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_gururoleaccesstest_gururoleaccesstest_test_guru_tahfidz_blocked_from_kurikulum_merdeka_components",
-      "community": 55,
-      "community_name": "User",
+      "community": 235,
+      "community_name": "Guru",
       "norm_label": ".test_guru_tahfidz_blocked_from_kurikulum_merdeka_components()"
     },
     {
@@ -32012,8 +31990,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_gururoleaccesstest_gururoleaccesstest_test_guru_umum_blocked_from_input_tahfidz_component",
-      "community": 55,
-      "community_name": "User",
+      "community": 235,
+      "community_name": "Guru",
       "norm_label": ".test_guru_umum_blocked_from_input_tahfidz_component()"
     },
     {
@@ -32023,8 +32001,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_guruslipgajipreviewtest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 26,
+      "community_name": "KategoriPengeluaran",
       "norm_label": "guruslipgajipreviewtest.php"
     },
     {
@@ -32047,8 +32025,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_feature_gurustudentclassdisplaytest_gurustudentclassdisplaytest",
-      "community": 55,
-      "community_name": "User",
+      "community": 17,
+      "community_name": "Kelas",
       "norm_label": "gurustudentclassdisplaytest"
     },
     {
@@ -32059,8 +32037,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_gurustudentclassdisplaytest_gurustudentclassdisplaytest_test_guru_tahfidz_sees_tahfidz_class_and_students_in_absensi",
-      "community": 55,
-      "community_name": "User",
+      "community": 17,
+      "community_name": "Kelas",
       "norm_label": ".test_guru_tahfidz_sees_tahfidz_class_and_students_in_absensi()"
     },
     {
@@ -32071,8 +32049,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_gurustudentclassdisplaytest_gurustudentclassdisplaytest_test_guru_umum_sees_general_class_and_students",
-      "community": 55,
-      "community_name": "User",
+      "community": 17,
+      "community_name": "Kelas",
       "norm_label": ".test_guru_umum_sees_general_class_and_students()"
     },
     {
@@ -32093,8 +32071,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_jadwalremedialtest",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "jadwalremedialtest.php"
     },
     {
@@ -32115,8 +32093,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_kalenderakademiktanggalmerahtest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "kalenderakademiktanggalmerahtest.php"
     },
     {
@@ -32175,8 +32153,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_kalenderakademiktest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "kalenderakademiktest.php"
     },
     {
@@ -32188,8 +32166,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_feature_kalenderakademiktest_kalenderakademiktest",
-      "community": 55,
-      "community_name": "User",
+      "community": 212,
+      "community_name": "TahunAjaran",
       "norm_label": "kalenderakademiktest"
     },
     {
@@ -32200,8 +32178,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_kalenderakademiktest_kalenderakademiktest_test_can_create_and_check_holiday_event",
-      "community": 55,
-      "community_name": "User",
+      "community": 212,
+      "community_name": "TahunAjaran",
       "norm_label": ".test_can_create_and_check_holiday_event()"
     },
     {
@@ -32212,8 +32190,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_kalenderakademiktest_kalenderakademiktest_test_livewire_kalender_akademik_component_can_render_and_create",
-      "community": 55,
-      "community_name": "User",
+      "community": 212,
+      "community_name": "TahunAjaran",
       "norm_label": ".test_livewire_kalender_akademik_component_can_render_and_create()"
     },
     {
@@ -32224,8 +32202,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_kalenderakademiktest_kalenderakademiktest_test_can_create_set_active_and_delete_tahun_ajaran",
-      "community": 55,
-      "community_name": "User",
+      "community": 212,
+      "community_name": "TahunAjaran",
       "norm_label": ".test_can_create_set_active_and_delete_tahun_ajaran()"
     },
     {
@@ -32235,8 +32213,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_kasbongurufilterwaktutest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "kasbongurufilterwaktutest.php"
     },
     {
@@ -32355,8 +32333,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_kategoritagihancustommanagementtest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 264,
+      "community_name": "Kelas.php",
       "norm_label": "kategoritagihancustommanagementtest.php"
     },
     {
@@ -32571,8 +32549,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_kepalasekolahdanabosmonitoringtest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 268,
+      "community_name": "DanaBos",
       "norm_label": "kepalasekolahdanabosmonitoringtest.php"
     },
     {
@@ -32584,8 +32562,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_feature_kepalasekolahdanabosmonitoringtest_kepalasekolahdanabosmonitoringtest",
-      "community": 320,
-      "community_name": "KepalaSekolahDanaBosMonitoringTest",
+      "community": 268,
+      "community_name": "DanaBos",
       "norm_label": "kepalasekolahdanabosmonitoringtest"
     },
     {
@@ -32595,8 +32573,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "danabos",
-      "community": 320,
-      "community_name": "KepalaSekolahDanaBosMonitoringTest",
+      "community": 268,
+      "community_name": "DanaBos",
       "norm_label": "danabos"
     },
     {
@@ -32607,8 +32585,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_kepalasekolahdanabosmonitoringtest_kepalasekolahdanabosmonitoringtest_setup",
-      "community": 320,
-      "community_name": "KepalaSekolahDanaBosMonitoringTest",
+      "community": 268,
+      "community_name": "DanaBos",
       "norm_label": ".setup()"
     },
     {
@@ -32619,8 +32597,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_kepalasekolahdanabosmonitoringtest_kepalasekolahdanabosmonitoringtest_test_helper_is_kepala_sekolah_returns_true",
-      "community": 320,
-      "community_name": "KepalaSekolahDanaBosMonitoringTest",
+      "community": 268,
+      "community_name": "DanaBos",
       "norm_label": ".test_helper_is_kepala_sekolah_returns_true()"
     },
     {
@@ -32631,8 +32609,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_kepalasekolahdanabosmonitoringtest_kepalasekolahdanabosmonitoringtest_test_kepala_sekolah_can_access_dana_bos_monitoring_page",
-      "community": 320,
-      "community_name": "KepalaSekolahDanaBosMonitoringTest",
+      "community": 268,
+      "community_name": "DanaBos",
       "norm_label": ".test_kepala_sekolah_can_access_dana_bos_monitoring_page()"
     },
     {
@@ -32643,8 +32621,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_kepalasekolahdanabosmonitoringtest_kepalasekolahdanabosmonitoringtest_test_kepala_sekolah_is_blocked_from_opening_create_modal",
-      "community": 320,
-      "community_name": "KepalaSekolahDanaBosMonitoringTest",
+      "community": 268,
+      "community_name": "DanaBos",
       "norm_label": ".test_kepala_sekolah_is_blocked_from_opening_create_modal()"
     },
     {
@@ -32655,8 +32633,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_kepalasekolahdanabosmonitoringtest_kepalasekolahdanabosmonitoringtest_test_kepala_sekolah_is_blocked_from_saving_new_transaction",
-      "community": 320,
-      "community_name": "KepalaSekolahDanaBosMonitoringTest",
+      "community": 268,
+      "community_name": "DanaBos",
       "norm_label": ".test_kepala_sekolah_is_blocked_from_saving_new_transaction()"
     },
     {
@@ -32667,8 +32645,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_kepalasekolahdanabosmonitoringtest_kepalasekolahdanabosmonitoringtest_test_kepala_sekolah_is_blocked_from_deleting_transaction",
-      "community": 320,
-      "community_name": "KepalaSekolahDanaBosMonitoringTest",
+      "community": 268,
+      "community_name": "DanaBos",
       "norm_label": ".test_kepala_sekolah_is_blocked_from_deleting_transaction()"
     },
     {
@@ -32679,8 +32657,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_kepalasekolahdanabosmonitoringtest_kepalasekolahdanabosmonitoringtest_test_kepala_sekolah_is_blocked_from_bulk_delete",
-      "community": 320,
-      "community_name": "KepalaSekolahDanaBosMonitoringTest",
+      "community": 268,
+      "community_name": "DanaBos",
       "norm_label": ".test_kepala_sekolah_is_blocked_from_bulk_delete()"
     },
     {
@@ -32691,8 +32669,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_kepalasekolahdanabosmonitoringtest_kepalasekolahdanabosmonitoringtest_test_kepala_sekolah_can_export_dana_bos_pdf_and_excel",
-      "community": 320,
-      "community_name": "KepalaSekolahDanaBosMonitoringTest",
+      "community": 268,
+      "community_name": "DanaBos",
       "norm_label": ".test_kepala_sekolah_can_export_dana_bos_pdf_and_excel()"
     },
     {
@@ -32703,8 +32681,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_kepalasekolahdanabosmonitoringtest_kepalasekolahdanabosmonitoringtest_test_sidebar_displays_dana_bos_menu_for_kepala_sekolah",
-      "community": 320,
-      "community_name": "KepalaSekolahDanaBosMonitoringTest",
+      "community": 268,
+      "community_name": "DanaBos",
       "norm_label": ".test_sidebar_displays_dana_bos_menu_for_kepala_sekolah()"
     },
     {
@@ -32747,8 +32725,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_monitoringakademiktest",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "monitoringakademiktest.php"
     },
     {
@@ -32760,8 +32738,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_feature_monitoringakademiktest_monitoringakademiktest",
-      "community": 206,
-      "community_name": "GuruMapelKelas",
+      "community": 210,
+      "community_name": "MataPelajaran",
       "norm_label": "monitoringakademiktest"
     },
     {
@@ -32772,8 +32750,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_monitoringakademiktest_monitoringakademiktest_setup",
-      "community": 206,
-      "community_name": "GuruMapelKelas",
+      "community": 210,
+      "community_name": "MataPelajaran",
       "norm_label": ".setup()"
     },
     {
@@ -32784,8 +32762,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_monitoringakademiktest_monitoringakademiktest_test_admin_can_access_monitoring_akademik_page",
-      "community": 206,
-      "community_name": "GuruMapelKelas",
+      "community": 210,
+      "community_name": "MataPelajaran",
       "norm_label": ".test_admin_can_access_monitoring_akademik_page()"
     },
     {
@@ -32796,8 +32774,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_monitoringakademiktest_monitoringakademiktest_test_admin_can_monitor_nilai_siswa_per_bab_and_sas",
-      "community": 206,
-      "community_name": "GuruMapelKelas",
+      "community": 30,
+      "community_name": "NilaiSas",
       "norm_label": ".test_admin_can_monitor_nilai_siswa_per_bab_and_sas()"
     },
     {
@@ -32808,8 +32786,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_monitoringakademiktest_monitoringakademiktest_test_admin_can_monitor_bab_and_tp_curriculum",
-      "community": 206,
-      "community_name": "GuruMapelKelas",
+      "community": 210,
+      "community_name": "MataPelajaran",
       "norm_label": ".test_admin_can_monitor_bab_and_tp_curriculum()"
     },
     {
@@ -32832,8 +32810,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_monitoringakademiktest_monitoringakademiktest_test_admin_sidebar_does_not_contain_setup_bab_tp_for_guru",
-      "community": 206,
-      "community_name": "GuruMapelKelas",
+      "community": 210,
+      "community_name": "MataPelajaran",
       "norm_label": ".test_admin_sidebar_does_not_contain_setup_bab_tp_for_guru()"
     },
     {
@@ -32844,8 +32822,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_monitoringakademiktest_monitoringakademiktest_test_murid_cannot_access_monitoring_akademik",
-      "community": 206,
-      "community_name": "GuruMapelKelas",
+      "community": 210,
+      "community_name": "MataPelajaran",
       "norm_label": ".test_murid_cannot_access_monitoring_akademik()"
     },
     {
@@ -32866,8 +32844,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_penilaiantpdansastest",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "penilaiantpdansastest.php"
     },
     {
@@ -32880,7 +32858,7 @@
       "_origin": "ast",
       "id": "tests_feature_penilaiantpdansastest_penilaiantpdansastest",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": "penilaiantpdansastest"
     },
     {
@@ -32891,8 +32869,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_penilaiantpdansastest_penilaiantpdansastest_setup",
-      "community": 280,
-      "community_name": ".run",
+      "community": 210,
+      "community_name": "MataPelajaran",
       "norm_label": ".setup()"
     },
     {
@@ -32904,7 +32882,7 @@
       "_origin": "ast",
       "id": "tests_feature_penilaiantpdansastest_penilaiantpdansastest_test_penilaian_only_from_tp_and_sas_without_bobot_and_formula",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": ".test_penilaian_only_from_tp_and_sas_without_bobot_and_formula()"
     },
     {
@@ -32916,7 +32894,7 @@
       "_origin": "ast",
       "id": "tests_feature_penilaiantpdansastest_penilaiantpdansastest_test_penilaian_with_only_tp_when_sas_not_yet_conducted",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": ".test_penilaian_with_only_tp_when_sas_not_yet_conducted()"
     },
     {
@@ -32928,7 +32906,7 @@
       "_origin": "ast",
       "id": "tests_feature_penilaiantpdansastest_penilaiantpdansastest_test_penilaian_with_only_sas_when_tp_not_yet_recorded",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": ".test_penilaian_with_only_sas_when_tp_not_yet_recorded()"
     },
     {
@@ -32952,7 +32930,7 @@
       "_origin": "ast",
       "id": "tests_feature_penilaiantpdansastest_penilaiantpdansastest_test_bobot_nilai_route_redirects_to_input_sumatif",
       "community": 280,
-      "community_name": ".run",
+      "community_name": "Rapor",
       "norm_label": ".test_bobot_nilai_route_redirects_to_input_sumatif()"
     },
     {
@@ -33006,8 +32984,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_rapororangtuaseedertest",
-      "community": 3,
-      "community_name": "Siswa",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "rapororangtuaseedertest.php"
     },
     {
@@ -33040,8 +33018,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_rekapabsensiperformancetest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 303,
+      "community_name": "Livewire\\Component",
       "norm_label": "rekapabsensiperformancetest.php"
     },
     {
@@ -33051,8 +33029,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_revisibusinesslogictest",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "revisibusinesslogictest.php"
     },
     {
@@ -33073,8 +33051,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_rolefilterauditandgurutest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "rolefilterauditandgurutest.php"
     },
     {
@@ -33191,8 +33169,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_superadmin2andfinancialapprovaltest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "superadmin2andfinancialapprovaltest.php"
     },
     {
@@ -33204,8 +33182,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_feature_superadmin2andfinancialapprovaltest_superadmin2andfinancialapprovaltest",
-      "community": 285,
-      "community_name": "FinancialApprovalService",
+      "community": 299,
+      "community_name": "Tagihan",
       "norm_label": "superadmin2andfinancialapprovaltest"
     },
     {
@@ -33216,8 +33194,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_superadmin2andfinancialapprovaltest_superadmin2andfinancialapprovaltest_setup",
-      "community": 285,
-      "community_name": "FinancialApprovalService",
+      "community": 212,
+      "community_name": "TahunAjaran",
       "norm_label": ".setup()"
     },
     {
@@ -33228,8 +33206,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_superadmin2andfinancialapprovaltest_superadmin2andfinancialapprovaltest_test_super_admin_2_can_login_and_access_dashboard_and_modules",
-      "community": 285,
-      "community_name": "FinancialApprovalService",
+      "community": 299,
+      "community_name": "Tagihan",
       "norm_label": ".test_super_admin_2_can_login_and_access_dashboard_and_modules()"
     },
     {
@@ -33240,8 +33218,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_superadmin2andfinancialapprovaltest_superadmin2andfinancialapprovaltest_test_super_admin_2_is_blocked_from_mutating_master_data",
-      "community": 285,
-      "community_name": "FinancialApprovalService",
+      "community": 299,
+      "community_name": "Tagihan",
       "norm_label": ".test_super_admin_2_is_blocked_from_mutating_master_data()"
     },
     {
@@ -33252,8 +33230,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_superadmin2andfinancialapprovaltest_superadmin2andfinancialapprovaltest_test_finance_edit_tagihan_creates_approval_request_without_immediate_change",
-      "community": 12,
-      "community_name": "ApprovalKeuangan",
+      "community": 299,
+      "community_name": "Tagihan",
       "norm_label": ".test_finance_edit_tagihan_creates_approval_request_without_immediate_change()"
     },
     {
@@ -33264,8 +33242,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_superadmin2andfinancialapprovaltest_superadmin2andfinancialapprovaltest_test_finance_delete_tagihan_creates_approval_request",
-      "community": 285,
-      "community_name": "FinancialApprovalService",
+      "community": 299,
+      "community_name": "Tagihan",
       "norm_label": ".test_finance_delete_tagihan_creates_approval_request()"
     },
     {
@@ -33276,8 +33254,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_superadmin2andfinancialapprovaltest_superadmin2andfinancialapprovaltest_test_finance_delete_payment_creates_approval_request",
-      "community": 285,
-      "community_name": "FinancialApprovalService",
+      "community": 12,
+      "community_name": "ApprovalKeuangan",
       "norm_label": ".test_finance_delete_payment_creates_approval_request()"
     },
     {
@@ -33288,8 +33266,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_superadmin2andfinancialapprovaltest_superadmin2andfinancialapprovaltest_test_super_admin_can_approve_tagihan_edit_request",
-      "community": 285,
-      "community_name": "FinancialApprovalService",
+      "community": 299,
+      "community_name": "Tagihan",
       "norm_label": ".test_super_admin_can_approve_tagihan_edit_request()"
     },
     {
@@ -33300,8 +33278,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_superadmin2andfinancialapprovaltest_superadmin2andfinancialapprovaltest_test_super_admin_2_can_approve_payment_deletion_and_it_executes_atomically",
-      "community": 285,
-      "community_name": "FinancialApprovalService",
+      "community": 299,
+      "community_name": "Tagihan",
       "norm_label": ".test_super_admin_2_can_approve_payment_deletion_and_it_executes_atomically()"
     },
     {
@@ -33312,8 +33290,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_superadmin2andfinancialapprovaltest_superadmin2andfinancialapprovaltest_test_super_admin_2_can_reject_request_with_reason",
-      "community": 285,
-      "community_name": "FinancialApprovalService",
+      "community": 299,
+      "community_name": "Tagihan",
       "norm_label": ".test_super_admin_2_can_reject_request_with_reason()"
     },
     {
@@ -33324,8 +33302,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_superadmin2andfinancialapprovaltest_superadmin2andfinancialapprovaltest_test_finance_user_cannot_approve_or_reject_requests",
-      "community": 285,
-      "community_name": "FinancialApprovalService",
+      "community": 299,
+      "community_name": "Tagihan",
       "norm_label": ".test_finance_user_cannot_approve_or_reject_requests()"
     },
     {
@@ -33335,8 +33313,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_superadmin2monitoringgurutest",
-      "community": 25,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 67,
+      "community_name": "Semester.php",
       "norm_label": "superadmin2monitoringgurutest.php"
     },
     {
@@ -33348,7 +33326,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_feature_superadmin2monitoringgurutest_superadmin2monitoringgurutest",
-      "community": 4,
+      "community": 210,
       "community_name": "MataPelajaran",
       "norm_label": "superadmin2monitoringgurutest"
     },
@@ -33360,7 +33338,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_superadmin2monitoringgurutest_superadmin2monitoringgurutest_setup",
-      "community": 4,
+      "community": 210,
       "community_name": "MataPelajaran",
       "norm_label": ".setup()"
     },
@@ -33372,7 +33350,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_superadmin2monitoringgurutest_superadmin2monitoringgurutest_test_super_admin_2_can_access_monitoring_guru_progress",
-      "community": 4,
+      "community": 210,
       "community_name": "MataPelajaran",
       "norm_label": ".test_super_admin_2_can_access_monitoring_guru_progress()"
     },
@@ -33455,8 +33433,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_tabungansiswatest",
-      "community": 26,
-      "community_name": "KategoriPengeluaran",
+      "community": 39,
+      "community_name": "Role.php",
       "norm_label": "tabungansiswatest.php"
     },
     {
@@ -33752,8 +33730,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_feature_tahfidzparentfeedbacktest_tahfidzparentfeedbacktest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "tahfidzparentfeedbacktest"
     },
     {
@@ -33786,8 +33764,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_tatausahashadowteachertest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "tatausahashadowteachertest.php"
     },
     {
@@ -33799,8 +33777,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_feature_tatausahashadowteachertest_tatausahashadowteachertest",
-      "community": 235,
-      "community_name": "Guru",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "tatausahashadowteachertest"
     },
     {
@@ -33823,8 +33801,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_tatausahashadowteachertest_tatausahashadowteachertest_test_tata_usaha_can_assign_shadow_teacher_from_guru_umum_or_tahfidz",
-      "community": 235,
-      "community_name": "Guru",
+      "community": 3,
+      "community_name": "Siswa",
       "norm_label": ".test_tata_usaha_can_assign_shadow_teacher_from_guru_umum_or_tahfidz()"
     },
     {
@@ -33845,8 +33823,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_pest",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "pest.php"
     },
     {
@@ -33857,8 +33835,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_pest_something",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "something()"
     },
     {
@@ -33868,8 +33846,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_testcase",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "testcase.php"
     },
     {
@@ -33881,8 +33859,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_testcase_testcase",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "testcase"
     },
     {
@@ -37952,7 +37930,7 @@
       "_origin": "ast",
       "id": "closure",
       "community": 301,
-      "community_name": "Closure",
+      "community_name": "EligibleShadowTeacher.php",
       "norm_label": "closure"
     },
     {
@@ -37963,7 +37941,7 @@
       "_origin": "ast",
       "id": "symfony_component_httpfoundation_response",
       "community": 301,
-      "community_name": "Closure",
+      "community_name": "EligibleShadowTeacher.php",
       "norm_label": "symfony\\component\\httpfoundation\\response"
     },
     {
@@ -37995,8 +37973,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "livewire_withfileuploads",
-      "community": 303,
-      "community_name": "Livewire\\Component",
+      "community": 26,
+      "community_name": "KategoriPengeluaran",
       "norm_label": "livewire\\withfileuploads"
     },
     {
@@ -38017,8 +37995,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "illuminate_support_collection",
-      "community": 64,
-      "community_name": "Peminjaman",
+      "community": 76,
+      "community_name": "SystemErrorLog",
       "norm_label": "illuminate\\support\\collection"
     },
     {
@@ -38039,8 +38017,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "illuminate_database_eloquent_softdeletes",
-      "community": 26,
-      "community_name": "KategoriPengeluaran",
+      "community": 25,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": "illuminate\\database\\eloquent\\softdeletes"
     },
     {
@@ -38062,7 +38040,7 @@
       "_origin": "ast",
       "id": "illuminate_database_eloquent_relations_hasmany",
       "community": 210,
-      "community_name": "ManajemenKurikulumMerdeka",
+      "community_name": "MataPelajaran",
       "norm_label": "illuminate\\database\\eloquent\\relations\\hasmany"
     },
     {
@@ -38095,7 +38073,7 @@
       "_origin": "ast",
       "id": "illuminate_support_serviceprovider",
       "community": 267,
-      "community_name": "Login.php",
+      "community_name": "AuditLogger.php",
       "norm_label": "illuminate\\support\\serviceprovider"
     },
     {
@@ -38106,7 +38084,7 @@
       "_origin": "ast",
       "id": "illuminate_contracts_validation_validationrule",
       "community": 301,
-      "community_name": "Closure",
+      "community_name": "EligibleShadowTeacher.php",
       "norm_label": "illuminate\\contracts\\validation\\validationrule"
     },
     {
@@ -38116,8 +38094,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "symfony_component_httpfoundation_streamedresponse",
-      "community": 74,
-      "community_name": "FinanceExportController",
+      "community": 267,
+      "community_name": "AuditLogger.php",
       "norm_label": "symfony\\component\\httpfoundation\\streamedresponse"
     },
     {
@@ -38171,8 +38149,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "illuminate_foundation_testing_refreshdatabase",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "illuminate\\foundation\\testing\\refreshdatabase"
     },
     {
@@ -38182,8 +38160,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "illuminate_foundation_testing_testcase",
-      "community": 39,
-      "community_name": "Role.php",
+      "community": 64,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "illuminate\\foundation\\testing\\testcase"
     }
   ],
@@ -102451,17 +102429,6 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "package_dependencies",
-      "target": "package_dependencies_driver_js",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "package.json",
-      "source_location": "L19",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "package_dependencies",
       "target": "package_dependencies_micromodal",
       "confidence_score": 1.0
     },
@@ -102482,18 +102449,6 @@
       "confidence": "EXTRACTED",
       "source_file": "package.json",
       "source_location": "L18",
-      "weight": 1.0,
-      "context": "import",
-      "_origin": "ast",
-      "source": "package_dependencies_driver_js",
-      "target": "driver_js",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "confidence": "EXTRACTED",
-      "source_file": "package.json",
-      "source_location": "L19",
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",

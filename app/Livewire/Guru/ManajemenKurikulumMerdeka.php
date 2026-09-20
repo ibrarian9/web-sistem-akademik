@@ -47,9 +47,21 @@ class ManajemenKurikulumMerdeka extends Component
                 session()->flash('error', 'Akses ditolak. Guru Tahfizh tidak mengelola modul Kurikulum Merdeka.');
                 return redirect()->route('guru.input-tahfidz');
             }
-        }
 
-        $mapel = MataPelajaran::orderBy('id', 'asc')->first();
+            // Prioritaskan mata pelajaran yang diampu guru ini
+            $assignedMapelIds = \App\Models\GuruMapelKelas::where('guru_id', $user->guru->id)
+                ->pluck('mapel_id')
+                ->unique()
+                ->toArray();
+
+            if (!empty($assignedMapelIds)) {
+                $mapel = MataPelajaran::whereIn('id', $assignedMapelIds)->orderBy('nama_mapel', 'asc')->first();
+            } else {
+                $mapel = MataPelajaran::orderBy('id', 'asc')->first();
+            }
+        } else {
+            $mapel = MataPelajaran::orderBy('id', 'asc')->first();
+        }
 
         if ($mapel) {
             $this->mapel_id = $mapel->id;
@@ -291,6 +303,15 @@ class ManajemenKurikulumMerdeka extends Component
 
     public function render()
     {
+        $user = auth()->user();
+        $assignedMapelIds = [];
+        if ($user && $user->role?->nama === 'guru' && $user->guru) {
+            $assignedMapelIds = \App\Models\GuruMapelKelas::where('guru_id', $user->guru->id)
+                ->pluck('mapel_id')
+                ->unique()
+                ->toArray();
+        }
+
         $mapels = MataPelajaran::orderBy('nama_mapel', 'asc')->get();
         $lingkupMateris = [];
 
@@ -303,6 +324,7 @@ class ManajemenKurikulumMerdeka extends Component
 
         return view('livewire.guru.manajemen-kurikulum-merdeka', [
             'mapels' => $mapels,
+            'assignedMapelIds' => $assignedMapelIds,
             'lingkupMateris' => $lingkupMateris,
         ])->layout('components.layouts.app', ['title' => 'Setup Kurikulum Merdeka']);
     }

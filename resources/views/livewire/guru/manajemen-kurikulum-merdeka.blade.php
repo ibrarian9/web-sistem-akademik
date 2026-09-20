@@ -23,22 +23,50 @@
     >
         <x-slot:actions>
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-                <div class="w-full sm:w-64 bg-stone-50 border border-stone-200 p-2.5 rounded-xl">
+                <div id="tour-km-mapel" class="w-full sm:w-72 bg-stone-50 border border-stone-200 p-2.5 rounded-xl">
                     <label class="block text-[10px] font-extrabold text-stone-600 uppercase tracking-wider mb-1">Pilih Mata Pelajaran</label>
                     <select wire:model.live="mapel_id" class="w-full bg-white border border-stone-300 rounded-lg text-stone-900 px-3 py-1.5 text-xs font-bold focus:ring-2 focus:ring-emerald-500 shadow-2xs">
-                        @foreach($mapels as $m)
-                            <option value="{{ $m->id }}">{{ $m->nama_mapel }}</option>
-                        @endforeach
+                        @php
+                            $myMapels = $mapels->whereIn('id', $assignedMapelIds);
+                            $otherMapels = $mapels->whereNotIn('id', $assignedMapelIds);
+                        @endphp
+                        @if($myMapels->isNotEmpty())
+                            <optgroup label="Mata Pelajaran Diampu">
+                                @foreach($myMapels as $m)
+                                    <option value="{{ $m->id }}">{{ $m->nama_mapel }}</option>
+                                @endforeach
+                            </optgroup>
+                            @if($otherMapels->isNotEmpty())
+                                <optgroup label="Mata Pelajaran Lainnya">
+                                    @foreach($otherMapels as $m)
+                                        <option value="{{ $m->id }}">{{ $m->nama_mapel }}</option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
+                        @else
+                            @foreach($mapels as $m)
+                                <option value="{{ $m->id }}">{{ $m->nama_mapel }}</option>
+                            @endforeach
+                        @endif
                     </select>
                 </div>
 
                 <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <x-button variant="primary" size="md" icon="plus" wire:click="openLmModal" class="flex-1 sm:flex-none">
-                        Tambah Bab
-                    </x-button>
-                    <x-button variant="secondary" size="md" icon="plus" wire:click="openTpModal" class="flex-1 sm:flex-none">
-                        Tambah TP
-                    </x-button>
+                    <button 
+                        type="button" 
+                        id="tour-km-help-btn"
+                        onclick="runKurmerTour()"
+                        class="px-3.5 py-2.5 bg-emerald-50 hover:bg-emerald-100 active:bg-emerald-200 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer flex-1 sm:flex-none"
+                        title="Buka panduan langkah demi langkah cara mengelola Bab dan Tujuan Pembelajaran"
+                    >
+                        <svg class="w-4 h-4 text-emerald-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>Panduan Interaktif</span>
+                    </button>
+                    <div id="tour-km-tambah-bab" class="flex-1 sm:flex-none">
+                        <x-button variant="primary" size="md" icon="plus" wire:click="openLmModal" class="w-full">
+                            Tambah Bab
+                        </x-button>
+                    </div>
                 </div>
             </div>
         </x-slot:actions>
@@ -64,49 +92,69 @@
         </div>
     @endif
 
-    <!-- Template Frasa Auto-Narasi Capaian -->
-    <div class="bg-white border border-stone-200 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
-        <form wire:submit.prevent="saveTemplate" class="space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-200">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                    </div>
-                    <div>
-                        <h2 class="text-xs sm:text-sm font-extrabold text-stone-900 uppercase tracking-wider">Template Frasa Auto-Narasi Capaian Rapor</h2>
-                        <p class="text-[11px] text-stone-500 font-medium">Kalimat pembuka yang digabung otomatis dengan TP tertinggi & terendah.</p>
-                    </div>
+    <!-- Template Frasa Auto-Narasi Capaian (Collapsible) -->
+    <div id="tour-km-frasa-rapor" x-data="{ openTemplate: false }" class="bg-white border border-stone-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
+        <div class="flex items-center justify-between cursor-pointer select-none" @click="openTemplate = !openTemplate">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                 </div>
-                <x-button type="submit" variant="primary" size="sm" icon="check" loadingTarget="saveTemplate" class="w-full sm:w-auto">
-                    Simpan Template Frasa
-                </x-button>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="space-y-1.5">
-                    <label class="block text-xs font-bold text-stone-800">Frasa Pembuka Nilai Tertinggi</label>
-                    <input type="text" wire:model="frasa_tertinggi" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-2 text-stone-900 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 shadow-2xs">
-                </div>
-                <div class="space-y-1.5">
-                    <label class="block text-xs font-bold text-stone-800">Frasa Pembuka Nilai Terendah</label>
-                    <input type="text" wire:model="frasa_terendah" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-2 text-stone-900 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 shadow-2xs">
+                <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h2 class="text-xs sm:text-sm font-extrabold text-stone-900 uppercase tracking-wider">
+                            Template Frasa Auto-Narasi Rapor
+                        </h2>
+                        <span class="text-[10px] font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-md">Standar Sekolah Aktif (Otomatis)</span>
+                        <span class="text-[10px] font-bold text-stone-500 bg-stone-100 border border-stone-200 px-2 py-0.5 rounded-md lowercase">opsional</span>
+                    </div>
+                    <p class="text-[11px] text-stone-500 font-medium mt-0.5">Sudah aktif otomatis dengan format standar sekolah. Klik di sini jika ingin mengubah redaksi kalimat pembuka rapor.</p>
                 </div>
             </div>
-        </form>
+            <button type="button" @click.stop="openTemplate = !openTemplate" class="text-emerald-700 hover:text-emerald-900 transition p-1.5 bg-stone-50 hover:bg-stone-100 rounded-xl border border-stone-200 shadow-2xs flex items-center gap-1.5 text-xs font-semibold cursor-pointer">
+                <span x-text="openTemplate ? 'Tutup Pengaturan Frasa' : 'Buka Pengaturan Frasa'"></span>
+                <svg class="w-4 h-4 transform transition-transform duration-300 ease-in-out" :class="openTemplate ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+        </div>
 
-        <!-- Live Preview -->
-        <div class="p-3.5 bg-stone-50 border border-stone-200 rounded-xl space-y-1">
-            <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider block">Simulasi Tampilan Pada Rapor Digital:</span>
-            <p class="text-xs text-stone-800 italic leading-relaxed font-medium">
-                "Ananda Siswa <span class="text-emerald-700 font-bold underline">{{ $frasa_tertinggi ?: 'menunjukkan penguasaan dalam' }}</span> [Deskripsi TP Nilai Tertinggi], namun <span class="text-amber-700 font-bold underline">{{ $frasa_terendah ?: 'membutuhkan penguatan dalam' }}</span> [Deskripsi TP Nilai Terendah]."
-            </p>
+        <div x-show="openTemplate" x-collapse.duration.300ms class="pt-3 border-t border-stone-200 space-y-4">
+            <form wire:submit.prevent="saveTemplate" class="space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
+                    <p class="text-xs text-stone-600 font-medium leading-relaxed">
+                        Frasa pembuka ini akan digabungkan secara otomatis dengan Tujuan Pembelajaran bernilai tertinggi dan terendah murid pada rapor akhir.
+                    </p>
+                    <x-button type="submit" variant="primary" size="sm" icon="check" loadingTarget="saveTemplate" class="w-full sm:w-auto shrink-0">
+                        Simpan Template Frasa
+                    </x-button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-bold text-stone-800">Frasa Pembuka Nilai Tertinggi</label>
+                        <input type="text" wire:model="frasa_tertinggi" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-2 text-stone-900 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 shadow-2xs">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-bold text-stone-800">Frasa Pembuka Nilai Terendah</label>
+                        <input type="text" wire:model="frasa_terendah" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-2 text-stone-900 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 shadow-2xs">
+                    </div>
+                </div>
+            </form>
+
+            <!-- Live Preview -->
+            <div class="p-3.5 bg-stone-50 border border-stone-200 rounded-xl space-y-1">
+                <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider block">Simulasi Tampilan Pada Rapor Digital:</span>
+                <p class="text-xs text-stone-800 italic leading-relaxed font-medium">
+                    "Ananda Siswa <span class="text-emerald-700 font-bold underline">{{ $frasa_tertinggi ?: 'menunjukkan penguasaan dalam' }}</span> [Deskripsi TP Nilai Tertinggi], namun <span class="text-amber-700 font-bold underline">{{ $frasa_terendah ?: 'membutuhkan penguatan dalam' }}</span> [Deskripsi TP Nilai Terendah]."
+                </p>
+            </div>
         </div>
     </div>
 
     <!-- Registered Bab & TP Full-Width Card List -->
     <div class="space-y-5">
         @forelse($lingkupMateris as $lm)
-            <div class="bg-white border border-stone-200 rounded-2xl p-4 sm:p-6 shadow-xs space-y-4">
+            <div @if($loop->first) id="tour-km-kartu-bab" @endif class="bg-white border border-stone-200 rounded-2xl p-4 sm:p-6 shadow-xs space-y-4">
                 <!-- Header Bab: Responsif (Mobile: 2 baris atas-bawah | Desktop: 1 baris kiri-kanan rapi) -->
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3.5 border-b border-stone-200">
                     <!-- Bagian 1: Materi & Identitas Bab (Kiri pada desktop, Atas pada mobile) -->
@@ -209,7 +257,7 @@
                 </div>
             </div>
         @empty
-            <div class="bg-white border border-stone-200 rounded-2xl p-10 sm:p-12 text-center space-y-4 shadow-xs">
+            <div id="tour-km-kartu-bab" class="bg-white border border-stone-200 rounded-2xl p-10 sm:p-12 text-center space-y-4 shadow-xs">
                 <div class="w-14 h-14 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl flex items-center justify-center mx-auto shadow-2xs">
                     <svg class="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                 </div>
@@ -270,8 +318,12 @@
             </div>
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-xs font-bold text-stone-700 mb-1">Kategori</label>
-                    <input type="text" wire:model="kategori_lm" placeholder="Opsional" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-stone-900 text-xs font-semibold focus:bg-white shadow-2xs">
+                    <label class="block text-xs font-bold text-stone-700 mb-1">Kategori Penilaian</label>
+                    <select wire:model="kategori_lm" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white shadow-2xs">
+                        <option value="sumatif">Sumatif Lingkup Materi (Rapor)</option>
+                        <option value="formatif">Formatif / Pengayaan</option>
+                        <option value="praktek">Praktik / Portofolio</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-stone-700 mb-1">Urutan Bab</label>
@@ -338,4 +390,64 @@
         </form>
     </x-floating-card>
 
+    <script>
+        function getKurmerTourSteps() {
+            return [
+                {
+                    element: '#tour-km-mapel',
+                    popover: {
+                        title: '1. Pilih Mata Pelajaran',
+                        description: 'Pilih mata pelajaran yang ingin dikelola. Mata pelajaran yang Anda ampu otomatis ditaruh di kelompok teratas agar mudah ditemukan.',
+                        side: 'bottom',
+                        align: 'start'
+                    }
+                },
+                {
+                    element: '#tour-km-tambah-bab',
+                    popover: {
+                        title: '2. Buat Bab Baru',
+                        description: 'Klik tombol Tambah Bab untuk membuat Bab atau Lingkup Materi baru pada semester aktif ini.',
+                        side: 'bottom',
+                        align: 'end'
+                    }
+                },
+                {
+                    element: '#tour-km-kartu-bab',
+                    popover: {
+                        title: '3. Kartu Bab & Tambah TP',
+                        description: 'Setiap Bab memiliki tombol "+ Tambah TP" sendiri. Klik tombol tersebut untuk menambahkan butir Tujuan Pembelajaran langsung ke dalam Bab terkait.',
+                        side: 'top',
+                        align: 'start'
+                    }
+                },
+                {
+                    element: '#tour-km-frasa-rapor',
+                    popover: {
+                        title: '4. Format Auto-Narasi Rapor (Opsional)',
+                        description: 'Format narasi capaian rapor siswa sudah otomatis aktif menggunakan standar sekolah. Anda hanya perlu membukanya jika ingin menyesuaikan redaksi kalimat pembuka.',
+                        side: 'bottom',
+                        align: 'start'
+                    }
+                }
+            ];
+        }
+
+        function runKurmerTour() {
+            if (typeof window.startSiakadTour === 'function') {
+                window.startSiakadTour('siakad_tour_kurmer_v1', getKurmerTourSteps());
+            }
+        }
+
+        document.addEventListener('livewire:navigated', () => {
+            if (typeof window.checkAutoTour === 'function') {
+                window.checkAutoTour('siakad_tour_kurmer_v1', getKurmerTourSteps(), 800);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof window.checkAutoTour === 'function') {
+                window.checkAutoTour('siakad_tour_kurmer_v1', getKurmerTourSteps(), 800);
+            }
+        });
+    </script>
 </div>

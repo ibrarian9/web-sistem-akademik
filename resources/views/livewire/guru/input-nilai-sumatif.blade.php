@@ -1,4 +1,41 @@
-<div class="space-y-6 font-sans pb-24 md:pb-16">
+<div 
+    x-data="{
+        isDirty: false,
+        init() {
+            window.addEventListener('beforeunload', (e) => {
+                if (this.isDirty) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
+            });
+            Livewire.on('scores-saved', () => {
+                this.isDirty = false;
+            });
+        },
+        markDirty(el) {
+            this.isDirty = true;
+            if (el && Number(el.value) > 100) {
+                el.classList.add('ring-2', 'ring-rose-500', 'border-rose-500', 'bg-rose-50');
+            } else if (el) {
+                el.classList.remove('ring-2', 'ring-rose-500', 'border-rose-500', 'bg-rose-50');
+            }
+        },
+        navigateCell(event, rowIdx, colIdx) {
+            let nextRow = rowIdx;
+            if (event.key === 'Enter' || event.key === 'ArrowDown') {
+                nextRow = rowIdx + 1;
+            } else if (event.key === 'ArrowUp') {
+                nextRow = Math.max(0, rowIdx - 1);
+            }
+            let targetInput = document.querySelector(`input[data-row='${nextRow}'][data-col='${colIdx}']`);
+            if (targetInput) {
+                targetInput.focus();
+                targetInput.select();
+            }
+        }
+    }" 
+    class="space-y-6 font-sans pb-24 md:pb-16"
+>
     <!-- Quick Module Switcher Navigation -->
     <x-guru-module-switcher active="sumatif" />
 
@@ -22,19 +59,35 @@
         icon="table"
     >
         <x-slot:actions>
-            <div class="flex items-center gap-2 w-full sm:w-auto">
+            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                <span x-show="isDirty" x-cloak class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-100 border border-amber-300 text-amber-900 rounded-xl text-xs font-bold animate-pulse shadow-2xs">
+                    <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <span>Nilai belum disimpan</span>
+                </span>
+                <button 
+                    type="button" 
+                    id="tour-sumatif-help-btn"
+                    onclick="runSumatifTour()"
+                    class="px-3.5 py-2.5 bg-emerald-50 hover:bg-emerald-100 active:bg-emerald-200 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer flex-1 sm:flex-none"
+                    title="Buka panduan langkah demi langkah cara mengisi nilai sumatif"
+                >
+                    <svg class="w-4 h-4 text-emerald-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>Panduan Interaktif</span>
+                </button>
                 <x-button variant="secondary" size="md" icon="layers" href="{{ route('guru.kurikulum-merdeka') }}" class="flex-1 sm:flex-none">
                     Setup Bab & TP
                 </x-button>
-                <x-button variant="primary" size="md" icon="check" wire:click="saveAllScores" loadingTarget="saveAllScores" class="flex-1 sm:flex-none">
-                    Simpan & Hitung Rapor
-                </x-button>
+                <div id="tour-sumatif-simpan" class="flex-1 sm:flex-none">
+                    <x-button variant="primary" size="md" icon="check" wire:click="saveAllScores" loadingTarget="saveAllScores" class="w-full">
+                        Simpan & Hitung Rapor
+                    </x-button>
+                </div>
             </div>
         </x-slot:actions>
     </x-page-header>
 
     <!-- Filter Bar Card -->
-    <div class="bg-white border border-stone-200 p-4 sm:p-6 rounded-2xl shadow-xs space-y-4">
+    <div id="tour-sumatif-filter" class="bg-white border border-stone-200 p-4 sm:p-6 rounded-2xl shadow-xs space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
                 <label class="block text-[10px] font-extrabold text-stone-600 uppercase tracking-wider mb-1">Kelas</label>
@@ -55,9 +108,9 @@
             <div>
                 <label class="block text-[10px] font-extrabold text-stone-600 uppercase tracking-wider mb-1">Filter Bab (Lingkup Materi)</label>
                 <select wire:model.live="lingkup_materi_id" class="w-full bg-stone-50 border border-stone-300 rounded-xl text-stone-900 px-3 py-2 text-xs font-bold focus:ring-2 focus:ring-emerald-500 focus:bg-white shadow-2xs">
-                    <option value="">-- Semua Bab --</option>
+                    <option value="">-- Semua Bab (Tampilkan Seluruh TP) --</option>
                     @foreach($lingkupMateris as $lm)
-                        <option value="{{ $lm->id }}">{{ $lm->nama_lingkup_materi }}</option>
+                        <option value="{{ $lm->id }}">Bab {{ $lm->urutan }}: {{ $lm->nama_lingkup_materi }}</option>
                     @endforeach
                 </select>
             </div>
@@ -87,22 +140,18 @@
         </div>
     @endif
 
+    @if (session()->has('error'))
+        <div class="bg-rose-50 border border-rose-300 text-rose-800 p-4 rounded-2xl text-xs font-bold flex items-center justify-between shadow-2xs">
+            <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>{{ session('error') }}</span>
+            </div>
+            <span class="px-2.5 py-0.5 bg-rose-200 text-rose-900 rounded-lg font-black text-[10px]">Perhatian</span>
+        </div>
+    @endif
+
     <!-- Matrix Table Container -->
-    <div x-data="{
-        navigateCell(event, rowIdx, colIdx) {
-            let nextRow = rowIdx;
-            if (event.key === 'Enter' || event.key === 'ArrowDown') {
-                nextRow = rowIdx + 1;
-            } else if (event.key === 'ArrowUp') {
-                nextRow = Math.max(0, rowIdx - 1);
-            }
-            let targetInput = document.querySelector(`input[data-row='${nextRow}'][data-col='${colIdx}']`);
-            if (targetInput) {
-                targetInput.focus();
-                targetInput.select();
-            }
-        }
-    }" class="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-xs">
+    <div id="tour-sumatif-tabel" class="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-xs">
         
         <!-- Table Header Bar -->
         <div class="p-3.5 sm:p-4 bg-stone-50 border-b border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -136,10 +185,10 @@
                             Nama Siswa
                         </th>
                         
-                        <!-- Dynamic TP Columns -->
+                        <!-- Dynamic TP Columns with Bab.TP Prefix -->
                         @foreach($tps as $tpIdx => $tp)
-                            <th class="min-w-[75px] sm:min-w-[90px] p-2 text-center bg-emerald-800 text-white font-extrabold border-b border-r border-emerald-700" title="{{ $tp->deskripsi_tp }}">
-                                <span class="block text-white font-black text-xs">TP {{ $tp->urutan }}</span>
+                            <th class="min-w-[80px] sm:min-w-[95px] p-2 text-center bg-emerald-800 text-white font-extrabold border-b border-r border-emerald-700" title="{{ $tp->deskripsi_tp }}">
+                                <span class="block text-white font-black text-xs">B{{ $tp->lingkupMateri->urutan ?? '1' }}.TP{{ $tp->urutan }}</span>
                                 <span class="text-[10px] text-emerald-200 font-normal block truncate max-w-[75px] sm:max-w-[100px] mx-auto">{{ $tp->deskripsi_tp }}</span>
                             </th>
                         @endforeach
@@ -207,11 +256,12 @@
                                         max="100" 
                                         data-row="{{ $index }}"
                                         data-col="{{ $colIdx }}"
+                                        @input="markDirty($el)"
                                         @keydown.enter.prevent="navigateCell($event, {{ $index }}, {{ $colIdx }})"
                                         @keydown.arrow-down.prevent="navigateCell($event, {{ $index }}, {{ $colIdx }})"
                                         @keydown.arrow-up.prevent="navigateCell($event, {{ $index }}, {{ $colIdx }})"
                                         wire:model.defer="nilaiTpMatrix.{{ $s->id }}.{{ $tp->id }}"
-                                        class="w-14 sm:w-16 h-8 sm:h-9 bg-white border border-stone-300 rounded-lg text-center text-stone-900 font-black text-xs py-1 focus:ring-2 focus:ring-emerald-500 focus:bg-emerald-50 focus:border-emerald-500 shadow-2xs"
+                                        class="w-14 sm:w-16 h-8 sm:h-9 bg-white border border-stone-300 rounded-lg text-center text-stone-900 font-black text-xs py-1 focus:ring-2 focus:ring-emerald-500 focus:bg-emerald-50 focus:border-emerald-500 shadow-2xs transition"
                                         placeholder="0"
                                     >
                                 </td>
@@ -232,11 +282,12 @@
                                     max="100" 
                                     data-row="{{ $index }}"
                                     data-col="{{ count($allTps) }}"
+                                    @input="markDirty($el)"
                                     @keydown.enter.prevent="navigateCell($event, {{ $index }}, {{ count($allTps) }})"
                                     @keydown.arrow-down.prevent="navigateCell($event, {{ $index }}, {{ count($allTps) }})"
                                     @keydown.arrow-up.prevent="navigateCell($event, {{ $index }}, {{ count($allTps) }})"
                                     wire:model.defer="nilaiSasMatrix.{{ $s->id }}"
-                                    class="w-16 sm:w-20 h-8 sm:h-9 bg-white border border-cyan-400 text-cyan-900 font-black rounded-lg text-center text-xs py-1 focus:ring-2 focus:ring-cyan-500 shadow-2xs"
+                                    class="w-16 sm:w-20 h-8 sm:h-9 bg-white border border-cyan-400 text-cyan-900 font-black rounded-lg text-center text-xs py-1 focus:ring-2 focus:ring-cyan-500 shadow-2xs transition"
                                     placeholder="0"
                                 >
                             </td>
@@ -256,7 +307,11 @@
 
     <!-- Floating Mobile Bottom Action Bar -->
     @if(count($siswas) > 0)
-        <div class="fixed bottom-4 left-4 right-4 z-30 md:hidden">
+        <div class="fixed bottom-4 left-4 right-4 z-30 md:hidden flex flex-col gap-1.5">
+            <span x-show="isDirty" x-cloak class="inline-flex items-center justify-center gap-1.5 py-1.5 px-3 bg-amber-100 border border-amber-300 text-amber-900 rounded-xl text-xs font-bold text-center shadow-md animate-pulse">
+                <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <span>Nilai belum disimpan! Tekan simpan di bawah.</span>
+            </span>
             <button 
                 type="button" 
                 wire:click="saveAllScores" 
@@ -269,4 +324,56 @@
             </button>
         </div>
     @endif
+
+    <script>
+        function getSumatifTourSteps() {
+            return [
+                {
+                    element: '#tour-sumatif-filter',
+                    popover: {
+                        title: '1. Filter Kelas, Mapel, & Bab',
+                        description: 'Tentukan Rombel Kelas dan Mata Pelajaran yang akan dinilai. Sistem otomatis memfilter ke Bab 1 agar tampilan tabel rapi dan tidak terlalu lebar.',
+                        side: 'bottom',
+                        align: 'start'
+                    }
+                },
+                {
+                    element: '#tour-sumatif-tabel',
+                    popover: {
+                        title: '2. Input Nilai Cepat Format Excel',
+                        description: 'Ketik nilai capaian TP dan Sumatif Akhir Semester (SAS). Anda dapat menekan tombol panah Atas, Bawah, atau Enter pada keyboard untuk berpindah siswa dengan sangat cepat.',
+                        side: 'top',
+                        align: 'start'
+                    }
+                },
+                {
+                    element: '#tour-sumatif-simpan',
+                    popover: {
+                        title: '3. Simpan & Kalkulasi Rapor',
+                        description: 'Jika muncul lencana kuning "Nilai belum disimpan", pastikan menekan tombol Simpan & Hitung Rapor ini untuk memperbarui nilai rapor akhir siswa ke database.',
+                        side: 'bottom',
+                        align: 'end'
+                    }
+                }
+            ];
+        }
+
+        function runSumatifTour() {
+            if (typeof window.startSiakadTour === 'function') {
+                window.startSiakadTour('siakad_tour_sumatif_v1', getSumatifTourSteps());
+            }
+        }
+
+        document.addEventListener('livewire:navigated', () => {
+            if (typeof window.checkAutoTour === 'function') {
+                window.checkAutoTour('siakad_tour_sumatif_v1', getSumatifTourSteps(), 800);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof window.checkAutoTour === 'function') {
+                window.checkAutoTour('siakad_tour_sumatif_v1', getSumatifTourSteps(), 800);
+            }
+        });
+    </script>
 </div>

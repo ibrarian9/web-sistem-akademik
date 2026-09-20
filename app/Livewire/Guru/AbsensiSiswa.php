@@ -208,6 +208,7 @@ class AbsensiSiswa extends Component
             'message' => $msg,
             'type' => 'create',
         ]);
+        $this->dispatch('attendance-saved');
         $this->loadStudents();
     }
 

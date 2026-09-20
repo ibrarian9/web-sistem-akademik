@@ -15,6 +15,7 @@
     },
     "dependencies": {
         "chart.js": "^4.5.1",
+        "driver.js": "^1.8.0",
         "micromodal": "^0.7.0"
     }
 }

@@ -134,6 +134,78 @@ class TutorialDanFaq extends Component
                 'action_label' => 'Buka Menu Setoran Tahfizh'
             ],
             [
+                'id' => 'input-nilai-sumatif',
+                'category' => 'guru',
+                'category_label' => 'Guru & Pengajar',
+                'role_badge' => 'Penilaian & Rapor',
+                'title' => 'Panduan Input Nilai Sumatif TP & SAS Format Spreadsheet',
+                'problem_desc' => 'Bagaimana alur penginputan nilai harian TP dan SAS agar langsung terkalkulasi ke Rapor?',
+                'consequences' => [
+                    'Nilai yang belum disimpan melalui tombol "Simpan & Hitung Rapor" belum masuk ke pangkalan data.',
+                    'Kalkulasi nilai rapor akhir dan auto-narasi deskripsi belum dapat dicetak oleh Wali Kelas jika nilai belum disimpan.'
+                ],
+                'steps' => [
+                    [
+                        'step' => 1,
+                        'title' => 'Pilih Kelas, Mapel & Semester',
+                        'desc' => 'Buka menu "Nilai Sumatif TP & SAS", pilih rombel kelas bimbingan, mata pelajaran yang diampu, serta semester aktif.'
+                    ],
+                    [
+                        'step' => 2,
+                        'title' => 'Input Cepat Seperti Excel',
+                        'desc' => 'Ketikkan angka nilai 0 - 100 pada kolom TP dan SAS. Gunakan tombol Enter atau panah bawah keyboard untuk berpindah baris secara kilat.'
+                    ],
+                    [
+                        'step' => 3,
+                        'title' => 'Perhatikan Peringatan Simpan',
+                        'desc' => 'Saat mengetik, lencana peringatan "Nilai belum disimpan" akan aktif. Pastikan Anda menekan tombol Simpan sebelum berpindah halaman.'
+                    ],
+                    [
+                        'step' => 4,
+                        'title' => 'Simpan & Hitung Rapor',
+                        'desc' => 'Klik tombol "Simpan & Hitung Rapor" (atau tombol melayang di HP). Sistem otomatis memvalidasi angka, mengkalkulasi rata-rata, dan menyinkronkan narasi capaian.'
+                    ]
+                ],
+                'action_route' => $role === 'guru' ? 'guru.input-sumatif' : null,
+                'action_label' => 'Buka Form Nilai Sumatif'
+            ],
+            [
+                'id' => 'presensi-siswa-harian',
+                'category' => 'guru',
+                'category_label' => 'Guru & Pengajar',
+                'role_badge' => 'Presensi Harian',
+                'title' => 'Panduan Presensi Kehadiran Siswa Harian & Fitur Set Masal',
+                'problem_desc' => 'Bagaimana cara cepat mencatat kehadiran seluruh siswa tanpa klik satu per satu?',
+                'consequences' => [
+                    'Menghemat waktu guru di awal jam pelajaran agar tidak perlu memilih status 30+ siswa secara manual.',
+                    'Data kehadiran langsung terhubung dengan rekap bulanan serta persentase kehadiran di Rapor Murid.'
+                ],
+                'steps' => [
+                    [
+                        'step' => 1,
+                        'title' => 'Pilih Kelas & Tanggal Presensi',
+                        'desc' => 'Buka menu "Absensi Siswa", pilih rombel kelas, dan gunakan tombol cepat "Hari Ini" atau "Kemarin".'
+                    ],
+                    [
+                        'step' => 2,
+                        'title' => 'Gunakan Tombol "Semua Hadir"',
+                        'desc' => 'Klik tombol hijau "Semua Hadir" pada baris Set Masal untuk mengubah status seluruh siswa di kelas menjadi hadir secara instan.'
+                    ],
+                    [
+                        'step' => 3,
+                        'title' => 'Sesuaikan Siswa yang Berhalangan',
+                        'desc' => 'Ubah status hanya untuk siswa yang sakit, izin, atau alpa, dan tambahkan keterangan singkat pada kolom Catatan bila diperlukan.'
+                    ],
+                    [
+                        'step' => 4,
+                        'title' => 'Wajib Klik Simpan Seluruh Kehadiran',
+                        'desc' => 'Tekan tombol "Simpan Seluruh Kehadiran" di bagian bawah tabel untuk mengabadikan data presensi ke dalam database server.'
+                    ]
+                ],
+                'action_route' => $role === 'guru' ? 'guru.absensi-siswa' : null,
+                'action_label' => 'Buka Presensi Siswa'
+            ],
+            [
                 'id' => 'pembayaran-spp',
                 'category' => 'finance',
                 'category_label' => 'Finance & Wali Murid',
@@ -323,6 +395,18 @@ class TutorialDanFaq extends Component
                 'question' => 'Bagaimana prosedur pergantian password akun login?',
                 'answer' => 'Pengguna dapat mengganti password mandiri melalui menu "Profil Saya" -> "Ubah Password". Jika lupa password, Tata Usaha atau Super Admin dapat mereset password melalui menu Manajemen User.',
                 'category' => 'semua'
+            ],
+            [
+                'id' => 'faq-9',
+                'question' => 'Apakah nilai di tabel Sumatif otomatis tersimpan saat saya mengetik angka?',
+                'answer' => 'Tidak otomatis. Nilai yang Anda ketik disimpan sementara di peramban (browser) untuk menjaga kinerja cepat seperti spreadsheet. Anda wajib menekan tombol "Simpan & Hitung Rapor" agar nilai terekam permanen ke database dan tersinkronisasi ke Rapor Murid.',
+                'category' => 'guru'
+            ],
+            [
+                'id' => 'faq-10',
+                'question' => 'Mengapa setelah saya klik "Semua Hadir" muncul peringatan bahwa presensi belum tersimpan?',
+                'answer' => 'Tombol "Semua Hadir" mengatur status centang seluruh siswa di layar secara cepat. Sistem memunculkan pengingat visual agar guru tidak lupa menekan tombol "Simpan Seluruh Kehadiran" di bagian bawah sebelum menutup peramban.',
+                'category' => 'guru'
             ]
         ];
 

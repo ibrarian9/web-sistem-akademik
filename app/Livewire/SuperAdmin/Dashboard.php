@@ -7,10 +7,7 @@ use App\Models\Siswa;
 use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\Tagihan;
-use App\Models\User;
 use App\Models\Role;
-use App\Models\AbsensiSiswa;
-use Carbon\Carbon;
 
 class Dashboard extends Component
 {
@@ -30,7 +27,7 @@ class Dashboard extends Component
         $this->totalSiswa = Siswa::where('status', 'aktif')->count();
         $this->totalGuru = Guru::where('status_aktif', true)->count();
         $this->totalKelas = Kelas::count();
-        
+
         $tunggakanNominal = Tagihan::whereIn('status', ['belum_bayar', 'sebagian'])
             ->selectRaw('SUM(nominal - total_dibayar) as aggregate')
             ->value('aggregate') ?? 0.00;
@@ -45,9 +42,9 @@ class Dashboard extends Component
         $classes = Kelas::withCount(['siswa' => function ($q) {
             $q->where('status', 'aktif');
         }])
-        ->orderBy('nama_kelas', 'asc')
-        ->limit(10)
-        ->get();
+            ->orderBy('nama_kelas', 'asc')
+            ->limit(10)
+            ->get();
 
         $this->classLabels = $classes->pluck('nama_kelas')->map(fn($n) => 'Kls ' . $n)->toArray();
         $this->classStudentCounts = $classes->pluck('siswa_count')->toArray();

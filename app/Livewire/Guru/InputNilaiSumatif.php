@@ -65,6 +65,10 @@ class InputNilaiSumatif extends Component
         $mapel = MataPelajaran::where('jenis', 'intrakurikuler_umum')->first() ?? MataPelajaran::first();
         if ($mapel) {
             $this->mapel_id = $mapel->id;
+            $firstLm = LingkupMateri::where('mapel_id', $mapel->id)->orderBy('urutan', 'asc')->first();
+            if ($firstLm) {
+                $this->lingkup_materi_id = $firstLm->id;
+            }
         }
 
         $this->loadMatrixData();
@@ -72,6 +76,11 @@ class InputNilaiSumatif extends Component
 
     public function updated($propertyName)
     {
+        if ($propertyName === 'mapel_id') {
+            $firstLm = LingkupMateri::where('mapel_id', $this->mapel_id)->orderBy('urutan', 'asc')->first();
+            $this->lingkup_materi_id = $firstLm ? $firstLm->id : null;
+        }
+
         if (in_array($propertyName, ['kelas_id', 'mapel_id', 'lingkup_materi_id', 'semester_id'])) {
             $this->loadMatrixData();
         }
@@ -137,6 +146,27 @@ class InputNilaiSumatif extends Component
             return;
         }
 
+        // Validasi ketat batas nilai 0 - 100 untuk mencegah kesalahan input
+        foreach ($this->nilaiTpMatrix as $siswaId => $tpValues) {
+            foreach ($tpValues as $tpId => $nilaiVal) {
+                if ($nilaiVal !== '' && $nilaiVal !== null) {
+                    if (!is_numeric($nilaiVal) || (float)$nilaiVal < 0 || (float)$nilaiVal > 100) {
+                        session()->flash('error', 'Semua nilai TP harus berupa angka antara 0 sampai 100.');
+                        return;
+                    }
+                }
+            }
+        }
+
+        foreach ($this->nilaiSasMatrix as $siswaId => $sasVal) {
+            if ($sasVal !== '' && $sasVal !== null) {
+                if (!is_numeric($sasVal) || (float)$sasVal < 0 || (float)$sasVal > 100) {
+                    session()->flash('error', 'Semua nilai SAS harus berupa angka antara 0 sampai 100.');
+                    return;
+                }
+            }
+        }
+
         // Save Sumatif TP
         foreach ($this->nilaiTpMatrix as $siswaId => $tpValues) {
             foreach ($tpValues as $tpId => $nilaiVal) {
@@ -191,6 +221,7 @@ class InputNilaiSumatif extends Component
             }
         }
 
+        $this->dispatch('scores-saved');
         session()->flash('message', 'Matriks Nilai Sumatif TP & SAS berhasil disimpan.');
         $this->loadMatrixData();
     }
@@ -258,7 +289,7 @@ class InputNilaiSumatif extends Component
 
         $lingkupMateris = [];
         if ($this->mapel_id) {
-            $lingkupMateris = LingkupMateri::where('mapel_id', $this->mapel_id)->get();
+            $lingkupMateris = LingkupMateri::where('mapel_id', $this->mapel_id)->orderBy('urutan', 'asc')->get();
         }
 
         $siswas = $this->kelas_id ? Siswa::where(function ($q) {
@@ -274,7 +305,7 @@ class InputNilaiSumatif extends Component
                 $q->where('mapel_id', $this->mapel_id);
             });
         }
-        $tps = $tpQuery->get();
+        $tps = $tpQuery->orderBy('urutan', 'asc')->get();
 
         return view('livewire.guru.input-nilai-sumatif', [
             'kelases' => $kelases,

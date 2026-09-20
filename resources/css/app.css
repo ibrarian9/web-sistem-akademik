@@ -186,3 +186,102 @@ input[type="number"] {
     -moz-appearance: textfield;
     appearance: textfield;
 }
+
+/* ========================================
+   DRIVER.JS CUSTOM STYLING (SIAKAD THEME)
+   ======================================== */
+.driver-popover {
+    background-color: #ffffff !important;
+    color: #1c1917 !important; /* stone-900 */
+    border: 1px solid #e7e5e4 !important; /* stone-200 */
+    border-radius: 1.25rem !important; /* rounded-2xl */
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+    padding: 1.25rem !important;
+    max-width: 360px !important;
+    font-family: var(--font-sans) !important;
+}
+
+.driver-popover-title {
+    font-size: 0.875rem !important; /* text-sm */
+    font-weight: 800 !important;
+    color: #064e3b !important; /* emerald-900 */
+    margin-bottom: 0.35rem !important;
+    letter-spacing: -0.01em !important;
+}
+
+.driver-popover-description {
+    font-size: 0.75rem !important; /* text-xs */
+    line-height: 1.55 !important;
+    color: #44403c !important; /* stone-700 */
+    font-weight: 500 !important;
+    margin-bottom: 1rem !important;
+}
+
+.driver-popover-footer {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.5rem !important;
+    padding-top: 0.75rem !important;
+    border-top: 1px solid #f5f5f4 !important; /* stone-100 */
+}
+
+.driver-popover-progress-text {
+    font-size: 0.6875rem !important; /* ~11px */
+    font-weight: 700 !important;
+    color: #78716c !important; /* stone-500 */
+}
+
+.driver-popover-next-btn, 
+.driver-popover-prev-btn {
+    font-size: 0.75rem !important; /* text-xs */
+    font-weight: 800 !important;
+    padding: 0.45rem 0.9rem !important;
+    border-radius: 0.75rem !important; /* rounded-xl */
+    cursor: pointer !important;
+    transition: all 0.15s ease-in-out !important;
+}
+
+.driver-popover-next-btn {
+    background-color: #047857 !important; /* emerald-700 */
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.driver-popover-next-btn:hover {
+    background-color: #065f46 !important; /* emerald-800 */
+}
+
+.driver-popover-prev-btn {
+    background-color: #f5f5f4 !important; /* stone-100 */
+    color: #44403c !important; /* stone-700 */
+    border: 1px solid #e7e5e4 !important; /* stone-200 */
+}
+
+.driver-popover-prev-btn:hover {
+    background-color: #e7e5e4 !important; /* stone-200 */
+    color: #1c1917 !important;
+}
+
+.driver-popover-close-btn {
+    color: #a8a29e !important; /* stone-400 */
+    transition: color 0.15s !important;
+}
+
+.driver-popover-close-btn:hover {
+    color: #1c1917 !important; /* stone-900 */
+}
+
+.driver-popover-arrow-side-left.driver-popover-arrow {
+    border-left-color: #ffffff !important;
+}
+.driver-popover-arrow-side-right.driver-popover-arrow {
+    border-right-color: #ffffff !important;
+}
+.driver-popover-arrow-side-top.driver-popover-arrow {
+    border-top-color: #ffffff !important;
+}
+.driver-popover-arrow-side-bottom.driver-popover-arrow {
+    border-bottom-color: #ffffff !important;
+}

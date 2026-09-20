@@ -1,9 +1,12 @@
 import MicroModal from 'micromodal';
 import Chart from 'chart.js/auto';
+import { driver } from 'driver.js';
+import 'driver.js/dist/driver.css';
 
 // Expose globally
 window.MicroModal = MicroModal;
 window.Chart = Chart;
+window.driver = driver;
 
 // Initialize MicroModal
 document.addEventListener('DOMContentLoaded', () => {
@@ -159,3 +162,58 @@ document.addEventListener('livewire:initialized', () => {
         window.showModalConfirm(payload || {});
     });
 });
+
+// ========================================
+// GLOBAL DRIVER.JS GUIDED TOUR HELPER
+// ========================================
+window.startSiakadTour = function (tourKey, steps, options = {}) {
+    if (typeof window.driver !== 'function') {
+        console.error('Driver.js is not initialized.');
+        return null;
+    }
+
+    // Filter steps to elements that exist in current DOM
+    const validSteps = steps.filter(step => {
+        if (!step.element) return true;
+        return document.querySelector(step.element) !== null;
+    });
+
+    if (validSteps.length === 0) {
+        console.warn('No valid target elements found for tour: ' + tourKey);
+        return null;
+    }
+
+    const driverObj = window.driver({
+        animate: true,
+        showProgress: true,
+        allowClose: true,
+        overlayOpacity: 0.65,
+        stagePadding: 8,
+        stageRadius: 12,
+        nextBtnText: 'Lanjut →',
+        prevBtnText: '← Kembali',
+        doneBtnText: 'Selesai & Paham ✓',
+        progressText: 'Langkah {{current}} dari {{total}}',
+        steps: validSteps,
+        onDestroyed: () => {
+            if (tourKey) {
+                localStorage.setItem(tourKey, 'completed');
+            }
+            if (typeof options.onFinish === 'function') {
+                options.onFinish();
+            }
+        },
+        ...options
+    });
+
+    driverObj.drive();
+    return driverObj;
+};
+
+window.checkAutoTour = function (tourKey, steps, delay = 600) {
+    if (!localStorage.getItem(tourKey)) {
+        setTimeout(() => {
+            window.startSiakadTour(tourKey, steps);
+        }, delay);
+    }
+};
