@@ -11,17 +11,16 @@
     <div class="space-y-1">
         @if (!empty($breadcrumbs))
             <x-breadcrumb :items="$breadcrumbs" />
-        @elseif ($badge)
-            <div class="flex items-center gap-2 mb-1">
-                <x-badge :variant="$badgeVariant" size="xs">{{ $badge }}</x-badge>
-            </div>
         @endif
 
-        <h1 class="text-2xl font-extrabold text-stone-900 tracking-tight flex items-center gap-2.5">
+        <h1 class="text-2xl font-extrabold text-stone-900 tracking-tight flex items-center gap-2.5 flex-wrap">
             @if ($icon)
                 <x-dynamic-component :component="'lucide-' . $icon" class="w-6 h-6 text-emerald-600 shrink-0" />
             @endif
             <span>{{ $title }}</span>
+            @if ($badge)
+                <x-badge :variant="$badgeVariant" size="xs">{{ $badge }}</x-badge>
+            @endif
         </h1>
 
         @if ($subtitle)

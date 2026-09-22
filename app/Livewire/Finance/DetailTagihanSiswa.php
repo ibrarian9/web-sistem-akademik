@@ -57,7 +57,126 @@ class DetailTagihanSiswa extends Component
 
     // Category Tabs & Display
     public string $activeCategoryTab = 'all'; // 'all' | 'spp' | 'non_spp'
+    public string $matrixViewStyle = 'table'; // 'table' | 'cards'
     public int $perPage = 25;
+
+    // Quick Pay Modal from Matrix
+    public bool $showQuickPayModal = false;
+    public ?int $quickPayTagihanId = null;
+    public ?Tagihan $quickPayTagihan = null;
+    public $quickPayNominal = 0;
+    public string $quickPayMetode = 'Tunai';
+    public string $quickPayTanggal = '';
+    public string $quickPayCatatan = '';
+
+    public function setMatrixViewStyle(string $style): void
+    {
+        $this->matrixViewStyle = $style;
+    }
+
+    public function openQuickPay(int $tagihanId): void
+    {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $tagihan = Tagihan::with(['siswa.user', 'jenisTagihan'])->find($tagihanId);
+        if (!$tagihan) return;
+
+        $this->quickPayTagihanId = $tagihan->id;
+        $this->quickPayTagihan = $tagihan;
+        $sisa = max(0, floatval($tagihan->nominal) - floatval($tagihan->total_dibayar));
+        $this->quickPayNominal = $sisa;
+        $this->quickPayMetode = 'Tunai';
+        $this->quickPayTanggal = date('Y-m-d');
+        $this->quickPayCatatan = '';
+        $this->showQuickPayModal = true;
+    }
+
+    public function closeQuickPay(): void
+    {
+        $this->showQuickPayModal = false;
+        $this->quickPayTagihanId = null;
+        $this->quickPayTagihan = null;
+        $this->resetValidation(['quickPayNominal', 'quickPayMetode', 'quickPayTanggal']);
+    }
+
+    public function saveQuickPay(): void
+    {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $this->sanitizeCurrencies(['quickPayNominal']);
+
+        $this->validate([
+            'quickPayTagihanId' => 'required|exists:tagihan,id',
+            'quickPayNominal' => 'required|numeric|min:1',
+            'quickPayMetode' => 'required|string|in:Tunai,Transfer Bank,Deposit,Beasiswa',
+            'quickPayTanggal' => 'required|date',
+        ]);
+
+        $tagihan = Tagihan::findOrFail($this->quickPayTagihanId);
+        $sisaTunggakan = max(0, floatval($tagihan->nominal) - floatval($tagihan->total_dibayar));
+
+        if ($this->quickPayNominal > $sisaTunggakan) {
+            $this->addError('quickPayNominal', 'Nominal bayar tidak boleh melebihi sisa tagihan (Rp ' . number_format($sisaTunggakan, 0, ',', '.') . ').');
+            return;
+        }
+
+        \DB::transaction(function () use ($tagihan) {
+            $tagihanRow = Tagihan::lockForUpdate()->find($tagihan->id);
+            if (!$tagihanRow) return;
+
+            $noResi = 'KW-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+
+            Pembayaran::create([
+                'no_resi' => $noResi,
+                'tagihan_id' => $tagihanRow->id,
+                'tanggal_bayar' => $this->quickPayTanggal,
+                'nominal_dibayar' => $this->quickPayNominal,
+                'kelebihan_bayar' => 0,
+                'metode_bayar' => $this->quickPayMetode,
+                'is_void' => false,
+                'petugas_id' => auth()->id(),
+            ]);
+
+            $newPaid = floatval($tagihanRow->total_dibayar) + floatval($this->quickPayNominal);
+            $status = ($newPaid >= floatval($tagihanRow->nominal)) ? 'lunas' : 'sebagian';
+
+            $tagihanRow->update([
+                'total_dibayar' => $newPaid,
+                'status' => $status,
+            ]);
+        });
+
+        session()->flash('success', "Pembayaran sebesar Rp " . number_format($this->quickPayNominal, 0, ',', '.') . " berhasil dicatat.");
+        $this->closeQuickPay();
+    }
+
+    public function quickCreateTagihanForMonth(int $jenisTagihanId, string $bulan): void
+    {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $this->openCreateModal();
+        $this->jenis_tagihan_id = $jenisTagihanId;
+        $this->bulan = $bulan;
+        $this->periodeTipe = 'single';
+
+        $jt = JenisTagihan::find($jenisTagihanId);
+        if ($jt) {
+            $this->nominal = floatval($jt->default_nominal ?? $jt->nominal_default ?? 0.00);
+        }
+
+        $activeTA = TahunAjaran::where('status_aktif', true)->first();
+        $this->jatuh_tempo = $this->calculateDueDateForMonth($bulan, null, $activeTA?->nama);
+        $this->showCreateModal = true;
+    }
 
     // Edit Tagihan Modal
     public bool $showEditModal = false;
@@ -1071,6 +1190,187 @@ class DetailTagihanSiswa extends Component
             ];
         }
 
+        // Multi-Tagihan Matrix Computation: Sumbu X (Jenis Tagihan) x Sumbu Y (Semua Bulan)
+        $jenisTagihanList = JenisTagihan::where('nama', 'not like', '%Infaq%')
+            ->where('nama', 'not like', '%Sedekah%')
+            ->where('nama', 'not like', '%Donasi%')
+            ->orderBy('id')
+            ->get();
+
+        $studentBills = Tagihan::where('siswa_id', $this->siswaId)
+            ->when($activeTA, fn($q) => $q->where('tahun_ajaran_id', $activeTA->id))
+            ->with(['pembayarans', 'jenisTagihan'])
+            ->get();
+
+        $hasTahunan = $studentBills->contains(fn($t) => in_array($t->bulan, ['Tahunan', null]));
+        $matrixMonths = $this->standardMonths;
+        if ($hasTahunan) {
+            $matrixMonths[] = 'Tahunan';
+        }
+
+        $matrixRows = [];
+        $detailGrandNominal = 0.0;
+        $detailGrandDibayar = 0.0;
+        $detailGrandTunggakan = 0.0;
+
+        foreach ($matrixMonths as $m) {
+            $rowBills = [];
+            $rowNom = 0.0;
+            $rowDib = 0.0;
+            $rowSis = 0.0;
+
+            foreach ($jenisTagihanList as $jt) {
+                $isNonRutin = ($jt->kategori !== 'rutin') || !str_contains(strtolower($jt->nama), 'spp');
+                $t = $studentBills->where('jenis_tagihan_id', $jt->id)->firstWhere('bulan', $m);
+
+                if ($t) {
+                    $nom = (float) $t->nominal;
+                    $bayar = (float) $t->total_dibayar;
+                    $sisa = max(0, $nom - $bayar);
+                    $st = ($t->status === 'lunas' || ($nom > 0 && $bayar >= $nom) || $nom == 0)
+                        ? 'lunas'
+                        : ($bayar > 0 ? 'sebagian' : 'belum_bayar');
+
+                    $rowNom += $nom;
+                    $rowDib += $bayar;
+                    $rowSis += $sisa;
+
+                    $rowBills[$jt->id] = [
+                        'has_tagihan' => true,
+                        'nominal' => $nom,
+                        'total_dibayar' => $bayar,
+                        'sisa' => $sisa,
+                        'status' => $st,
+                        'id' => $t->id,
+                        'is_mendatang' => $t->is_mendatang,
+                        'is_one_time_fulfilled' => false,
+                        'is_one_time_carried' => false,
+                        'original_bulan' => $t->bulan,
+                        'original_nominal' => $nom,
+                        'terakhir_bayar' => $t->pembayarans->max('tanggal_bayar') ? \Carbon\Carbon::parse($t->pembayarans->max('tanggal_bayar'))->format('d/m/Y') : null,
+                    ];
+                } elseif ($isNonRutin && ($existingOneTime = $studentBills->where('jenis_tagihan_id', $jt->id)->first())) {
+                    $isLunas = ($existingOneTime->status === 'lunas' || ((float)$existingOneTime->nominal > 0 && (float)$existingOneTime->total_dibayar >= (float)$existingOneTime->nominal) || (float)$existingOneTime->nominal == 0);
+                    $origNom = (float) $existingOneTime->nominal;
+                    $origBayar = (float) $existingOneTime->total_dibayar;
+                    $origSisa = max(0, $origNom - $origBayar);
+                    $origBulan = $existingOneTime->bulan ?: 'Tahunan';
+
+                    if ($isLunas) {
+                        $rowBills[$jt->id] = [
+                            'has_tagihan' => true,
+                            'nominal' => 0.0,
+                            'total_dibayar' => 0.0,
+                            'sisa' => 0.0,
+                            'status' => 'lunas',
+                            'id' => $existingOneTime->id,
+                            'is_mendatang' => false,
+                            'is_one_time_fulfilled' => true,
+                            'is_one_time_carried' => false,
+                            'original_bulan' => $origBulan,
+                            'original_nominal' => $origNom,
+                            'terakhir_bayar' => $existingOneTime->pembayarans->max('tanggal_bayar') ? \Carbon\Carbon::parse($existingOneTime->pembayarans->max('tanggal_bayar'))->format('d/m/Y') : null,
+                        ];
+                    } else {
+                        $billedIdx = array_search($origBulan, $this->standardMonths);
+                        $currIdx = array_search($m, $this->standardMonths);
+                        $isAfterBilled = ($billedIdx === false) || ($currIdx !== false && $currIdx > $billedIdx);
+
+                        if ($isAfterBilled) {
+                            $st = ($origBayar > 0) ? 'sebagian' : 'belum_bayar';
+                            $rowBills[$jt->id] = [
+                                'has_tagihan' => true,
+                                'nominal' => 0.0,
+                                'total_dibayar' => 0.0,
+                                'sisa' => $origSisa,
+                                'status' => $st,
+                                'id' => $existingOneTime->id,
+                                'is_mendatang' => false,
+                                'is_one_time_fulfilled' => false,
+                                'is_one_time_carried' => true,
+                                'original_bulan' => $origBulan,
+                                'original_nominal' => $origNom,
+                                'terakhir_bayar' => $existingOneTime->pembayarans->max('tanggal_bayar') ? \Carbon\Carbon::parse($existingOneTime->pembayarans->max('tanggal_bayar'))->format('d/m/Y') : null,
+                            ];
+                        } else {
+                            $rowBills[$jt->id] = [
+                                'has_tagihan' => false,
+                                'nominal' => 0.0,
+                                'total_dibayar' => 0.0,
+                                'sisa' => 0.0,
+                                'status' => 'tidak_ada',
+                                'id' => null,
+                                'is_mendatang' => false,
+                                'is_one_time_fulfilled' => false,
+                                'is_one_time_carried' => false,
+                                'original_bulan' => null,
+                                'original_nominal' => 0.0,
+                                'terakhir_bayar' => null,
+                            ];
+                        }
+                    }
+                } else {
+                    $rowBills[$jt->id] = [
+                        'has_tagihan' => false,
+                        'nominal' => 0.0,
+                        'total_dibayar' => 0.0,
+                        'sisa' => 0.0,
+                        'status' => 'tidak_ada',
+                        'id' => null,
+                        'is_mendatang' => false,
+                        'is_one_time_fulfilled' => false,
+                        'is_one_time_carried' => false,
+                        'original_bulan' => null,
+                        'original_nominal' => 0.0,
+                        'terakhir_bayar' => null,
+                    ];
+                }
+            }
+
+            $detailGrandNominal += $rowNom;
+            $detailGrandDibayar += $rowDib;
+            $detailGrandTunggakan += $rowSis;
+
+            $hasAnyLunas = collect($rowBills)->contains(fn($b) => $b['has_tagihan'] && $b['status'] === 'lunas');
+
+            $matrixRows[$m] = [
+                'bulan' => $m,
+                'bills' => $rowBills,
+                'total_nominal' => $rowNom,
+                'total_dibayar' => $rowDib,
+                'sisa_tunggakan' => $rowSis,
+                'status' => ($rowSis > 0) ? 'Ada Tunggakan' : ($rowNom > 0 || $hasAnyLunas ? 'Lunas' : '-'),
+            ];
+        }
+
+        $matrixFooterPerJenis = [];
+        foreach ($jenisTagihanList as $jt) {
+            $sumNom = 0.0;
+            $sumDib = 0.0;
+            $sumSis = 0.0;
+            foreach ($matrixMonths as $m) {
+                $b = $matrixRows[$m]['bills'][$jt->id];
+                if ($b['has_tagihan'] && empty($b['is_one_time_fulfilled']) && empty($b['is_one_time_carried'])) {
+                    $sumNom += $b['nominal'];
+                    $sumDib += $b['total_dibayar'];
+                    $sumSis += $b['sisa'];
+                }
+            }
+            $matrixFooterPerJenis[$jt->id] = [
+                'nominal' => $sumNom,
+                'dibayar' => $sumDib,
+                'sisa' => $sumSis,
+            ];
+        }
+
+        $detailMatrixData = [
+            'months_rows' => $matrixRows,
+            'footer_per_jenis' => $matrixFooterPerJenis,
+            'grand_nominal' => $detailGrandNominal,
+            'grand_dibayar' => $detailGrandDibayar,
+            'grand_tunggakan' => $detailGrandTunggakan,
+        ];
+
         $recentPayments = $this->getPembayaranQuery()
             ->orderBy('tanggal_bayar', 'desc')
             ->orderBy('id', 'desc')
@@ -1106,6 +1406,8 @@ class DetailTagihanSiswa extends Component
             'countSpp' => $countSpp,
             'countNonSpp' => $countNonSpp,
             'sppMatrix' => $sppMatrix,
+            'jenisTagihanList' => $jenisTagihanList,
+            'detailMatrixData' => $detailMatrixData,
             'activeTAName' => $activeTA->nama ?? '-',
         ])->layout('components.layouts.app', ['title' => 'Rincian Tagihan - ' . ($this->siswa->user->nama ?? 'Siswa')]);
     }

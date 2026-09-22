@@ -71,10 +71,44 @@
         <x-alert-banner type="error" :message="session('error')" />
     @endif
 
+    <!-- Tab Switcher: Tabel Default vs Tabel Matriks -->
+    <div class="flex items-center justify-between flex-wrap gap-3 p-1.5 bg-stone-100 border border-stone-200 rounded-2xl shadow-2xs">
+        <div class="flex items-center gap-1.5 w-full sm:w-auto">
+            <button 
+                type="button" 
+                wire:click="setViewTab('default')" 
+                class="flex-1 sm:flex-initial px-4 py-2.5 text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 cursor-pointer {{ $activeViewTab === 'default' ? 'bg-white text-emerald-800 shadow-xs border border-stone-200/80 font-black ring-1 ring-emerald-600/10' : 'text-stone-600 hover:text-stone-900 hover:bg-white/60' }}"
+            >
+                <x-lucide-layout-list class="w-4 h-4" />
+                <span>Tabel Default (Daftar Siswa)</span>
+            </button>
+            <button 
+                type="button" 
+                wire:click="setViewTab('matriks')" 
+                class="flex-1 sm:flex-initial px-4 py-2.5 text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 cursor-pointer {{ $activeViewTab === 'matriks' ? 'bg-white text-emerald-800 shadow-xs border border-stone-200/80 font-black ring-1 ring-emerald-600/10' : 'text-stone-600 hover:text-stone-900 hover:bg-white/60' }}"
+            >
+                <x-lucide-grid class="w-4 h-4" />
+                <span>Tabel Matriks Tagihan</span>
+            </button>
+        </div>
+
+        <div class="hidden sm:flex items-center gap-2 text-xs text-stone-600 font-medium px-2">
+            @if ($activeViewTab === 'default')
+                <span>Daftar manajemen tagihan operasional per siswa</span>
+            @else
+                <span>Matriks komprehensif seluruh kategori tagihan per bulan</span>
+            @endif
+        </div>
+    </div>
+
     <!-- Content Table Card (Full Width) -->
     <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
-        @include('livewire.finance.manajemen-tagihan.partials.filter-bar')
-        @include('livewire.finance.manajemen-tagihan.partials.table-students')
+        @if ($activeViewTab === 'matriks')
+            @include('livewire.finance.manajemen-tagihan.partials.table-matrix')
+        @else
+            @include('livewire.finance.manajemen-tagihan.partials.filter-bar')
+            @include('livewire.finance.manajemen-tagihan.partials.table-students')
+        @endif
     </div>
 
     <!-- Floating Card: Form Edit Tagihan Siswa -->
@@ -82,6 +116,9 @@
 
     <!-- Floating Card: Form Rilis Tagihan Siswa (Single & Bulk) -->
     @include('livewire.finance.manajemen-tagihan.partials.modal-release-tagihan')
+
+    <!-- Floating Card: Modal Input Pembayaran Langsung dari Matriks -->
+    @include('livewire.finance.manajemen-tagihan.partials.modal-quick-pay')
 
     <!-- Floating Card: Modal Rincian Cepat Seluruh Tagihan 1 Siswa -->
     @include('livewire.finance.manajemen-tagihan.partials.modal-quick-detail')

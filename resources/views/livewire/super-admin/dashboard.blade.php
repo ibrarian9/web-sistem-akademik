@@ -104,8 +104,8 @@
     <!-- Stat Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <x-stat-card title="Total Siswa Aktif" :value="$totalSiswa" subtitle="Siswa terdaftar aktif" icon="users" variant="soft-emerald" class="h-full" />
-        <x-stat-card title="Total Guru & Staf" :value="$totalGuru" subtitle="Tenaga pendidik & staf" icon="user-check" variant="soft-indigo" class="h-full" />
-        <x-stat-card title="Total Kelas" :value="$totalKelas" subtitle="Rombongan belajar aktif" icon="calendar" variant="soft-amber" class="h-full" />
+        <x-stat-card title="Total Guru & Staf" :value="$totalGuru" subtitle="Tenaga pendidik & staf" icon="user-check" variant="white" class="h-full" />
+        <x-stat-card title="Total Kelas" :value="$totalKelas" subtitle="Rombongan belajar aktif" icon="calendar" variant="white" class="h-full" />
         <x-stat-card title="Tunggakan SPP" :value="$totalTunggakan" subtitle="Akumulasi piutang SPP" icon="wallet" variant="soft-rose" class="h-full" />
     </div>
 
@@ -117,8 +117,6 @@
                 title="Sebaran Santri per Rombel Kelas" 
                 subtitle="Populasi siswa aktif yang terdaftar di masing-masing kelas."
                 icon="bar-chart-2"
-                badge="SEBARAN ROMBEL"
-                badgeVariant="emerald"
                 canvasId="adminClassDistributionChart"
                 height="260px"
             />
@@ -130,8 +128,6 @@
                 title="Distribusi Akun & Hak Akses" 
                 subtitle="Komposisi pengguna terdaftar berdasarkan peran."
                 icon="pie-chart"
-                badge="ROLE PENGGUNA"
-                badgeVariant="stone"
                 canvasId="adminRoleDistributionChart"
                 height="260px"
             />

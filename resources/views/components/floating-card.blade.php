@@ -40,28 +40,25 @@
          @keydown.escape.window="{{ $escapeAction }}"
          @click.self="{{ $escapeAction }}">
         
-        <div class="w-full {{ $maxWidthClass }} max-h-[92vh] flex flex-col bg-white border border-stone-200 rounded-3xl shadow-2xl p-5 sm:p-7 space-y-5 my-auto relative transform transition-all duration-200 ease-out scale-100 overflow-y-auto">
+        <div class="w-full {{ $maxWidthClass }} max-h-[92vh] flex flex-col bg-white border border-stone-200 rounded-2xl shadow-2xl p-5 sm:p-7 space-y-5 my-auto relative transform transition-all duration-200 ease-out scale-100 overflow-y-auto">
             
             <!-- Card Header Bar -->
             <div class="flex items-start justify-between gap-4 border-b border-stone-200/80 pb-4 shrink-0">
                 <div class="space-y-1">
-                    @if ($badge)
-                        <div class="flex items-center gap-2 mb-1">
-                            <x-badge :variant="$badgeVariant" size="xs">{{ $badge }}</x-badge>
-                        </div>
-                    @endif
-
                     @if ($title)
-                        <h3 class="text-base sm:text-lg font-extrabold text-stone-900 tracking-tight flex items-center gap-2">
+                        <h3 class="text-base sm:text-lg font-extrabold text-stone-900 tracking-tight flex items-center gap-2 flex-wrap">
                             @if ($icon)
                                 <x-dynamic-component :component="'lucide-' . $icon" class="w-5 h-5 text-emerald-600 shrink-0" />
                             @endif
                             <span>{{ $title }}</span>
+                            @if ($badge)
+                                <x-badge :variant="$badgeVariant" size="xs">{{ $badge }}</x-badge>
+                            @endif
                         </h3>
                     @endif
 
                     @if ($subtitle)
-                        <p class="text-xs text-stone-500 font-medium">{{ $subtitle }}</p>
+                        <p class="text-xs text-stone-600 font-medium">{{ $subtitle }}</p>
                     @endif
                 </div>
 

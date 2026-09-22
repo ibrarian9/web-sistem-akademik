@@ -8,20 +8,18 @@
     'height' => '260px',
 ])
 
-<div class="bg-white border border-stone-200 rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col justify-between transition hover:shadow-md">
+<div class="bg-white border border-stone-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col justify-between transition hover:shadow-sm">
     <!-- Header -->
     <div class="flex items-start justify-between gap-3 mb-4 pb-3 border-b border-stone-100">
         <div class="space-y-1">
             <div class="flex items-center gap-2">
                 @if ($icon)
-                    <div class="p-1.5 rounded-xl bg-emerald-50 text-emerald-700">
-                        <x-dynamic-component :component="'lucide-' . $icon" class="w-4 h-4" />
-                    </div>
+                    <x-dynamic-component :component="'lucide-' . $icon" class="w-4 h-4 text-emerald-700 shrink-0" />
                 @endif
                 <h3 class="text-sm font-extrabold text-stone-900 tracking-tight">{{ $title }}</h3>
             </div>
             @if ($subtitle)
-                <p class="text-xs text-stone-500 font-medium">{{ $subtitle }}</p>
+                <p class="text-xs text-stone-600 font-medium">{{ $subtitle }}</p>
             @endif
         </div>
 

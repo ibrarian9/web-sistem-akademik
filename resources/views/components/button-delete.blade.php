@@ -16,7 +16,7 @@
     type="button"
     title="{{ $title }}"
     {{ $attributes->merge([
-        'class' => 'inline-flex items-center justify-center rounded-lg text-rose-700 bg-rose-50/80 hover:bg-rose-100/80 border border-rose-200/80 transition-all font-semibold active:scale-95 focus:outline-none focus:ring-2 focus:ring-rose-500/20 ' . $sizeClasses
+        'class' => 'inline-flex items-center justify-center rounded-lg text-rose-700 bg-rose-50/80 hover:bg-rose-100/80 border border-rose-200/80 transition-all font-semibold active:scale-95 focus:outline-none focus:ring-2 focus:ring-rose-500/20 min-h-[40px] min-w-[40px] sm:min-h-0 sm:min-w-0 ' . $sizeClasses
     ]) }}
 >
     <x-lucide-trash-2 class="w-3.5 h-3.5 shrink-0" />

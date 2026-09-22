@@ -57,6 +57,9 @@
     <!-- Modal Edit Tagihan -->
     @include('livewire.finance.detail-tagihan-siswa.partials.modal-edit-tagihan')
 
+    <!-- Modal Input Pembayaran Langsung dari Matriks -->
+    @include('livewire.finance.detail-tagihan-siswa.partials.modal-quick-pay')
+
     <!-- Modal Bukti Pembayaran -->
     @include('livewire.finance.detail-tagihan-siswa.partials.modal-bukti-pembayaran')
 </div>

@@ -13,7 +13,7 @@
             </div>
             <div>
                 <h4 class="text-sm font-bold text-stone-800">{{ $title }}</h4>
-                <p class="text-xs text-stone-500 font-medium mt-1">{{ $message }}</p>
+                <p class="text-xs text-stone-600 font-medium mt-1">{{ $message }}</p>
             </div>
             {{ $slot }}
         </div>

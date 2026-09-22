@@ -109,7 +109,7 @@ input:focus, select:focus, textarea:focus {
    Controlled via JavaScript + localStorage
    ======================================== */
 
-/* Font Scaling — 3 levels */
+/* Font Scaling: 3 levels */
 html.a11y-font-lg {
     font-size: 112.5%; /* 18px base instead of 16px */
 }

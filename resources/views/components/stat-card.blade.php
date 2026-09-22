@@ -80,7 +80,7 @@
         'soft-sky' => 'text-sky-600/90',
         'soft-teal' => 'text-teal-600/90',
         'soft-purple' => 'text-purple-600/90',
-        default => ($isDarkGradient ? 'text-white/70' : 'text-stone-400'),
+        default => ($isDarkGradient ? 'text-white/80' : 'text-stone-600'),
     };
 
     $iconBg = match ($variant) {

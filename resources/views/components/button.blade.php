@@ -26,10 +26,10 @@
     ];
 
     $sizes = [
-        'xs' => 'px-2.5 py-1 text-[11px] gap-1.5',
-        'sm' => 'px-3.5 py-2 text-xs gap-2',
-        'md' => 'px-4 py-2.5 text-xs gap-2.5',
-        'lg' => 'px-5 py-3 text-sm gap-3',
+        'xs' => 'px-2.5 py-1.5 sm:py-1 min-h-[44px] sm:min-h-0 text-[11px] gap-1.5',
+        'sm' => 'px-3.5 py-2 min-h-[44px] sm:min-h-0 text-xs gap-2',
+        'md' => 'px-4 py-2.5 min-h-[44px] sm:min-h-0 text-xs gap-2.5',
+        'lg' => 'px-5 py-3 min-h-[44px] text-sm gap-3',
     ];
 
     $iconSizes = [

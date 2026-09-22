@@ -10,7 +10,7 @@
         <div class="px-5 py-4 border-b border-stone-100 flex flex-wrap items-center justify-between gap-3 bg-stone-50/50">
             <div class="flex items-center gap-2.5 min-w-0">
                 @if ($icon)
-                    <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-emerald-700 shrink-0">
+                    <div class="w-8 h-8 rounded-xl bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-700 shrink-0">
                         <x-dynamic-component :component="'lucide-' . $icon" class="w-4 h-4" />
                     </div>
                 @endif
@@ -19,7 +19,7 @@
                         <h3 class="font-bold text-stone-900 text-sm tracking-tight leading-snug">{{ $title }}</h3>
                     @endif
                     @if ($subtitle)
-                        <p class="text-xs text-stone-500 font-medium leading-normal mt-0.5">{{ $subtitle }}</p>
+                        <p class="text-xs text-stone-600 font-medium leading-normal mt-0.5">{{ $subtitle }}</p>
                     @endif
                     @if (isset($header))
                         {{ $header }}

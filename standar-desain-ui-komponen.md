@@ -1,4 +1,4 @@
-# Standar Desain UI Komponen (Buttons, Cards, Modals & Alerts) — SIAKAD
+# Standar Desain UI Komponen (Buttons, Cards, Modals & Alerts): SIAKAD
 
 Dokumen ini berisi pedoman penyeragaman antarmuka pengguna (*Design Tokens & UI Component Standardization*) untuk seluruh modul Sistem Informasi Akademik & Keuangan Yayasan.
 

@@ -4,6 +4,7 @@ namespace App\Livewire\Finance;
 
 use Livewire\Component;
 use App\Models\Tagihan;
+use App\Models\Pembayaran;
 use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\JenisTagihan;
@@ -29,9 +30,157 @@ class ManajemenTagihan extends Component
     public bool $showEditModal = false;
     public bool $showDetailModal = false;
 
+    // Quick Pay Modal from Matrix Table
+    public bool $showQuickPayModal = false;
+    public ?int $quickPayTagihanId = null;
+    public ?Tagihan $quickPayTagihan = null;
+    public $quickPayNominal = 0;
+    public string $quickPayMetode = 'Tunai';
+    public string $quickPayTanggal = '';
+    public string $quickPayCatatan = '';
+
     // Selected Student for Detail Modal
     public ?int $selectedSiswaId = null;
     public ?Siswa $selectedSiswa = null;
+
+    // View Mode Tab: 'default' (Daftar Siswa) vs 'matriks' (Matriks Tagihan)
+    public string $activeViewTab = 'default';
+    public ?int $matrixSiswaId = null;
+    public string $matrixMode = 'siswa'; // 'siswa' | 'rekap'
+    public string $matrixSearchSiswa = '';
+    public array $standardMonths = [
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni'
+    ];
+
+    public function setViewTab(string $tab): void
+    {
+        $this->activeViewTab = $tab;
+        $this->resetPage();
+    }
+
+    public function selectMatrixSiswa(int $siswaId): void
+    {
+        $this->matrixSiswaId = $siswaId;
+        $this->matrixMode = 'siswa';
+    }
+
+    public function setMatrixMode(string $mode): void
+    {
+        $this->matrixMode = $mode;
+    }
+
+    public function openQuickPay(int $tagihanId): void
+    {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $tagihan = Tagihan::with(['siswa.user', 'jenisTagihan'])->find($tagihanId);
+        if (!$tagihan) return;
+
+        $this->quickPayTagihanId = $tagihan->id;
+        $this->quickPayTagihan = $tagihan;
+        $sisa = max(0, floatval($tagihan->nominal) - floatval($tagihan->total_dibayar));
+        $this->quickPayNominal = $sisa;
+        $this->quickPayMetode = 'Tunai';
+        $this->quickPayTanggal = date('Y-m-d');
+        $this->quickPayCatatan = '';
+        $this->showQuickPayModal = true;
+    }
+
+    public function closeQuickPay(): void
+    {
+        $this->showQuickPayModal = false;
+        $this->quickPayTagihanId = null;
+        $this->quickPayTagihan = null;
+        $this->resetValidation(['quickPayNominal', 'quickPayMetode', 'quickPayTanggal']);
+    }
+
+    public function saveQuickPay(): void
+    {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $this->sanitizeCurrencies(['quickPayNominal']);
+
+        $this->validate([
+            'quickPayTagihanId' => 'required|exists:tagihan,id',
+            'quickPayNominal' => 'required|numeric|min:1',
+            'quickPayMetode' => 'required|string|in:Tunai,Transfer Bank,Deposit,Beasiswa',
+            'quickPayTanggal' => 'required|date',
+        ]);
+
+        $tagihan = Tagihan::findOrFail($this->quickPayTagihanId);
+        $sisaTunggakan = max(0, floatval($tagihan->nominal) - floatval($tagihan->total_dibayar));
+
+        if ($this->quickPayNominal > $sisaTunggakan) {
+            $this->addError('quickPayNominal', 'Nominal bayar tidak boleh melebihi sisa tagihan (Rp ' . number_format($sisaTunggakan, 0, ',', '.') . ').');
+            return;
+        }
+
+        DB::transaction(function () use ($tagihan) {
+            $tagihanRow = Tagihan::lockForUpdate()->find($tagihan->id);
+            if (!$tagihanRow) return;
+
+            $noResi = 'KW-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+
+            Pembayaran::create([
+                'no_resi' => $noResi,
+                'tagihan_id' => $tagihanRow->id,
+                'tanggal_bayar' => $this->quickPayTanggal,
+                'nominal_dibayar' => $this->quickPayNominal,
+                'kelebihan_bayar' => 0,
+                'metode_bayar' => $this->quickPayMetode,
+                'is_void' => false,
+                'petugas_id' => auth()->id(),
+            ]);
+
+            $newPaid = floatval($tagihanRow->total_dibayar) + floatval($this->quickPayNominal);
+            $status = ($newPaid >= floatval($tagihanRow->nominal)) ? 'lunas' : 'sebagian';
+
+            $tagihanRow->update([
+                'total_dibayar' => $newPaid,
+                'status' => $status,
+            ]);
+        });
+
+        session()->flash('message', "Pembayaran sebesar Rp " . number_format($this->quickPayNominal, 0, ',', '.') . " berhasil dicatat.");
+        $this->closeQuickPay();
+    }
+
+    public function quickCreateTagihanForMonth(int $jenisTagihanId, string $bulan, ?int $siswaId = null): void
+    {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $targetSiswaId = $siswaId ?? $this->matrixSiswaId;
+        if (!$targetSiswaId) {
+            session()->flash('warning', 'Pilih santri terlebih dahulu.');
+            return;
+        }
+
+        $this->openCreateModal($targetSiswaId);
+        $this->releaseMode = 'single';
+        $this->selectStudent($targetSiswaId);
+        $this->jenis_tagihan_id = $jenisTagihanId;
+        $this->bulan = $bulan;
+        $this->periodeTipe = 'single';
+
+        $jt = JenisTagihan::find($jenisTagihanId);
+        if ($jt) {
+            $this->nominal = floatval($jt->default_nominal ?? 0.00);
+        }
+
+        $activeTA = TahunAjaran::where('status_aktif', true)->first();
+        $this->jatuh_tempo = $this->calculateDueDateForMonth($bulan, null, $activeTA?->nama);
+        $this->showCreateModal = true;
+    }
 
     // Create / Release Tagihan Form properties
     public string $releaseMode = 'bulk'; // 'single' | 'bulk'
@@ -97,10 +246,6 @@ class ManajemenTagihan extends Component
         'Semester Ganjil', 'Semester Genap', 'Tahunan'
     ];
 
-    public array $standardMonths = [
-        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
-        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni'
-    ];
 
     public function mount()
     {
@@ -954,6 +1099,7 @@ class ManajemenTagihan extends Component
         if ($userRole === 'finance') {
             $alreadyPending = \App\Models\ApprovalKeuangan::where('model_type', Tagihan::class)
                 ->where('model_id', $tagihan->id)
+                ->where('tipe_aksi', 'hapus')
                 ->where('status', 'menunggu')
                 ->exists();
 
@@ -1264,6 +1410,281 @@ class ManajemenTagihan extends Component
             ->pluck('model_id')
             ->toArray();
 
+        // Matrix Data Computation: X = Jenis Tagihan, Y = Semua Bulan
+        $jenisTagihanList = JenisTagihan::where('nama', 'not like', '%Infaq%')
+            ->where('nama', 'not like', '%Sedekah%')
+            ->orderBy('id')
+            ->get();
+
+        $activeTA = TahunAjaran::where('status_aktif', true)->first() ?? TahunAjaran::latest()->first();
+
+        $allStudentsForMatrix = Siswa::where('status', 'aktif')
+            ->with(['user', 'kelas'])
+            ->when($this->matrixSearchSiswa, function ($q) {
+                $q->whereHas('user', fn($uq) => $uq->where('nama', 'like', '%' . $this->matrixSearchSiswa . '%'))
+                  ->orWhere('nis', 'like', '%' . $this->matrixSearchSiswa . '%');
+            })
+            ->get();
+
+        if (!$this->matrixSiswaId && $allStudentsForMatrix->isNotEmpty()) {
+            $this->matrixSiswaId = $allStudentsForMatrix->first()->id;
+        }
+
+        $matrixSiswaData = null;
+        if ($this->matrixMode === 'siswa' && $this->matrixSiswaId) {
+            $mSiswa = Siswa::with([
+                'user',
+                'kelas',
+                'tagihans' => function ($q) use ($activeTA) {
+                    if ($activeTA) {
+                        $q->where('tahun_ajaran_id', $activeTA->id);
+                    }
+                    $q->with('pembayarans');
+                }
+            ])->find($this->matrixSiswaId);
+
+            if ($mSiswa) {
+                $monthsRows = [];
+                $grandNominal = 0.0;
+                $grandDibayar = 0.0;
+                $grandTunggakan = 0.0;
+
+                $hasTahunan = $mSiswa->tagihans->contains(fn($t) => in_array($t->bulan, ['Tahunan', null]));
+                $allRows = $this->standardMonths;
+                if ($hasTahunan) {
+                    $allRows[] = 'Tahunan';
+                }
+
+                foreach ($allRows as $m) {
+                    $rowBills = [];
+                    $rowNom = 0.0;
+                    $rowDib = 0.0;
+                    $rowSis = 0.0;
+
+                    foreach ($jenisTagihanList as $jt) {
+                        $isNonRutin = ($jt->kategori !== 'rutin') || !str_contains(strtolower($jt->nama), 'spp');
+                        $t = $mSiswa->tagihans->where('jenis_tagihan_id', $jt->id)
+                            ->firstWhere('bulan', $m);
+
+                        if ($t) {
+                            $nom = (float) $t->nominal;
+                            $bayar = (float) $t->total_dibayar;
+                            $sisa = max(0, $nom - $bayar);
+                            $st = ($t->status === 'lunas' || ($nom > 0 && $bayar >= $nom) || $nom == 0)
+                                ? 'lunas'
+                                : ($bayar > 0 ? 'sebagian' : 'belum_bayar');
+
+                            $rowNom += $nom;
+                            $rowDib += $bayar;
+                            $rowSis += $sisa;
+
+                            $rowBills[$jt->id] = [
+                                'has_tagihan' => true,
+                                'tagihan_id' => $t->id,
+                                'nominal' => $nom,
+                                'total_dibayar' => $bayar,
+                                'sisa' => $sisa,
+                                'status' => $st,
+                                'is_one_time_fulfilled' => false,
+                                'is_one_time_carried' => false,
+                                'original_bulan' => $t->bulan,
+                                'original_nominal' => $nom,
+                                'terakhir_bayar' => $t->pembayarans->max('tanggal_bayar') ? \Carbon\Carbon::parse($t->pembayarans->max('tanggal_bayar'))->format('d/m/Y') : null,
+                            ];
+                        } elseif ($isNonRutin && ($existingOneTime = $mSiswa->tagihans->where('jenis_tagihan_id', $jt->id)->first())) {
+                            $isLunas = ($existingOneTime->status === 'lunas' || ((float)$existingOneTime->nominal > 0 && (float)$existingOneTime->total_dibayar >= (float)$existingOneTime->nominal) || (float)$existingOneTime->nominal == 0);
+                            $origNom = (float) $existingOneTime->nominal;
+                            $origBayar = (float) $existingOneTime->total_dibayar;
+                            $origSisa = max(0, $origNom - $origBayar);
+                            $origBulan = $existingOneTime->bulan ?: 'Tahunan';
+
+                            if ($isLunas) {
+                                $rowBills[$jt->id] = [
+                                    'has_tagihan' => true,
+                                    'tagihan_id' => $existingOneTime->id,
+                                    'nominal' => 0.0,
+                                    'total_dibayar' => 0.0,
+                                    'sisa' => 0.0,
+                                    'status' => 'lunas',
+                                    'is_one_time_fulfilled' => true,
+                                    'is_one_time_carried' => false,
+                                    'original_bulan' => $origBulan,
+                                    'original_nominal' => $origNom,
+                                    'terakhir_bayar' => $existingOneTime->pembayarans->max('tanggal_bayar') ? \Carbon\Carbon::parse($existingOneTime->pembayarans->max('tanggal_bayar'))->format('d/m/Y') : null,
+                                ];
+                            } else {
+                                $billedIdx = array_search($origBulan, $this->standardMonths);
+                                $currIdx = array_search($m, $this->standardMonths);
+                                $isAfterBilled = ($billedIdx === false) || ($currIdx !== false && $currIdx > $billedIdx);
+
+                                if ($isAfterBilled) {
+                                    $st = ($origBayar > 0) ? 'sebagian' : 'belum_bayar';
+                                    $rowBills[$jt->id] = [
+                                        'has_tagihan' => true,
+                                        'tagihan_id' => $existingOneTime->id,
+                                        'nominal' => 0.0,
+                                        'total_dibayar' => 0.0,
+                                        'sisa' => $origSisa,
+                                        'status' => $st,
+                                        'is_one_time_fulfilled' => false,
+                                        'is_one_time_carried' => true,
+                                        'original_bulan' => $origBulan,
+                                        'original_nominal' => $origNom,
+                                        'terakhir_bayar' => $existingOneTime->pembayarans->max('tanggal_bayar') ? \Carbon\Carbon::parse($existingOneTime->pembayarans->max('tanggal_bayar'))->format('d/m/Y') : null,
+                                    ];
+                                } else {
+                                    $rowBills[$jt->id] = [
+                                        'has_tagihan' => false,
+                                        'tagihan_id' => null,
+                                        'nominal' => 0.0,
+                                        'total_dibayar' => 0.0,
+                                        'sisa' => 0.0,
+                                        'status' => 'tidak_ada',
+                                        'is_one_time_fulfilled' => false,
+                                        'is_one_time_carried' => false,
+                                        'original_bulan' => null,
+                                        'original_nominal' => 0.0,
+                                        'terakhir_bayar' => null,
+                                    ];
+                                }
+                            }
+                        } else {
+                            $rowBills[$jt->id] = [
+                                'has_tagihan' => false,
+                                'tagihan_id' => null,
+                                'nominal' => 0.0,
+                                'total_dibayar' => 0.0,
+                                'sisa' => 0.0,
+                                'status' => 'tidak_ada',
+                                'is_one_time_fulfilled' => false,
+                                'is_one_time_carried' => false,
+                                'original_bulan' => null,
+                                'original_nominal' => 0.0,
+                                'terakhir_bayar' => null,
+                            ];
+                        }
+                    }
+
+                    $grandNominal += $rowNom;
+                    $grandDibayar += $rowDib;
+                    $grandTunggakan += $rowSis;
+
+                    $hasAnyLunas = collect($rowBills)->contains(fn($b) => $b['has_tagihan'] && $b['status'] === 'lunas');
+
+                    $monthsRows[$m] = [
+                        'bulan' => $m,
+                        'bills' => $rowBills,
+                        'total_nominal' => $rowNom,
+                        'total_dibayar' => $rowDib,
+                        'sisa_tunggakan' => $rowSis,
+                        'status' => ($rowSis > 0) ? 'Ada Tunggakan' : ($rowNom > 0 || $hasAnyLunas ? 'Lunas' : '-'),
+                    ];
+                }
+
+                $footerPerJenis = [];
+                foreach ($jenisTagihanList as $jt) {
+                    $sumNom = 0.0;
+                    $sumDib = 0.0;
+                    $sumSis = 0.0;
+                    foreach ($allRows as $m) {
+                        $b = $monthsRows[$m]['bills'][$jt->id];
+                        if ($b['has_tagihan'] && empty($b['is_one_time_fulfilled']) && empty($b['is_one_time_carried'])) {
+                            $sumNom += $b['nominal'];
+                            $sumDib += $b['total_dibayar'];
+                            $sumSis += $b['sisa'];
+                        }
+                    }
+                    $footerPerJenis[$jt->id] = [
+                        'nominal' => $sumNom,
+                        'dibayar' => $sumDib,
+                        'sisa' => $sumSis,
+                    ];
+                }
+
+                $matrixSiswaData = [
+                    'siswa' => $mSiswa,
+                    'months_rows' => $monthsRows,
+                    'footer_per_jenis' => $footerPerJenis,
+                    'grand_nominal' => $grandNominal,
+                    'grand_dibayar' => $grandDibayar,
+                    'grand_tunggakan' => $grandTunggakan,
+                ];
+            }
+        } elseif ($this->matrixMode === 'rekap') {
+            // Rekapitulasi Global Seluruh Siswa: Y = Bulan, X = Jenis Tagihan
+            $allBills = Tagihan::when($activeTA, fn($q) => $q->where('tahun_ajaran_id', $activeTA->id))->get();
+            $monthsRows = [];
+            $grandNominal = 0.0;
+            $grandDibayar = 0.0;
+            $grandTunggakan = 0.0;
+
+            foreach ($this->standardMonths as $m) {
+                $rowBills = [];
+                $rowNom = 0.0;
+                $rowDib = 0.0;
+                $rowSis = 0.0;
+
+                foreach ($jenisTagihanList as $jt) {
+                    $matchingBills = $allBills->where('jenis_tagihan_id', $jt->id)->where('bulan', $m);
+                    $nom = (float) $matchingBills->sum('nominal');
+                    $bayar = (float) $matchingBills->sum('total_dibayar');
+                    $sisa = max(0, $nom - $bayar);
+
+                    $rowNom += $nom;
+                    $rowDib += $bayar;
+                    $rowSis += $sisa;
+
+                    $rowBills[$jt->id] = [
+                        'nominal' => $nom,
+                        'total_dibayar' => $bayar,
+                        'sisa' => $sisa,
+                        'count' => $matchingBills->count(),
+                        'lunas_count' => $matchingBills->where('status', 'lunas')->count(),
+                        'belum_count' => $matchingBills->where('status', '!=', 'lunas')->count(),
+                    ];
+                }
+
+                $grandNominal += $rowNom;
+                $grandDibayar += $rowDib;
+                $grandTunggakan += $rowSis;
+
+                $monthsRows[$m] = [
+                    'bulan' => $m,
+                    'bills' => $rowBills,
+                    'total_nominal' => $rowNom,
+                    'total_dibayar' => $rowDib,
+                    'sisa_tunggakan' => $rowSis,
+                ];
+            }
+
+            $footerPerJenis = [];
+            foreach ($jenisTagihanList as $jt) {
+                $sumNom = 0.0;
+                $sumDib = 0.0;
+                $sumSis = 0.0;
+                foreach ($this->standardMonths as $m) {
+                    $b = $monthsRows[$m]['bills'][$jt->id];
+                    $sumNom += $b['nominal'];
+                    $sumDib += $b['total_dibayar'];
+                    $sumSis += $b['sisa'];
+                }
+                $footerPerJenis[$jt->id] = [
+                    'nominal' => $sumNom,
+                    'dibayar' => $sumDib,
+                    'sisa' => $sumSis,
+                ];
+            }
+
+            $matrixSiswaData = [
+                'siswa' => null,
+                'months_rows' => $monthsRows,
+                'footer_per_jenis' => $footerPerJenis,
+                'grand_nominal' => $grandNominal,
+                'grand_dibayar' => $grandDibayar,
+                'grand_tunggakan' => $grandTunggakan,
+            ];
+        }
+
         return view('livewire.finance.manajemen-tagihan', [
             'students' => $students,
             'pendingApprovalTagihanIds' => $pendingApprovalTagihanIds,
@@ -1272,6 +1693,10 @@ class ManajemenTagihan extends Component
             'selectedStudentsList' => $selectedStudentsList,
             'bulkStudentCount' => $bulkStudentCount,
             'isFounder' => $this->isFounder(),
+            'jenisTagihanList' => $jenisTagihanList,
+            'matrixSiswaData' => $matrixSiswaData,
+            'allStudentsForMatrix' => $allStudentsForMatrix,
+            'activeTA' => $activeTA,
         ])->layout('components.layouts.app', ['title' => 'Manajemen Tagihan']);
     }
 }
