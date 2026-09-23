@@ -6,15 +6,7 @@
         badge="SYSTEM HEALTH"
         badgeVariant="rose"
         icon="alert-triangle"
-    >
-        <x-slot:actions>
-            @if (!auth()->user()?->isSuperAdmin2())
-                <x-button type="button" variant="danger" size="md" icon="trash-2" wire:click="clearLog" data-confirm="Apakah Anda yakin ingin mengosongkan berkas log error sistem?">
-                    Bersihkan Log Error
-                </x-button>
-            @endif
-        </x-slot:actions>
-    </x-page-header>
+    />
 
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
@@ -22,7 +14,7 @@
         :steps="[
             ['title' => 'Monitoring Real-time', 'desc' => 'Tabel membaca langsung berkas laravel.log untuk mencatat exception, warning, dan critical runtime error.'],
             ['title' => 'Filter Severity Level', 'desc' => 'Gunakan filter level untuk memilah error berkategori ERROR, CRITICAL, WARNING, atau INFO.'],
-            ['title' => 'Bersihkan Berkas', 'desc' => 'Gunakan tombol Bersihkan Log Error untuk mengosongkan berkas log setelah pemeliharaan sistem.']
+            ['title' => 'Detail Exception', 'desc' => 'Klik baris error untuk menelaah stack trace lengkap, pesan exception, dan berkas sumber terjadinya error.']
         ]"
     />
 

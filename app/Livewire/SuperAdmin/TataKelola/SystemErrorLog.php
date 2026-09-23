@@ -57,19 +57,6 @@ class SystemErrorLog extends Component
         $this->resetPage();
     }
 
-    public function clearLog()
-    {
-        if (auth()->user()?->isSuperAdmin2()) {
-            return;
-        }
-
-        $logPath = storage_path('logs/laravel.log');
-        if (File::exists($logPath)) {
-            File::put($logPath, '');
-            session()->flash('success', 'Berkas System Error Log berhasil dibersihkan.');
-        }
-    }
-
     private function getParsedLogs(): Collection
     {
         $logPath = storage_path('logs/laravel.log');
