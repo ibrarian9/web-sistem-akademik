@@ -1,0 +1,2050 @@
+{
+  "communities": {
+    "0": [
+      "app_livewire_guru_inputnilaisumatif_inputnilaisumatif",
+      "app_livewire_guru_inputnilaisumatif_inputnilaisumatif_loadmatrixdata",
+      "app_livewire_guru_inputnilaisumatif_inputnilaisumatif_mount",
+      "app_livewire_guru_inputnilaisumatif_inputnilaisumatif_render",
+      "app_livewire_guru_inputnilaisumatif_inputnilaisumatif_savematrix",
+      "app_livewire_guru_inputnilaisumatif_inputnilaisumatif_syncrapordetailforsiswa",
+      "app_livewire_guru_inputnilaisumatif_inputnilaisumatif_updated",
+      "app_livewire_guru_manajemenkurikulummerdeka",
+      "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka",
+      "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_closelmmodal",
+      "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_closetpmodal",
+      "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_deletelingkupmateri",
+      "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_deletelm",
+      "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_deletetp",
+      "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_editlingkupmateri",
+      "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_edittp",
+      "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_loadmapeldata",
+      "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_mount",
+      "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_openlmmodal",
+      "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_opentpmodal",
+      "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_render",
+      "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_savelingkupmateri",
+      "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_savelm",
+      "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_savetemplate",
+      "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_savetp",
+      "app_livewire_guru_manajemenkurikulummerdeka_manajemenkurikulummerdeka_updatedmapelid",
+      "app_livewire_superadmin_tatakelola_manajemenmapel_manajemenmapel",
+      "app_livewire_superadmin_tatakelola_manajemenmapel_manajemenmapel_delete",
+      "app_livewire_superadmin_tatakelola_manajemenmapel_manajemenmapel_opencreate",
+      "app_livewire_superadmin_tatakelola_manajemenmapel_manajemenmapel_openedit",
+      "app_livewire_superadmin_tatakelola_manajemenmapel_manajemenmapel_render",
+      "app_livewire_superadmin_tatakelola_manajemenmapel_manajemenmapel_resetform",
+      "app_livewire_superadmin_tatakelola_manajemenmapel_manajemenmapel_save",
+      "app_livewire_superadmin_tatakelola_manajemenmapel_manajemenmapel_updatingsearch",
+      "app_models_lingkupmateri",
+      "app_models_lingkupmateri_lingkupmateri",
+      "app_models_lingkupmateri_lingkupmateri_mapel",
+      "app_models_lingkupmateri_lingkupmateri_tujuanpembelajaran",
+      "app_models_matapelajaran_matapelajaran",
+      "app_models_matapelajaran_matapelajaran_gurumapelkelas",
+      "app_models_matapelajaran_matapelajaran_nilais",
+      "app_models_matapelajaran_matapelajaran_rapordetails",
+      "app_models_nilaisas",
+      "app_models_nilaisas_nilaisas",
+      "app_models_nilaisas_nilaisas_mapel",
+      "app_models_nilaisas_nilaisas_semester",
+      "app_models_nilaisas_nilaisas_siswa",
+      "app_models_nilaisumatiftp",
+      "app_models_nilaisumatiftp_nilaisumatiftp",
+      "app_models_nilaisumatiftp_nilaisumatiftp_semester",
+      "app_models_nilaisumatiftp_nilaisumatiftp_siswa",
+      "app_models_nilaisumatiftp_nilaisumatiftp_tujuanpembelajaran",
+      "app_models_templatedeskripsi",
+      "app_models_templatedeskripsi_templatedeskripsi",
+      "app_models_templatedeskripsi_templatedeskripsi_mapel",
+      "app_models_tujuanpembelajaran",
+      "app_models_tujuanpembelajaran_tujuanpembelajaran",
+      "app_models_tujuanpembelajaran_tujuanpembelajaran_lingkupmateri",
+      "app_models_tujuanpembelajaran_tujuanpembelajaran_nilaisumatif",
+      "app_services_autonarasiservice",
+      "app_services_autonarasiservice_autonarasiservice",
+      "app_services_autonarasiservice_autonarasiservice_generateformapel",
+      "illuminate_database_eloquent_relations_belongsto",
+      "illuminate_database_eloquent_relations_hasmany"
+    ],
+    "1": [
+      "app_livewire_guru_absensisiswa_absensisiswa",
+      "app_livewire_guru_absensisiswa_absensisiswa_loadfilters",
+      "app_livewire_guru_absensisiswa_absensisiswa_loadstudents",
+      "app_livewire_guru_absensisiswa_absensisiswa_mount",
+      "app_livewire_guru_absensisiswa_absensisiswa_render",
+      "app_livewire_guru_absensisiswa_absensisiswa_save",
+      "app_livewire_guru_absensisiswa_absensisiswa_setstatusall",
+      "app_livewire_guru_absensisiswa_absensisiswa_updatedkelasid",
+      "app_livewire_guru_absensisiswa_absensisiswa_updatedtanggal",
+      "app_livewire_guru_dashboard_dashboard",
+      "app_livewire_guru_dashboard_dashboard_mount",
+      "app_livewire_guru_dashboard_dashboard_render",
+      "app_livewire_guru_jadwalmengajar_jadwalmengajar",
+      "app_livewire_guru_jadwalmengajar_jadwalmengajar_mount",
+      "app_livewire_guru_jadwalmengajar_jadwalmengajar_render",
+      "app_livewire_murid_dashboard_dashboard",
+      "app_livewire_murid_dashboard_dashboard_loaddashboarddata",
+      "app_livewire_murid_dashboard_dashboard_mount",
+      "app_livewire_murid_dashboard_dashboard_render",
+      "app_livewire_murid_jadwalpelajaran",
+      "app_livewire_murid_jadwalpelajaran_jadwalpelajaran",
+      "app_livewire_murid_jadwalpelajaran_jadwalpelajaran_loadschedule",
+      "app_livewire_murid_jadwalpelajaran_jadwalpelajaran_mount",
+      "app_livewire_murid_jadwalpelajaran_jadwalpelajaran_render",
+      "app_livewire_murid_kehadiransaya_kehadiransaya",
+      "app_livewire_murid_kehadiransaya_kehadiransaya_loadattendance",
+      "app_livewire_murid_kehadiransaya_kehadiransaya_mount",
+      "app_livewire_murid_kehadiransaya_kehadiransaya_render",
+      "app_livewire_murid_kehadiransaya_kehadiransaya_updatedselectedmonth",
+      "app_livewire_murid_kehadiransaya_kehadiransaya_updatedselectedstatus",
+      "app_livewire_shared_laporan_rekapnilai_rekapnilai",
+      "app_livewire_shared_laporan_rekapnilai_rekapnilai_downloadpdf",
+      "app_livewire_shared_laporan_rekapnilai_rekapnilai_getavailableclasses",
+      "app_livewire_shared_laporan_rekapnilai_rekapnilai_getavailablemapels",
+      "app_livewire_shared_laporan_rekapnilai_rekapnilai_getmatrixdata",
+      "app_livewire_shared_laporan_rekapnilai_rekapnilai_mount",
+      "app_livewire_shared_laporan_rekapnilai_rekapnilai_render",
+      "app_livewire_shared_laporan_rekapnilai_rekapnilai_updatedkelasid",
+      "app_livewire_superadmin_tatakelola_manajemenjadwal_manajemenjadwal",
+      "app_livewire_superadmin_tatakelola_manajemenjadwal_manajemenjadwal_delete",
+      "app_livewire_superadmin_tatakelola_manajemenjadwal_manajemenjadwal_opencreate",
+      "app_livewire_superadmin_tatakelola_manajemenjadwal_manajemenjadwal_opencreateforday",
+      "app_livewire_superadmin_tatakelola_manajemenjadwal_manajemenjadwal_openedit",
+      "app_livewire_superadmin_tatakelola_manajemenjadwal_manajemenjadwal_render",
+      "app_livewire_superadmin_tatakelola_manajemenjadwal_manajemenjadwal_resetform",
+      "app_livewire_superadmin_tatakelola_manajemenjadwal_manajemenjadwal_save",
+      "app_livewire_superadmin_tatakelola_manajemenjadwal_manajemenjadwal_selectkelas",
+      "app_livewire_superadmin_tatakelola_manajemenjadwal_manajemenjadwal_updatingfilterhari",
+      "app_livewire_superadmin_tatakelola_manajemenjadwal_manajemenjadwal_updatingfilterkelasid",
+      "app_livewire_superadmin_tatakelola_manajemenjadwal_manajemenjadwal_updatingsearch",
+      "app_models_gurumapelkelas_gurumapelkelas",
+      "app_models_gurumapelkelas_gurumapelkelas_guru",
+      "app_models_gurumapelkelas_gurumapelkelas_jadwalpelajarans",
+      "app_models_gurumapelkelas_gurumapelkelas_kelas",
+      "app_models_gurumapelkelas_gurumapelkelas_mapel",
+      "app_models_gurumapelkelas_gurumapelkelas_semester",
+      "app_services_jadwalservice",
+      "app_services_jadwalservice_jadwalservice",
+      "app_services_jadwalservice_jadwalservice_checkconflict"
+    ],
+    "2": [
+      "app_http_controllers_controller",
+      "app_http_controllers_controller_controller",
+      "app_http_controllers_documentverificationcontroller",
+      "app_http_controllers_documentverificationcontroller_documentverificationcontroller",
+      "app_http_controllers_documentverificationcontroller_documentverificationcontroller_verify",
+      "app_http_controllers_financereportcontroller",
+      "app_http_controllers_financereportcontroller_financereportcontroller",
+      "app_http_controllers_financereportcontroller_financereportcontroller_cetakresi",
+      "app_http_controllers_financereportcontroller_financereportcontroller_slipgaji",
+      "app_http_controllers_verifikasidokumencontroller",
+      "app_http_controllers_verifikasidokumencontroller_verifikasidokumencontroller",
+      "app_http_controllers_verifikasidokumencontroller_verifikasidokumencontroller_verify",
+      "app_livewire_guru_absensidiri_absensidiri",
+      "app_livewire_guru_absensidiri_absensidiri_checkin",
+      "app_livewire_guru_absensidiri_absensidiri_checkout",
+      "app_livewire_guru_absensidiri_absensidiri_checktodayattendance",
+      "app_livewire_guru_absensidiri_absensidiri_loadhistory",
+      "app_livewire_guru_absensidiri_absensidiri_loadsettings",
+      "app_livewire_guru_absensidiri_absensidiri_mount",
+      "app_livewire_guru_absensidiri_absensidiri_render",
+      "app_livewire_superadmin_tatakelola_manajemenpengaturan",
+      "app_livewire_superadmin_tatakelola_manajemenpengaturan_manajemenpengaturan",
+      "app_livewire_superadmin_tatakelola_manajemenpengaturan_manajemenpengaturan_loadsettings",
+      "app_livewire_superadmin_tatakelola_manajemenpengaturan_manajemenpengaturan_mount",
+      "app_livewire_superadmin_tatakelola_manajemenpengaturan_manajemenpengaturan_render",
+      "app_livewire_superadmin_tatakelola_manajemenpengaturan_manajemenpengaturan_save",
+      "app_livewire_tatausaha_inputabsensikaryawan",
+      "app_livewire_tatausaha_inputabsensikaryawan_inputabsensikaryawan",
+      "app_livewire_tatausaha_inputabsensikaryawan_inputabsensikaryawan_loademployees",
+      "app_livewire_tatausaha_inputabsensikaryawan_inputabsensikaryawan_mount",
+      "app_livewire_tatausaha_inputabsensikaryawan_inputabsensikaryawan_render",
+      "app_livewire_tatausaha_inputabsensikaryawan_inputabsensikaryawan_saveattendance",
+      "app_livewire_tatausaha_inputabsensikaryawan_inputabsensikaryawan_setstatusall",
+      "app_livewire_tatausaha_inputabsensikaryawan_inputabsensikaryawan_updatedfilterrole",
+      "app_livewire_tatausaha_inputabsensikaryawan_inputabsensikaryawan_updatedtanggal",
+      "app_livewire_tatausaha_inputabsensikaryawan_inputabsensikaryawan_uploadcsv",
+      "app_models_absensiguru_absensiguru",
+      "app_models_absensiguru_absensiguru_causer",
+      "app_models_absensiguru_absensiguru_guru",
+      "app_models_pengaturan",
+      "app_models_pengaturan_pengaturan",
+      "app_models_pengaturan_pengaturan_getvalue",
+      "app_services_esignatureservice",
+      "app_services_esignatureservice_esignatureservice",
+      "app_services_esignatureservice_esignatureservice_generatecode",
+      "app_services_esignatureservice_esignatureservice_generateqrcode",
+      "app_services_esignatureservice_esignatureservice_getsignaturedata",
+      "app_services_esignatureservice_esignatureservice_getverificationurl",
+      "livewire_withfileuploads",
+      "tests_feature_esignaturetest_esignaturetest",
+      "tests_feature_esignaturetest_esignaturetest_test_esignature_service_generates_valid_code_and_qr",
+      "tests_feature_esignaturetest_esignaturetest_test_public_verification_route_loads_successfully",
+      "tests_feature_esignaturetest_esignaturetest_test_signature_data_helper_returns_default_officers"
+    ],
+    "3": [
+      "app_livewire_guru_penilaianp5",
+      "app_livewire_murid_ekstrakurikulersaya",
+      "app_livewire_murid_ekstrakurikulersaya_ekstrakurikulersaya",
+      "app_livewire_tatausaha_manajemenpiketguru",
+      "app_models_absensisiswa",
+      "app_models_absensisiswa_absensisiswa",
+      "app_models_absensisiswa_absensisiswa_guru",
+      "app_models_absensisiswa_absensisiswa_kelas",
+      "app_models_absensisiswa_absensisiswa_siswa",
+      "app_models_danabos",
+      "app_models_danabos_danabos",
+      "app_models_danabos_danabos_tahunajaran",
+      "app_models_dimensip5",
+      "app_models_ekstrakurikuler",
+      "app_models_jadwalpelajaran",
+      "app_models_jadwalpelajaran_jadwalpelajaran",
+      "app_models_jadwalpelajaran_jadwalpelajaran_gurumapelkelas",
+      "app_models_jadwalpiketguru",
+      "app_models_nilaip5",
+      "app_models_pengajuankoreksinilai",
+      "app_models_proyekp5",
+      "app_models_proyekp5_proyekp5",
+      "app_models_riwayatsurat",
+      "app_models_siswaekstrakurikuler",
+      "app_models_subdimensip5",
+      "app_models_subdimensip5_subdimensip5",
+      "app_models_subdimensip5_subdimensip5_dimensi",
+      "app_models_targethafalantahfidz",
+      "app_models_targethafalantahfidz_targethafalantahfidz",
+      "app_models_targethafalantahfidz_targethafalantahfidz_kelas",
+      "app_models_targethafalantahfidz_targethafalantahfidz_semester",
+      "database_seeders_productiondataseeder",
+      "illuminate_database_eloquent_factories_hasfactory",
+      "illuminate_database_eloquent_model"
+    ],
+    "4": [
+      "app_livewire_guru_kelolarapor_kelolarapor",
+      "app_livewire_guru_kelolarapor_kelolarapor_getcalculatedpreviewgradesproperty",
+      "app_livewire_guru_kelolarapor_kelolarapor_getcalculatedtahfidzpreviewproperty",
+      "app_livewire_guru_kelolarapor_kelolarapor_mount",
+      "app_livewire_guru_kelolarapor_kelolarapor_publishrapor",
+      "app_livewire_guru_kelolarapor_kelolarapor_render",
+      "app_livewire_guru_kelolarapor_kelolarapor_updatedkelasid",
+      "app_livewire_guru_kelolarapor_kelolarapor_updatedsiswaid",
+      "app_livewire_guru_kelolarapor_kelolarapor_updatedtiperapor",
+      "app_livewire_koordinator_manajemenkoreksinilai_manajemenkoreksinilai",
+      "app_livewire_koordinator_manajemenkoreksinilai_manajemenkoreksinilai_approve",
+      "app_livewire_koordinator_manajemenkoreksinilai_manajemenkoreksinilai_reject",
+      "app_livewire_koordinator_manajemenkoreksinilai_manajemenkoreksinilai_render",
+      "app_livewire_pengawas_manajemenkoreksinilai",
+      "app_livewire_pengawas_manajemenkoreksinilai_manajemenkoreksinilai",
+      "app_livewire_shared_notificationdropdown_notificationdropdown",
+      "app_livewire_shared_notificationdropdown_notificationdropdown_loadnotifications",
+      "app_livewire_shared_notificationdropdown_notificationdropdown_markallasread",
+      "app_livewire_shared_notificationdropdown_notificationdropdown_markasread",
+      "app_livewire_shared_notificationdropdown_notificationdropdown_mount",
+      "app_livewire_shared_notificationdropdown_notificationdropdown_render",
+      "app_livewire_shared_notificationslist_notificationslist",
+      "app_livewire_shared_notificationslist_notificationslist_getnotifications",
+      "app_livewire_shared_notificationslist_notificationslist_markallasread",
+      "app_livewire_shared_notificationslist_notificationslist_markasread",
+      "app_livewire_shared_notificationslist_notificationslist_render",
+      "app_livewire_shared_notificationslist_notificationslist_updatedfilter",
+      "app_models_notifikasi_notifikasi",
+      "app_models_notifikasi_notifikasi_siswa",
+      "app_models_notifikasi_notifikasi_user",
+      "app_models_pengajuankoreksinilai_pengajuankoreksinilai",
+      "app_models_pengajuankoreksinilai_pengajuankoreksinilai_guru",
+      "app_models_pengajuankoreksinilai_pengajuankoreksinilai_nilai",
+      "app_models_pengajuankoreksinilai_pengajuankoreksinilai_reviewer"
+    ],
+    "5": [
+      "app_http_controllers_raporpdfcontroller",
+      "app_livewire_guru_inputnilaisumatif",
+      "app_livewire_guru_inputnilaitahfidz",
+      "app_livewire_guru_kelolarapor",
+      "app_livewire_kepalasekolah_dashboard",
+      "app_livewire_murid_dashboard",
+      "app_livewire_murid_rapornilai",
+      "app_livewire_murid_setorantahfidz",
+      "app_livewire_shared_laporan_rekapnilai",
+      "app_livewire_superadmin_dashboard",
+      "app_livewire_superadmin_tatakelola_manajemensiswa",
+      "app_livewire_tatausaha_dashboard",
+      "app_livewire_tatausaha_proseskenaikankelas",
+      "app_models_kelas",
+      "app_models_matapelajaran",
+      "app_models_nilai",
+      "app_models_nilaitahfidz",
+      "app_models_rapor",
+      "app_models_rapor_rapor",
+      "app_models_rapor_rapor_details",
+      "app_models_rapor_rapor_kelas",
+      "app_models_rapor_rapor_semester",
+      "app_models_rapor_rapor_siswa",
+      "app_models_rapordetail",
+      "app_models_raportahfidzdetail",
+      "app_models_semester",
+      "app_models_siswa",
+      "app_models_siswakelas",
+      "database_seeders_demodataseeder",
+      "database_seeders_rapororangtuaseeder",
+      "database_seeders_tahfidzmutabaahseeder",
+      "tests_feature_kenaikankelasexporttest",
+      "tests_feature_rapororangtuaseedertest",
+      "tests_feature_revisibusinesslogictest",
+      "tests_feature_tahfidzparentfeedbacktest"
+    ],
+    "6": [
+      "app_livewire_finance_arusmasuk",
+      "app_livewire_finance_arusmasuk_arusmasuk",
+      "app_livewire_finance_danabos",
+      "app_livewire_finance_laporan_laporanpemasukan",
+      "app_livewire_finance_laporan_laporantunggakan",
+      "app_livewire_koordinator_manajemenkoreksinilai",
+      "app_livewire_murid_kehadiransaya",
+      "app_livewire_shared_notificationdropdown",
+      "app_livewire_shared_notificationslist",
+      "app_livewire_superadmin_tatakelola_auditlog",
+      "app_livewire_superadmin_tatakelola_auditlog_auditlog",
+      "app_livewire_superadmin_tatakelola_auditlog_auditlog_render",
+      "app_livewire_superadmin_tatakelola_auditlog_auditlog_updatingfilterevent",
+      "app_livewire_superadmin_tatakelola_auditlog_auditlog_updatingsearch",
+      "app_livewire_superadmin_tatakelola_manajemenkelas",
+      "app_livewire_superadmin_tatakelola_manajemenmapel",
+      "app_livewire_tatausaha_dataalumni",
+      "app_livewire_tatausaha_manajemensurat",
+      "app_livewire_tatausaha_plottingsiswakelas",
+      "app_models_notifikasi",
+      "app_services_notificationservice",
+      "config_mail",
+      "livewire_component",
+      "livewire_withpagination"
+    ],
+    "7": [
+      "app_console_commands_generatemonthlyspp",
+      "app_console_commands_generatemonthlyspp_generatemonthlyspp",
+      "app_console_commands_generatemonthlysppcommand",
+      "app_console_commands_generatemonthlysppcommand_generatemonthlysppcommand",
+      "app_http_controllers_financeexportcontroller",
+      "app_livewire_finance_aruskas",
+      "app_livewire_finance_aruskaskeluar",
+      "app_livewire_finance_aruskasmasuk",
+      "app_livewire_finance_dashboard",
+      "app_livewire_finance_inputpembayaran",
+      "app_livewire_finance_laporan_laporanpengeluaran",
+      "app_livewire_finance_manajemengajiguru",
+      "app_livewire_finance_manajemenpeminjaman",
+      "app_livewire_finance_manajementagihan",
+      "app_livewire_finance_overviewpembayaran",
+      "app_livewire_finance_pengajuandanaindex",
+      "app_livewire_murid_tagihanspp",
+      "app_models_gajiguru",
+      "app_models_jenistagihan",
+      "app_models_kategoripengeluaran",
+      "app_models_pemasukankas",
+      "app_models_pembayaran",
+      "app_models_peminjaman",
+      "app_models_pengajuandana",
+      "app_models_pengeluaran",
+      "app_models_tagihan",
+      "app_models_tahunajaran",
+      "database_seeders_financeseeder",
+      "illuminate_console_command",
+      "illuminate_database_eloquent_softdeletes",
+      "tests_feature_automatedsppgenerationtest",
+      "tests_feature_financeenhancementstest",
+      "tests_feature_financekeuangantest",
+      "tests_feature_financemoduletest",
+      "tests_feature_financestage2test",
+      "tests_feature_muridportaltest",
+      "tests_feature_rbacandnavigationtest"
+    ],
+    "8": [
+      "composer_scripts",
+      "composer_scripts_dev",
+      "composer_scripts_post_autoload_dump",
+      "composer_scripts_post_create_project_cmd",
+      "composer_scripts_post_root_package_install",
+      "composer_scripts_post_update_cmd",
+      "composer_scripts_pre_package_uninstall",
+      "composer_scripts_setup",
+      "composer_scripts_test",
+      "ref_composer_config_disableprocesstimeout",
+      "ref_composer_install",
+      "ref_illuminate_foundation_composerscripts_postautoloaddump",
+      "ref_illuminate_foundation_composerscripts_prepackageuninstall",
+      "ref_npm_install_ignore_scripts",
+      "ref_npm_run_build",
+      "ref_npx_concurrently_c_93c5fd_c4b5fd_fb7185_fdba74_php_artisan_serve_php_artisan_queue_listen_tries_1_timeout_0_php_artisan_pail_timeout_0_npm_run_dev_names_server_queue_logs_vite_kill_others",
+      "ref_php_artisan_config_clear_ansi_no_additional_args",
+      "ref_php_artisan_key_generate",
+      "ref_php_artisan_key_generate_ansi",
+      "ref_php_artisan_migrate_force",
+      "ref_php_artisan_migrate_graceful_ansi",
+      "ref_php_artisan_package_discover_ansi",
+      "ref_php_artisan_test",
+      "ref_php_artisan_vendor_publish_tag_laravel_assets_ansi_force",
+      "ref_php_r_file_exists_database_database_sqlite_touch_database_database_sqlite",
+      "ref_php_r_file_exists_env_copy_env_example_env"
+    ],
+    "9": [
+      "app_livewire_superadmin_tatakelola_manajemensiswa_manajemensiswa",
+      "app_livewire_superadmin_tatakelola_manajemensiswa_manajemensiswa_delete",
+      "app_livewire_superadmin_tatakelola_manajemensiswa_manajemensiswa_opencreate",
+      "app_livewire_superadmin_tatakelola_manajemensiswa_manajemensiswa_openedit",
+      "app_livewire_superadmin_tatakelola_manajemensiswa_manajemensiswa_render",
+      "app_livewire_superadmin_tatakelola_manajemensiswa_manajemensiswa_resetform",
+      "app_livewire_superadmin_tatakelola_manajemensiswa_manajemensiswa_save",
+      "app_livewire_superadmin_tatakelola_manajemensiswa_manajemensiswa_updatingsearch",
+      "app_livewire_tatausaha_dataalumni_dataalumni",
+      "app_livewire_tatausaha_dataalumni_dataalumni_canceledit",
+      "app_livewire_tatausaha_dataalumni_dataalumni_editalumni",
+      "app_livewire_tatausaha_dataalumni_dataalumni_render",
+      "app_livewire_tatausaha_dataalumni_dataalumni_savealumni",
+      "app_models_siswa_siswa",
+      "app_models_siswa_siswa_absensi",
+      "app_models_siswa_siswa_auditlogs",
+      "app_models_siswa_siswa_ekstrakurikuler",
+      "app_models_siswa_siswa_kelas",
+      "app_models_siswa_siswa_kelastahfidz",
+      "app_models_siswa_siswa_kelasumum",
+      "app_models_siswa_siswa_nilais",
+      "app_models_siswa_siswa_rapors",
+      "app_models_siswa_siswa_riwayatkelas",
+      "app_models_siswa_siswa_tagihans",
+      "app_models_siswa_siswa_user"
+    ],
+    "10": [
+      "app_livewire_tatausaha_manajemenkaryawan_manajemenkaryawan_render",
+      "app_models_role_role",
+      "app_models_role_role_users",
+      "app_models_user",
+      "app_models_user_user",
+      "app_models_user_user_casts",
+      "app_models_user_user_guru",
+      "app_models_user_user_notifikasis",
+      "app_models_user_user_role",
+      "app_models_user_user_siswa",
+      "database_seeders_demodataseeder_demodataseeder",
+      "database_seeders_demodataseeder_demodataseeder_run",
+      "database_seeders_userseeder_userseeder",
+      "database_seeders_userseeder_userseeder_run",
+      "illuminate_foundation_auth_user",
+      "illuminate_notifications_notifiable",
+      "tests_feature_gururoleaccesstest_gururoleaccesstest_test_guru_tahfidz_blocked_from_kurikulum_merdeka_components",
+      "tests_feature_gururoleaccesstest_gururoleaccesstest_test_guru_umum_blocked_from_input_tahfidz_component",
+      "tests_feature_kenaikankelasexporttest_kenaikankelasexporttest",
+      "tests_feature_kenaikankelasexporttest_kenaikankelasexporttest_test_can_download_excel_tunggakan_report",
+      "tests_feature_kenaikankelasexporttest_kenaikankelasexporttest_test_can_process_bulk_class_promotion",
+      "tests_feature_kenaikankelasexporttest_kenaikankelasexporttest_test_can_process_bulk_graduation",
+      "tests_feature_kenaikankelasexporttest_kenaikankelasexporttest_test_tata_usaha_can_retain_student_tinggal_kelas",
+      "tests_feature_rbacandnavigationtest_createuserwithrole"
+    ],
+    "11": [
+      "app_livewire_finance_aruskaskeluar_aruskaskeluar",
+      "app_livewire_finance_aruskaskeluar_aruskaskeluar_deleteexpense",
+      "app_livewire_finance_aruskaskeluar_aruskaskeluar_exportpdf",
+      "app_livewire_finance_aruskaskeluar_aruskaskeluar_mount",
+      "app_livewire_finance_aruskaskeluar_aruskaskeluar_render",
+      "app_livewire_finance_aruskaskeluar_aruskaskeluar_saveexpense",
+      "app_livewire_finance_laporan_laporanpengeluaran_laporanpengeluaran",
+      "app_livewire_finance_laporan_laporanpengeluaran_laporanpengeluaran_exportcsv",
+      "app_livewire_finance_laporan_laporanpengeluaran_laporanpengeluaran_exportpdf",
+      "app_livewire_finance_laporan_laporanpengeluaran_laporanpengeluaran_mount",
+      "app_livewire_finance_laporan_laporanpengeluaran_laporanpengeluaran_render",
+      "app_livewire_finance_laporan_laporanpengeluaran_laporanpengeluaran_updatingenddate",
+      "app_livewire_finance_laporan_laporanpengeluaran_laporanpengeluaran_updatingkategoripengeluaranid",
+      "app_livewire_finance_laporan_laporanpengeluaran_laporanpengeluaran_updatingsearch",
+      "app_livewire_finance_laporan_laporanpengeluaran_laporanpengeluaran_updatingstartdate",
+      "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_realisasikandana",
+      "app_models_kategoripengeluaran_kategoripengeluaran",
+      "app_models_kategoripengeluaran_kategoripengeluaran_pengeluarans",
+      "app_models_pengeluaran_pengeluaran",
+      "app_models_pengeluaran_pengeluaran_gajiguru",
+      "app_models_pengeluaran_pengeluaran_kategori",
+      "app_models_pengeluaran_pengeluaran_petugas"
+    ],
+    "12": [
+      "app_livewire_tatausaha_plottingsiswakelas_plottingsiswakelas",
+      "app_livewire_tatausaha_plottingsiswakelas_plottingsiswakelas_assignsiswatokelas",
+      "app_livewire_tatausaha_plottingsiswakelas_plottingsiswakelas_closeaddmodal",
+      "app_livewire_tatausaha_plottingsiswakelas_plottingsiswakelas_mount",
+      "app_livewire_tatausaha_plottingsiswakelas_plottingsiswakelas_openaddmodal",
+      "app_livewire_tatausaha_plottingsiswakelas_plottingsiswakelas_render",
+      "app_livewire_tatausaha_plottingsiswakelas_plottingsiswakelas_unassignsiswa",
+      "app_livewire_tatausaha_plottingsiswakelas_plottingsiswakelas_updatedfilterjenis",
+      "app_livewire_tatausaha_plottingsiswakelas_plottingsiswakelas_updatedselectedkelasid",
+      "app_models_kelas_kelas",
+      "app_models_kelas_kelas_absensisiswas",
+      "app_models_kelas_kelas_gurumapelkelas",
+      "app_models_kelas_kelas_gurutahfidz",
+      "app_models_kelas_kelas_guruumum",
+      "app_models_kelas_kelas_nilais",
+      "app_models_kelas_kelas_rapors",
+      "app_models_kelas_kelas_scopetahfidz",
+      "app_models_kelas_kelas_scopeumum",
+      "app_models_kelas_kelas_semester",
+      "app_models_kelas_kelas_siswakelas",
+      "app_models_kelas_kelas_siswas",
+      "app_models_kelas_kelas_siswastahfidz"
+    ],
+    "13": [
+      "app_livewire_guru_absensidiri",
+      "app_livewire_guru_absensisiswa",
+      "app_livewire_guru_dashboard",
+      "app_livewire_guru_inputnilaisiswa",
+      "app_livewire_guru_jadwalmengajar",
+      "app_livewire_guru_pengaturanbobotnilai",
+      "app_livewire_shared_laporan_rekapabsensiguru",
+      "app_livewire_shared_laporan_rekapabsensisiswa",
+      "app_livewire_superadmin_tatakelola_manajemenjadwal",
+      "app_livewire_superadmin_tatakelola_manajemenkomponennilai",
+      "app_livewire_tatausaha_manajemenkalenderakademik",
+      "app_models_absensiguru",
+      "app_models_bobotnilaiguru",
+      "app_models_gurumapelkelas",
+      "app_models_kalenderakademik",
+      "app_models_komponennilai",
+      "tests_feature_guruakademiktest",
+      "tests_feature_jadwaltest",
+      "tests_feature_kalenderakademiktest"
+    ],
+    "14": [
+      "app_livewire_finance_laporan_laporantunggakan_laporantunggakan",
+      "app_livewire_finance_laporan_laporantunggakan_laporantunggakan_exportcsv",
+      "app_livewire_finance_laporan_laporantunggakan_laporantunggakan_exportpdf",
+      "app_livewire_finance_laporan_laporantunggakan_laporantunggakan_render",
+      "app_livewire_finance_laporan_laporantunggakan_laporantunggakan_updatingkelasid",
+      "app_livewire_finance_laporan_laporantunggakan_laporantunggakan_updatingsearch",
+      "app_livewire_finance_laporan_laporantunggakan_laporantunggakan_updatingtahunajaranid",
+      "app_livewire_superadmin_dashboard_dashboard",
+      "app_livewire_superadmin_dashboard_dashboard_mount",
+      "app_livewire_superadmin_dashboard_dashboard_render",
+      "app_models_tagihan_tagihan",
+      "app_models_tagihan_tagihan_jenistagihan",
+      "app_models_tagihan_tagihan_pembayarans",
+      "app_models_tagihan_tagihan_siswa",
+      "app_models_tagihan_tagihan_tahunajaran",
+      "tests_feature_automatedsppgenerationtest_automatedsppgenerationtest",
+      "tests_feature_automatedsppgenerationtest_automatedsppgenerationtest_setup",
+      "tests_feature_automatedsppgenerationtest_automatedsppgenerationtest_test_artisan_command_generates_spp_for_active_students",
+      "tests_feature_automatedsppgenerationtest_automatedsppgenerationtest_test_artisan_command_prevents_duplicate_generation",
+      "tests_feature_automatedsppgenerationtest_automatedsppgenerationtest_test_livewire_action_generates_spp_bulanan"
+    ],
+    "15": [
+      "app_livewire_superadmin_tatakelola_manajemenguru_manajemenguru",
+      "app_livewire_superadmin_tatakelola_manajemenguru_manajemenguru_delete",
+      "app_livewire_superadmin_tatakelola_manajemenguru_manajemenguru_opencreate",
+      "app_livewire_superadmin_tatakelola_manajemenguru_manajemenguru_openedit",
+      "app_livewire_superadmin_tatakelola_manajemenguru_manajemenguru_render",
+      "app_livewire_superadmin_tatakelola_manajemenguru_manajemenguru_resetform",
+      "app_livewire_superadmin_tatakelola_manajemenguru_manajemenguru_save",
+      "app_livewire_superadmin_tatakelola_manajemenguru_manajemenguru_updatingsearch",
+      "app_models_guru_guru",
+      "app_models_guru_guru_absensi",
+      "app_models_guru_guru_absensisiswas",
+      "app_models_guru_guru_gajis",
+      "app_models_guru_guru_getniyattribute",
+      "app_models_guru_guru_kelastahfidz",
+      "app_models_guru_guru_kelasumum",
+      "app_models_guru_guru_nilais",
+      "app_models_guru_guru_peminjamans",
+      "app_models_guru_guru_penugasanmapel",
+      "app_models_guru_guru_setniyattribute",
+      "app_models_guru_guru_user"
+    ],
+    "16": [
+      "database_seeders_databaseseeder",
+      "database_seeders_databaseseeder_databaseseeder",
+      "database_seeders_databaseseeder_databaseseeder_run",
+      "database_seeders_jenistagihanseeder",
+      "database_seeders_jenistagihanseeder_jenistagihanseeder",
+      "database_seeders_jenistagihanseeder_jenistagihanseeder_run",
+      "database_seeders_kategoripengeluaranseeder",
+      "database_seeders_kategoripengeluaranseeder_kategoripengeluaranseeder",
+      "database_seeders_kategoripengeluaranseeder_kategoripengeluaranseeder_run",
+      "database_seeders_komponennilaiseeder",
+      "database_seeders_komponennilaiseeder_komponennilaiseeder",
+      "database_seeders_komponennilaiseeder_komponennilaiseeder_run",
+      "database_seeders_pengaturanseeder",
+      "database_seeders_pengaturanseeder_pengaturanseeder",
+      "database_seeders_pengaturanseeder_pengaturanseeder_run",
+      "database_seeders_productiondataseeder_productiondataseeder",
+      "database_seeders_roleseeder",
+      "database_seeders_roleseeder_roleseeder",
+      "database_seeders_roleseeder_roleseeder_run",
+      "illuminate_database_seeder"
+    ],
+    "17": [
+      "app_livewire_guru_inputnilaitahfidz_inputnilaitahfidz",
+      "app_livewire_guru_inputnilaitahfidz_inputnilaitahfidz_closescoremodal",
+      "app_livewire_guru_inputnilaitahfidz_inputnilaitahfidz_deletescore",
+      "app_livewire_guru_inputnilaitahfidz_inputnilaitahfidz_editscore",
+      "app_livewire_guru_inputnilaitahfidz_inputnilaitahfidz_openscoremodal",
+      "app_livewire_guru_inputnilaitahfidz_inputnilaitahfidz_render",
+      "app_livewire_guru_inputnilaitahfidz_inputnilaitahfidz_resetscoreform",
+      "app_livewire_guru_inputnilaitahfidz_inputnilaitahfidz_savescore",
+      "app_livewire_guru_inputnilaitahfidz_inputnilaitahfidz_updateraportahfidzsummary",
+      "app_livewire_murid_setorantahfidz_setorantahfidz",
+      "app_livewire_murid_setorantahfidz_setorantahfidz_closefeedbackmodal",
+      "app_livewire_murid_setorantahfidz_setorantahfidz_mount",
+      "app_livewire_murid_setorantahfidz_setorantahfidz_openfeedbackmodal",
+      "app_livewire_murid_setorantahfidz_setorantahfidz_render",
+      "app_livewire_murid_setorantahfidz_setorantahfidz_submitfeedback",
+      "app_models_nilaitahfidz_nilaitahfidz",
+      "app_models_nilaitahfidz_nilaitahfidz_semester",
+      "app_models_nilaitahfidz_nilaitahfidz_siswa",
+      "tests_feature_tahfidzparentfeedbacktest_tahfidzparentfeedbacktest_test_parent_can_view_tahfidz_setoran_and_submit_feedback"
+    ],
+    "18": [
+      "app_livewire_finance_manajemengajiguru_manajemengajiguru",
+      "app_livewire_finance_manajemengajiguru_manajemengajiguru_calculateedittotal",
+      "app_livewire_finance_manajemengajiguru_manajemengajiguru_closeeditmodal",
+      "app_livewire_finance_manajemengajiguru_manajemengajiguru_closegeneratemodal",
+      "app_livewire_finance_manajemengajiguru_manajemengajiguru_deletedraft",
+      "app_livewire_finance_manajemengajiguru_manajemengajiguru_generatedrafts",
+      "app_livewire_finance_manajemengajiguru_manajemengajiguru_mount",
+      "app_livewire_finance_manajemengajiguru_manajemengajiguru_openeditmodal",
+      "app_livewire_finance_manajemengajiguru_manajemengajiguru_opengeneratemodal",
+      "app_livewire_finance_manajemengajiguru_manajemengajiguru_render",
+      "app_livewire_finance_manajemengajiguru_manajemengajiguru_saveedit",
+      "app_livewire_finance_manajemengajiguru_manajemengajiguru_updatingfilterbulan",
+      "app_livewire_finance_manajemengajiguru_manajemengajiguru_updatingfilterstatus",
+      "app_livewire_finance_manajemengajiguru_manajemengajiguru_updatingfiltertahun",
+      "app_livewire_finance_manajemengajiguru_manajemengajiguru_updatingsearch",
+      "app_models_gajiguru_gajiguru",
+      "app_models_gajiguru_gajiguru_guru",
+      "app_models_gajiguru_gajiguru_pengeluaran"
+    ],
+    "19": [
+      "concurrently",
+      "laravel_vite_plugin",
+      "package",
+      "package_devdependencies",
+      "package_devdependencies_concurrently",
+      "package_devdependencies_laravel_vite_plugin",
+      "package_devdependencies_tailwindcss",
+      "package_devdependencies_tailwindcss_vite",
+      "package_devdependencies_vite",
+      "package_private",
+      "package_schema",
+      "package_scripts",
+      "package_scripts_build",
+      "package_scripts_dev",
+      "package_type",
+      "tailwindcss",
+      "tailwindcss_vite",
+      "vite"
+    ],
+    "20": [
+      "app_console_commands_generatemonthlyspp_generatemonthlyspp_handle",
+      "app_console_commands_generatemonthlysppcommand_generatemonthlysppcommand_handle",
+      "app_livewire_finance_laporan_laporanpemasukan_laporanpemasukan_render",
+      "app_livewire_finance_manajementagihan_manajementagihan",
+      "app_livewire_finance_manajementagihan_manajementagihan_createsingletagihan",
+      "app_livewire_finance_manajementagihan_manajementagihan_deletetagihan",
+      "app_livewire_finance_manajementagihan_manajementagihan_generateautosppbulanan",
+      "app_livewire_finance_manajementagihan_manajementagihan_mount",
+      "app_livewire_finance_manajementagihan_manajementagihan_render",
+      "app_livewire_finance_manajementagihan_manajementagihan_updatedjenistagihanid",
+      "app_livewire_finance_manajementagihan_manajementagihan_updatingfilterjenis",
+      "app_livewire_finance_manajementagihan_manajementagihan_updatingfilterkelas",
+      "app_livewire_finance_manajementagihan_manajementagihan_updatingfilterstatus",
+      "app_livewire_finance_manajementagihan_manajementagihan_updatingsearch",
+      "app_models_jenistagihan_jenistagihan",
+      "app_models_jenistagihan_jenistagihan_tagihans",
+      "command"
+    ],
+    "21": [
+      "app_livewire_murid_ekstrakurikulersaya_ekstrakurikulersaya_render",
+      "app_models_bobotnilaiguru_bobotnilaiguru",
+      "app_models_bobotnilaiguru_bobotnilaiguru_gurumapelkelas",
+      "app_models_bobotnilaiguru_bobotnilaiguru_komponennilai",
+      "app_models_ekstrakurikuler_ekstrakurikuler",
+      "app_models_ekstrakurikuler_ekstrakurikuler_pembina",
+      "app_models_ekstrakurikuler_ekstrakurikuler_siswaekskul",
+      "app_models_rapordetail_rapordetail",
+      "app_models_rapordetail_rapordetail_mapel",
+      "app_models_rapordetail_rapordetail_rapor",
+      "app_models_siswaekstrakurikuler_siswaekstrakurikuler",
+      "app_models_siswaekstrakurikuler_siswaekstrakurikuler_ekstrakurikuler",
+      "app_models_siswaekstrakurikuler_siswaekstrakurikuler_semester",
+      "app_models_siswaekstrakurikuler_siswaekstrakurikuler_siswa",
+      "database_seeders_productiondataseeder_productiondataseeder_run",
+      "database_seeders_rapororangtuaseeder_rapororangtuaseeder",
+      "database_seeders_rapororangtuaseeder_rapororangtuaseeder_run"
+    ],
+    "22": [
+      "app_livewire_tatausaha_manajemenkalenderakademik_manajemenkalenderakademik",
+      "app_livewire_tatausaha_manajemenkalenderakademik_manajemenkalenderakademik_canmanage",
+      "app_livewire_tatausaha_manajemenkalenderakademik_manajemenkalenderakademik_closemodal",
+      "app_livewire_tatausaha_manajemenkalenderakademik_manajemenkalenderakademik_delete",
+      "app_livewire_tatausaha_manajemenkalenderakademik_manajemenkalenderakademik_mount",
+      "app_livewire_tatausaha_manajemenkalenderakademik_manajemenkalenderakademik_opencreatemodal",
+      "app_livewire_tatausaha_manajemenkalenderakademik_manajemenkalenderakademik_openeditmodal",
+      "app_livewire_tatausaha_manajemenkalenderakademik_manajemenkalenderakademik_render",
+      "app_livewire_tatausaha_manajemenkalenderakademik_manajemenkalenderakademik_resetform",
+      "app_livewire_tatausaha_manajemenkalenderakademik_manajemenkalenderakademik_rules",
+      "app_livewire_tatausaha_manajemenkalenderakademik_manajemenkalenderakademik_save",
+      "app_livewire_tatausaha_manajemenkalenderakademik_manajemenkalenderakademik_updatingfilterjenis",
+      "app_livewire_tatausaha_manajemenkalenderakademik_manajemenkalenderakademik_updatingfiltertahunajaranid",
+      "app_livewire_tatausaha_manajemenkalenderakademik_manajemenkalenderakademik_updatingsearch",
+      "app_models_kalenderakademik_kalenderakademik",
+      "app_models_kalenderakademik_kalenderakademik_isholidaydate",
+      "app_models_kalenderakademik_kalenderakademik_tahunajaran"
+    ],
+    "23": [
+      "app_livewire_superadmin_tatakelola_manajemenguru",
+      "app_livewire_superadmin_tatakelola_manajemenuser",
+      "app_livewire_tatausaha_manajemenkaryawan",
+      "app_models_guru",
+      "app_models_role",
+      "database_seeders_userseeder",
+      "illuminate_foundation_testing_refreshdatabase",
+      "illuminate_foundation_testing_testcase",
+      "tests_feature_esignaturetest",
+      "tests_feature_gururoleaccesstest",
+      "tests_feature_gururoleaccesstest_gururoleaccesstest",
+      "tests_feature_manajemenkaryawantest",
+      "tests_feature_tahfidzparentfeedbacktest_tahfidzparentfeedbacktest",
+      "tests_pest",
+      "tests_pest_something",
+      "tests_testcase",
+      "tests_testcase_testcase"
+    ],
+    "24": [
+      "app_livewire_tatausaha_manajemensurat_manajemensurat",
+      "app_livewire_tatausaha_manajemensurat_manajemensurat_autogeneratenomorsurat",
+      "app_livewire_tatausaha_manajemensurat_manajemensurat_deleteriwayat",
+      "app_livewire_tatausaha_manajemensurat_manajemensurat_downloadcurrentpdf",
+      "app_livewire_tatausaha_manajemensurat_manajemensurat_downloadpdfbyid",
+      "app_livewire_tatausaha_manajemensurat_manajemensurat_getpayload",
+      "app_livewire_tatausaha_manajemensurat_manajemensurat_loadriwayatsurat",
+      "app_livewire_tatausaha_manajemensurat_manajemensurat_mount",
+      "app_livewire_tatausaha_manajemensurat_manajemensurat_render",
+      "app_livewire_tatausaha_manajemensurat_manajemensurat_resetpenerimafields",
+      "app_livewire_tatausaha_manajemensurat_manajemensurat_simpandancetak",
+      "app_livewire_tatausaha_manajemensurat_manajemensurat_updatedjenissurat",
+      "app_livewire_tatausaha_manajemensurat_manajemensurat_updatedselectedguruid",
+      "app_livewire_tatausaha_manajemensurat_manajemensurat_updatedselectedsiswaid",
+      "app_models_riwayatsurat_riwayatsurat",
+      "app_models_riwayatsurat_riwayatsurat_creator"
+    ],
+    "25": [
+      "app_livewire_finance_pengajuandanaindex_pengajuandanaindex",
+      "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_approvebykepalayayasan",
+      "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_approvebykoordinator",
+      "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_approvebypengawas",
+      "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_closemodal",
+      "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_createpengajuan",
+      "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_openmodal",
+      "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_openrejectmodal",
+      "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_rejectpengajuan",
+      "app_livewire_finance_pengajuandanaindex_pengajuandanaindex_render",
+      "app_models_pengajuandana_pengajuandana",
+      "app_models_pengajuandana_pengajuandana_disetujuikepalayayasan",
+      "app_models_pengajuandana_pengajuandana_disetujuikoordinator",
+      "app_models_pengajuandana_pengajuandana_pemohon",
+      "app_models_pengajuandana_pengajuandana_pengeluaran"
+    ],
+    "26": [
+      "app_livewire_guru_penilaianp5_penilaianp5",
+      "app_livewire_guru_penilaianp5_penilaianp5_loadp5matrix",
+      "app_livewire_guru_penilaianp5_penilaianp5_mount",
+      "app_livewire_guru_penilaianp5_penilaianp5_render",
+      "app_livewire_guru_penilaianp5_penilaianp5_savematrix",
+      "app_livewire_guru_penilaianp5_penilaianp5_updated",
+      "app_models_dimensip5_dimensip5",
+      "app_models_dimensip5_dimensip5_subdimensi",
+      "app_models_dimensip5_dimensip5_subdimensip5",
+      "app_models_dimensip5_dimensip5_subdimensis",
+      "app_models_nilaip5_nilaip5",
+      "app_models_nilaip5_nilaip5_proyek",
+      "app_models_nilaip5_nilaip5_semester",
+      "app_models_nilaip5_nilaip5_siswa",
+      "app_models_nilaip5_nilaip5_subdimensip5"
+    ],
+    "27": [
+      "app_http_controllers_raporpdfcontroller_raporpdfcontroller",
+      "app_http_controllers_raporpdfcontroller_raporpdfcontroller_previewpdf",
+      "app_http_controllers_raporpdfcontroller_raporpdfcontroller_previewtahfidzpdf",
+      "app_livewire_guru_inputnilaitahfidz_inputnilaitahfidz_mount",
+      "app_models_raportahfidzdetail_raportahfidzdetail",
+      "app_models_raportahfidzdetail_raportahfidzdetail_rapor",
+      "app_models_semester_semester",
+      "app_models_semester_semester_kelas",
+      "app_models_semester_semester_nilais",
+      "app_models_semester_semester_penugasangurus",
+      "app_models_semester_semester_rapors",
+      "app_models_semester_semester_tahunajaran",
+      "database_seeders_tahfidzmutabaahseeder_tahfidzmutabaahseeder",
+      "database_seeders_tahfidzmutabaahseeder_tahfidzmutabaahseeder_run"
+    ],
+    "28": [
+      "app_livewire_auth_login",
+      "app_livewire_auth_login_login",
+      "app_livewire_auth_login_login_login",
+      "app_livewire_auth_login_login_render",
+      "app_livewire_shared_profilsaya",
+      "app_livewire_shared_profilsaya_profilsaya",
+      "app_livewire_shared_profilsaya_profilsaya_mount",
+      "app_livewire_shared_profilsaya_profilsaya_render",
+      "app_livewire_shared_profilsaya_profilsaya_saveprofile",
+      "app_livewire_shared_profilsaya_profilsaya_updatepassword",
+      "config_auth",
+      "routes_web",
+      "tests_feature_authtest",
+      "tests_feature_profilsayatest"
+    ],
+    "29": [
+      "app_livewire_finance_aruskas_aruskas",
+      "app_livewire_finance_aruskas_aruskas_mount",
+      "app_livewire_finance_aruskas_aruskas_render",
+      "app_livewire_finance_aruskas_aruskas_saveexpense",
+      "app_livewire_finance_aruskas_aruskas_saveincome",
+      "app_livewire_finance_aruskas_aruskas_settype",
+      "app_livewire_finance_aruskasmasuk_aruskasmasuk",
+      "app_livewire_finance_aruskasmasuk_aruskasmasuk_deleteincome",
+      "app_livewire_finance_aruskasmasuk_aruskasmasuk_exportpdf",
+      "app_livewire_finance_aruskasmasuk_aruskasmasuk_mount",
+      "app_livewire_finance_aruskasmasuk_aruskasmasuk_render",
+      "app_livewire_finance_aruskasmasuk_aruskasmasuk_saveincome",
+      "app_models_pemasukankas_pemasukankas",
+      "app_models_pemasukankas_pemasukankas_petugas"
+    ],
+    "30": [
+      "app_livewire_finance_arusmasuk_arusmasuk_render",
+      "app_livewire_finance_danabos_danabos",
+      "app_livewire_finance_danabos_danabos_mount",
+      "app_livewire_finance_danabos_danabos_render",
+      "app_livewire_finance_danabos_danabos_savetransaction",
+      "app_livewire_finance_laporan_laporantunggakan_laporantunggakan_mount",
+      "app_models_tahunajaran_tahunajaran",
+      "app_models_tahunajaran_tahunajaran_danabos",
+      "app_models_tahunajaran_tahunajaran_kalenderakademiks",
+      "app_models_tahunajaran_tahunajaran_semesters",
+      "app_models_tahunajaran_tahunajaran_tagihans",
+      "tests_feature_kalenderakademiktest_kalenderakademiktest",
+      "tests_feature_kalenderakademiktest_kalenderakademiktest_test_can_create_and_check_holiday_event",
+      "tests_feature_kalenderakademiktest_kalenderakademiktest_test_livewire_kalender_akademik_component_can_render_and_create"
+    ],
+    "31": [
+      "app_livewire_superadmin_tatakelola_manajemenkomponennilai_manajemenkomponennilai",
+      "app_livewire_superadmin_tatakelola_manajemenkomponennilai_manajemenkomponennilai_closemodal",
+      "app_livewire_superadmin_tatakelola_manajemenkomponennilai_manajemenkomponennilai_delete",
+      "app_livewire_superadmin_tatakelola_manajemenkomponennilai_manajemenkomponennilai_loadkomponen",
+      "app_livewire_superadmin_tatakelola_manajemenkomponennilai_manajemenkomponennilai_mount",
+      "app_livewire_superadmin_tatakelola_manajemenkomponennilai_manajemenkomponennilai_opencreate",
+      "app_livewire_superadmin_tatakelola_manajemenkomponennilai_manajemenkomponennilai_openedit",
+      "app_livewire_superadmin_tatakelola_manajemenkomponennilai_manajemenkomponennilai_render",
+      "app_livewire_superadmin_tatakelola_manajemenkomponennilai_manajemenkomponennilai_resetform",
+      "app_livewire_superadmin_tatakelola_manajemenkomponennilai_manajemenkomponennilai_saveform",
+      "app_livewire_superadmin_tatakelola_manajemenkomponennilai_manajemenkomponennilai_savequickweights",
+      "app_livewire_superadmin_tatakelola_manajemenkomponennilai_manajemenkomponennilai_updatedfilterberlaku",
+      "app_models_komponennilai_komponennilai",
+      "app_models_komponennilai_komponennilai_nilais"
+    ],
+    "32": [
+      "app_livewire_finance_laporan_laporanpemasukan_laporanpemasukan",
+      "app_livewire_finance_laporan_laporanpemasukan_laporanpemasukan_exportcsv",
+      "app_livewire_finance_laporan_laporanpemasukan_laporanpemasukan_exportpdf",
+      "app_livewire_finance_laporan_laporanpemasukan_laporanpemasukan_mount",
+      "app_livewire_finance_laporan_laporanpemasukan_laporanpemasukan_updatingenddate",
+      "app_livewire_finance_laporan_laporanpemasukan_laporanpemasukan_updatingjenistagihanid",
+      "app_livewire_finance_laporan_laporanpemasukan_laporanpemasukan_updatingmetodebayar",
+      "app_livewire_finance_laporan_laporanpemasukan_laporanpemasukan_updatingsearch",
+      "app_livewire_finance_laporan_laporanpemasukan_laporanpemasukan_updatingstartdate",
+      "app_livewire_finance_overviewpembayaran_overviewpembayaran_render",
+      "app_models_pembayaran_pembayaran",
+      "app_models_pembayaran_pembayaran_petugas",
+      "app_models_pembayaran_pembayaran_tagihan"
+    ],
+    "33": [
+      "app_livewire_tatausaha_proseskenaikankelas_proseskenaikankelas",
+      "app_livewire_tatausaha_proseskenaikankelas_proseskenaikankelas_getstudentsquery",
+      "app_livewire_tatausaha_proseskenaikankelas_proseskenaikankelas_loadstudents",
+      "app_livewire_tatausaha_proseskenaikankelas_proseskenaikankelas_mount",
+      "app_livewire_tatausaha_proseskenaikankelas_proseskenaikankelas_proseskenaikan",
+      "app_livewire_tatausaha_proseskenaikankelas_proseskenaikankelas_render",
+      "app_livewire_tatausaha_proseskenaikankelas_proseskenaikankelas_toggletinggalkelas",
+      "app_livewire_tatausaha_proseskenaikankelas_proseskenaikankelas_updatedkelasasalid",
+      "app_livewire_tatausaha_proseskenaikankelas_proseskenaikankelas_updatedselectall",
+      "app_models_siswakelas_siswakelas",
+      "app_models_siswakelas_siswakelas_kelas",
+      "app_models_siswakelas_siswakelas_semester",
+      "app_models_siswakelas_siswakelas_siswa"
+    ],
+    "34": [
+      "composer_require",
+      "composer_require_barryvdh_laravel_dompdf",
+      "composer_require_blade_ui_kit_blade_icons",
+      "composer_require_chillerlan_php_qrcode",
+      "composer_require_laravel_framework",
+      "composer_require_laravel_octane",
+      "composer_require_laravel_tinker",
+      "composer_require_livewire_livewire",
+      "composer_require_mallardduck_blade_lucide_icons",
+      "composer_require_php",
+      "composer_require_spatie_laravel_activitylog",
+      "composer_require_spiral_roadrunner_cli",
+      "composer_require_spiral_roadrunner_http"
+    ],
+    "35": [
+      "app_livewire_finance_inputpembayaran_inputpembayaran",
+      "app_livewire_finance_inputpembayaran_inputpembayaran_loadselectedtagihandetails",
+      "app_livewire_finance_inputpembayaran_inputpembayaran_mount",
+      "app_livewire_finance_inputpembayaran_inputpembayaran_pilihsiswaandtagihan",
+      "app_livewire_finance_inputpembayaran_inputpembayaran_render",
+      "app_livewire_finance_inputpembayaran_inputpembayaran_resetselection",
+      "app_livewire_finance_inputpembayaran_inputpembayaran_rules",
+      "app_livewire_finance_inputpembayaran_inputpembayaran_savepayment",
+      "app_livewire_finance_inputpembayaran_inputpembayaran_setmetodebayar",
+      "app_livewire_finance_inputpembayaran_inputpembayaran_updatingfilterkelas",
+      "app_livewire_finance_inputpembayaran_inputpembayaran_updatingsearch"
+    ],
+    "36": [
+      "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas",
+      "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas_delete",
+      "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas_opencreate",
+      "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas_openedit",
+      "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas_render",
+      "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas_resetform",
+      "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas_save",
+      "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas_updatedgurutahfidzid",
+      "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas_updatedjeniskelas",
+      "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas_updatingfilterjenis",
+      "app_livewire_superadmin_tatakelola_manajemenkelas_manajemenkelas_updatingsearch"
+    ],
+    "37": [
+      "app_http_controllers_financeexportcontroller_financeexportcontroller",
+      "app_http_controllers_financeexportcontroller_financeexportcontroller_exportpemasukan",
+      "app_http_controllers_financeexportcontroller_financeexportcontroller_exportpengeluaran",
+      "app_http_controllers_financeexportcontroller_financeexportcontroller_exporttunggakan",
+      "app_http_middleware_rolemiddleware",
+      "app_http_middleware_rolemiddleware_rolemiddleware",
+      "app_http_middleware_rolemiddleware_rolemiddleware_handle",
+      "closure",
+      "illuminate_http_request",
+      "symfony_component_httpfoundation_response"
+    ],
+    "38": [
+      "app_livewire_finance_manajemenpeminjaman_manajemenpeminjaman",
+      "app_livewire_finance_manajemenpeminjaman_manajemenpeminjaman_mount",
+      "app_livewire_finance_manajemenpeminjaman_manajemenpeminjaman_render",
+      "app_livewire_finance_manajemenpeminjaman_manajemenpeminjaman_savepeminjaman",
+      "app_livewire_finance_manajemenpeminjaman_manajemenpeminjaman_updatingfilterstatus",
+      "app_livewire_finance_manajemenpeminjaman_manajemenpeminjaman_updatingsearch",
+      "app_models_peminjaman_peminjaman",
+      "app_models_peminjaman_peminjaman_guru",
+      "database_seeders_financeseeder_financeseeder",
+      "database_seeders_financeseeder_financeseeder_run"
+    ],
+    "39": [
+      "app_livewire_finance_overviewpembayaran_overviewpembayaran",
+      "app_livewire_finance_overviewpembayaran_overviewpembayaran_closedetails",
+      "app_livewire_finance_overviewpembayaran_overviewpembayaran_kirimreminder",
+      "app_livewire_finance_overviewpembayaran_overviewpembayaran_mount",
+      "app_livewire_finance_overviewpembayaran_overviewpembayaran_updatingfilterkelas",
+      "app_livewire_finance_overviewpembayaran_overviewpembayaran_updatingfilterstatus",
+      "app_livewire_finance_overviewpembayaran_overviewpembayaran_updatingfiltertahunajaran",
+      "app_livewire_finance_overviewpembayaran_overviewpembayaran_updatingsearch",
+      "app_livewire_finance_overviewpembayaran_overviewpembayaran_viewdetails",
+      "app_livewire_finance_overviewpembayaran_overviewpembayaran_voidpayment"
+    ],
+    "40": [
+      "app_livewire_guru_inputnilaisiswa_inputnilaisiswa",
+      "app_livewire_guru_inputnilaisiswa_inputnilaisiswa_loadfilters",
+      "app_livewire_guru_inputnilaisiswa_inputnilaisiswa_loadstudents",
+      "app_livewire_guru_inputnilaisiswa_inputnilaisiswa_mount",
+      "app_livewire_guru_inputnilaisiswa_inputnilaisiswa_render",
+      "app_livewire_guru_inputnilaisiswa_inputnilaisiswa_save",
+      "app_livewire_guru_inputnilaisiswa_inputnilaisiswa_updatedkelasid",
+      "app_livewire_guru_inputnilaisiswa_inputnilaisiswa_updatedkomponennilaiid",
+      "app_livewire_guru_inputnilaisiswa_inputnilaisiswa_updatedmapelid",
+      "app_livewire_guru_inputnilaisiswa_inputnilaisiswa_updatedtanggal"
+    ],
+    "41": [
+      "app_livewire_kepalasekolah_dashboard_dashboard",
+      "app_livewire_kepalasekolah_dashboard_dashboard_mount",
+      "app_livewire_kepalasekolah_dashboard_dashboard_render",
+      "app_models_nilai_nilai",
+      "app_models_nilai_nilai_guru",
+      "app_models_nilai_nilai_kelas",
+      "app_models_nilai_nilai_komponennilai",
+      "app_models_nilai_nilai_mapel",
+      "app_models_nilai_nilai_semester",
+      "app_models_nilai_nilai_siswa"
+    ],
+    "42": [
+      "app_livewire_superadmin_tatakelola_manajemenuser_manajemenuser",
+      "app_livewire_superadmin_tatakelola_manajemenuser_manajemenuser_delete",
+      "app_livewire_superadmin_tatakelola_manajemenuser_manajemenuser_istuuser",
+      "app_livewire_superadmin_tatakelola_manajemenuser_manajemenuser_opencreate",
+      "app_livewire_superadmin_tatakelola_manajemenuser_manajemenuser_openedit",
+      "app_livewire_superadmin_tatakelola_manajemenuser_manajemenuser_render",
+      "app_livewire_superadmin_tatakelola_manajemenuser_manajemenuser_resetform",
+      "app_livewire_superadmin_tatakelola_manajemenuser_manajemenuser_save",
+      "app_livewire_superadmin_tatakelola_manajemenuser_manajemenuser_updatingsearch"
+    ],
+    "43": [
+      "approvebykepalayayasan_item_id",
+      "approvebykoordinator_item_id",
+      "openmodal",
+      "openrejectmodal_item_id",
+      "realisasikandana_item_id",
+      "rejectpengajuan",
+      "resources_views_livewire_finance_pengajuan_dana_blade",
+      "resources_views_livewire_finance_pengajuan_dana_blade_php_closemodal",
+      "resources_views_livewire_finance_pengajuan_dana_blade_php_set"
+    ],
+    "44": [
+      "closeeditmodal",
+      "closegeneratemodal",
+      "deletedraft_sal_id",
+      "generatedrafts",
+      "openeditmodal_sal_id",
+      "opengeneratemodal",
+      "paysalary_sal_id",
+      "resources_views_livewire_finance_manajemen_gaji_guru_blade",
+      "saveedit"
+    ],
+    "45": [
+      "closelmmodal",
+      "closetpmodal",
+      "editlingkupmateri_lm_id",
+      "edittp_tp_id",
+      "openlmmodal",
+      "opentpmodal",
+      "opentpmodal_lm_id",
+      "resources_views_livewire_guru_manajemen_kurikulum_merdeka_blade",
+      "savetemplate"
+    ],
+    "46": [
+      "composer_require_dev",
+      "composer_require_dev_fakerphp_faker",
+      "composer_require_dev_laravel_pail",
+      "composer_require_dev_laravel_pao",
+      "composer_require_dev_laravel_pint",
+      "composer_require_dev_mockery_mockery",
+      "composer_require_dev_nunomaduro_collision",
+      "composer_require_dev_pestphp_pest",
+      "composer_require_dev_pestphp_pest_plugin_laravel"
+    ],
+    "47": [
+      "delete_jadwal_id",
+      "delete_sched_id",
+      "opencreateforday",
+      "openedit_jadwal_id",
+      "openedit_sched_id",
+      "resources_views_livewire_super_admin_tata_kelola_manajemen_jadwal_blade",
+      "resources_views_livewire_super_admin_tata_kelola_manajemen_jadwal_blade_php_opencreate",
+      "resources_views_livewire_super_admin_tata_kelola_manajemen_jadwal_blade_php_set",
+      "selectkelas_k_id"
+    ],
+    "48": [
+      "app_livewire_tatausaha_manajemenkaryawan_manajemenkaryawan",
+      "app_livewire_tatausaha_manajemenkaryawan_manajemenkaryawan_delete",
+      "app_livewire_tatausaha_manajemenkaryawan_manajemenkaryawan_opencreate",
+      "app_livewire_tatausaha_manajemenkaryawan_manajemenkaryawan_openedit",
+      "app_livewire_tatausaha_manajemenkaryawan_manajemenkaryawan_resetform",
+      "app_livewire_tatausaha_manajemenkaryawan_manajemenkaryawan_save",
+      "app_livewire_tatausaha_manajemenkaryawan_manajemenkaryawan_updatingfilterrole",
+      "app_livewire_tatausaha_manajemenkaryawan_manajemenkaryawan_updatingsearch"
+    ],
+    "49": [
+      "app_livewire_tatausaha_manajemenpiketguru_manajemenpiketguru",
+      "app_livewire_tatausaha_manajemenpiketguru_manajemenpiketguru_addpiket",
+      "app_livewire_tatausaha_manajemenpiketguru_manajemenpiketguru_canmanage",
+      "app_livewire_tatausaha_manajemenpiketguru_manajemenpiketguru_deletepiket",
+      "app_livewire_tatausaha_manajemenpiketguru_manajemenpiketguru_render",
+      "app_models_jadwalpiketguru_jadwalpiketguru",
+      "app_models_jadwalpiketguru_jadwalpiketguru_guru",
+      "app_models_jadwalpiketguru_jadwalpiketguru_semester"
+    ],
+    "50": [
+      "composer",
+      "composer_description",
+      "composer_license",
+      "composer_minimum_stability",
+      "composer_name",
+      "composer_prefer_stable",
+      "composer_schema",
+      "composer_type"
+    ],
+    "51": [
+      "app_livewire_guru_pengaturanbobotnilai_pengaturanbobotnilai",
+      "app_livewire_guru_pengaturanbobotnilai_pengaturanbobotnilai_loadassignments",
+      "app_livewire_guru_pengaturanbobotnilai_pengaturanbobotnilai_loadbobot",
+      "app_livewire_guru_pengaturanbobotnilai_pengaturanbobotnilai_mount",
+      "app_livewire_guru_pengaturanbobotnilai_pengaturanbobotnilai_render",
+      "app_livewire_guru_pengaturanbobotnilai_pengaturanbobotnilai_savebobot",
+      "app_livewire_guru_pengaturanbobotnilai_pengaturanbobotnilai_updatedselectedgmkid"
+    ],
+    "52": [
+      "composer_allow_plugins_pestphp_pest_plugin",
+      "composer_allow_plugins_php_http_discovery",
+      "composer_config",
+      "composer_config_allow_plugins",
+      "composer_config_optimize_autoloader",
+      "composer_config_preferred_install",
+      "composer_config_sort_packages"
+    ],
+    "53": [
+      "app_livewire_murid_rapornilai_rapornilai",
+      "app_livewire_murid_rapornilai_rapornilai_checkoutstandingandload",
+      "app_livewire_murid_rapornilai_rapornilai_downloadpdf",
+      "app_livewire_murid_rapornilai_rapornilai_mount",
+      "app_livewire_murid_rapornilai_rapornilai_render",
+      "app_livewire_murid_rapornilai_rapornilai_settab"
+    ],
+    "54": [
+      "app_livewire_shared_laporan_rekapabsensisiswa_rekapabsensisiswa",
+      "app_livewire_shared_laporan_rekapabsensisiswa_rekapabsensisiswa_downloadpdf",
+      "app_livewire_shared_laporan_rekapabsensisiswa_rekapabsensisiswa_getavailableclasses",
+      "app_livewire_shared_laporan_rekapabsensisiswa_rekapabsensisiswa_getmatrixdata",
+      "app_livewire_shared_laporan_rekapabsensisiswa_rekapabsensisiswa_mount",
+      "app_livewire_shared_laporan_rekapabsensisiswa_rekapabsensisiswa_render"
+    ],
+    "55": [
+      "app_providers_appserviceprovider",
+      "app_providers_appserviceprovider_appserviceprovider",
+      "app_providers_appserviceprovider_appserviceprovider_boot",
+      "app_providers_appserviceprovider_appserviceprovider_register",
+      "bootstrap_providers",
+      "illuminate_support_serviceprovider"
+    ],
+    "56": [
+      "delete_komponen",
+      "openedit_komponen",
+      "resources_views_livewire_super_admin_tata_kelola_manajemen_komponen_nilai_blade",
+      "resources_views_livewire_super_admin_tata_kelola_manajemen_komponen_nilai_blade_php_closemodal",
+      "resources_views_livewire_super_admin_tata_kelola_manajemen_komponen_nilai_blade_php_opencreate",
+      "resources_views_livewire_super_admin_tata_kelola_manajemen_komponen_nilai_blade_php_set"
+    ],
+    "57": [
+      "deleteriwayat_r_id",
+      "downloadcurrentpdf",
+      "downloadpdfbyid_r_id",
+      "loadriwayatsurat_r_id",
+      "resources_views_livewire_tata_usaha_manajemen_surat_blade",
+      "resources_views_livewire_tata_usaha_manajemen_surat_blade_php_set"
+    ],
+    "58": [
+      "app_livewire_murid_riwayataktivitas",
+      "app_livewire_murid_riwayataktivitas_riwayataktivitas",
+      "app_livewire_murid_riwayataktivitas_riwayataktivitas_formatlog",
+      "app_livewire_murid_riwayataktivitas_riwayataktivitas_getactivities",
+      "app_livewire_murid_riwayataktivitas_riwayataktivitas_render"
+    ],
+    "59": [
+      "app_livewire_shared_laporan_rekapabsensiguru_rekapabsensiguru",
+      "app_livewire_shared_laporan_rekapabsensiguru_rekapabsensiguru_downloadpdf",
+      "app_livewire_shared_laporan_rekapabsensiguru_rekapabsensiguru_getmatrixdata",
+      "app_livewire_shared_laporan_rekapabsensiguru_rekapabsensiguru_mount",
+      "app_livewire_shared_laporan_rekapabsensiguru_rekapabsensiguru_render"
+    ],
+    "60": [
+      "closedetails",
+      "kirimreminder_item",
+      "resources_views_livewire_finance_overview_pembayaran_blade",
+      "viewdetails_item",
+      "voidpayment_p_id"
+    ],
+    "61": [
+      "composer_autoload",
+      "composer_autoload_psr_4",
+      "composer_psr_4_app",
+      "composer_psr_4_database_factories",
+      "composer_psr_4_database_seeders"
+    ],
+    "62": [
+      "delete_event_id",
+      "opencreatemodal",
+      "openeditmodal_event_id",
+      "resources_views_livewire_tata_usaha_manajemen_kalender_akademik_blade",
+      "resources_views_livewire_tata_usaha_manajemen_kalender_akademik_blade_php_closemodal"
+    ],
+    "63": [
+      "delete_mapel_id",
+      "openedit_mapel_id",
+      "resources_views_livewire_super_admin_tata_kelola_manajemen_mapel_blade",
+      "resources_views_livewire_super_admin_tata_kelola_manajemen_mapel_blade_php_opencreate",
+      "resources_views_livewire_super_admin_tata_kelola_manajemen_mapel_blade_php_set"
+    ],
+    "64": [
+      "app_livewire_finance_dashboard_dashboard",
+      "app_livewire_finance_dashboard_dashboard_loadfinancestats",
+      "app_livewire_finance_dashboard_dashboard_mount",
+      "app_livewire_finance_dashboard_dashboard_render"
+    ],
+    "65": [
+      "app_livewire_murid_tagihanspp_tagihanspp",
+      "app_livewire_murid_tagihanspp_tagihanspp_loadtagihan",
+      "app_livewire_murid_tagihanspp_tagihanspp_mount",
+      "app_livewire_murid_tagihanspp_tagihanspp_render"
+    ],
+    "66": [
+      "canceledit",
+      "editalumni_a_id",
+      "resources_views_livewire_tata_usaha_data_alumni_blade",
+      "savealumni"
+    ],
+    "67": [
+      "database_factories_userfactory",
+      "database_factories_userfactory_userfactory",
+      "database_factories_userfactory_userfactory_definition",
+      "illuminate_database_eloquent_factories_factory"
+    ],
+    "68": [
+      "markasread_notif_id",
+      "resources_views_livewire_shared_notifications_list_blade",
+      "resources_views_livewire_shared_notifications_list_blade_php_markallasread",
+      "resources_views_livewire_shared_notifications_list_blade_php_set"
+    ],
+    "69": [
+      "pilihsiswaandtagihan_t_siswa_id_t_id",
+      "resetselection",
+      "resources_views_livewire_finance_input_pembayaran_blade",
+      "setmetodebayar"
+    ],
+    "70": [
+      "app_livewire_finance_manajemengajiguru_manajemengajiguru_paysalary",
+      "app_services_notificationservice_notificationservice",
+      "app_services_notificationservice_notificationservice_send"
+    ],
+    "71": [
+      "app_livewire_tatausaha_dashboard_dashboard",
+      "app_livewire_tatausaha_dashboard_dashboard_mount",
+      "app_livewire_tatausaha_dashboard_dashboard_render"
+    ],
+    "72": [
+      "approve_p_id",
+      "reject_p_id",
+      "resources_views_livewire_koordinator_manajemen_koreksi_nilai_blade"
+    ],
+    "73": [
+      "closefeedbackmodal",
+      "openfeedbackmodal_rec_id",
+      "resources_views_livewire_murid_setoran_tahfidz_blade"
+    ],
+    "74": [
+      "composer_autoload_dev",
+      "composer_autoload_dev_psr_4",
+      "composer_psr_4_tests"
+    ],
+    "75": [
+      "composer_extra",
+      "composer_extra_laravel",
+      "composer_laravel_dont_discover"
+    ],
+    "76": [
+      "composer_keywords",
+      "ref_framework",
+      "ref_laravel"
+    ],
+    "77": [
+      "database_migrations_0001_01_01_000000_create_users_table",
+      "database_migrations_0001_01_01_000000_create_users_table_down",
+      "database_migrations_0001_01_01_000000_create_users_table_up"
+    ],
+    "78": [
+      "database_migrations_0001_01_01_000001_create_cache_table",
+      "database_migrations_0001_01_01_000001_create_cache_table_down",
+      "database_migrations_0001_01_01_000001_create_cache_table_up"
+    ],
+    "79": [
+      "database_migrations_0001_01_01_000002_create_jobs_table",
+      "database_migrations_0001_01_01_000002_create_jobs_table_down",
+      "database_migrations_0001_01_01_000002_create_jobs_table_up"
+    ],
+    "80": [
+      "database_migrations_2026_07_16_000001_create_master_data_tables",
+      "database_migrations_2026_07_16_000001_create_master_data_tables_down",
+      "database_migrations_2026_07_16_000001_create_master_data_tables_up"
+    ],
+    "81": [
+      "database_migrations_2026_07_16_000002_create_guru_kelas_siswa_tables",
+      "database_migrations_2026_07_16_000002_create_guru_kelas_siswa_tables_down",
+      "database_migrations_2026_07_16_000002_create_guru_kelas_siswa_tables_up"
+    ],
+    "82": [
+      "database_migrations_2026_07_16_000003_create_akademik_tables",
+      "database_migrations_2026_07_16_000003_create_akademik_tables_down",
+      "database_migrations_2026_07_16_000003_create_akademik_tables_up"
+    ],
+    "83": [
+      "database_migrations_2026_07_16_000004_create_keuangan_tables",
+      "database_migrations_2026_07_16_000004_create_keuangan_tables_down",
+      "database_migrations_2026_07_16_000004_create_keuangan_tables_up"
+    ],
+    "84": [
+      "database_migrations_2026_07_16_000005_create_notifikasi_table",
+      "database_migrations_2026_07_16_000005_create_notifikasi_table_down",
+      "database_migrations_2026_07_16_000005_create_notifikasi_table_up"
+    ],
+    "85": [
+      "database_migrations_2026_07_16_000006_add_siswa_id_to_activity_log_table",
+      "database_migrations_2026_07_16_000006_add_siswa_id_to_activity_log_table_down",
+      "database_migrations_2026_07_16_000006_add_siswa_id_to_activity_log_table_up"
+    ],
+    "86": [
+      "database_migrations_2026_07_17_000001_create_revisi_akademik_dan_keuangan_tables",
+      "database_migrations_2026_07_17_000001_create_revisi_akademik_dan_keuangan_tables_down",
+      "database_migrations_2026_07_17_000001_create_revisi_akademik_dan_keuangan_tables_up"
+    ],
+    "87": [
+      "database_migrations_2026_07_19_000001_create_pemasukan_kas_table",
+      "database_migrations_2026_07_19_000001_create_pemasukan_kas_table_down",
+      "database_migrations_2026_07_19_000001_create_pemasukan_kas_table_up"
+    ],
+    "88": [
+      "database_migrations_2026_07_19_000002_create_pengajuan_dana_table",
+      "database_migrations_2026_07_19_000002_create_pengajuan_dana_table_down",
+      "database_migrations_2026_07_19_000002_create_pengajuan_dana_table_up"
+    ],
+    "89": [
+      "database_migrations_2026_07_21_000001_add_kepegawaian_and_ttl_to_guru_table",
+      "database_migrations_2026_07_21_000001_add_kepegawaian_and_ttl_to_guru_table_down",
+      "database_migrations_2026_07_21_000001_add_kepegawaian_and_ttl_to_guru_table_up"
+    ],
+    "90": [
+      "database_migrations_2026_07_21_000001_add_ttd_fields_to_users_and_pengaturan",
+      "database_migrations_2026_07_21_000001_add_ttd_fields_to_users_and_pengaturan_down",
+      "database_migrations_2026_07_21_000001_add_ttd_fields_to_users_and_pengaturan_up"
+    ],
+    "91": [
+      "database_migrations_2026_07_21_000002_create_kalender_akademik_table",
+      "database_migrations_2026_07_21_000002_create_kalender_akademik_table_down",
+      "database_migrations_2026_07_21_000002_create_kalender_akademik_table_up"
+    ],
+    "92": [
+      "database_migrations_2026_08_03_000001_create_kurikulum_merdeka_tables",
+      "database_migrations_2026_08_03_000001_create_kurikulum_merdeka_tables_down",
+      "database_migrations_2026_08_03_000001_create_kurikulum_merdeka_tables_up"
+    ],
+    "93": [
+      "database_migrations_2026_08_03_000002_create_tahfidz_tables",
+      "database_migrations_2026_08_03_000002_create_tahfidz_tables_down",
+      "database_migrations_2026_08_03_000002_create_tahfidz_tables_up"
+    ],
+    "94": [
+      "database_migrations_2026_08_03_000003_add_mutabaah_fields_to_nilai_tahfidz_table",
+      "database_migrations_2026_08_03_000003_add_mutabaah_fields_to_nilai_tahfidz_table_down",
+      "database_migrations_2026_08_03_000003_add_mutabaah_fields_to_nilai_tahfidz_table_up"
+    ],
+    "95": [
+      "database_migrations_2026_08_03_000003_create_p5_kokurikuler_tables",
+      "database_migrations_2026_08_03_000003_create_p5_kokurikuler_tables_down",
+      "database_migrations_2026_08_03_000003_create_p5_kokurikuler_tables_up"
+    ],
+    "96": [
+      "database_migrations_2026_08_03_000004_add_qr_code_hash_to_rapor_and_pembayaran",
+      "database_migrations_2026_08_03_000004_add_qr_code_hash_to_rapor_and_pembayaran_down",
+      "database_migrations_2026_08_03_000004_add_qr_code_hash_to_rapor_and_pembayaran_up"
+    ],
+    "97": [
+      "database_migrations_2026_08_03_000005_add_tipe_rapor_to_rapor_table",
+      "database_migrations_2026_08_03_000005_add_tipe_rapor_to_rapor_table_down",
+      "database_migrations_2026_08_03_000005_add_tipe_rapor_to_rapor_table_up"
+    ],
+    "98": [
+      "database_migrations_2026_08_03_000006_make_tanggal_terbit_nullable_on_rapor_table",
+      "database_migrations_2026_08_03_000006_make_tanggal_terbit_nullable_on_rapor_table_down",
+      "database_migrations_2026_08_03_000006_make_tanggal_terbit_nullable_on_rapor_table_up"
+    ],
+    "99": [
+      "database_migrations_2026_08_03_000007_add_status_to_rapor_table",
+      "database_migrations_2026_08_03_000007_add_status_to_rapor_table_down",
+      "database_migrations_2026_08_03_000007_add_status_to_rapor_table_up"
+    ],
+    "100": [
+      "database_migrations_2026_08_03_000008_fix_unique_index_on_rapor_table",
+      "database_migrations_2026_08_03_000008_fix_unique_index_on_rapor_table_down",
+      "database_migrations_2026_08_03_000008_fix_unique_index_on_rapor_table_up"
+    ],
+    "101": [
+      "database_migrations_2026_08_03_000009_add_tanggapan_orang_tua_to_nilai_tahfidz_table",
+      "database_migrations_2026_08_03_000009_add_tanggapan_orang_tua_to_nilai_tahfidz_table_down",
+      "database_migrations_2026_08_03_000009_add_tanggapan_orang_tua_to_nilai_tahfidz_table_up"
+    ],
+    "102": [
+      "database_migrations_2026_08_04_000001_add_jenis_kelas_and_kelas_tahfidz_to_tables",
+      "database_migrations_2026_08_04_000001_add_jenis_kelas_and_kelas_tahfidz_to_tables_down",
+      "database_migrations_2026_08_04_000001_add_jenis_kelas_and_kelas_tahfidz_to_tables_up"
+    ],
+    "103": [
+      "database_migrations_2026_08_04_000003_add_grade_pendidikan_nik_status_pernikahan_to_guru_table",
+      "database_migrations_2026_08_04_000003_add_grade_pendidikan_nik_status_pernikahan_to_guru_table_down",
+      "database_migrations_2026_08_04_000003_add_grade_pendidikan_nik_status_pernikahan_to_guru_table_up"
+    ],
+    "104": [
+      "database_migrations_2026_08_04_000004_create_riwayat_surat_table",
+      "database_migrations_2026_08_04_000004_create_riwayat_surat_table_down",
+      "database_migrations_2026_08_04_000004_create_riwayat_surat_table_up"
+    ],
+    "105": [
+      "deleteincome_item_id",
+      "resources_views_livewire_finance_arus_kas_masuk_blade",
+      "resources_views_livewire_finance_arus_kas_masuk_blade_php_exportpdf"
+    ],
+    "106": [
+      "deletetagihan_tagihan_id",
+      "resources_views_livewire_finance_manajemen_tagihan_blade",
+      "resources_views_livewire_finance_manajemen_tagihan_blade_php_set"
+    ],
+    "107": [
+      "markasread_notif",
+      "resources_views_livewire_shared_notification_dropdown_blade",
+      "resources_views_livewire_shared_notification_dropdown_blade_php_markallasread"
+    ],
+    "108": [
+      "proseskenaikan",
+      "resources_views_livewire_tata_usaha_proses_kenaikan_kelas_blade",
+      "toggletinggalkelas_siswa_id"
+    ],
+    "109": [
+      "publishrapor",
+      "resources_views_livewire_guru_kelola_rapor_blade",
+      "resources_views_livewire_guru_kelola_rapor_blade_php_set"
+    ],
+    "110": [
+      "resources_views_livewire_guru_penilaian_p5_blade",
+      "resources_views_livewire_guru_penilaian_p5_blade_php_set",
+      "savep5scores"
+    ],
+    "111": [
+      "resources_views_livewire_murid_rapor_nilai_blade",
+      "resources_views_livewire_murid_rapor_nilai_blade_php_downloadpdf",
+      "settab"
+    ],
+    "112": [
+      "artisan",
+      "routes_console"
+    ],
+    "113": [
+      "database_migrations_2026_07_15_231918_create_activity_log_table",
+      "database_migrations_2026_07_15_231918_create_activity_log_table_up"
+    ],
+    "114": [
+      "deletepiket_p_id",
+      "resources_views_livewire_tata_usaha_manajemen_piket_guru_blade"
+    ],
+    "115": [
+      "openscoremodal_s_id",
+      "resources_views_livewire_guru_input_nilai_tahfidz_blade"
+    ],
+    "116": [
+      "resources_views_livewire_finance_arus_kas_blade",
+      "settype"
+    ],
+    "117": [
+      "resources_views_livewire_finance_arus_kas_keluar_blade",
+      "resources_views_livewire_finance_arus_kas_keluar_blade_php_exportpdf"
+    ],
+    "118": [
+      "resources_views_livewire_finance_laporan_laporan_pemasukan_blade",
+      "resources_views_livewire_finance_laporan_laporan_pemasukan_blade_php_exportpdf"
+    ],
+    "119": [
+      "resources_views_livewire_finance_laporan_laporan_pengeluaran_blade",
+      "resources_views_livewire_finance_laporan_laporan_pengeluaran_blade_php_exportpdf"
+    ],
+    "120": [
+      "resources_views_livewire_finance_laporan_laporan_tunggakan_blade",
+      "resources_views_livewire_finance_laporan_laporan_tunggakan_blade_php_exportpdf"
+    ],
+    "121": [
+      "resources_views_livewire_guru_absensi_siswa_blade",
+      "resources_views_livewire_guru_absensi_siswa_blade_php_setstatusall"
+    ],
+    "122": [
+      "resources_views_livewire_guru_input_nilai_sumatif_blade",
+      "saveallscores"
+    ],
+    "123": [
+      "resources_views_livewire_shared_laporan_rekap_absensi_guru_blade",
+      "resources_views_livewire_shared_laporan_rekap_absensi_guru_blade_php_downloadpdf"
+    ],
+    "124": [
+      "resources_views_livewire_shared_laporan_rekap_absensi_siswa_blade",
+      "resources_views_livewire_shared_laporan_rekap_absensi_siswa_blade_php_downloadpdf"
+    ],
+    "125": [
+      "resources_views_livewire_shared_laporan_rekap_nilai_blade",
+      "resources_views_livewire_shared_laporan_rekap_nilai_blade_php_downloadpdf"
+    ],
+    "126": [
+      "resources_views_livewire_super_admin_tata_kelola_manajemen_guru_blade",
+      "resources_views_livewire_super_admin_tata_kelola_manajemen_guru_blade_php_set"
+    ],
+    "127": [
+      "resources_views_livewire_super_admin_tata_kelola_manajemen_kelas_blade",
+      "resources_views_livewire_super_admin_tata_kelola_manajemen_kelas_blade_php_set"
+    ],
+    "128": [
+      "resources_views_livewire_super_admin_tata_kelola_manajemen_siswa_blade",
+      "resources_views_livewire_super_admin_tata_kelola_manajemen_siswa_blade_php_set"
+    ],
+    "129": [
+      "resources_views_livewire_super_admin_tata_kelola_manajemen_user_blade",
+      "resources_views_livewire_super_admin_tata_kelola_manajemen_user_blade_php_set"
+    ],
+    "130": [
+      "resources_views_livewire_tata_usaha_input_absensi_karyawan_blade",
+      "resources_views_livewire_tata_usaha_input_absensi_karyawan_blade_php_setstatusall"
+    ],
+    "131": [
+      "resources_views_livewire_tata_usaha_manajemen_karyawan_blade",
+      "resources_views_livewire_tata_usaha_manajemen_karyawan_blade_php_set"
+    ],
+    "132": [
+      "bootstrap_app"
+    ],
+    "133": [
+      "config_activitylog"
+    ],
+    "134": [
+      "config_app"
+    ],
+    "135": [
+      "config_cache"
+    ],
+    "136": [
+      "config_database"
+    ],
+    "137": [
+      "config_filesystems"
+    ],
+    "138": [
+      "config_logging"
+    ],
+    "139": [
+      "config_octane"
+    ],
+    "140": [
+      "config_queue"
+    ],
+    "141": [
+      "config_services"
+    ],
+    "142": [
+      "config_session"
+    ],
+    "143": [
+      "public_index"
+    ],
+    "144": [
+      "resources_js_app"
+    ],
+    "145": [
+      "resources_views_components_accessibility_menu_blade"
+    ],
+    "146": [
+      "resources_views_components_alert_banner_blade"
+    ],
+    "147": [
+      "resources_views_components_data_table_blade"
+    ],
+    "148": [
+      "resources_views_components_info_tutorial_box_blade"
+    ],
+    "149": [
+      "resources_views_components_layouts_app_blade"
+    ],
+    "150": [
+      "resources_views_components_layouts_guest_blade"
+    ],
+    "151": [
+      "resources_views_components_notification_dropdown_blade"
+    ],
+    "152": [
+      "resources_views_components_sidebar_blade"
+    ],
+    "153": [
+      "resources_views_components_stat_card_blade"
+    ],
+    "154": [
+      "resources_views_components_status_badge_blade"
+    ],
+    "155": [
+      "resources_views_components_ttd_elektronik_blade"
+    ],
+    "156": [
+      "resources_views_layouts_app_blade"
+    ],
+    "157": [
+      "resources_views_layouts_guest_blade"
+    ],
+    "158": [
+      "resources_views_livewire_auth_login_blade"
+    ],
+    "159": [
+      "resources_views_livewire_finance_arus_masuk_blade"
+    ],
+    "160": [
+      "resources_views_livewire_finance_dana_bos_blade"
+    ],
+    "161": [
+      "resources_views_livewire_finance_dashboard_blade"
+    ],
+    "162": [
+      "resources_views_livewire_finance_manajemen_peminjaman_blade"
+    ],
+    "163": [
+      "resources_views_livewire_guru_absensi_diri_blade"
+    ],
+    "164": [
+      "resources_views_livewire_guru_dashboard_blade"
+    ],
+    "165": [
+      "resources_views_livewire_guru_input_nilai_siswa_blade"
+    ],
+    "166": [
+      "resources_views_livewire_guru_jadwal_mengajar_blade"
+    ],
+    "167": [
+      "resources_views_livewire_guru_pengaturan_bobot_nilai_blade"
+    ],
+    "168": [
+      "resources_views_livewire_kepala_sekolah_dashboard_blade"
+    ],
+    "169": [
+      "resources_views_livewire_murid_dashboard_blade"
+    ],
+    "170": [
+      "resources_views_livewire_murid_ekstrakurikuler_saya_blade"
+    ],
+    "171": [
+      "resources_views_livewire_murid_jadwal_pelajaran_blade"
+    ],
+    "172": [
+      "resources_views_livewire_murid_kehadiran_saya_blade"
+    ],
+    "173": [
+      "resources_views_livewire_murid_riwayat_aktivitas_blade"
+    ],
+    "174": [
+      "resources_views_livewire_murid_tagihan_spp_blade"
+    ],
+    "175": [
+      "resources_views_livewire_shared_laporan_pdf_absensi_guru_blade"
+    ],
+    "176": [
+      "resources_views_livewire_shared_laporan_pdf_absensi_siswa_blade"
+    ],
+    "177": [
+      "resources_views_livewire_shared_laporan_pdf_laporan_kas_keluar_blade"
+    ],
+    "178": [
+      "resources_views_livewire_shared_laporan_pdf_laporan_kas_masuk_blade"
+    ],
+    "179": [
+      "resources_views_livewire_shared_laporan_pdf_laporan_pemasukan_blade"
+    ],
+    "180": [
+      "resources_views_livewire_shared_laporan_pdf_laporan_pengeluaran_blade"
+    ],
+    "181": [
+      "resources_views_livewire_shared_laporan_pdf_laporan_tunggakan_blade"
+    ],
+    "182": [
+      "resources_views_livewire_shared_laporan_pdf_rapor_siswa_blade"
+    ],
+    "183": [
+      "resources_views_livewire_shared_laporan_pdf_rapor_tahfidz_blade"
+    ],
+    "184": [
+      "resources_views_livewire_shared_laporan_pdf_rekap_nilai_blade"
+    ],
+    "185": [
+      "resources_views_livewire_shared_laporan_pdf_resi_pembayaran_blade"
+    ],
+    "186": [
+      "resources_views_livewire_shared_laporan_pdf_slip_gaji_blade"
+    ],
+    "187": [
+      "resources_views_livewire_shared_profil_saya_blade"
+    ],
+    "188": [
+      "resources_views_livewire_super_admin_dashboard_blade"
+    ],
+    "189": [
+      "resources_views_livewire_super_admin_tata_kelola_audit_log_blade"
+    ],
+    "190": [
+      "resources_views_livewire_super_admin_tata_kelola_manajemen_pengaturan_blade"
+    ],
+    "191": [
+      "resources_views_livewire_tata_usaha_dashboard_blade"
+    ],
+    "192": [
+      "resources_views_livewire_tata_usaha_plotting_siswa_kelas_blade"
+    ],
+    "193": [
+      "resources_views_pdf_surat_template_blade"
+    ],
+    "194": [
+      "resources_views_public_verifikasi_dokumen_blade"
+    ],
+    "195": [
+      "resources_views_verifikasi_dokumen_blade"
+    ],
+    "196": [
+      "resources_views_welcome_blade"
+    ],
+    "197": [
+      "tests_feature_exampletest"
+    ],
+    "198": [
+      "tests_unit_exampletest"
+    ],
+    "199": [
+      "vite_config"
+    ]
+  },
+  "cohesion": {
+    "0": 0.06448412698412699,
+    "1": 0.05201636469900643,
+    "2": 0.05370101596516691,
+    "3": 0.1140819964349376,
+    "4": 0.0855614973262032,
+    "5": 0.16302521008403362,
+    "6": 0.14492753623188406,
+    "7": 0.16966966966966968,
+    "8": 0.08,
+    "9": 0.11333333333333333,
+    "10": 0.13043478260869565,
+    "11": 0.12554112554112554,
+    "12": 0.10822510822510822,
+    "13": 0.15789473684210525,
+    "14": 0.12105263157894737,
+    "15": 0.13157894736842105,
+    "16": 0.13157894736842105,
+    "17": 0.1695906432748538,
+    "18": 0.16339869281045752,
+    "19": 0.1111111111111111,
+    "20": 0.13970588235294118,
+    "21": 0.13970588235294118,
+    "22": 0.19852941176470587,
+    "23": 0.20588235294117646,
+    "24": 0.20833333333333334,
+    "25": 0.19047619047619047,
+    "26": 0.19047619047619047,
+    "27": 0.15384615384615385,
+    "28": 0.15384615384615385,
+    "29": 0.18681318681318682,
+    "30": 0.15384615384615385,
+    "31": 0.2857142857142857,
+    "32": 0.16666666666666666,
+    "33": 0.23076923076923078,
+    "34": 0.15384615384615385,
+    "35": 0.23636363636363636,
+    "36": 0.23636363636363636,
+    "37": 0.3111111111111111,
+    "38": 0.2222222222222222,
+    "39": 0.2222222222222222,
+    "40": 0.3333333333333333,
+    "41": 0.2,
+    "42": 0.4444444444444444,
+    "43": 0.2222222222222222,
+    "44": 0.2222222222222222,
+    "45": 0.2222222222222222,
+    "46": 0.2222222222222222,
+    "47": 0.2222222222222222,
+    "48": 0.35714285714285715,
+    "49": 0.42857142857142855,
+    "50": 0.25,
+    "51": 0.47619047619047616,
+    "52": 0.2857142857142857,
+    "53": 0.4,
+    "54": 0.6,
+    "55": 0.4,
+    "56": 0.3333333333333333,
+    "57": 0.3333333333333333,
+    "58": 0.5,
+    "59": 0.6,
+    "60": 0.4,
+    "61": 0.4,
+    "62": 0.4,
+    "63": 0.4,
+    "64": 0.6666666666666666,
+    "65": 0.6666666666666666,
+    "66": 0.5,
+    "67": 0.6666666666666666,
+    "68": 0.5,
+    "69": 0.5,
+    "70": 0.6666666666666666,
+    "71": 0.6666666666666666,
+    "72": 0.6666666666666666,
+    "73": 0.6666666666666666,
+    "74": 0.6666666666666666,
+    "75": 0.6666666666666666,
+    "76": 0.6666666666666666,
+    "77": 0.6666666666666666,
+    "78": 0.6666666666666666,
+    "79": 0.6666666666666666,
+    "80": 0.6666666666666666,
+    "81": 0.6666666666666666,
+    "82": 0.6666666666666666,
+    "83": 0.6666666666666666,
+    "84": 0.6666666666666666,
+    "85": 0.6666666666666666,
+    "86": 0.6666666666666666,
+    "87": 0.6666666666666666,
+    "88": 0.6666666666666666,
+    "89": 0.6666666666666666,
+    "90": 0.6666666666666666,
+    "91": 0.6666666666666666,
+    "92": 0.6666666666666666,
+    "93": 0.6666666666666666,
+    "94": 0.6666666666666666,
+    "95": 0.6666666666666666,
+    "96": 0.6666666666666666,
+    "97": 0.6666666666666666,
+    "98": 0.6666666666666666,
+    "99": 0.6666666666666666,
+    "100": 0.6666666666666666,
+    "101": 0.6666666666666666,
+    "102": 0.6666666666666666,
+    "103": 0.6666666666666666,
+    "104": 0.6666666666666666,
+    "105": 0.6666666666666666,
+    "106": 0.6666666666666666,
+    "107": 0.6666666666666666,
+    "108": 0.6666666666666666,
+    "109": 0.6666666666666666,
+    "110": 0.6666666666666666,
+    "111": 0.6666666666666666,
+    "112": 1.0,
+    "113": 1.0,
+    "114": 1.0,
+    "115": 1.0,
+    "116": 1.0,
+    "117": 1.0,
+    "118": 1.0,
+    "119": 1.0,
+    "120": 1.0,
+    "121": 1.0,
+    "122": 1.0,
+    "123": 1.0,
+    "124": 1.0,
+    "125": 1.0,
+    "126": 1.0,
+    "127": 1.0,
+    "128": 1.0,
+    "129": 1.0,
+    "130": 1.0,
+    "131": 1.0,
+    "132": 1.0,
+    "133": 1.0,
+    "134": 1.0,
+    "135": 1.0,
+    "136": 1.0,
+    "137": 1.0,
+    "138": 1.0,
+    "139": 1.0,
+    "140": 1.0,
+    "141": 1.0,
+    "142": 1.0,
+    "143": 1.0,
+    "144": 1.0,
+    "145": 1.0,
+    "146": 1.0,
+    "147": 1.0,
+    "148": 1.0,
+    "149": 1.0,
+    "150": 1.0,
+    "151": 1.0,
+    "152": 1.0,
+    "153": 1.0,
+    "154": 1.0,
+    "155": 1.0,
+    "156": 1.0,
+    "157": 1.0,
+    "158": 1.0,
+    "159": 1.0,
+    "160": 1.0,
+    "161": 1.0,
+    "162": 1.0,
+    "163": 1.0,
+    "164": 1.0,
+    "165": 1.0,
+    "166": 1.0,
+    "167": 1.0,
+    "168": 1.0,
+    "169": 1.0,
+    "170": 1.0,
+    "171": 1.0,
+    "172": 1.0,
+    "173": 1.0,
+    "174": 1.0,
+    "175": 1.0,
+    "176": 1.0,
+    "177": 1.0,
+    "178": 1.0,
+    "179": 1.0,
+    "180": 1.0,
+    "181": 1.0,
+    "182": 1.0,
+    "183": 1.0,
+    "184": 1.0,
+    "185": 1.0,
+    "186": 1.0,
+    "187": 1.0,
+    "188": 1.0,
+    "189": 1.0,
+    "190": 1.0,
+    "191": 1.0,
+    "192": 1.0,
+    "193": 1.0,
+    "194": 1.0,
+    "195": 1.0,
+    "196": 1.0,
+    "197": 1.0,
+    "198": 1.0,
+    "199": 1.0
+  },
+  "gods": [
+    {
+      "id": "app_models_user_user",
+      "label": "User",
+      "degree": 75
+    },
+    {
+      "id": "app_models_siswa_siswa",
+      "label": "Siswa",
+      "degree": 73
+    },
+    {
+      "id": "app_models_kelas_kelas",
+      "label": "Kelas",
+      "degree": 59
+    },
+    {
+      "id": "app_models_guru_guru",
+      "label": "Guru",
+      "degree": 43
+    },
+    {
+      "id": "app_models_tagihan_tagihan",
+      "label": "Tagihan",
+      "degree": 36
+    },
+    {
+      "id": "app_models_semester_semester",
+      "label": "Semester",
+      "degree": 33
+    },
+    {
+      "id": "app_models_rapor_rapor",
+      "label": "Rapor",
+      "degree": 29
+    },
+    {
+      "id": "app_models_role_role",
+      "label": "Role",
+      "degree": 28
+    },
+    {
+      "id": "app_models_tahunajaran_tahunajaran",
+      "label": "TahunAjaran",
+      "degree": 28
+    },
+    {
+      "id": "app_models_gurumapelkelas_gurumapelkelas",
+      "label": "GuruMapelKelas",
+      "degree": 24
+    }
+  ],
+  "surprises": [
+    {
+      "source": "createUserWithRole()",
+      "target": "Role",
+      "source_files": [
+        "tests/Feature/RbacAndNavigationTest.php",
+        "app/Models/Role.php"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories"
+    },
+    {
+      "source": "createUserWithRole()",
+      "target": "User",
+      "source_files": [
+        "tests/Feature/RbacAndNavigationTest.php",
+        "app/Models/User.php"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "FinanceExportController",
+      "target": "Controller",
+      "source_files": [
+        "app/Http/Controllers/FinanceExportController.php",
+        "app/Http/Controllers/Controller.php"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "inherits",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "RaporPdfController",
+      "target": "Controller",
+      "source_files": [
+        "app/Http/Controllers/RaporPdfController.php",
+        "app/Http/Controllers/Controller.php"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "inherits",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "ManajemenKoreksiNilai",
+      "target": "ManajemenKoreksiNilai",
+      "source_files": [
+        "app/Livewire/Pengawas/ManajemenKoreksiNilai.php",
+        "app/Livewire/Koordinator/ManajemenKoreksiNilai.php"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "inherits",
+      "why": "peripheral node `ManajemenKoreksiNilai` unexpectedly reaches hub `ManajemenKoreksiNilai`"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `Siswa` connect `Siswa` to `MataPelajaran`, `GuruMapelKelas`, `Illuminate\\Database\\Eloquent\\Model`, `Notifikasi`, `Siswa.php`, `Tagihan.php`, `User`, `Kelas`, `Tagihan`, `NilaiTahfidz`, `JenisTagihan`, `.run`, `ManajemenSurat`, `NilaiP5`, `Semester`, `Pembayaran`, `ProsesKenaikanKelas`, `InputPembayaran`, `.run`, `OverviewPembayaran`, `InputNilaiSiswa`, `Nilai`, `RekapAbsensiSiswa`, `Dashboard`?",
+      "why": "High betweenness centrality (0.049) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `User` connect `User` to `InputAbsensiKaryawan`, `Illuminate\\Database\\Eloquent\\Model`, `Siswa.php`, `Livewire\\Component`, `Tagihan.php`, `Siswa`, `GuruAkademikTest.php`, `Tagihan`, `Guru`, `NilaiTahfidz`, `.run`, `Role.php`, `Semester`, `ProfilSaya`, `TahunAjaran`, `.run`, `ManajemenUser`, `ManajemenKaryawan`, `UserFactory.php`, `.paySalary`?",
+      "why": "High betweenness centrality (0.039) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `Tagihan` connect `Tagihan` to `Dashboard`, `Pembayaran`, `GuruMapelKelas`, `InputPembayaran`, `TagihanSpp`, `Illuminate\\Http\\Request`, `Illuminate\\Database\\Eloquent\\Model`, `OverviewPembayaran`, `Tagihan.php`, `.run`, `JenisTagihan`, `.checkOutstandingAndLoad`, `.run`?",
+      "why": "High betweenness centrality (0.030) - this node is a cross-community bridge."
+    },
+    {
+      "type": "verify_inferred",
+      "question": "Are the 58 inferred relationships involving `Siswa` (e.g. with `.handle()` and `.handle()`) actually correct?",
+      "why": "`Siswa` has 58 INFERRED edges - model-reasoned connections that need verification."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `$schema`, `name`, `type` to the rest of the system?",
+      "why": "164 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `MataPelajaran` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.06448412698412699 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `GuruMapelKelas` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.05201636469900643 - nodes in this community are weakly interconnected."
+    }
+  ]
+}

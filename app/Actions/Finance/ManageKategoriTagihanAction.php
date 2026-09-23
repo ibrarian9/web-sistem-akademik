@@ -23,6 +23,7 @@ class ManageKategoriTagihanAction
         $isEdit = !empty($id);
         if ($isEdit) {
             $jt = JenisTagihan::findOrFail($id);
+            $oldKategori = $jt->kategori;
             $jt->update([
                 'nama' => $nama,
                 'kategori' => $kategoriTipe,
@@ -30,16 +31,29 @@ class ManageKategoriTagihanAction
                 'is_blocking' => $isBlocking,
             ]);
 
+            $cleanedCount = 0;
+            $nonRutinCategories = ['one_time', 'semester', 'per_6_bulan', 'tahunan', 'sekali_semester'];
+            if ($oldKategori === 'rutin' && in_array($kategoriTipe, $nonRutinCategories)) {
+                $cleanedCount = $this->cleanupDuplicateUnpaidBills($jt);
+            }
+
             AuditLogger::log('updated', 'Memperbarui kategori tagihan: ' . $jt->nama, $jt, [
                 'log_name' => 'manajemen_tagihan',
+                'cleaned_duplicates' => $cleanedCount,
             ]);
+
+            $message = 'Kategori tagihan "' . $jt->nama . '" berhasil diperbarui.';
+            if ($cleanedCount > 0) {
+                $message .= ' Sistem otomatis membersihkan ' . $cleanedCount . ' tagihan duplikat yang belum dibayar.';
+            }
 
             return [
                 'jt' => $jt,
                 'isEdit' => true,
                 'title' => 'Kategori Tagihan Diperbarui',
-                'message' => 'Kategori tagihan "' . $jt->nama . '" berhasil diperbarui.',
+                'message' => $message,
                 'type' => 'edit',
+                'cleaned_duplicates' => $cleanedCount,
             ];
         }
 
@@ -95,5 +109,49 @@ class ManageKategoriTagihanAction
             'message' => 'Kategori tagihan "' . $nama . '" berhasil dihapus dari sistem.',
             'type' => 'delete',
         ];
+    }
+
+    /**
+     * Cleans up duplicate unpaid bills for students when a category is changed from rutin to non-rutin.
+     * Keeps the primary bill (or the one with payments). Only deletes duplicate bills where total_dibayar == 0.
+     */
+    public function cleanupDuplicateUnpaidBills(JenisTagihan $jt): int
+    {
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($jt) {
+            $tagihans = Tagihan::where('jenis_tagihan_id', $jt->id)
+                ->with('pembayarans')
+                ->orderBy('siswa_id')
+                ->orderBy('id', 'asc')
+                ->get()
+                ->groupBy(function ($t) {
+                    return $t->siswa_id . '_' . ($t->tahun_ajaran_id ?? '0');
+                });
+
+            $deleteAction = app(\App\Actions\Finance\DeleteTagihanAction::class);
+            $deletedCount = 0;
+
+            foreach ($tagihans as $groupKey => $bills) {
+                if ($bills->count() <= 1) {
+                    continue;
+                }
+
+                // Identify primary bill: prefer bill that has payment; otherwise first bill
+                $paidBill = $bills->first(fn($b) => (float)$b->total_dibayar > 0);
+                $primaryBill = $paidBill ?: $bills->first();
+
+                // All other bills for this student within the same academic year are candidates for cleanup
+                $duplicates = $bills->reject(fn($b) => $b->id === $primaryBill->id);
+
+                foreach ($duplicates as $dup) {
+                    // Safety check: ONLY delete if no payments have been made on this duplicate bill
+                    if ((float)$dup->total_dibayar == 0) {
+                        $deleteAction->execute($dup);
+                        $deletedCount++;
+                    }
+                }
+            }
+
+            return $deletedCount;
+        });
     }
 }

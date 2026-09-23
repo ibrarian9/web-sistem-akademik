@@ -262,5 +262,78 @@ class KategoriTagihanCustomManagementTest extends TestCase
             'is_blocking' => 1,
         ]);
     }
+
+    public function test_auto_cleanup_duplicate_unpaid_bills_when_category_switched_from_rutin_to_semester(): void
+    {
+        $kategori = JenisTagihan::create([
+            'nama' => 'Biaya Ujian Semester 1',
+            'kategori' => 'rutin',
+            'default_nominal' => 200000,
+            'is_blocking' => true,
+        ]);
+
+        // Tagihan 1: Bulan Juli - sudah lunas
+        $tagihanJuli = Tagihan::create([
+            'siswa_id' => $this->siswa->id,
+            'jenis_tagihan_id' => $kategori->id,
+            'tahun_ajaran_id' => $this->tahunAjaran->id,
+            'bulan' => 'Juli',
+            'nominal' => 200000,
+            'total_dibayar' => 200000,
+            'status' => 'lunas',
+            'jatuh_tempo' => '2026-07-10',
+        ]);
+
+        \App\Models\Pembayaran::create([
+            'tagihan_id' => $tagihanJuli->id,
+            'petugas_id' => $this->financeUser->id,
+            'nominal_dibayar' => 200000,
+            'metode_bayar' => 'Transfer',
+            'tanggal_bayar' => '2026-07-05',
+        ]);
+
+        // Tagihan 2: Bulan Agustus - duplikat yang terbit saat masih rutin, belum bayar
+        $tagihanAgustus = Tagihan::create([
+            'siswa_id' => $this->siswa->id,
+            'jenis_tagihan_id' => $kategori->id,
+            'tahun_ajaran_id' => $this->tahunAjaran->id,
+            'bulan' => 'Agustus',
+            'nominal' => 200000,
+            'total_dibayar' => 0,
+            'status' => 'belum_bayar',
+            'jatuh_tempo' => '2026-08-10',
+        ]);
+
+        $this->assertCount(2, Tagihan::where('jenis_tagihan_id', $kategori->id)->get());
+
+        // Staf finance mengubah kategori dari 'rutin' ke 'semester'
+        Livewire::actingAs($this->financeUser)
+            ->test(ManajemenTagihan::class)
+            ->call('editKategori', $kategori->id)
+            ->set('kategori_tipe', 'semester')
+            ->call('saveKategori')
+            ->assertHasNoErrors()
+            ->assertDispatched('show-alert', function ($name, $params) {
+                $payload = $params[0] ?? $params;
+                return ($payload['type'] ?? '') === 'edit'
+                    && str_contains($payload['message'] ?? '', 'membersihkan 1 tagihan duplikat yang belum dibayar');
+            });
+
+        // Verifikasi di Database:
+        // Tagihan Agustus (duplikat belum bayar) harus otomatis terhapus (soft deleted)
+        $this->assertSoftDeleted('tagihan', [
+            'id' => $tagihanAgustus->id,
+        ]);
+
+        // Tagihan Juli (yang sudah lunas dan ada pembayaran) harus TETAP ADA
+        $this->assertDatabaseHas('tagihan', [
+            'id' => $tagihanJuli->id,
+            'status' => 'lunas',
+            'total_dibayar' => 200000.00,
+        ]);
+
+        // Jumlah tagihan untuk santri ini sekarang tepat 1
+        $this->assertCount(1, Tagihan::where('jenis_tagihan_id', $kategori->id)->where('siswa_id', $this->siswa->id)->get());
+    }
 }
 

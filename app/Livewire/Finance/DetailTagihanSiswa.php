@@ -74,6 +74,45 @@ class DetailTagihanSiswa extends Component
         $this->matrixViewStyle = $style;
     }
 
+    // SPP 6-Month Period Switcher
+    public string $sppPeriode = 'ganjil'; // 'ganjil' | 'genap' | 'terakhir'
+
+    public function setSppPeriode(string $periode): void
+    {
+        $this->sppPeriode = $periode;
+    }
+
+    public function getSppMatrixMonths(): array
+    {
+        if ($this->sppPeriode === 'ganjil') {
+            return ['Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        }
+
+        if ($this->sppPeriode === 'genap') {
+            return ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni'];
+        }
+
+        // Default 'terakhir': 6 bulan s/d bulan berjalan
+        $calendarMonths = [
+            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+
+        $currentMonthName = \Carbon\Carbon::now()->locale('id')->isoFormat('MMMM');
+        $currIdx = array_search($currentMonthName, $calendarMonths);
+        if ($currIdx === false) {
+            $currIdx = 8; // September
+        }
+
+        $result = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $idx = ($currIdx - $i + 12) % 12;
+            $result[] = $calendarMonths[$idx];
+        }
+
+        return $result;
+    }
+
     public function openQuickPay(int $tagihanId): void
     {
         if (auth()->user()->isSuperAdmin2()) {
@@ -1371,6 +1410,120 @@ class DetailTagihanSiswa extends Component
             'grand_tunggakan' => $detailGrandTunggakan,
         ];
 
+        // Data for MATRIKS 6 BULAN SPP + KATEGORI NON-SPP PADA SUMBU X
+        $sppMatrixMonths = $this->getSppMatrixMonths();
+        $sppJenis = $jenisTagihanList->first(fn($jt) => str_contains(strtolower($jt->nama), 'spp') || ($jt->kategori ?? '') === 'rutin') 
+            ?: $jenisTagihanList->first();
+        $nonSppJenisList = $jenisTagihanList->filter(fn($jt) => !str_contains(strtolower($jt->nama), 'spp'));
+
+        // 1. Sel Data 6 Bulan SPP untuk Santri Ini
+        $spp6MonthsData = [];
+        foreach ($sppMatrixMonths as $m) {
+            $sppBill = $studentBills->first(function ($t) use ($m) {
+                return $t->bulan === $m && 
+                       (str_contains(strtolower($t->jenisTagihan->nama ?? ''), 'spp') || ($t->jenisTagihan->kategori ?? '') === 'rutin');
+            });
+
+            if ($sppBill) {
+                $nom = (float) $sppBill->nominal;
+                $bayar = (float) $sppBill->total_dibayar;
+                $sisa = max(0, $nom - $bayar);
+                $st = ($sppBill->status === 'lunas' || ($nom > 0 && $bayar >= $nom) || $nom == 0)
+                    ? 'lunas'
+                    : ($bayar > 0 ? 'sebagian' : ($sppBill->is_mendatang ? 'mendatang' : 'belum_bayar'));
+
+                $spp6MonthsData[$m] = [
+                    'has_tagihan' => true,
+                    'id' => $sppBill->id,
+                    'nominal' => $nom,
+                    'total_dibayar' => $bayar,
+                    'sisa' => $sisa,
+                    'status' => $st,
+                    'is_mendatang' => (bool) $sppBill->is_mendatang,
+                    'original_bulan' => $sppBill->bulan,
+                    'original_nominal' => $nom,
+                    'terakhir_bayar' => $sppBill->pembayarans->max('tanggal_bayar') ? \Carbon\Carbon::parse($sppBill->pembayarans->max('tanggal_bayar'))->format('d/m/Y') : null,
+                ];
+            } else {
+                $spp6MonthsData[$m] = [
+                    'has_tagihan' => false,
+                    'id' => null,
+                    'nominal' => 0.0,
+                    'total_dibayar' => 0.0,
+                    'sisa' => 0.0,
+                    'status' => 'tidak_ada',
+                    'is_mendatang' => false,
+                    'original_bulan' => null,
+                    'original_nominal' => 0.0,
+                    'terakhir_bayar' => null,
+                ];
+            }
+        }
+
+        // 2. Sel Data Kategori Non-SPP untuk Santri Ini
+        $nonSppBillsData = [];
+        foreach ($nonSppJenisList as $jt) {
+            $bills = $studentBills->where('jenis_tagihan_id', $jt->id);
+            if ($bills->isNotEmpty()) {
+                $nom = (float) $bills->sum('nominal');
+                $bayar = (float) $bills->sum('total_dibayar');
+                $sisa = max(0, $nom - $bayar);
+                $unpaidBill = $bills->first(fn($b) => $b->status !== 'lunas' && ($b->nominal - $b->total_dibayar) > 0) ?: $bills->first();
+
+                $isLunas = ($nom == 0 || $sisa <= 0 || $bills->every(fn($b) => $b->status === 'lunas'));
+                $st = $isLunas ? 'lunas' : ($bayar > 0 ? 'sebagian' : 'belum_bayar');
+
+                $firstBill = $bills->first();
+                $origBulan = $firstBill?->bulan ?: 'Tahunan';
+                $origNom = (float) ($firstBill?->nominal ?? 0);
+
+                $nonSppBillsData[$jt->id] = [
+                    'has_tagihan' => true,
+                    'id' => $unpaidBill?->id ?: $firstBill?->id,
+                    'nominal' => $nom,
+                    'total_dibayar' => $bayar,
+                    'sisa' => $sisa,
+                    'status' => $st,
+                    'is_one_time_fulfilled' => $isLunas,
+                    'original_bulan' => $origBulan,
+                    'original_nominal' => $origNom,
+                    'terakhir_bayar' => $bills->flatMap(fn($b) => $b->pembayarans)->max('tanggal_bayar') ? \Carbon\Carbon::parse($bills->flatMap(fn($b) => $b->pembayarans)->max('tanggal_bayar'))->format('d/m/Y') : null,
+                ];
+            } else {
+                $nonSppBillsData[$jt->id] = [
+                    'has_tagihan' => false,
+                    'id' => null,
+                    'nominal' => 0.0,
+                    'total_dibayar' => 0.0,
+                    'sisa' => 0.0,
+                    'status' => 'tidak_ada',
+                    'is_one_time_fulfilled' => false,
+                    'original_bulan' => null,
+                    'original_nominal' => 0.0,
+                    'terakhir_bayar' => null,
+                ];
+            }
+        }
+
+        // 3. Akumulasi Subtotal & Grand Total Matriks 6 Bulan
+        $sppSummary = [
+            'nominal' => collect($spp6MonthsData)->sum('nominal'),
+            'dibayar' => collect($spp6MonthsData)->sum('total_dibayar'),
+            'sisa' => collect($spp6MonthsData)->sum('sisa'),
+        ];
+        $nonSppSummary = [
+            'nominal' => collect($nonSppBillsData)->sum('nominal'),
+            'dibayar' => collect($nonSppBillsData)->sum('total_dibayar'),
+            'sisa' => collect($nonSppBillsData)->sum('sisa'),
+        ];
+        $matrix6BulanSummary = [
+            'spp' => $sppSummary,
+            'non_spp' => $nonSppSummary,
+            'grand_nominal' => $sppSummary['nominal'] + $nonSppSummary['nominal'],
+            'grand_dibayar' => $sppSummary['dibayar'] + $nonSppSummary['dibayar'],
+            'grand_sisa' => $sppSummary['sisa'] + $nonSppSummary['sisa'],
+        ];
+
         $recentPayments = $this->getPembayaranQuery()
             ->orderBy('tanggal_bayar', 'desc')
             ->orderBy('id', 'desc')
@@ -1408,6 +1561,12 @@ class DetailTagihanSiswa extends Component
             'sppMatrix' => $sppMatrix,
             'jenisTagihanList' => $jenisTagihanList,
             'detailMatrixData' => $detailMatrixData,
+            'sppMatrixMonths' => $sppMatrixMonths,
+            'spp6MonthsData' => $spp6MonthsData,
+            'nonSppJenisList' => $nonSppJenisList,
+            'nonSppBillsData' => $nonSppBillsData,
+            'sppJenis' => $sppJenis,
+            'matrix6BulanSummary' => $matrix6BulanSummary,
             'activeTAName' => $activeTA->nama ?? '-',
         ])->layout('components.layouts.app', ['title' => 'Rincian Tagihan - ' . ($this->siswa->user->nama ?? 'Siswa')]);
     }
