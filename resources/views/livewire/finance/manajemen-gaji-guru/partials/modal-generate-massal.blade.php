@@ -55,7 +55,7 @@
                     </thead>
                     <tbody class="divide-y divide-stone-200">
                         @foreach ($generateItems as $gId => $item)
-                            <tr class="hover:bg-emerald-50/50 transition {{ !empty($item['selected']) ? 'bg-white' : 'bg-stone-50/80 opacity-60' }}">
+                            <tr wire:key="generate-row-{{ $gId }}" class="hover:bg-emerald-50/50 transition {{ !empty($item['selected']) ? 'bg-white' : 'bg-stone-50/80 opacity-60' }}">
                                 <td class="p-2.5 text-center border-b border-r border-stone-200">
                                     <input type="checkbox" wire:model.live="generateItems.{{ $gId }}.selected" class="rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer" />
                                 </td>
@@ -69,7 +69,7 @@
                                 <td class="p-2 border-b border-r border-stone-200 text-right">
                                     <x-input-currency
                                         :prefix="false"
-                                        wire:model.live.debounce.300ms="generateItems.{{ $gId }}.gaji_pokok"
+                                        wire:model.blur="generateItems.{{ $gId }}.gaji_pokok"
                                         placeholder="0"
                                         class="!py-1.5 !px-2.5 !rounded-lg text-xs"
                                     />
@@ -79,7 +79,7 @@
                                 <td class="p-2 border-b border-r border-stone-200 text-right">
                                     <x-input-currency
                                         :prefix="false"
-                                        wire:model.live.debounce.300ms="generateItems.{{ $gId }}.gaji_berkala"
+                                        wire:model.blur="generateItems.{{ $gId }}.gaji_berkala"
                                         placeholder="0"
                                         class="!py-1.5 !px-2.5 !rounded-lg text-xs"
                                     />
@@ -89,7 +89,7 @@
                                 <td class="p-2 border-b border-r border-stone-200 text-right">
                                     <x-input-currency
                                         :prefix="false"
-                                        wire:model.live.debounce.300ms="generateItems.{{ $gId }}.insentif"
+                                        wire:model.blur="generateItems.{{ $gId }}.insentif"
                                         placeholder="0"
                                         class="!py-1.5 !px-2.5 !rounded-lg text-xs"
                                     />
@@ -99,7 +99,7 @@
                                 <td class="p-2 border-b border-r border-stone-200 text-right">
                                     <x-input-currency
                                         :prefix="false"
-                                        wire:model.live.debounce.300ms="generateItems.{{ $gId }}.honor_ekskul"
+                                        wire:model.blur="generateItems.{{ $gId }}.honor_ekskul"
                                         placeholder="0"
                                         class="!py-1.5 !px-2.5 !rounded-lg text-xs"
                                     />
@@ -109,7 +109,7 @@
                                 <td class="p-2 border-b border-r border-stone-200 text-right">
                                     <x-input-currency
                                         :prefix="false"
-                                        wire:model.live.debounce.300ms="generateItems.{{ $gId }}.insentif_bpjs"
+                                        wire:model.blur="generateItems.{{ $gId }}.insentif_bpjs"
                                         placeholder="0"
                                         class="!py-1.5 !px-2.5 !rounded-lg text-xs"
                                     />
@@ -119,7 +119,7 @@
                                 <td class="p-2 border-b border-r border-stone-200 text-right">
                                     <x-input-currency
                                         :prefix="false"
-                                        wire:model.live.debounce.300ms="generateItems.{{ $gId }}.insentif_maghrib_mengaji"
+                                        wire:model.blur="generateItems.{{ $gId }}.insentif_maghrib_mengaji"
                                         placeholder="0"
                                         class="!py-1.5 !px-2.5 !rounded-lg text-xs"
                                     />
@@ -129,7 +129,7 @@
                                 <td class="p-2 border-b border-r border-stone-200 text-right">
                                     <x-input-currency
                                         :prefix="false"
-                                        wire:model.live.debounce.300ms="generateItems.{{ $gId }}.potongan_sosial"
+                                        wire:model.blur="generateItems.{{ $gId }}.potongan_sosial"
                                         placeholder="0"
                                         class="!py-1.5 !px-2.5 !rounded-lg text-xs"
                                     />
@@ -139,7 +139,7 @@
                                 <td class="p-2 border-b border-r border-stone-200 text-right">
                                     <x-input-currency
                                         :prefix="false"
-                                        wire:model.live.debounce.300ms="generateItems.{{ $gId }}.potongan_peminjaman"
+                                        wire:model.blur="generateItems.{{ $gId }}.potongan_peminjaman"
                                         placeholder="0"
                                         class="!py-1.5 !px-2.5 !rounded-lg text-xs"
                                     />

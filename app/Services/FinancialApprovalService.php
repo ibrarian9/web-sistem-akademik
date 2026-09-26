@@ -149,6 +149,25 @@ class FinancialApprovalService
                                 ]);
                             }
                         }
+
+                        // Loan deduction adjustment if modified
+                        $oldPotonganPinjaman = floatval($approval->data_lama['potongan_peminjaman'] ?? 0);
+                        $newPotonganPinjaman = floatval($target->potongan_peminjaman);
+                        $diffLoan = $newPotonganPinjaman - $oldPotonganPinjaman;
+                        if ($diffLoan != 0) {
+                            $activeLoan = \App\Models\Peminjaman::where('guru_id', $target->guru_id)
+                                ->where('status', 'berjalan')
+                                ->first();
+
+                            if ($activeLoan) {
+                                $newSisa = max(0, $activeLoan->sisa_pinjaman - $diffLoan);
+                                $status = $newSisa <= 0 ? 'lunas' : 'berjalan';
+                                $activeLoan->update([
+                                    'sisa_pinjaman' => $newSisa,
+                                    'status' => $status
+                                ]);
+                            }
+                        }
                     }
                 }
             } elseif ($actionType === 'hapus') {
@@ -416,3 +435,4 @@ class FinancialApprovalService
         }
     }
 }
+ 

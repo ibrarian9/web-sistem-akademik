@@ -231,7 +231,7 @@
                             }
                             $nilaiRaporFormatted = $nilaiRapor !== null ? round($nilaiRapor, 2) : null;
                         @endphp
-                        <tr class="hover:bg-stone-50 transition group">
+                        <tr wire:key="sumatif-siswa-{{ $s->id }}" class="hover:bg-stone-50 transition group">
                             <!-- No (Desktop Only) -->
                             <td class="hidden md:table-cell w-12 min-w-[48px] p-3 text-center sticky left-0 bg-white group-hover:bg-stone-50 font-bold text-stone-500 border-b border-r border-stone-200 text-xs z-10 transition">
                                 {{ $index + 1 }}

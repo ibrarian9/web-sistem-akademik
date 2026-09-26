@@ -105,25 +105,28 @@ class InputNilaiSiswa extends Component
 
         $this->grades = [];
 
-        foreach ($students as $student) {
-            // Find existing grade
-            $existing = Nilai::where([
-                'siswa_id' => $student->id,
-                'kelas_id' => $this->kelas_id,
-                'mapel_id' => $this->mapel_id,
-                'guru_id' => $guru->id,
-                'semester_id' => $activeSemester->id,
-                'komponen_nilai_id' => $this->komponen_nilai_id,
-                'tanggal' => $this->tanggal,
-            ])->first();
+        if ($students->isNotEmpty()) {
+            $existingGrades = Nilai::whereIn('siswa_id', $students->pluck('id'))
+                ->where('kelas_id', $this->kelas_id)
+                ->where('mapel_id', $this->mapel_id)
+                ->where('guru_id', $guru->id)
+                ->where('semester_id', $activeSemester->id)
+                ->where('komponen_nilai_id', $this->komponen_nilai_id)
+                ->where('tanggal', $this->tanggal)
+                ->get()
+                ->keyBy('siswa_id');
 
-            $this->grades[] = [
-                'siswa_id' => $student->id,
-                'nama' => $student->user->nama ?? '-',
-                'nis' => $student->nis,
-                'nilai' => $existing ? floatval($existing->nilai) : '',
-                'catatan' => $existing ? $existing->catatan : '',
-            ];
+            foreach ($students as $student) {
+                $existing = $existingGrades->get($student->id);
+
+                $this->grades[] = [
+                    'siswa_id' => $student->id,
+                    'nama' => $student->user->nama ?? '-',
+                    'nis' => $student->nis,
+                    'nilai' => $existing ? floatval($existing->nilai) : '',
+                    'catatan' => $existing ? $existing->catatan : '',
+                ];
+            }
         }
     }
 
@@ -170,19 +173,50 @@ class InputNilaiSiswa extends Component
         }
 
         DB::transaction(function () use ($guru, $activeSemester) {
+            $siswaIds = collect($this->grades)->pluck('siswa_id')->filter()->all();
+            if (empty($siswaIds)) {
+                return;
+            }
+
+            $existingRecords = Nilai::whereIn('siswa_id', $siswaIds)
+                ->where('kelas_id', $this->kelas_id)
+                ->where('mapel_id', $this->mapel_id)
+                ->where('guru_id', $guru->id)
+                ->where('semester_id', $activeSemester->id)
+                ->where('komponen_nilai_id', $this->komponen_nilai_id)
+                ->where('tanggal', $this->tanggal)
+                ->get()
+                ->keyBy('siswa_id');
+
+            $now = now();
+            $toInsert = [];
+
             foreach ($this->grades as $g) {
-                Nilai::updateOrCreate([
-                    'siswa_id' => $g['siswa_id'],
-                    'kelas_id' => $this->kelas_id,
-                    'mapel_id' => $this->mapel_id,
-                    'guru_id' => $guru->id,
-                    'semester_id' => $activeSemester->id,
-                    'komponen_nilai_id' => $this->komponen_nilai_id,
-                    'tanggal' => $this->tanggal,
-                ], [
-                    'nilai' => $g['nilai'],
-                    'catatan' => $g['catatan'] ?: null,
-                ]);
+                $existing = $existingRecords->get($g['siswa_id']);
+                if ($existing) {
+                    $existing->update([
+                        'nilai' => $g['nilai'],
+                        'catatan' => $g['catatan'] ?: null,
+                    ]);
+                } else {
+                    $toInsert[] = [
+                        'siswa_id' => $g['siswa_id'],
+                        'kelas_id' => $this->kelas_id,
+                        'mapel_id' => $this->mapel_id,
+                        'guru_id' => $guru->id,
+                        'semester_id' => $activeSemester->id,
+                        'komponen_nilai_id' => $this->komponen_nilai_id,
+                        'tanggal' => $this->tanggal,
+                        'nilai' => $g['nilai'],
+                        'catatan' => $g['catatan'] ?: null,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ];
+                }
+            }
+
+            if (!empty($toInsert)) {
+                Nilai::insert($toInsert);
             }
         });
 

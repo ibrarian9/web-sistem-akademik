@@ -411,12 +411,13 @@
             @if ($bulkTarget === 'class')
                 <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Target Kelas <span class="text-rose-500">*</span></label>
-                    <select wire:model.live="bulk_kelas_id" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-indigo-600 shadow-2xs">
+                    <select wire:model.live="release_kelas_id" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-indigo-600 shadow-2xs">
                         <option value="">-- Pilih Kelas Target --</option>
                         @foreach ($classes as $c)
                             <option value="{{ $c['id'] }}">Kelas {{ $c['nama_kelas'] }}</option>
                         @endforeach
                     </select>
+                    @error('release_kelas_id') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror
                     @error('bulk_kelas_id') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror
                 </div>
             @endif

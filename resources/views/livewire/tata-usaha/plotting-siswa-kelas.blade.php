@@ -128,7 +128,7 @@
             </h3>
 
             <div class="max-w-xs w-full">
-                <x-search-input wire:model.live.debounce.250ms="search_roster" placeholder="Cari nama / NISN murid..." />
+                <x-search-input :model="'search_roster'" wire:model.live.debounce.250ms="search_roster" placeholder="Cari nama / NISN murid..." />
             </div>
         </div>
 
@@ -215,7 +215,7 @@
     >
         <div class="space-y-4 text-xs">
             <!-- Search Input for Candidates -->
-            <x-search-input wire:model.live.debounce.250ms="search_candidates" placeholder="Cari nama / NISN murid yang akan dimasukkan..." />
+            <x-search-input :model="'search_candidates'" wire:model.live.debounce.250ms="search_candidates" placeholder="Cari nama / NISN murid yang akan dimasukkan..." />
             
             <x-table loadingTarget="search_candidates">
                 <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900 sticky top-0 z-10">

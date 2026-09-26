@@ -61,8 +61,8 @@ class PengajuanDanaIndex extends Component
     public function openModal()
     {
         $userRole = auth()->user()->role->nama ?? '';
-        if ($userRole !== 'finance') {
-            session()->flash('error', 'Hanya bagian Keuangan yang dapat membuat pengajuan dana.');
+        if (!in_array($userRole, ['finance', 'super_admin', 'founder'])) {
+            session()->flash('error', 'Hanya bagian Keuangan / Super Admin yang dapat membuat pengajuan dana.');
             return;
         }
 
@@ -79,8 +79,8 @@ class PengajuanDanaIndex extends Component
     public function createPengajuan()
     {
         $userRole = auth()->user()->role->nama ?? '';
-        if ($userRole !== 'finance') {
-            session()->flash('error', 'Hanya bagian Keuangan yang dapat membuat pengajuan dana.');
+        if (!in_array($userRole, ['finance', 'super_admin', 'founder'])) {
+            session()->flash('error', 'Hanya bagian Keuangan / Super Admin yang dapat membuat pengajuan dana.');
             return;
         }
 
@@ -231,7 +231,7 @@ class PengajuanDanaIndex extends Component
     public function render()
     {
         $user = auth()->user();
-        $userRole = $user ? $user->role : '';
+        $userRole = $user?->role?->nama ?? '';
 
         $query = PengajuanDana::with(['pemohon', 'disetujuiKoordinator', 'disetujuiKepalaYayasan', 'pengeluaran'])
             ->latest();

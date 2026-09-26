@@ -32,7 +32,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">Cari Guru / Mapel</label>
-                    <x-search-input wire:model.live.debounce.300ms="searchProgresGuru" placeholder="Cari nama guru atau mapel..." />
+                    <x-search-input :model="'searchProgresGuru'" wire:model.live.debounce.300ms="searchProgresGuru" placeholder="Cari nama guru atau mapel..." />
                 </div>
             </div>
         </div>

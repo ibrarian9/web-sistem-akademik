@@ -57,17 +57,19 @@
         <x-table loadingTarget="search, perPage">
             <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
                 <tr>
-                    <x-table.th class="w-36">Kode Mapel</x-table.th>
+                    <x-table.th class="w-32">Kode Mapel</x-table.th>
                     <x-table.th class="min-w-[200px]">Nama Mata Pelajaran</x-table.th>
-                    <x-table.th class="w-48">Kelompok Kurikulum</x-table.th>
+                    <x-table.th class="w-44">Kelompok Kurikulum</x-table.th>
+                    <x-table.th class="w-24" align="center">KKM</x-table.th>
                     <x-table.th align="center" class="w-36">Aksi</x-table.th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-stone-200 bg-white">
                 @forelse ($mapels as $mapel)
                     @php
-                        $kelompokVariant = match($mapel->kelompok) {
-                            'tahfidz' => 'emerald',
+                        $kategori = $mapel->jenis ?? $mapel->kelompok ?? 'umum';
+                        $kelompokVariant = match($kategori) {
+                            'tahfidz', 'tahfizh' => 'emerald',
                             'keagamaan' => 'amber',
                             'umum' => 'blue',
                             default => 'stone',
@@ -75,15 +77,18 @@
                     @endphp
                     <tr class="hover:bg-stone-50 transition">
                         <td class="p-3.5 font-mono font-bold text-stone-800 border-r border-stone-200 text-xs">
-                            {{ $mapel->kode_mapel }}
+                            {{ $mapel->kode_mapel ?? '-' }}
                         </td>
                         <td class="p-3.5 font-extrabold text-stone-900 border-r border-stone-200 text-xs">
                             {{ $mapel->nama_mapel }}
                         </td>
                         <td class="p-3.5 border-r border-stone-200">
                             <x-badge :variant="$kelompokVariant" size="xs">
-                                {{ ucfirst($mapel->kelompok) }}
+                                {{ $kategori === 'tahfidz' ? 'Tahfizh' : ucfirst($kategori) }}
                             </x-badge>
+                        </td>
+                        <td class="p-3.5 border-r border-stone-200 text-center font-bold text-stone-800 text-xs">
+                            {{ (int) ($mapel->kkm ?? 70) }}
                         </td>
                         <td class="p-3.5 text-center">
                             @if(!auth()->user()->isSuperAdmin2())
@@ -102,7 +107,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="py-12 text-center text-stone-400">
+                        <td colspan="5" class="py-12 text-center text-stone-400">
                             <x-table.empty title="Tidak ada data mata pelajaran ditemukan" subtitle="Gunakan tombol Tambah Mapel di atas untuk membuat mata pelajaran kurikulum." />
                         </td>
                     </tr>
@@ -120,7 +125,7 @@
     <x-floating-card 
         :show="$isFormOpen ? true : false"
         :title="$mapelId ? 'Edit Mata Pelajaran' : 'Tambah Mapel Baru'"
-        subtitle="Lengkapi kode, nama mapel, dan kelompok kurikulum."
+        subtitle="Lengkapi kode, nama mapel, kelompok kurikulum, dan KKM standar."
         badge="MAPEL"
         badgeVariant="emerald"
         icon="book-open"
@@ -152,6 +157,13 @@
                     <option value="mulok">Muatan Lokal (Mulok)</option>
                 </select>
                 @error('kelompok') <span class="text-rose-600 text-[10px] font-bold block mt-1">{{ $message }}</span> @enderror
+            </div>
+
+            <!-- KKM -->
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-stone-700 uppercase">KKM Minimal <span class="text-rose-600">*</span></label>
+                <input wire:model="kkm" type="number" min="0" max="100" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" placeholder="70" required />
+                @error('kkm') <span class="text-rose-600 text-[10px] font-bold block mt-1">{{ $message }}</span> @enderror
             </div>
 
             <!-- Buttons -->

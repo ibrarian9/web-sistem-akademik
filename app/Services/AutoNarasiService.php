@@ -182,6 +182,182 @@ class AutoNarasiService
     }
 
     /**
+     * Batch calculate final grades and generate auto-narrative descriptions for multiple students.
+     * Reduces query count from O(N * LM) down to O(1) bulk queries.
+     *
+     * @param array $siswaIds
+     * @param int $mapelId
+     * @param int $semesterId
+     * @return array<int, array> Keyed by siswaId
+     */
+    public function generateForMapelBatch(array $siswaIds, int $mapelId, int $semesterId): array
+    {
+        if (empty($siswaIds)) {
+            return [];
+        }
+
+        $siswaIds = array_values(array_unique(array_filter($siswaIds)));
+        if (empty($siswaIds)) {
+            return [];
+        }
+
+        $mapel = MataPelajaran::find($mapelId);
+
+        // Special handling if Mapel is Tahfizh / Tahfidz (Core Curriculum of SD Tahfizh)
+        if ($mapel && (strtolower($mapel->jenis) === 'tahfidz' || str_contains(strtolower($mapel->nama_mapel), 'tahfi'))) {
+            $results = [];
+            foreach ($siswaIds as $sId) {
+                $results[$sId] = $this->generateForMapel((int)$sId, $mapelId, $semesterId);
+            }
+            return $results;
+        }
+
+        $siswas = Siswa::whereIn('id', $siswaIds)->with('user')->get()->keyBy('id');
+
+        $lingkupMateris = LingkupMateri::where('mapel_id', $mapelId)
+            ->with(['tujuanPembelajaran'])
+            ->orderBy('urutan', 'asc')
+            ->get();
+
+        $allTpList = $lingkupMateris->pluck('tujuanPembelajaran')->flatten();
+        $allTpMap = $allTpList->keyBy('id');
+
+        // Preload template deskripsi
+        $template = TemplateDeskripsi::where('mapel_id', $mapelId)->first();
+        $frasaHighest = $template ? $template->frasa_tertinggi : 'menunjukkan penguasaan dalam';
+        $frasaLowest = $template ? $template->frasa_terendah : 'membutuhkan penguatan dalam';
+
+        // Preload NilaiSumatifTp for all students
+        $allSumatifTps = NilaiSumatifTp::whereIn('siswa_id', $siswaIds)
+            ->where('semester_id', $semesterId)
+            ->get()
+            ->groupBy('siswa_id');
+
+        // Preload NilaiSas for all students
+        $allNilaiSas = NilaiSas::whereIn('siswa_id', $siswaIds)
+            ->where('mapel_id', $mapelId)
+            ->where('semester_id', $semesterId)
+            ->get()
+            ->keyBy('siswa_id');
+
+        $batchResults = [];
+
+        foreach ($siswaIds as $siswaId) {
+            $siswa = $siswas->get($siswaId);
+            $nama = $siswa ? ($siswa->nama_panggilan ?? $siswa->user?->nama ?? 'Siswa') : 'Siswa';
+
+            $studentScores = $allSumatifTps->get($siswaId, collect());
+
+            $lingkupAverages = [];
+            $allTpScores = [];
+
+            foreach ($lingkupMateris as $lm) {
+                $lmTpIds = $lm->tujuanPembelajaran->pluck('id')->toArray();
+                if (empty($lmTpIds)) {
+                    continue;
+                }
+
+                $lmScores = $studentScores->whereIn('tp_id', $lmTpIds);
+                if ($lmScores->isNotEmpty()) {
+                    $avg = $lmScores->avg('nilai');
+                    $lingkupAverages[] = $avg;
+
+                    foreach ($lmScores as $s) {
+                        $tp = $lm->tujuanPembelajaran->firstWhere('id', $s->tp_id);
+                        if ($tp) {
+                            $allTpScores[] = [
+                                'tp' => $tp,
+                                'score' => (float) $s->nilai,
+                                'urutan' => $tp->urutan,
+                            ];
+                        }
+                    }
+                }
+            }
+
+            if (empty($lingkupAverages)) {
+                $orphanScores = $studentScores->filter(function ($s) use ($allTpMap) {
+                    return $allTpMap->has($s->tp_id);
+                });
+
+                if ($orphanScores->isNotEmpty()) {
+                    $lingkupAverages[] = (float) $orphanScores->avg('nilai');
+
+                    foreach ($orphanScores as $s) {
+                        $tp = $allTpMap->get($s->tp_id);
+                        if ($tp) {
+                            $allTpScores[] = [
+                                'tp' => $tp,
+                                'score' => (float) $s->nilai,
+                                'urutan' => $tp->urutan ?? 1,
+                            ];
+                        }
+                    }
+                }
+            }
+
+            $sasRecord = $allNilaiSas->get($siswaId);
+            $nilaiSas = $sasRecord ? (float) ($sasRecord->nilai_sas !== null ? $sasRecord->nilai_sas : $sasRecord->nilai) : null;
+
+            $components = $lingkupAverages;
+            if ($nilaiSas !== null) {
+                $components[] = $nilaiSas;
+            }
+
+            $nilaiAkhir = count($components) > 0 ? array_sum($components) / count($components) : 0;
+            $nilaiAkhirFormatted = round($nilaiAkhir, 2);
+
+            $predikat = 'D';
+            if ($nilaiAkhirFormatted >= 90) {
+                $predikat = 'A';
+            } elseif ($nilaiAkhirFormatted >= 80) {
+                $predikat = 'B';
+            } elseif ($nilaiAkhirFormatted >= 70) {
+                $predikat = 'C';
+            }
+
+            $deskripsiHighest = '';
+            $deskripsiLowest = '';
+            $narasiFull = '';
+
+            if (!empty($allTpScores)) {
+                $highestList = $allTpScores;
+                usort($highestList, function ($a, $b) {
+                    if ($a['score'] == $b['score']) {
+                        return $a['urutan'] <=> $b['urutan'];
+                    }
+                    return $b['score'] <=> $a['score'];
+                });
+                $highest = $highestList[0];
+
+                $lowestList = $allTpScores;
+                usort($lowestList, function ($a, $b) {
+                    if ($a['score'] == $b['score']) {
+                        return $a['urutan'] <=> $b['urutan'];
+                    }
+                    return $a['score'] <=> $b['score'];
+                });
+                $lowest = $lowestList[0];
+
+                $deskripsiHighest = trim($frasaHighest) . ' ' . $highest['tp']->deskripsi_tp;
+                $deskripsiLowest = trim($frasaLowest) . ' ' . $lowest['tp']->deskripsi_tp;
+
+                $narasiFull = "Ananda {$nama} {$deskripsiHighest}. Ananda {$nama} {$deskripsiLowest}.";
+            }
+
+            $batchResults[$siswaId] = [
+                'nilai_akhir' => $nilaiAkhirFormatted,
+                'predikat' => $predikat,
+                'deskripsi_tertinggi' => $deskripsiHighest,
+                'deskripsi_terendah' => $deskripsiLowest,
+                'narasi_capaian_full' => $narasiFull,
+            ];
+        }
+
+        return $batchResults;
+    }
+
+    /**
      * Generate specialized auto-narrative description for Tahfizh Al-Qur'an (Core Curriculum).
      */
     public function generateForTahfidz(int $siswaId, int $semesterId): array

@@ -375,6 +375,19 @@ class ManajemenGajiGuru extends Component
             return;
         }
 
+        $this->sanitizeCurrencies([
+            'createGajiPokok',
+            'createGajiBerkala',
+            'createHonorEkskul',
+            'createInsentif',
+            'createInsentifBpjs',
+            'createInsentifMaghrib',
+            'createPotonganSosial',
+            'createPotonganPinjaman',
+            'createPotonganBpjstk',
+            'createPotonganLainnya',
+        ]);
+
         $this->validate([
             'createGuruId' => 'required|exists:guru,id',
             'createBulan' => 'required|string',
@@ -416,70 +429,78 @@ class ManajemenGajiGuru extends Component
             $pathBukti = $this->createBuktiFoto->store('bukti-gaji', 'public');
         }
 
-        DB::transaction(function () use ($pathBukti) {
-            $pengeluaranId = null;
-            $guru = Guru::with('user')->findOrFail($this->createGuruId);
+        try {
+            DB::transaction(function () use ($pathBukti) {
+                $pengeluaranId = null;
+                $guru = Guru::with('user')->findOrFail($this->createGuruId);
 
-            if ($this->createStatus === 'dibayar') {
-                $kategori = KategoriPengeluaran::firstOrCreate(
-                    ['nama' => 'Gaji Guru'],
-                    ['jenis' => 'operasional']
-                );
+                if ($this->createStatus === 'dibayar') {
+                    $kategori = KategoriPengeluaran::firstOrCreate(
+                        ['nama' => 'Gaji Guru'],
+                        ['jenis' => 'operasional']
+                    );
 
-                $pengeluaran = Pengeluaran::create([
-                    'kategori_pengeluaran_id' => $kategori->id,
-                    'jumlah' => $this->createTotalDiterima,
-                    'tanggal' => $this->createTanggalBayar ?: now()->toDateString(),
-                    'keterangan' => "Honorarium Pegawai Yayasan: " . ($guru->user->nama ?? 'Guru') . " - Periode " . $this->createBulan . " " . $this->createTahun,
-                    'petugas_id' => auth()->id(),
-                    'bukti' => $pathBukti,
-                ]);
+                    $pengeluaran = Pengeluaran::create([
+                        'kategori_pengeluaran_id' => $kategori->id,
+                        'jumlah' => $this->createTotalDiterima,
+                        'tanggal' => $this->createTanggalBayar ?: now()->toDateString(),
+                        'keterangan' => "Honorarium Pegawai Yayasan: " . ($guru->user->nama ?? 'Guru') . " - Periode " . $this->createBulan . " " . $this->createTahun,
+                        'petugas_id' => auth()->id(),
+                        'bukti' => $pathBukti,
+                    ]);
 
-                $pengeluaranId = $pengeluaran->id;
+                    $pengeluaranId = $pengeluaran->id;
 
-                if ($this->createPotonganPinjaman > 0) {
-                    $activeLoan = Peminjaman::where('guru_id', $this->createGuruId)
-                        ->where('status', 'berjalan')
-                        ->where('sisa_pinjaman', '>', 0)
-                        ->first();
+                    if ($this->createPotonganPinjaman > 0) {
+                        $activeLoan = Peminjaman::where('guru_id', $this->createGuruId)
+                            ->where('status', 'berjalan')
+                            ->where('sisa_pinjaman', '>', 0)
+                            ->first();
 
-                    if ($activeLoan) {
-                        $newSisa = max(0, $activeLoan->sisa_pinjaman - $this->createPotonganPinjaman);
-                        $status = $newSisa <= 0 ? 'lunas' : 'berjalan';
-                        $activeLoan->update([
-                            'sisa_pinjaman' => $newSisa,
-                            'status' => $status
-                        ]);
+                        if ($activeLoan) {
+                            $newSisa = max(0, $activeLoan->sisa_pinjaman - $this->createPotonganPinjaman);
+                            $status = $newSisa <= 0 ? 'lunas' : 'berjalan';
+                            $activeLoan->update([
+                                'sisa_pinjaman' => $newSisa,
+                                'status' => $status
+                            ]);
+                        }
                     }
                 }
-            }
 
-            GajiGuru::create([
-                'guru_id' => $this->createGuruId,
-                'pengeluaran_id' => $pengeluaranId,
-                'bulan' => $this->createBulan,
-                'tahun' => $this->createTahun,
-                'gaji_pokok' => $this->createGajiPokok,
-                'gaji_berkala' => $this->createGajiBerkala,
-                'jumlah_ekskul' => $this->createJumlahEkskul,
-                'honor_ekskul' => $this->createHonorEkskul,
-                'insentif' => $this->createInsentif,
-                'insentif_bpjs' => $this->createInsentifBpjs,
-                'insentif_maghrib_mengaji' => $this->createInsentifMaghrib,
-                'potongan_sosial' => $this->createPotonganSosial,
-                'potongan_peminjaman' => $this->createPotonganPinjaman,
-                'potongan_bpjstk' => $this->createPotonganBpjstk,
-                'potongan_lainnya' => $this->createPotonganLainnya,
-                'total_bruto' => $this->createTotalBruto,
-                'total_diterima' => $this->createTotalDiterima,
-                'tanggal_bayar' => $this->createTanggalBayar ?: now()->toDateString(),
-                'status' => $this->createStatus,
-                'bukti_bayar' => $pathBukti,
-                'sumber_dana' => $this->createSumberDana ?: 'Yayasan',
-                'jam_kerja' => $this->createJamKerja ?: '07.00-14.00',
-                'jabatan' => $this->createJabatan ?: ($guru->jabatan ?? 'Guru'),
-            ]);
-        });
+                GajiGuru::create([
+                    'guru_id' => $this->createGuruId,
+                    'pengeluaran_id' => $pengeluaranId,
+                    'bulan' => $this->createBulan,
+                    'tahun' => $this->createTahun,
+                    'gaji_pokok' => $this->createGajiPokok,
+                    'gaji_berkala' => $this->createGajiBerkala,
+                    'jumlah_ekskul' => $this->createJumlahEkskul,
+                    'honor_ekskul' => $this->createHonorEkskul,
+                    'insentif' => $this->createInsentif,
+                    'insentif_bpjs' => $this->createInsentifBpjs,
+                    'insentif_maghrib_mengaji' => $this->createInsentifMaghrib,
+                    'potongan_sosial' => $this->createPotonganSosial,
+                    'potongan_peminjaman' => $this->createPotonganPinjaman,
+                    'potongan_bpjstk' => $this->createPotonganBpjstk,
+                    'potongan_lainnya' => $this->createPotonganLainnya,
+                    'total_bruto' => $this->createTotalBruto,
+                    'total_diterima' => $this->createTotalDiterima,
+                    'tanggal_bayar' => $this->createTanggalBayar ?: now()->toDateString(),
+                    'status' => $this->createStatus,
+                    'bukti_bayar' => $pathBukti,
+                    'sumber_dana' => $this->createSumberDana ?: 'Yayasan',
+                    'jam_kerja' => $this->createJamKerja ?: '07.00-14.00',
+                    'jabatan' => $this->createJabatan ?: ($guru->jabatan ?? 'Guru'),
+                ]);
+            });
+        } catch (\Illuminate\Database\UniqueConstraintViolationException | \Illuminate\Database\QueryException $e) {
+            if ($e->getCode() == 23000 || str_contains($e->getMessage(), '1062 Duplicate entry')) {
+                $this->addError('createGuruId', "Gaji untuk pegawai ini pada periode {$this->createBulan} {$this->createTahun} sudah ada di sistem.");
+                return;
+            }
+            throw $e;
+        }
 
         session()->flash('message', 'Gaji pegawai berhasil dibuat dan disimpan.');
         $this->closeCreateModal();
@@ -498,7 +519,7 @@ class ManajemenGajiGuru extends Component
         $gaji = GajiGuru::with('guru.user')->findOrFail($id);
 
         $this->editingId = $id;
-        $this->edit_alasan = '';
+        $this->edit_alasan = 'Penyesuaian nominal dan rincian gaji pegawai';
         $this->editGuruNama = $gaji->guru->user->nama ?? '';
         $this->editBulan = $gaji->bulan;
         $this->editTahun = intval($gaji->tahun);
@@ -568,6 +589,19 @@ class ManajemenGajiGuru extends Component
             return;
         }
 
+        $this->sanitizeCurrencies([
+            'editGajiPokok',
+            'editGajiBerkala',
+            'editHonorEkskul',
+            'editInsentif',
+            'editInsentifBpjs',
+            'editInsentifMaghrib',
+            'editPotonganSosial',
+            'editPotonganPinjaman',
+            'editPotonganBpjstk',
+            'editPotonganLainnya',
+        ]);
+
         $rules = [
             'editBulan' => 'required|string|in:' . implode(',', $this->listBulan),
             'editTahun' => 'required|integer|min:2020|max:2035',
@@ -586,19 +620,31 @@ class ManajemenGajiGuru extends Component
         ];
 
         $gaji = GajiGuru::with('guru.user')->findOrFail($this->editingId);
-
         $userRole = auth()->user()->role->nama ?? '';
-        if ($userRole === 'finance' && $gaji->status === 'dibayar') {
-            $rules['edit_alasan'] = 'required|string|min:5|max:500';
+
+        $duplicate = GajiGuru::where('guru_id', $gaji->guru_id)
+            ->where('bulan', $this->editBulan)
+            ->where('tahun', $this->editTahun)
+            ->where('id', '!=', $this->editingId)
+            ->exists();
+
+        if ($duplicate) {
+            $this->addError('editBulan', "Gaji untuk pegawai ini pada periode {$this->editBulan} {$this->editTahun} sudah ada di sistem.");
+            return;
         }
 
-        $this->validate($rules, [
-            'edit_alasan.required' => 'Alasan perubahan rincian gaji wajib diisi untuk permohonan persetujuan Super Admin / Super Admin 2.',
-        ]);
+        if ($userRole === 'finance' && $gaji->status === 'dibayar') {
+            $rules['edit_alasan'] = 'nullable|string|max:500';
+        }
+
+        $this->validate($rules);
 
         $this->calculateEditTotal();
 
+        // Jika user adalah finance dan gaji sudah dibayar, ajukan persetujuan ke Super Admin / Super Admin 2
         if ($userRole === 'finance' && $gaji->status === 'dibayar') {
+            $alasan = !empty(trim($this->edit_alasan)) ? trim($this->edit_alasan) : 'Penyesuaian nominal dan komponen rincian gaji pegawai oleh staf keuangan';
+
             \App\Services\FinancialApprovalService::createRequest(
                 auth()->user(),
                 'edit',
@@ -623,71 +669,84 @@ class ManajemenGajiGuru extends Component
                     'potongan_lainnya' => $this->editPotonganLainnya,
                     'total_bruto' => $this->editTotalBruto,
                     'total_diterima' => $this->editTotalDiterima,
-                    'tanggal_bayar' => $this->editTanggalBayar ?: $gaji->tanggal_bayar,
+                    'tanggal_bayar' => $this->editTanggalBayar ?: ($gaji->tanggal_bayar ? $gaji->tanggal_bayar->format('Y-m-d') : date('Y-m-d')),
                 ],
-                $this->edit_alasan,
+                $alasan,
                 "Edit Gaji Guru: " . ($gaji->guru->user->nama ?? 'Guru') . " - {$this->editBulan} {$this->editTahun} (THP: Rp " . number_format($this->editTotalDiterima, 0, ',', '.') . ")"
             );
 
-            session()->flash('message', 'Permohonan edit gaji guru telah diajukan ke Super Admin / Super Admin 2 untuk disetujui.');
+            $msg = 'Permohonan perubahan rincian gaji telah berhasil diajukan ke Super Admin / Super Admin 2 untuk disetujui.';
+            session()->flash('message', $msg);
+            $this->dispatch('notify', ['type' => 'success', 'message' => $msg]);
+            $this->dispatch('modal-alert', ['type' => 'create', 'title' => 'Permohonan Diajukan', 'message' => $msg]);
             $this->closeEditModal();
             return;
         }
 
         $oldPotonganPinjaman = floatval($gaji->potongan_peminjaman);
 
-        DB::transaction(function () use ($gaji, $oldPotonganPinjaman) {
-            $gaji->update([
-                'bulan' => $this->editBulan,
-                'tahun' => $this->editTahun,
-                'jabatan' => $this->editJabatan,
-                'jam_kerja' => $this->editJamKerja,
-                'sumber_dana' => $this->editSumberDana,
-                'gaji_pokok' => $this->editGajiPokok,
-                'gaji_berkala' => $this->editGajiBerkala,
-                'jumlah_ekskul' => $this->editJumlahEkskul,
-                'honor_ekskul' => $this->editHonorEkskul,
-                'insentif' => $this->editInsentif,
-                'insentif_bpjs' => $this->editInsentifBpjs,
-                'insentif_maghrib_mengaji' => $this->editInsentifMaghrib,
-                'potongan_sosial' => $this->editPotonganSosial,
-                'potongan_peminjaman' => $this->editPotonganPinjaman,
-                'potongan_bpjstk' => $this->editPotonganBpjstk,
-                'potongan_lainnya' => $this->editPotonganLainnya,
-                'total_bruto' => $this->editTotalBruto,
-                'total_diterima' => $this->editTotalDiterima,
-                'tanggal_bayar' => $this->editTanggalBayar ?: $gaji->tanggal_bayar,
-            ]);
+        try {
+            DB::transaction(function () use ($gaji, $oldPotonganPinjaman) {
+                $gaji->update([
+                    'bulan' => $this->editBulan,
+                    'tahun' => $this->editTahun,
+                    'jabatan' => $this->editJabatan,
+                    'jam_kerja' => $this->editJamKerja,
+                    'sumber_dana' => $this->editSumberDana,
+                    'gaji_pokok' => $this->editGajiPokok,
+                    'gaji_berkala' => $this->editGajiBerkala,
+                    'jumlah_ekskul' => $this->editJumlahEkskul,
+                    'honor_ekskul' => $this->editHonorEkskul,
+                    'insentif' => $this->editInsentif,
+                    'insentif_bpjs' => $this->editInsentifBpjs,
+                    'insentif_maghrib_mengaji' => $this->editInsentifMaghrib,
+                    'potongan_sosial' => $this->editPotonganSosial,
+                    'potongan_peminjaman' => $this->editPotonganPinjaman,
+                    'potongan_bpjstk' => $this->editPotonganBpjstk,
+                    'potongan_lainnya' => $this->editPotonganLainnya,
+                    'total_bruto' => $this->editTotalBruto,
+                    'total_diterima' => $this->editTotalDiterima,
+                    'tanggal_bayar' => $this->editTanggalBayar ?: $gaji->tanggal_bayar,
+                ]);
 
-            if ($gaji->status === 'dibayar' && $gaji->pengeluaran_id) {
-                $pengeluaran = Pengeluaran::find($gaji->pengeluaran_id);
-                if ($pengeluaran) {
-                    $pengeluaran->update([
-                        'keterangan' => "Pembayaran Gaji " . ($gaji->guru->user->nama ?? 'Guru') . " ({$this->editBulan} {$this->editTahun})",
-                        'jumlah' => $gaji->total_diterima,
-                        'tanggal' => $this->editTanggalBayar ?: $pengeluaran->tanggal,
-                    ]);
-                }
-
-                $diffLoan = $this->editPotonganPinjaman - $oldPotonganPinjaman;
-                if ($diffLoan != 0) {
-                    $activeLoan = Peminjaman::where('guru_id', $gaji->guru_id)
-                        ->where('status', 'berjalan')
-                        ->first();
-
-                    if ($activeLoan) {
-                        $newSisa = max(0, $activeLoan->sisa_pinjaman - $diffLoan);
-                        $status = $newSisa <= 0 ? 'lunas' : 'berjalan';
-                        $activeLoan->update([
-                            'sisa_pinjaman' => $newSisa,
-                            'status' => $status
+                if ($gaji->status === 'dibayar' && $gaji->pengeluaran_id) {
+                    $pengeluaran = Pengeluaran::find($gaji->pengeluaran_id);
+                    if ($pengeluaran) {
+                        $pengeluaran->update([
+                            'keterangan' => "Pembayaran Gaji " . ($gaji->guru->user->nama ?? 'Guru') . " ({$this->editBulan} {$this->editTahun})",
+                            'jumlah' => $gaji->total_diterima,
+                            'tanggal' => $this->editTanggalBayar ?: $pengeluaran->tanggal,
                         ]);
                     }
+
+                    $diffLoan = $this->editPotonganPinjaman - $oldPotonganPinjaman;
+                    if ($diffLoan != 0) {
+                        $activeLoan = Peminjaman::where('guru_id', $gaji->guru_id)
+                            ->where('status', 'berjalan')
+                            ->first();
+
+                        if ($activeLoan) {
+                            $newSisa = max(0, $activeLoan->sisa_pinjaman - $diffLoan);
+                            $status = $newSisa <= 0 ? 'lunas' : 'berjalan';
+                            $activeLoan->update([
+                                'sisa_pinjaman' => $newSisa,
+                                'status' => $status
+                            ]);
+                        }
+                    }
                 }
+            });
+        } catch (\Illuminate\Database\UniqueConstraintViolationException | \Illuminate\Database\QueryException $e) {
+            if ($e->getCode() == 23000 || str_contains($e->getMessage(), '1062 Duplicate entry')) {
+                $this->addError('editBulan', "Gaji untuk pegawai ini pada periode {$this->editBulan} {$this->editTahun} sudah ada di sistem.");
+                return;
             }
-        });
+            throw $e;
+        }
 
         session()->flash('message', 'Perubahan rincian gaji berhasil disimpan.');
+        $this->dispatch('notify', ['type' => 'success', 'message' => 'Perubahan rincian gaji berhasil disimpan.']);
+        $this->dispatch('modal-alert', ['type' => 'create', 'title' => 'Berhasil', 'message' => 'Perubahan rincian gaji berhasil disimpan.']);
         $this->closeEditModal();
     }
 

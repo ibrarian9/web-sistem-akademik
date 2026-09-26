@@ -167,58 +167,70 @@ class InputNilaiSumatif extends Component
             }
         }
 
-        // Save Sumatif TP
+        $now = now();
+
+        // 1. Batch Upsert Sumatif TP in chunks
+        $tpRows = [];
         foreach ($this->nilaiTpMatrix as $siswaId => $tpValues) {
             foreach ($tpValues as $tpId => $nilaiVal) {
                 if ($nilaiVal !== '' && $nilaiVal !== null && is_numeric($nilaiVal)) {
-                    NilaiSumatifTp::updateOrCreate(
-                        [
-                            'siswa_id' => $siswaId,
-                            'tp_id' => $tpId,
-                            'semester_id' => $this->semester_id,
-                        ],
-                        [
-                            'nilai' => (float)$nilaiVal,
-                        ]
-                    );
+                    $tpRows[] = [
+                        'siswa_id' => (int)$siswaId,
+                        'tp_id' => (int)$tpId,
+                        'semester_id' => (int)$this->semester_id,
+                        'nilai' => (float)$nilaiVal,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ];
                 }
             }
         }
 
-        // Save Nilai SAS & Sync Rapor Detail + Auto Narasi
+        if (!empty($tpRows)) {
+            foreach (array_chunk($tpRows, 250) as $chunk) {
+                NilaiSumatifTp::upsert($chunk, ['siswa_id', 'tp_id', 'semester_id'], ['nilai', 'updated_at']);
+            }
+        }
+
+        // 2. Batch Upsert Nilai SAS & Batch Sync Rapor Detail
         if ($this->mapel_id) {
             $siswas = Siswa::where(function ($q) {
                 $q->where('kelas_id', $this->kelas_id)
                   ->orWhere('kelas_tahfidz_id', $this->kelas_id);
             })->pluck('id');
 
-            $allSiswaIds = array_unique(array_merge(
-                array_keys($this->nilaiTpMatrix),
-                array_keys($this->nilaiSasMatrix),
+            $allSiswaIds = array_values(array_unique(array_filter(array_merge(
+                array_map('intval', array_keys($this->nilaiTpMatrix)),
+                array_map('intval', array_keys($this->nilaiSasMatrix)),
                 $siswas->toArray()
-            ));
+            ))));
 
+            $sasRows = [];
             foreach ($allSiswaIds as $siswaId) {
                 $sasVal = $this->nilaiSasMatrix[$siswaId] ?? null;
                 $hasSas = ($sasVal !== '' && $sasVal !== null && is_numeric($sasVal));
 
                 if ($hasSas) {
-                    NilaiSas::updateOrCreate(
-                        [
-                            'siswa_id' => $siswaId,
-                            'mapel_id' => $this->mapel_id,
-                            'semester_id' => $this->semester_id,
-                        ],
-                        [
-                            'nilai' => (float)$sasVal,
-                            'nilai_sas' => (float)$sasVal,
-                        ]
-                    );
+                    $sasRows[] = [
+                        'siswa_id' => (int)$siswaId,
+                        'mapel_id' => (int)$this->mapel_id,
+                        'semester_id' => (int)$this->semester_id,
+                        'nilai' => (float)$sasVal,
+                        'nilai_sas' => (float)$sasVal,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ];
                 }
-
-                // Sync to Rapor Detail (from TP & SAS without weights/formula)
-                $this->syncRaporDetailForSiswa($siswaId);
             }
+
+            if (!empty($sasRows)) {
+                foreach (array_chunk($sasRows, 250) as $chunk) {
+                    NilaiSas::upsert($chunk, ['siswa_id', 'mapel_id', 'semester_id'], ['nilai', 'nilai_sas', 'updated_at']);
+                }
+            }
+
+            // Sync to Rapor Detail via high-performance batch generation
+            $this->syncRaporDetailsForClass($allSiswaIds);
         }
 
         $this->dispatch('scores-saved');
@@ -231,43 +243,108 @@ class InputNilaiSumatif extends Component
         return $this->saveMatrix();
     }
 
-    protected function syncRaporDetailForSiswa($siswaId)
+    /**
+     * Batch synchronize rapor and rapor detail for a class.
+     */
+    protected function syncRaporDetailsForClass(array $siswaIds)
     {
-        $siswa = Siswa::find($siswaId);
-        if (!$siswa || !$this->mapel_id || !$this->semester_id) return;
+        if (empty($siswaIds) || !$this->mapel_id || !$this->semester_id) {
+            return;
+        }
+
+        $siswas = Siswa::whereIn('id', $siswaIds)->get()->keyBy('id');
+        if ($siswas->isEmpty()) {
+            return;
+        }
 
         $autoNarasiService = app(AutoNarasiService::class);
-        $res = $autoNarasiService->generateForMapel((int)$siswaId, (int)$this->mapel_id, (int)$this->semester_id);
+        $batchNarratives = $autoNarasiService->generateForMapelBatch($siswaIds, (int)$this->mapel_id, (int)$this->semester_id);
 
-        $rapor = Rapor::firstOrCreate(
-            [
-                'siswa_id' => $siswaId,
-                'semester_id' => $this->semester_id,
-                'tipe_rapor' => 'akademik',
-            ],
-            [
-                'kelas_id' => $siswa->kelas_id,
-                'catatan_wali_kelas' => 'Tingkatkan semangat belajar dan keaktifan di kelas.',
-                'tanggal_terbit' => date('Y-m-d'),
-                'status' => 'draft',
-            ]
-        );
+        // Fetch or create Rapors
+        $existingRapors = Rapor::whereIn('siswa_id', $siswaIds)
+            ->where('semester_id', $this->semester_id)
+            ->where('tipe_rapor', 'akademik')
+            ->get()
+            ->keyBy('siswa_id');
 
-        RaporDetail::updateOrCreate(
-            [
-                'rapor_id' => $rapor->id,
-                'mapel_id' => $this->mapel_id,
-            ],
-            [
-                'nilai_pengetahuan' => $res['nilai_akhir'],
-                'nilai_keterampilan' => $res['nilai_akhir'],
-                'nilai_akhir' => $res['nilai_akhir'],
-                'predikat' => $res['predikat'],
-                'deskripsi_tertinggi' => $res['deskripsi_tertinggi'] ?: null,
-                'deskripsi_terendah' => $res['deskripsi_terendah'] ?: null,
-                'narasi_capaian_full' => $res['narasi_capaian_full'] ?: null,
-            ]
-        );
+        $now = now();
+        $today = date('Y-m-d');
+        $newRapors = [];
+
+        foreach ($siswaIds as $siswaId) {
+            if (!$existingRapors->has($siswaId)) {
+                $siswa = $siswas->get($siswaId);
+                if ($siswa) {
+                    $newRapors[] = [
+                        'siswa_id' => $siswaId,
+                        'semester_id' => (int)$this->semester_id,
+                        'tipe_rapor' => 'akademik',
+                        'kelas_id' => $siswa->kelas_id,
+                        'catatan_wali_kelas' => 'Tingkatkan semangat belajar dan keaktifan di kelas.',
+                        'tanggal_terbit' => $today,
+                        'status' => 'draft',
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ];
+                }
+            }
+        }
+
+        if (!empty($newRapors)) {
+            Rapor::insert($newRapors);
+            $existingRapors = Rapor::whereIn('siswa_id', $siswaIds)
+                ->where('semester_id', $this->semester_id)
+                ->where('tipe_rapor', 'akademik')
+                ->get()
+                ->keyBy('siswa_id');
+        }
+
+        // Prepare RaporDetail rows for bulk upsert
+        $raporDetailRows = [];
+        foreach ($siswaIds as $siswaId) {
+            $rapor = $existingRapors->get($siswaId);
+            $narrative = $batchNarratives[$siswaId] ?? null;
+
+            if ($rapor && $narrative) {
+                $raporDetailRows[] = [
+                    'rapor_id' => (int)$rapor->id,
+                    'mapel_id' => (int)$this->mapel_id,
+                    'nilai_pengetahuan' => $narrative['nilai_akhir'],
+                    'nilai_keterampilan' => $narrative['nilai_akhir'],
+                    'nilai_akhir' => $narrative['nilai_akhir'],
+                    'predikat' => $narrative['predikat'],
+                    'deskripsi_tertinggi' => $narrative['deskripsi_tertinggi'] ?: null,
+                    'deskripsi_terendah' => $narrative['deskripsi_terendah'] ?: null,
+                    'narasi_capaian_full' => $narrative['narasi_capaian_full'] ?: null,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
+        }
+
+        if (!empty($raporDetailRows)) {
+            foreach (array_chunk($raporDetailRows, 250) as $chunk) {
+                RaporDetail::upsert(
+                    $chunk,
+                    ['rapor_id', 'mapel_id'],
+                    [
+                        'nilai_pengetahuan',
+                        'nilai_keterampilan',
+                        'nilai_akhir',
+                        'predikat',
+                        'deskripsi_tertinggi',
+                        'deskripsi_terendah',
+                        'narasi_capaian_full',
+                        'updated_at',
+                    ]
+                );
+            }
+        }
+    }
+
+    protected function syncRaporDetailForSiswa($siswaId)
+    {
+        $this->syncRaporDetailsForClass([(int)$siswaId]);
     }
 
     public function render()
@@ -295,7 +372,7 @@ class InputNilaiSumatif extends Component
         $siswas = $this->kelas_id ? Siswa::where(function ($q) {
             $q->where('kelas_id', $this->kelas_id)
               ->orWhere('kelas_tahfidz_id', $this->kelas_id);
-        })->get() : collect();
+        })->with('user')->get() : collect();
 
         $tpQuery = TujuanPembelajaran::query();
         if ($this->lingkup_materi_id) {

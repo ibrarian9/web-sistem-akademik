@@ -22,15 +22,27 @@ class SalaryBulkGeneratorService
     public function buildPreviewItems(string $bulan, int $tahun): array
     {
         $activeGurus = Guru::with('user')->where('status_aktif', true)->get();
+        if ($activeGurus->isEmpty()) {
+            return [];
+        }
+
+        $guruIds = $activeGurus->pluck('id')->toArray();
+
+        // 1. Batch query cek keberadaan draf gaji pada bulan & tahun terpilih
+        $existingGajiGuruIds = GajiGuru::whereIn('guru_id', $guruIds)
+            ->where('bulan', $bulan)
+            ->where('tahun', $tahun)
+            ->pluck('guru_id')
+            ->flip()
+            ->toArray();
+
+        // 2. Batch query seluruh kasbon/pinjaman aktif untuk semua guru
+        $loanDeductions = $this->calculationService->resolveActiveLoanDeductions($guruIds);
+
         $items = [];
 
         foreach ($activeGurus as $guru) {
-            $alreadyExists = GajiGuru::where('guru_id', $guru->id)
-                ->where('bulan', $bulan)
-                ->where('tahun', $tahun)
-                ->exists();
-
-            if ($alreadyExists) {
+            if (isset($existingGajiGuruIds[$guru->id])) {
                 continue;
             }
 
@@ -47,7 +59,7 @@ class SalaryBulkGeneratorService
             $potonganBpjstk = $isTetap ? 17928.00 : 0.00;
             $potonganLainnya = 0.00;
 
-            $potonganPeminjaman = $this->calculationService->resolveActiveLoanDeduction($guru->id);
+            $potonganPeminjaman = $loanDeductions[$guru->id] ?? 0.00;
 
             $totalBruto = $this->calculationService->calculateBruto($gajiPokok, $gajiBerkala, $honorEkskul, $insentif, $insentifBpjs, $insentifMaghrib);
             $totalPotongan = $this->calculationService->calculatePotongan($potonganSosial, $potonganPeminjaman, $potonganBpjstk, $potonganLainnya);

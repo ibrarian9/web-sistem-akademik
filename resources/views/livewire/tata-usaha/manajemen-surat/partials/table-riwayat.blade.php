@@ -2,7 +2,7 @@
 <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
     <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
         <div class="max-w-md w-full">
-            <x-search-input wire:model.live.debounce.300ms="searchRiwayat" placeholder="Cari nomor surat atau nama penerima..." />
+            <x-search-input :model="'searchRiwayat'" wire:model.live.debounce.300ms="searchRiwayat" placeholder="Cari nomor surat atau nama penerima..." />
         </div>
     </div>
 

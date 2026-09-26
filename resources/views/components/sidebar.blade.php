@@ -242,7 +242,7 @@
                     ['title' => 'Direktori Karyawan', 'route' => 'super-admin.karyawan', 'icon' => 'users'],
                     ['title' => 'Kelas & Mapel', 'route' => 'super-admin.kelas', 'icon' => 'layers'],
                     ['title' => 'Plotting Siswa Kelas', 'route' => 'super-admin.plotting-kelas', 'icon' => 'users'],
-                    ['title' => 'Kelola Ekstrakurikuler', 'route' => 'tata-usaha.ekstrakurikuler', 'icon' => 'star'],
+                    ['title' => 'Kelola Ekstrakurikuler', 'route' => 'super-admin.ekstrakurikuler', 'icon' => 'star'],
                     ['title' => 'Jadwal Pelajaran', 'route' => 'super-admin.jadwal', 'icon' => 'calendar'],
                     ['title' => 'Kalender Akademik', 'route' => 'super-admin.kalender-akademik', 'icon' => 'calendar'],
                     ['title' => 'Kenaikan Kelas', 'route' => 'super-admin.kenaikan-kelas', 'icon' => 'user-check'],

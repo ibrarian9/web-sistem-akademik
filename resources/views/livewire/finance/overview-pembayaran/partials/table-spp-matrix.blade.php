@@ -19,33 +19,61 @@
                 </div>
             </div>
 
-            <!-- Periode SPP 6 Bulan Switcher -->
-            <div class="flex items-center gap-2 flex-wrap">
-                <span class="text-xs font-bold text-stone-600 hidden sm:inline">Periode SPP:</span>
-                <div class="inline-flex items-center gap-1 p-1 bg-stone-100 rounded-xl border border-stone-200 text-xs">
+            <!-- Periode SPP 6 Bulan Switcher & Tombol Ekspor -->
+            <div class="flex items-center gap-3 flex-wrap">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-stone-600 hidden sm:inline">Periode SPP:</span>
+                    <div class="inline-flex items-center gap-1 p-1 bg-stone-100 rounded-xl border border-stone-200 text-xs">
+                        <button 
+                            type="button" 
+                            wire:click="setSppPeriode('ganjil')" 
+                            class="px-3 py-1.5 rounded-lg font-bold transition cursor-pointer {{ $sppPeriode === 'ganjil' ? 'bg-white text-emerald-800 shadow-2xs font-black' : 'text-stone-600 hover:text-stone-900' }}"
+                            title="Tampilkan 6 bulan Semester Ganjil (Juli s/d Desember)"
+                        >
+                            Semester Ganjil (Juli : Des)
+                        </button>
+                        <button 
+                            type="button" 
+                            wire:click="setSppPeriode('genap')" 
+                            class="px-3 py-1.5 rounded-lg font-bold transition cursor-pointer {{ $sppPeriode === 'genap' ? 'bg-white text-emerald-800 shadow-2xs font-black' : 'text-stone-600 hover:text-stone-900' }}"
+                            title="Tampilkan 6 bulan Semester Genap (Januari s/d Juni)"
+                        >
+                            Semester Genap (Jan : Jun)
+                        </button>
+                        <button 
+                            type="button" 
+                            wire:click="setSppPeriode('terakhir')" 
+                            class="px-3 py-1.5 rounded-lg font-bold transition cursor-pointer {{ $sppPeriode === 'terakhir' ? 'bg-white text-emerald-800 shadow-2xs font-black' : 'text-stone-600 hover:text-stone-900' }}"
+                            title="Tampilkan 6 bulan berjalan"
+                        >
+                            6 Bln Berjalan
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tombol Aksi Ekspor Excel & PDF -->
+                <div class="flex items-center gap-2">
                     <button 
                         type="button" 
-                        wire:click="setSppPeriode('ganjil')" 
-                        class="px-3 py-1.5 rounded-lg font-bold transition cursor-pointer {{ $sppPeriode === 'ganjil' ? 'bg-white text-emerald-800 shadow-2xs font-black' : 'text-stone-600 hover:text-stone-900' }}"
-                        title="Tampilkan 6 bulan Semester Ganjil (Juli s/d Desember)"
+                        wire:click="exportMatrixExcel" 
+                        wire:loading.attr="disabled"
+                        class="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer disabled:opacity-50 min-h-[38px]"
+                        title="Ekspor Matriks Tagihan & Pembayaran ke Spreadsheet Excel (.csv)"
                     >
-                        Semester Ganjil (Juli : Des)
+                        <x-lucide-file-spreadsheet class="w-4 h-4 text-emerald-700" wire:loading.remove wire:target="exportMatrixExcel" />
+                        <x-lucide-loader-2 class="w-4 h-4 text-emerald-700 animate-spin" wire:loading wire:target="exportMatrixExcel" />
+                        <span>Ekspor Excel</span>
                     </button>
                     <button 
                         type="button" 
-                        wire:click="setSppPeriode('genap')" 
-                        class="px-3 py-1.5 rounded-lg font-bold transition cursor-pointer {{ $sppPeriode === 'genap' ? 'bg-white text-emerald-800 shadow-2xs font-black' : 'text-stone-600 hover:text-stone-900' }}"
-                        title="Tampilkan 6 bulan Semester Genap (Januari s/d Juni)"
+                        wire:click="exportMatrixPdf" 
+                        wire:loading.attr="disabled"
+                        class="inline-flex items-center gap-1.5 px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-300 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer disabled:opacity-50 min-h-[38px]"
+                        title="Cetak Dokumen Matriks Tagihan & Pembayaran ke PDF (A4 Landscape)"
                     >
-                        Semester Genap (Jan : Jun)
-                    </button>
-                    <button 
-                        type="button" 
-                        wire:click="setSppPeriode('terakhir')" 
-                        class="px-3 py-1.5 rounded-lg font-bold transition cursor-pointer {{ $sppPeriode === 'terakhir' ? 'bg-white text-emerald-800 shadow-2xs font-black' : 'text-stone-600 hover:text-stone-900' }}"
-                        title="Tampilkan 6 bulan berjalan"
-                    >
-                        6 Bln Berjalan
+                        <x-lucide-printer class="w-4 h-4 text-rose-700" wire:loading.remove wire:target="exportMatrixPdf" />
+                        <x-lucide-loader-2 class="w-4 h-4 text-rose-700 animate-spin" wire:loading wire:target="exportMatrixPdf" />
+                        <span>Cetak PDF</span>
                     </button>
                 </div>
             </div>

@@ -18,6 +18,7 @@ class ManajemenMapel extends Component
     public string $kode_mapel = '';
     public string $nama_mapel = '';
     public string $kelompok = 'umum';
+    public $kkm = 70;
 
     public bool $isFormOpen = false;
 
@@ -49,9 +50,10 @@ class ManajemenMapel extends Component
         $this->resetForm();
         $mapel = MataPelajaran::findOrFail($id);
         $this->mapelId = $mapel->id;
-        $this->kode_mapel = $mapel->kode_mapel;
+        $this->kode_mapel = $mapel->kode_mapel ?? '';
         $this->nama_mapel = $mapel->nama_mapel;
-        $this->kelompok = $mapel->kelompok;
+        $this->kelompok = $mapel->jenis ?? 'umum';
+        $this->kkm = (int) ($mapel->kkm ?? 70);
 
         $this->isFormOpen = true;
     }
@@ -67,14 +69,18 @@ class ManajemenMapel extends Component
             'kode_mapel' => 'required|string|max:20|unique:mata_pelajaran,kode_mapel,' . ($this->mapelId ?? 'NULL'),
             'nama_mapel' => 'required|string|max:100',
             'kelompok' => 'required|in:umum,keagamaan,tahfidz,mulok',
+            'kkm' => 'required|numeric|min:0|max:100',
         ]);
+
+        $jenis = ($this->kelompok === 'tahfidz') ? 'tahfidz' : 'umum';
 
         MataPelajaran::updateOrCreate(
             ['id' => $this->mapelId],
             [
-                'kode_mapel' => $this->kode_mapel,
-                'nama_mapel' => $this->nama_mapel,
-                'kelompok' => $this->kelompok,
+                'kode_mapel' => strtoupper(trim($this->kode_mapel)),
+                'nama_mapel' => trim($this->nama_mapel),
+                'jenis' => $jenis,
+                'kkm' => $this->kkm ?: 70,
             ]
         );
 
@@ -108,6 +114,7 @@ class ManajemenMapel extends Component
         $this->kode_mapel = '';
         $this->nama_mapel = '';
         $this->kelompok = 'umum';
+        $this->kkm = 70;
     }
 
     public function render()

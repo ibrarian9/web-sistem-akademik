@@ -7,7 +7,7 @@
         badgeVariant="emerald"
         icon="banknote"
     >
-        @if ($userRole === 'finance' || $userRole === 'super_admin')
+        @if (in_array($userRole, ['finance', 'super_admin', 'founder']))
             <x-slot:actions>
                 <x-button variant="primary" size="md" icon="plus" wire:click="openModal">
                     Buat Pengajuan Dana
@@ -119,7 +119,7 @@
                         <td class="p-3.5 text-center">
                             <div class="flex items-center justify-center gap-1.5 flex-wrap">
                                 <!-- Pengawas / Super Admin Approval Action -->
-                                @if (in_array($item->status, ['menunggu_koordinator', 'menunggu_pengawas']) && in_array($userRole, ['pengawas', 'koordinator', 'super_admin']))
+                                @if (in_array($item->status, ['menunggu_koordinator', 'menunggu_pengawas']) && in_array($userRole, ['pengawas', 'koordinator', 'super_admin', 'founder']))
                                     <x-button variant="primary" size="xs" icon="check" wire:click="approveByKoordinator({{ $item->id }})">
                                         Setujui
                                     </x-button>
@@ -127,7 +127,7 @@
                                 @endif
 
                                 <!-- Kepala Yayasan Approval Action -->
-                                @if ($item->status === 'menunggu_kepala_yayasan' && in_array($userRole, ['kepala-sekolah', 'super_admin']))
+                                @if ($item->status === 'menunggu_kepala_yayasan' && in_array($userRole, ['kepala_sekolah', 'super_admin', 'founder']))
                                     <x-button variant="primary" size="xs" icon="check" wire:click="approveByKepalaYayasan({{ $item->id }})">
                                         Acc Yayasan
                                     </x-button>
@@ -135,7 +135,7 @@
                                 @endif
 
                                 <!-- Finance Realisasi Action -->
-                                @if ($item->status === 'disetujui' && in_array($userRole, ['finance', 'super_admin']))
+                                @if ($item->status === 'disetujui' && in_array($userRole, ['finance', 'super_admin', 'founder']))
                                     <x-button variant="primary" size="xs" icon="banknote" wire:click="realisasikanDana({{ $item->id }})">
                                         Cairkan Dana
                                     </x-button>

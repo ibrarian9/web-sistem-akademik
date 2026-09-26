@@ -11,6 +11,10 @@ use App\Models\Tagihan;
 use App\Models\JenisTagihan;
 use App\Models\Pembayaran;
 use App\Models\Notifikasi;
+use App\Models\Pengaturan;
+use App\Services\AuditLogger;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class OverviewPembayaran extends Component
@@ -190,6 +194,453 @@ class OverviewPembayaran extends Component
         }
 
         return $result;
+    }
+
+    public function getSppMatrixComputationData(): array
+    {
+        $sppMatrixMonths = $this->getSppMatrixMonths();
+
+        // Ambil daftar Jenis Tagihan Non-SPP untuk sumbu X
+        $nonSppJenisList = JenisTagihan::where('nama', 'not like', '%SPP%')
+            ->where('nama', 'not like', '%Infaq%')
+            ->where('nama', 'not like', '%Sedekah%')
+            ->where(function ($q) {
+                if ($this->filterTahunAjaran) {
+                    $q->whereHas('tagihans', fn($tq) => $tq->where('tahun_ajaran_id', $this->filterTahunAjaran))
+                      ->orWhere('default_nominal', '>', 0);
+                } else {
+                    $q->where('default_nominal', '>', 0);
+                }
+            })
+            ->orderBy('id')
+            ->get();
+
+        if ($nonSppJenisList->isEmpty()) {
+            $nonSppJenisList = JenisTagihan::where('nama', 'not like', '%SPP%')
+                ->where('nama', 'not like', '%Infaq%')
+                ->where('nama', 'not like', '%Sedekah%')
+                ->orderBy('id')
+                ->limit(4)
+                ->get();
+        }
+
+        $querySppMatrix = Siswa::with([
+            'user',
+            'kelas',
+            'tagihans' => function ($q) {
+                if ($this->filterTahunAjaran) {
+                    $q->where('tahun_ajaran_id', $this->filterTahunAjaran);
+                }
+                $q->with(['pembayarans', 'jenisTagihan']);
+            }
+        ])
+        ->whereHas('user', function ($q) {
+            $q->where('nama', 'like', '%' . $this->search . '%')
+              ->orWhere('username', 'like', '%' . $this->search . '%');
+        });
+
+        if ($this->filterKelas) {
+            $querySppMatrix->where('kelas_id', $this->filterKelas);
+        }
+
+        $allStudentsForSpp = $querySppMatrix->get();
+
+        $siswasSppMatrix = $allStudentsForSpp->map(function ($siswa) use ($sppMatrixMonths, $nonSppJenisList) {
+            $monthsData = [];
+            $totalSppNominal = 0.0;
+            $totalSppDibayar = 0.0;
+            $totalSppTunggakan = 0.0;
+
+            // 1. Kolom SPP 6 Bulan
+            foreach ($sppMatrixMonths as $m) {
+                $sppBill = $siswa->tagihans->first(function ($t) use ($m) {
+                    return $t->bulan === $m && 
+                           (str_contains(strtolower($t->jenisTagihan->nama ?? ''), 'spp') || ($t->jenisTagihan->kategori ?? '') === 'rutin');
+                });
+
+                if ($sppBill) {
+                    $nom = (float) $sppBill->nominal;
+                    $bayar = (float) $sppBill->total_dibayar;
+                    $sisa = max(0, $nom - $bayar);
+                    $st = ($sppBill->status === 'lunas' || ($nom > 0 && $bayar >= $nom) || $nom == 0)
+                        ? 'lunas'
+                        : ($bayar > 0 ? 'sebagian' : 'belum_bayar');
+
+                    $totalSppNominal += $nom;
+                    $totalSppDibayar += $bayar;
+                    $totalSppTunggakan += $sisa;
+
+                    $monthsData[$m] = [
+                        'has_tagihan' => true,
+                        'tagihan_id' => $sppBill->id,
+                        'nominal' => $nom,
+                        'total_dibayar' => $bayar,
+                        'sisa' => $sisa,
+                        'status' => $st,
+                        'is_mendatang' => $sppBill->is_mendatang,
+                        'terakhir_bayar' => $sppBill->pembayarans->max('tanggal_bayar') ? Carbon::parse($sppBill->pembayarans->max('tanggal_bayar'))->format('d/m/Y') : null,
+                    ];
+                } else {
+                    $monthsData[$m] = [
+                        'has_tagihan' => false,
+                        'tagihan_id' => null,
+                        'nominal' => 0.0,
+                        'total_dibayar' => 0.0,
+                        'sisa' => 0.0,
+                        'status' => 'tidak_ada',
+                        'is_mendatang' => false,
+                        'terakhir_bayar' => null,
+                    ];
+                }
+            }
+
+            // 2. Kolom Kategori Non-SPP (per Jenis Tagihan pada Sumbu X)
+            $nonSppBillsData = [];
+            $totalNonSppNominal = 0.0;
+            $totalNonSppDibayar = 0.0;
+            $totalNonSppTunggakan = 0.0;
+
+            foreach ($nonSppJenisList as $jt) {
+                $bills = $siswa->tagihans->where('jenis_tagihan_id', $jt->id);
+                if ($bills->isNotEmpty()) {
+                    $nom = (float) $bills->sum('nominal');
+                    $bayar = (float) $bills->sum('total_dibayar');
+                    $sisa = max(0, $nom - $bayar);
+                    $unpaidBill = $bills->first(fn($b) => $b->status !== 'lunas' && ($b->nominal - $b->total_dibayar) > 0) ?: $bills->first();
+
+                    $st = 'belum_bayar';
+                    if ($nom == 0 || $sisa <= 0 || $bills->every(fn($b) => $b->status === 'lunas')) {
+                        $st = 'lunas';
+                    } elseif ($bayar > 0) {
+                        $st = 'sebagian';
+                    }
+
+                    $totalNonSppNominal += $nom;
+                    $totalNonSppDibayar += $bayar;
+                    $totalNonSppTunggakan += $sisa;
+
+                    $nonSppBillsData[$jt->id] = [
+                        'has_tagihan' => true,
+                        'tagihan_id' => $unpaidBill?->id,
+                        'nominal' => $nom,
+                        'total_dibayar' => $bayar,
+                        'sisa' => $sisa,
+                        'status' => $st,
+                        'terakhir_bayar' => $bills->flatMap(fn($b) => $b->pembayarans)->max('tanggal_bayar') ? Carbon::parse($bills->flatMap(fn($b) => $b->pembayarans)->max('tanggal_bayar'))->format('d/m/Y') : null,
+                    ];
+                } else {
+                    $nonSppBillsData[$jt->id] = [
+                        'has_tagihan' => false,
+                        'tagihan_id' => null,
+                        'nominal' => 0.0,
+                        'total_dibayar' => 0.0,
+                        'sisa' => 0.0,
+                        'status' => 'tidak_ada',
+                        'terakhir_bayar' => null,
+                    ];
+                }
+            }
+
+            $grandStudentTunggakan = $totalSppTunggakan + $totalNonSppTunggakan;
+            $grandStudentNominal = $totalSppNominal + $totalNonSppNominal;
+
+            return [
+                'id' => $siswa->id,
+                'nama' => $siswa->user->nama ?? '-',
+                'nis' => $siswa->nis,
+                'kelas' => $siswa->kelas->nama_kelas ?? 'Belum Diatur',
+                'spp_months' => $monthsData,
+                'total_spp_nominal' => $totalSppNominal,
+                'total_spp_dibayar' => $totalSppDibayar,
+                'total_spp_tunggakan' => $totalSppTunggakan,
+                'non_spp_by_jenis' => $nonSppBillsData,
+                'non_spp_nominal' => $totalNonSppNominal,
+                'non_spp_dibayar' => $totalNonSppDibayar,
+                'non_spp_sisa' => $totalNonSppTunggakan,
+                'total_tunggakan' => $grandStudentTunggakan,
+                'total_terbayar' => $totalSppDibayar + $totalNonSppDibayar,
+                'status_global' => ($grandStudentTunggakan > 0) ? 'Ada Tunggakan' : ($grandStudentNominal > 0 ? 'Lunas' : 'Belum Ada Tagihan'),
+            ];
+        });
+
+        // Quick Stats for SPP Matrix tab
+        $sppStatsSummary = [
+            'total_siswa' => $siswasSppMatrix->count(),
+            'menunggak_count' => $siswasSppMatrix->where('total_tunggakan', '>', 0)->count(),
+            'lunas_count' => $siswasSppMatrix->filter(fn($s) => ($s['total_spp_nominal'] > 0 || $s['non_spp_nominal'] > 0) && $s['total_tunggakan'] <= 0)->count(),
+            'total_tunggakan_nominal' => (float) $siswasSppMatrix->sum('total_tunggakan'),
+            'total_dibayar_nominal' => (float) ($siswasSppMatrix->sum('total_spp_dibayar') + $siswasSppMatrix->sum('non_spp_dibayar')),
+        ];
+
+        // Filter by SPP Status if set
+        if ($this->filterStatusSpp === 'menunggak') {
+            $siswasSppMatrix = $siswasSppMatrix->filter(fn($item) => $item['total_tunggakan'] > 0);
+        } elseif ($this->filterStatusSpp === 'lunas') {
+            $siswasSppMatrix = $siswasSppMatrix->filter(fn($item) => ($item['total_spp_nominal'] > 0 || $item['non_spp_nominal'] > 0) && $item['total_tunggakan'] <= 0);
+        }
+
+        // Footer Summary per Month for SPP Matrix (6 Bulan)
+        $footerSppMatrix = [];
+        foreach ($sppMatrixMonths as $m) {
+            $sumNom = 0.0;
+            $sumDib = 0.0;
+            $sumSis = 0.0;
+            $countLunas = 0;
+            $countBelum = 0;
+
+            foreach ($allStudentsForSpp as $s) {
+                $b = $s->tagihans->first(function ($t) use ($m) {
+                    return $t->bulan === $m && 
+                           (str_contains(strtolower($t->jenisTagihan->nama ?? ''), 'spp') || ($t->jenisTagihan->kategori ?? '') === 'rutin');
+                });
+                if ($b) {
+                    $nom = (float) $b->nominal;
+                    $bayar = (float) $b->total_dibayar;
+                    $sisa = max(0, $nom - $bayar);
+                    $sumNom += $nom;
+                    $sumDib += $bayar;
+                    $sumSis += $sisa;
+                    if ($b->status === 'lunas' || ($nom > 0 && $bayar >= $nom) || $nom == 0) {
+                        $countLunas++;
+                    } else {
+                        $countBelum++;
+                    }
+                }
+            }
+
+            $footerSppMatrix[$m] = [
+                'nominal' => $sumNom,
+                'dibayar' => $sumDib,
+                'sisa' => $sumSis,
+                'lunas_count' => $countLunas,
+                'belum_count' => $countBelum,
+            ];
+        }
+
+        // Footer Summary per Kategori Non-SPP
+        $footerNonSppMatrix = [];
+        foreach ($nonSppJenisList as $jt) {
+            $sumNom = 0.0;
+            $sumDib = 0.0;
+            $sumSis = 0.0;
+            $countLunas = 0;
+            $countBelum = 0;
+
+            foreach ($allStudentsForSpp as $s) {
+                $bills = $s->tagihans->where('jenis_tagihan_id', $jt->id);
+                if ($bills->isNotEmpty()) {
+                    $nom = (float) $bills->sum('nominal');
+                    $bayar = (float) $bills->sum('total_dibayar');
+                    $sisa = max(0, $nom - $bayar);
+                    $sumNom += $nom;
+                    $sumDib += $bayar;
+                    $sumSis += $sisa;
+                    if ($nom == 0 || $sisa <= 0 || $bills->every(fn($b) => $b->status === 'lunas')) {
+                        $countLunas++;
+                    } else {
+                        $countBelum++;
+                    }
+                }
+            }
+
+            $footerNonSppMatrix[$jt->id] = [
+                'nominal' => $sumNom,
+                'dibayar' => $sumDib,
+                'sisa' => $sumSis,
+                'lunas_count' => $countLunas,
+                'belum_count' => $countBelum,
+            ];
+        }
+
+        return [
+            'sppMatrixMonths' => $sppMatrixMonths,
+            'nonSppJenisList' => $nonSppJenisList,
+            'siswasSppMatrix' => $siswasSppMatrix,
+            'sppStatsSummary' => $sppStatsSummary,
+            'footerSppMatrix' => $footerSppMatrix,
+            'footerNonSppMatrix' => $footerNonSppMatrix,
+            'allStudentsForSpp' => $allStudentsForSpp,
+        ];
+    }
+
+    public function exportMatrixExcel()
+    {
+        $matrixData = $this->getSppMatrixComputationData();
+        $siswas = $matrixData['siswasSppMatrix'];
+        $months = $matrixData['sppMatrixMonths'];
+        $nonSppList = $matrixData['nonSppJenisList'];
+
+        if ($siswas->isEmpty()) {
+            session()->flash('error', 'Tidak ada data santri untuk diekspor pada filter ini.');
+            $this->dispatch('show-alert', [
+                'title' => 'Data Kosong',
+                'message' => 'Tidak ada data santri untuk diekspor pada filter yang dipilih.',
+                'type' => 'warning',
+            ]);
+            return null;
+        }
+
+        AuditLogger::log('export', 'Mengekspor Matriks Tagihan & Pembayaran Santri ke Excel/CSV', null, [
+            'total_santri' => $siswas->count(),
+            'filter_kelas' => $this->filterKelas,
+            'filter_status' => $this->filterStatusSpp,
+            'periode' => $this->sppPeriode,
+        ]);
+
+        $filename = 'matriks_tagihan_pembayaran_' . date('Ymd_His') . '.csv';
+
+        // Susun Header Kolom
+        $headers = ['No', 'NIS', 'Nama Santri', 'Kelas'];
+        foreach ($months as $m) {
+            $headers[] = 'SPP ' . $m;
+        }
+        foreach ($nonSppList as $jt) {
+            $headers[] = $jt->nama;
+        }
+        $headers[] = 'Total Terbayar (Rp)';
+        $headers[] = 'Total Tunggakan (Rp)';
+        $headers[] = 'Status Pelunasan';
+
+        $responseHeaders = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        $callback = function () use ($headers, $siswas, $months, $nonSppList) {
+            $file = fopen('php://output', 'w');
+            // Tulis UTF-8 BOM untuk kompatibilitas native Microsoft Excel
+            fputs($file, "\xEF\xBB\xBF");
+
+            fputcsv($file, $headers);
+
+            $index = 1;
+            foreach ($siswas as $item) {
+                $row = [
+                    $index++,
+                    $item['nis'] ?: '-',
+                    $item['nama'],
+                    $item['kelas'],
+                ];
+
+                // Nilai Kolom 6 Bulan SPP
+                foreach ($months as $m) {
+                    $mCell = $item['spp_months'][$m] ?? null;
+                    if (!$mCell || !$mCell['has_tagihan']) {
+                        $row[] = '-';
+                    } elseif ($mCell['status'] === 'lunas') {
+                        $row[] = 'Lunas';
+                    } elseif ($mCell['status'] === 'sebagian') {
+                        $row[] = 'Sebagian (Sisa: ' . number_format($mCell['sisa'], 0, ',', '.') . ')';
+                    } else {
+                        $row[] = 'Belum Bayar (' . number_format($mCell['sisa'], 0, ',', '.') . ')';
+                    }
+                }
+
+                // Nilai Kolom Kategori Non-SPP
+                foreach ($nonSppList as $jt) {
+                    $cCell = $item['non_spp_by_jenis'][$jt->id] ?? null;
+                    if (!$cCell || !$cCell['has_tagihan']) {
+                        $row[] = '-';
+                    } elseif ($cCell['status'] === 'lunas') {
+                        $row[] = 'Lunas';
+                    } elseif ($cCell['status'] === 'sebagian') {
+                        $row[] = 'Sebagian (Sisa: ' . number_format($cCell['sisa'], 0, ',', '.') . ')';
+                    } else {
+                        $row[] = 'Belum Bayar (' . number_format($cCell['sisa'], 0, ',', '.') . ')';
+                    }
+                }
+
+                $row[] = (float) ($item['total_terbayar'] ?? 0);
+                $row[] = (float) ($item['total_tunggakan'] ?? 0);
+                $row[] = $item['status_global'];
+
+                fputcsv($file, $row);
+            }
+
+            // Baris Ringkasan Footer
+            $footerRow = ['TOTAL', '', '', ''];
+            foreach ($months as $m) {
+                $footerRow[] = '';
+            }
+            foreach ($nonSppList as $jt) {
+                $footerRow[] = '';
+            }
+            $footerRow[] = (float) $siswas->sum('total_terbayar');
+            $footerRow[] = (float) $siswas->sum('total_tunggakan');
+            $footerRow[] = '';
+            fputcsv($file, $footerRow);
+
+            fclose($file);
+        };
+
+        return response()->streamDownload($callback, $filename, $responseHeaders);
+    }
+
+    public function exportMatrixPdf()
+    {
+        @ini_set('max_execution_time', 120);
+        @ini_set('memory_limit', '512M');
+
+        $matrixData = $this->getSppMatrixComputationData();
+        $siswas = $matrixData['siswasSppMatrix'];
+        $months = $matrixData['sppMatrixMonths'];
+        $nonSppList = $matrixData['nonSppJenisList'];
+        $sppStatsSummary = $matrixData['sppStatsSummary'];
+
+        if ($siswas->isEmpty()) {
+            session()->flash('error', 'Tidak ada data santri untuk dicetak pada filter ini.');
+            $this->dispatch('show-alert', [
+                'title' => 'Data Kosong',
+                'message' => 'Tidak ada data santri untuk dicetak pada filter yang dipilih.',
+                'type' => 'warning',
+            ]);
+            return null;
+        }
+
+        AuditLogger::log('export', 'Mengekspor Matriks Tagihan & Pembayaran Santri ke PDF', null, [
+            'total_santri' => $siswas->count(),
+            'filter_kelas' => $this->filterKelas,
+            'filter_status' => $this->filterStatusSpp,
+            'periode' => $this->sppPeriode,
+        ]);
+
+        $kelas = $this->filterKelas ? Kelas::find($this->filterKelas) : null;
+        $ta = $this->filterTahunAjaran ? TahunAjaran::find($this->filterTahunAjaran) : TahunAjaran::where('status_aktif', true)->first();
+
+        $namaSekolah = Pengaturan::getValue('nama_sekolah', 'PONDOK PESANTREN & SEKOLAH ISLAM TERPADU');
+        $alamatSekolah = Pengaturan::getValue('alamat_sekolah', 'Jl. Pendidikan Karakter Islami No. 123');
+        $noTelepon = Pengaturan::getValue('no_telepon', '(0274) 123456');
+
+        $periodeText = match ($this->sppPeriode) {
+            'ganjil' => 'Semester Ganjil (Juli : Desember)',
+            'genap' => 'Semester Genap (Januari : Juni)',
+            default => '6 Bulan Berjalan (' . reset($months) . ' s/d ' . end($months) . ')',
+        };
+
+        $pdf = Pdf::loadView('livewire.finance.overview-pembayaran.pdf-matriks-tagihan', [
+            'siswas' => $siswas,
+            'months' => $months,
+            'nonSppList' => $nonSppList,
+            'stats' => $sppStatsSummary,
+            'kelasNama' => $kelas ? 'Kelas ' . $kelas->nama_kelas : 'Semua Kelas',
+            'tahunAjaran' => $ta?->nama ?? 'Semua Tahun Ajaran',
+            'periodeText' => $periodeText,
+            'namaSekolah' => $namaSekolah,
+            'alamatSekolah' => $alamatSekolah,
+            'noTelepon' => $noTelepon,
+            'tanggalCetak' => Carbon::now()->translatedFormat('d F Y'),
+            'totalTerbayar' => (float) $siswas->sum('total_terbayar'),
+            'totalTunggakan' => (float) $siswas->sum('total_tunggakan'),
+        ])->setPaper('a4', 'landscape');
+
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->output();
+        }, 'matriks_tagihan_pembayaran_' . date('Ymd_His') . '.pdf', [
+            'Content-Type' => 'application/pdf',
+        ]);
     }
 
     public function selectBulan(string $bulan): void
@@ -759,258 +1210,13 @@ class OverviewPembayaran extends Component
         }
 
         // 4. Data for TABEL MATRIKS GABUNGAN (SPP 6 BULAN + KATEGORI NON-SPP)
-        $sppMatrixMonths = $this->getSppMatrixMonths();
-
-        // Ambil daftar Jenis Tagihan Non-SPP untuk sumbu X
-        $nonSppJenisList = JenisTagihan::where('nama', 'not like', '%SPP%')
-            ->where('nama', 'not like', '%Infaq%')
-            ->where('nama', 'not like', '%Sedekah%')
-            ->where(function ($q) {
-                if ($this->filterTahunAjaran) {
-                    $q->whereHas('tagihans', fn($tq) => $tq->where('tahun_ajaran_id', $this->filterTahunAjaran))
-                      ->orWhere('default_nominal', '>', 0);
-                } else {
-                    $q->where('default_nominal', '>', 0);
-                }
-            })
-            ->orderBy('id')
-            ->get();
-
-        if ($nonSppJenisList->isEmpty()) {
-            $nonSppJenisList = JenisTagihan::where('nama', 'not like', '%SPP%')
-                ->where('nama', 'not like', '%Infaq%')
-                ->where('nama', 'not like', '%Sedekah%')
-                ->orderBy('id')
-                ->limit(4)
-                ->get();
-        }
-
-        $querySppMatrix = Siswa::with([
-            'user',
-            'kelas',
-            'tagihans' => function ($q) {
-                if ($this->filterTahunAjaran) {
-                    $q->where('tahun_ajaran_id', $this->filterTahunAjaran);
-                }
-                $q->with(['pembayarans', 'jenisTagihan']);
-            }
-        ])
-        ->whereHas('user', function ($q) {
-            $q->where('nama', 'like', '%' . $this->search . '%')
-              ->orWhere('username', 'like', '%' . $this->search . '%');
-        });
-
-        if ($this->filterKelas) {
-            $querySppMatrix->where('kelas_id', $this->filterKelas);
-        }
-
-        $allStudentsForSpp = $querySppMatrix->get();
-
-        $siswasSppMatrix = $allStudentsForSpp->map(function ($siswa) use ($sppMatrixMonths, $nonSppJenisList) {
-            $monthsData = [];
-            $totalSppNominal = 0.0;
-            $totalSppDibayar = 0.0;
-            $totalSppTunggakan = 0.0;
-
-            // 1. Kolom SPP 6 Bulan
-            foreach ($sppMatrixMonths as $m) {
-                $sppBill = $siswa->tagihans->first(function ($t) use ($m) {
-                    return $t->bulan === $m && 
-                           (str_contains(strtolower($t->jenisTagihan->nama ?? ''), 'spp') || ($t->jenisTagihan->kategori ?? '') === 'rutin');
-                });
-
-                if ($sppBill) {
-                    $nom = (float) $sppBill->nominal;
-                    $bayar = (float) $sppBill->total_dibayar;
-                    $sisa = max(0, $nom - $bayar);
-                    $st = ($sppBill->status === 'lunas' || ($nom > 0 && $bayar >= $nom) || $nom == 0)
-                        ? 'lunas'
-                        : ($bayar > 0 ? 'sebagian' : 'belum_bayar');
-
-                    $totalSppNominal += $nom;
-                    $totalSppDibayar += $bayar;
-                    $totalSppTunggakan += $sisa;
-
-                    $monthsData[$m] = [
-                        'has_tagihan' => true,
-                        'tagihan_id' => $sppBill->id,
-                        'nominal' => $nom,
-                        'total_dibayar' => $bayar,
-                        'sisa' => $sisa,
-                        'status' => $st,
-                        'is_mendatang' => $sppBill->is_mendatang,
-                        'terakhir_bayar' => $sppBill->pembayarans->max('tanggal_bayar') ? \Carbon\Carbon::parse($sppBill->pembayarans->max('tanggal_bayar'))->format('d/m/Y') : null,
-                    ];
-                } else {
-                    $monthsData[$m] = [
-                        'has_tagihan' => false,
-                        'tagihan_id' => null,
-                        'nominal' => 0.0,
-                        'total_dibayar' => 0.0,
-                        'sisa' => 0.0,
-                        'status' => 'tidak_ada',
-                        'is_mendatang' => false,
-                        'terakhir_bayar' => null,
-                    ];
-                }
-            }
-
-            // 2. Kolom Kategori Non-SPP (per Jenis Tagihan pada Sumbu X)
-            $nonSppBillsData = [];
-            $totalNonSppNominal = 0.0;
-            $totalNonSppDibayar = 0.0;
-            $totalNonSppTunggakan = 0.0;
-
-            foreach ($nonSppJenisList as $jt) {
-                $bills = $siswa->tagihans->where('jenis_tagihan_id', $jt->id);
-                if ($bills->isNotEmpty()) {
-                    $nom = (float) $bills->sum('nominal');
-                    $bayar = (float) $bills->sum('total_dibayar');
-                    $sisa = max(0, $nom - $bayar);
-                    $unpaidBill = $bills->first(fn($b) => $b->status !== 'lunas' && ($b->nominal - $b->total_dibayar) > 0) ?: $bills->first();
-
-                    $st = 'belum_bayar';
-                    if ($nom == 0 || $sisa <= 0 || $bills->every(fn($b) => $b->status === 'lunas')) {
-                        $st = 'lunas';
-                    } elseif ($bayar > 0) {
-                        $st = 'sebagian';
-                    }
-
-                    $totalNonSppNominal += $nom;
-                    $totalNonSppDibayar += $bayar;
-                    $totalNonSppTunggakan += $sisa;
-
-                    $nonSppBillsData[$jt->id] = [
-                        'has_tagihan' => true,
-                        'tagihan_id' => $unpaidBill?->id,
-                        'nominal' => $nom,
-                        'total_dibayar' => $bayar,
-                        'sisa' => $sisa,
-                        'status' => $st,
-                        'terakhir_bayar' => $bills->flatMap(fn($b) => $b->pembayarans)->max('tanggal_bayar') ? \Carbon\Carbon::parse($bills->flatMap(fn($b) => $b->pembayarans)->max('tanggal_bayar'))->format('d/m/Y') : null,
-                    ];
-                } else {
-                    $nonSppBillsData[$jt->id] = [
-                        'has_tagihan' => false,
-                        'tagihan_id' => null,
-                        'nominal' => 0.0,
-                        'total_dibayar' => 0.0,
-                        'sisa' => 0.0,
-                        'status' => 'tidak_ada',
-                        'terakhir_bayar' => null,
-                    ];
-                }
-            }
-
-            $grandStudentTunggakan = $totalSppTunggakan + $totalNonSppTunggakan;
-            $grandStudentNominal = $totalSppNominal + $totalNonSppNominal;
-
-            return [
-                'id' => $siswa->id,
-                'nama' => $siswa->user->nama ?? '-',
-                'nis' => $siswa->nis,
-                'kelas' => $siswa->kelas->nama_kelas ?? 'Belum Diatur',
-                'spp_months' => $monthsData,
-                'total_spp_nominal' => $totalSppNominal,
-                'total_spp_dibayar' => $totalSppDibayar,
-                'total_spp_tunggakan' => $totalSppTunggakan,
-                'non_spp_by_jenis' => $nonSppBillsData,
-                'non_spp_nominal' => $totalNonSppNominal,
-                'non_spp_dibayar' => $totalNonSppDibayar,
-                'non_spp_sisa' => $totalNonSppTunggakan,
-                'total_tunggakan' => $grandStudentTunggakan,
-                'status_global' => ($grandStudentTunggakan > 0) ? 'Ada Tunggakan' : ($grandStudentNominal > 0 ? 'Lunas' : 'Belum Ada Tagihan'),
-            ];
-        });
-
-        // Quick Stats for SPP Matrix tab
-        $sppStatsSummary = [
-            'total_siswa' => $siswasSppMatrix->count(),
-            'menunggak_count' => $siswasSppMatrix->where('total_tunggakan', '>', 0)->count(),
-            'lunas_count' => $siswasSppMatrix->filter(fn($s) => ($s['total_spp_nominal'] > 0 || $s['non_spp_nominal'] > 0) && $s['total_tunggakan'] <= 0)->count(),
-            'total_tunggakan_nominal' => (float) $siswasSppMatrix->sum('total_tunggakan'),
-            'total_dibayar_nominal' => (float) ($siswasSppMatrix->sum('total_spp_dibayar') + $siswasSppMatrix->sum('non_spp_dibayar')),
-        ];
-
-        // Filter by SPP Status if set
-        if ($this->filterStatusSpp === 'menunggak') {
-            $siswasSppMatrix = $siswasSppMatrix->filter(fn($item) => $item['total_tunggakan'] > 0);
-        } elseif ($this->filterStatusSpp === 'lunas') {
-            $siswasSppMatrix = $siswasSppMatrix->filter(fn($item) => ($item['total_spp_nominal'] > 0 || $item['non_spp_nominal'] > 0) && $item['total_tunggakan'] <= 0);
-        }
-
-        // Footer Summary per Month for SPP Matrix (6 Bulan)
-        $footerSppMatrix = [];
-        foreach ($sppMatrixMonths as $m) {
-            $sumNom = 0.0;
-            $sumDib = 0.0;
-            $sumSis = 0.0;
-            $countLunas = 0;
-            $countBelum = 0;
-
-            foreach ($allStudentsForSpp as $s) {
-                $b = $s->tagihans->first(function ($t) use ($m) {
-                    return $t->bulan === $m && 
-                           (str_contains(strtolower($t->jenisTagihan->nama ?? ''), 'spp') || ($t->jenisTagihan->kategori ?? '') === 'rutin');
-                });
-                if ($b) {
-                    $nom = (float) $b->nominal;
-                    $bayar = (float) $b->total_dibayar;
-                    $sisa = max(0, $nom - $bayar);
-                    $sumNom += $nom;
-                    $sumDib += $bayar;
-                    $sumSis += $sisa;
-                    if ($b->status === 'lunas' || ($nom > 0 && $bayar >= $nom) || $nom == 0) {
-                        $countLunas++;
-                    } else {
-                        $countBelum++;
-                    }
-                }
-            }
-
-            $footerSppMatrix[$m] = [
-                'nominal' => $sumNom,
-                'dibayar' => $sumDib,
-                'sisa' => $sumSis,
-                'lunas_count' => $countLunas,
-                'belum_count' => $countBelum,
-            ];
-        }
-
-        // Footer Summary per Kategori Non-SPP
-        $footerNonSppMatrix = [];
-        foreach ($nonSppJenisList as $jt) {
-            $sumNom = 0.0;
-            $sumDib = 0.0;
-            $sumSis = 0.0;
-            $countLunas = 0;
-            $countBelum = 0;
-
-            foreach ($allStudentsForSpp as $s) {
-                $bills = $s->tagihans->where('jenis_tagihan_id', $jt->id);
-                if ($bills->isNotEmpty()) {
-                    $nom = (float) $bills->sum('nominal');
-                    $bayar = (float) $bills->sum('total_dibayar');
-                    $sisa = max(0, $nom - $bayar);
-                    $sumNom += $nom;
-                    $sumDib += $bayar;
-                    $sumSis += $sisa;
-                    if ($nom == 0 || $sisa <= 0 || $bills->every(fn($b) => $b->status === 'lunas')) {
-                        $countLunas++;
-                    } else {
-                        $countBelum++;
-                    }
-                }
-            }
-
-            $footerNonSppMatrix[$jt->id] = [
-                'nominal' => $sumNom,
-                'dibayar' => $sumDib,
-                'sisa' => $sumSis,
-                'lunas_count' => $countLunas,
-                'belum_count' => $countBelum,
-            ];
-        }
+        $matrixComputation = $this->getSppMatrixComputationData();
+        $sppMatrixMonths = $matrixComputation['sppMatrixMonths'];
+        $nonSppJenisList = $matrixComputation['nonSppJenisList'];
+        $siswasSppMatrix = $matrixComputation['siswasSppMatrix'];
+        $sppStatsSummary = $matrixComputation['sppStatsSummary'];
+        $footerSppMatrix = $matrixComputation['footerSppMatrix'];
+        $footerNonSppMatrix = $matrixComputation['footerNonSppMatrix'];
 
         $currentPageSpp = \Illuminate\Pagination\Paginator::resolveCurrentPage('pageSpp') ?: 1;
         $paginatedSppItems = $siswasSppMatrix->slice(($currentPageSpp - 1) * $this->perPageSppMatrix, $this->perPageSppMatrix)->all();

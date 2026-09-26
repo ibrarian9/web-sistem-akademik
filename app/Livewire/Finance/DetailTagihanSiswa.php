@@ -469,29 +469,53 @@ class DetailTagihanSiswa extends Component
         DB::transaction(function () use ($activeTA, $targetMonths, &$createdCount, &$skippedCount) {
             $status = ($this->nominal <= 0) ? 'lunas' : 'belum_bayar';
 
+            $monthDueDates = [];
             foreach ($targetMonths as $m) {
-                $exists = Tagihan::where('siswa_id', $this->siswaId)
-                    ->where('tahun_ajaran_id', $activeTA->id)
-                    ->where('jenis_tagihan_id', $this->jenis_tagihan_id)
-                    ->where('bulan', $m)
-                    ->exists();
+                $monthDueDates[$m] = $this->calculateDueDateForMonth($m, $this->jatuh_tempo, $activeTA->nama);
+            }
 
-                if (!$exists) {
-                    $monthDueDate = $this->calculateDueDateForMonth($m, $this->jatuh_tempo, $activeTA->nama);
-                    Tagihan::create([
-                        'siswa_id' => $this->siswaId,
-                        'tahun_ajaran_id' => $activeTA->id,
-                        'jenis_tagihan_id' => $this->jenis_tagihan_id,
-                        'bulan' => $m,
-                        'nominal' => $this->nominal,
-                        'total_dibayar' => 0.00,
-                        'status' => $status,
-                        'jatuh_tempo' => $monthDueDate,
-                    ]);
-                    $createdCount++;
-                } else {
+            $existingMonths = Tagihan::where('siswa_id', $this->siswaId)
+                ->where('tahun_ajaran_id', $activeTA->id)
+                ->where('jenis_tagihan_id', $this->jenis_tagihan_id)
+                ->whereIn('bulan', $targetMonths)
+                ->pluck('bulan')
+                ->flip()
+                ->toArray();
+
+            $now = now()->toDateTimeString();
+            $insertRows = [];
+
+            foreach ($targetMonths as $m) {
+                if (isset($existingMonths[$m])) {
                     $skippedCount++;
+                    continue;
                 }
+
+                $insertRows[] = [
+                    'siswa_id' => $this->siswaId,
+                    'tahun_ajaran_id' => $activeTA->id,
+                    'jenis_tagihan_id' => $this->jenis_tagihan_id,
+                    'bulan' => $m,
+                    'nominal' => $this->nominal,
+                    'total_dibayar' => 0.00,
+                    'status' => $status,
+                    'jatuh_tempo' => $monthDueDates[$m],
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+                $createdCount++;
+            }
+
+            if (!empty($insertRows)) {
+                Tagihan::insert($insertRows);
+
+                $jenisNama = JenisTagihan::find($this->jenis_tagihan_id)?->nama ?? 'Tagihan';
+                \App\Services\AuditLogger::log(
+                    'created',
+                    "Menerbitkan {$createdCount} tagihan ({$jenisNama}) untuk siswa ID {$this->siswaId}",
+                    null,
+                    ['log_name' => 'finance']
+                );
             }
         });
 

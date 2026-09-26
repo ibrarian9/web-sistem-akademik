@@ -33,7 +33,7 @@ Route::middleware('guest')->group(function () {
 });
 
 // Logout Route
-Route::post('/logout', function (\Illuminate\Http\Request $request) {
+Route::match(['get', 'post'], '/logout', function (\Illuminate\Http\Request $request) {
     Auth::logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
@@ -88,6 +88,7 @@ Route::middleware(['auth'])->group(function () {
         Route::match(['get', 'post'], '/karyawan', \App\Livewire\TataUsaha\ManajemenKaryawan::class)->name('karyawan');
         Route::match(['get', 'post'], '/kelas', \App\Livewire\SuperAdmin\TataKelola\ManajemenKelas::class)->name('kelas');
         Route::match(['get', 'post'], '/plotting-kelas', \App\Livewire\TataUsaha\PlottingSiswaKelas::class)->name('plotting-kelas');
+        Route::match(['get', 'post'], '/ekstrakurikuler', \App\Livewire\TataUsaha\ManajemenEkstrakurikuler::class)->name('ekstrakurikuler');
         Route::match(['get', 'post'], '/surat', \App\Livewire\TataUsaha\ManajemenSurat::class)->name('surat');
         Route::match(['get', 'post'], '/jadwal', \App\Livewire\SuperAdmin\TataKelola\ManajemenJadwal::class)->name('jadwal');
         Route::match(['get', 'post'], '/mapel', \App\Livewire\SuperAdmin\TataKelola\ManajemenMapel::class)->name('mapel');
@@ -104,7 +105,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Tata Usaha Group — Data Master, Jadwal, Akademik
-    Route::middleware(['role:tata_usaha'])->prefix('tata-usaha')->name('tata-usaha.')->group(function () {
+    Route::middleware(['role:tata_usaha,super_admin,super_admin_2,founder'])->prefix('tata-usaha')->name('tata-usaha.')->group(function () {
         Route::get('/dashboard', \App\Livewire\TataUsaha\Dashboard::class)->name('dashboard');
         Route::match(['get', 'post'], '/siswa', \App\Livewire\SuperAdmin\TataKelola\ManajemenSiswa::class)->name('siswa');
         Route::match(['get', 'post'], '/guru', \App\Livewire\SuperAdmin\TataKelola\ManajemenGuru::class)->name('guru');
@@ -179,7 +180,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Guru Group
-    Route::middleware(['role:guru'])->prefix('guru')->name('guru.')->group(function () {
+    Route::middleware(['role:guru,super_admin,super_admin_2,founder'])->prefix('guru')->name('guru.')->group(function () {
         Route::get('/dashboard', \App\Livewire\Guru\Dashboard::class)->name('dashboard');
         Route::get('/kurikulum-merdeka', \App\Livewire\Guru\ManajemenKurikulumMerdeka::class)->name('kurikulum-merdeka');
         Route::get('/input-sumatif', \App\Livewire\Guru\InputNilaiSumatif::class)->name('input-sumatif');

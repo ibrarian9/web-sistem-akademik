@@ -101,7 +101,7 @@
                     </thead>
                     <tbody class="divide-y divide-stone-200 bg-white">
                         @forelse ($grades as $index => $grade)
-                            <tr class="hover:bg-stone-50 transition">
+                            <tr wire:key="grade-row-{{ $grade['siswa_id'] }}" class="hover:bg-stone-50 transition">
                                 <td class="p-3.5 border-r border-stone-200 text-stone-600 font-mono font-bold text-xs">{{ $grade['nis'] }}</td>
                                 <td class="p-3.5 border-r border-stone-200 font-extrabold text-stone-900 text-xs">{{ $grade['nama'] }}</td>
                                 <td class="p-3.5 border-r border-stone-200">

@@ -11,40 +11,56 @@
 >
     <div class="space-y-4 font-sans">
         @if ($editStatus === 'dibayar')
-            <div class="p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-900 flex items-center gap-2">
-                <x-lucide-alert-circle class="w-4 h-4 text-amber-700 shrink-0" />
-                <span><strong>Gaji ini telah berstatus Dibayar:</strong> Mengubah nominal akan secara otomatis menyinkronkan nilai pengeluaran kas di Buku Kas Keuangan Yayasan.</span>
-            </div>
+            @if (auth()->user()->role?->nama === 'finance')
+                <div class="p-3.5 bg-blue-50 border border-blue-200 rounded-2xl text-xs text-blue-900 flex items-start gap-2.5">
+                    <x-lucide-info class="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                    <div class="space-y-0.5">
+                        <p class="font-bold text-blue-950">Gaji Berstatus Dibayar (Memerlukan Persetujuan)</p>
+                        <p class="text-blue-800 text-[11px]">Perubahan rincian honorarium yang sudah dibayar akan diajukan ke Super Admin atau Super Admin 2. Setelah disetujui, nilai baru akan otomatis tersimpan dan menyinkronkan pengeluaran kas yayasan.</p>
+                    </div>
+                </div>
+            @else
+                <div class="p-3.5 bg-amber-50 border border-amber-300 rounded-2xl text-xs text-amber-900 flex items-center gap-2.5">
+                    <x-lucide-alert-circle class="w-4 h-4 text-amber-700 shrink-0" />
+                    <span><strong>Gaji ini telah berstatus Dibayar:</strong> Mengubah nominal akan secara otomatis menyinkronkan nilai pengeluaran kas di Buku Kas Keuangan Yayasan.</span>
+                </div>
+            @endif
         @endif
 
         <div class="grid grid-cols-1 sm:grid-cols-6 gap-3 bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
             <div>
                 <label class="block text-[10px] font-extrabold text-stone-600 uppercase tracking-wider mb-1">Bulan Gaji</label>
-                <select wire:model="editBulan" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
+                <select wire:model="editBulan" class="w-full px-3 py-2 bg-white border @error('editBulan') border-rose-500 ring-1 ring-rose-500 @else border-stone-300 @enderror rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
                     @foreach ($listBulan as $bln)
                         <option value="{{ $bln }}">{{ $bln }}</option>
                     @endforeach
                 </select>
+                @error('editBulan') <p class="text-[10px] text-rose-600 font-bold mt-0.5">{{ $message }}</p> @enderror
             </div>
             <div>
                 <label class="block text-[10px] font-extrabold text-stone-600 uppercase tracking-wider mb-1">Tahun Gaji</label>
-                <input type="number" wire:model="editTahun" min="2020" max="2035" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 text-center" />
+                <input type="number" wire:model="editTahun" min="2020" max="2035" class="w-full px-3 py-2 bg-white border @error('editTahun') border-rose-500 ring-1 ring-rose-500 @else border-stone-300 @enderror rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 text-center" />
+                @error('editTahun') <p class="text-[10px] text-rose-600 font-bold mt-0.5">{{ $message }}</p> @enderror
             </div>
             <div>
                 <label class="block text-[10px] font-extrabold text-stone-600 uppercase tracking-wider mb-1">Jabatan</label>
-                <input type="text" wire:model="editJabatan" placeholder="Contoh: Mudir F3 / Guru" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" />
+                <input type="text" wire:model="editJabatan" placeholder="Contoh: Mudir F3 / Guru" class="w-full px-3 py-2 bg-white border @error('editJabatan') border-rose-500 ring-1 ring-rose-500 @else border-stone-300 @enderror rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" />
+                @error('editJabatan') <p class="text-[10px] text-rose-600 font-bold mt-0.5">{{ $message }}</p> @enderror
             </div>
             <div>
                 <label class="block text-[10px] font-extrabold text-stone-600 uppercase tracking-wider mb-1">Jam Kerja</label>
-                <input type="text" wire:model="editJamKerja" placeholder="07.00-14.00 (Fleksibel)" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" />
+                <input type="text" wire:model="editJamKerja" placeholder="07.00-14.00 (Fleksibel)" class="w-full px-3 py-2 bg-white border @error('editJamKerja') border-rose-500 ring-1 ring-rose-500 @else border-stone-300 @enderror rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" />
+                @error('editJamKerja') <p class="text-[10px] text-rose-600 font-bold mt-0.5">{{ $message }}</p> @enderror
             </div>
             <div>
                 <label class="block text-[10px] font-extrabold text-stone-600 uppercase tracking-wider mb-1">Dibayar Oleh</label>
-                <input type="text" wire:model="editSumberDana" placeholder="Yayasan" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" />
+                <input type="text" wire:model="editSumberDana" placeholder="Yayasan" class="w-full px-3 py-2 bg-white border @error('editSumberDana') border-rose-500 ring-1 ring-rose-500 @else border-stone-300 @enderror rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600" />
+                @error('editSumberDana') <p class="text-[10px] text-rose-600 font-bold mt-0.5">{{ $message }}</p> @enderror
             </div>
             <div>
                 <label class="block text-[10px] font-extrabold text-stone-600 uppercase tracking-wider mb-1">Tanggal Bayar</label>
-                <input type="date" wire:model="editTanggalBayar" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 text-center" />
+                <input type="date" wire:model="editTanggalBayar" class="w-full px-3 py-2 bg-white border @error('editTanggalBayar') border-rose-500 ring-1 ring-rose-500 @else border-stone-300 @enderror rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 text-center" />
+                @error('editTanggalBayar') <p class="text-[10px] text-rose-600 font-bold mt-0.5">{{ $message }}</p> @enderror
             </div>
         </div>
 
@@ -149,21 +165,14 @@
         </div>
 
         @if(auth()->user()->role?->nama === 'finance' && $editStatus === 'dibayar')
-            <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-start gap-2">
-                <x-lucide-alert-circle class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <div>
-                    <span class="font-bold">Persetujuan Diperlukan:</span> Perubahan rincian gaji yang sudah dibayar ini akan diajukan ke Super Admin atau Super Admin 2 untuk disetujui.
-                </div>
-            </div>
-
-            <div class="space-y-1.5">
+            <div class="space-y-1.5 bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
                 <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">
-                    Alasan Perubahan <span class="text-rose-500">*</span>
+                    Catatan / Alasan Perubahan (Untuk Persetujuan)
                 </label>
                 <textarea 
                     wire:model="edit_alasan" 
                     rows="2" 
-                    placeholder="Jelaskan alasan perubahan rincian gaji..." 
+                    placeholder="Tuliskan alasan perubahan rincian gaji (opsional)..." 
                     class="w-full px-3.5 py-2.5 bg-white border @error('edit_alasan') border-rose-500 ring-1 ring-rose-500 @else border-stone-300 @enderror rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 shadow-2xs resize-none"
                 ></textarea>
                 @error('edit_alasan')
