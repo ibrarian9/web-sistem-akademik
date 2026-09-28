@@ -564,7 +564,7 @@ class ManajemenGajiGuru extends Component
             'editGajiPokok', 'editGajiBerkala', 'editJumlahEkskul', 'editHonorEkskul',
             'editInsentif', 'editInsentifBpjs', 'editInsentifMaghrib', 'editTotalBruto',
             'editPotonganSosial', 'editPotonganPinjaman', 'editPotonganBpjstk', 'editPotonganLainnya', 'editTotalPotongan',
-            'editTotalDiterima', 'editStatus', 'editTanggalBayar'
+            'editTotalDiterima', 'editStatus', 'editTanggalBayar', 'edit_alasan'
         ]);
     }
 
@@ -654,42 +654,52 @@ class ManajemenGajiGuru extends Component
         if ($userRole === 'finance' && $gaji->status === 'dibayar') {
             $alasan = !empty(trim($this->edit_alasan)) ? trim($this->edit_alasan) : 'Penyesuaian nominal dan komponen rincian gaji pegawai oleh staf keuangan';
 
-            \App\Services\FinancialApprovalService::createRequest(
-                auth()->user(),
-                'edit',
-                'gaji_guru',
-                $gaji,
-                [
-                    'bulan' => $this->editBulan,
-                    'tahun' => $this->editTahun,
-                    'jabatan' => $this->editJabatan,
-                    'jam_kerja' => $this->editJamKerja,
-                    'sumber_dana' => $this->editSumberDana,
-                    'gaji_pokok' => $this->editGajiPokok,
-                    'gaji_berkala' => $this->editGajiBerkala,
-                    'jumlah_ekskul' => $this->editJumlahEkskul,
-                    'honor_ekskul' => $this->editHonorEkskul,
-                    'insentif' => $this->editInsentif,
-                    'insentif_bpjs' => $this->editInsentifBpjs,
-                    'insentif_maghrib_mengaji' => $this->editInsentifMaghrib,
-                    'potongan_sosial' => $this->editPotonganSosial,
-                    'potongan_peminjaman' => $this->editPotonganPinjaman,
-                    'potongan_bpjstk' => $this->editPotonganBpjstk,
-                    'potongan_lainnya' => $this->editPotonganLainnya,
-                    'total_bruto' => $this->editTotalBruto,
-                    'total_diterima' => $this->editTotalDiterima,
-                    'tanggal_bayar' => $this->editTanggalBayar ?: ($gaji->tanggal_bayar ? $gaji->tanggal_bayar->format('Y-m-d') : date('Y-m-d')),
-                ],
-                $alasan,
-                "Edit Gaji Guru: " . ($gaji->guru->user->nama ?? 'Guru') . " - {$this->editBulan} {$this->editTahun} (THP: Rp " . number_format($this->editTotalDiterima, 0, ',', '.') . ")"
-            );
+            try {
+                \App\Services\FinancialApprovalService::createRequest(
+                    auth()->user(),
+                    'edit',
+                    'gaji_guru',
+                    $gaji,
+                    [
+                        'bulan' => $this->editBulan,
+                        'tahun' => $this->editTahun,
+                        'jabatan' => $this->editJabatan,
+                        'jam_kerja' => $this->editJamKerja,
+                        'sumber_dana' => $this->editSumberDana,
+                        'gaji_pokok' => $this->editGajiPokok,
+                        'gaji_berkala' => $this->editGajiBerkala,
+                        'jumlah_ekskul' => $this->editJumlahEkskul,
+                        'honor_ekskul' => $this->editHonorEkskul,
+                        'insentif' => $this->editInsentif,
+                        'insentif_bpjs' => $this->editInsentifBpjs,
+                        'insentif_maghrib_mengaji' => $this->editInsentifMaghrib,
+                        'potongan_sosial' => $this->editPotonganSosial,
+                        'potongan_peminjaman' => $this->editPotonganPinjaman,
+                        'potongan_bpjstk' => $this->editPotonganBpjstk,
+                        'potongan_lainnya' => $this->editPotonganLainnya,
+                        'total_bruto' => $this->editTotalBruto,
+                        'total_diterima' => $this->editTotalDiterima,
+                        'tanggal_bayar' => $this->editTanggalBayar ?: ($gaji->tanggal_bayar ? $gaji->tanggal_bayar->format('Y-m-d') : date('Y-m-d')),
+                    ],
+                    $alasan,
+                    "Edit Gaji Guru: " . ($gaji->guru->user->nama ?? 'Guru') . " - {$this->editBulan} {$this->editTahun} (THP: Rp " . number_format($this->editTotalDiterima, 0, ',', '.') . ")"
+                );
 
-            $msg = 'Permohonan perubahan rincian gaji telah berhasil diajukan ke Super Admin / Super Admin 2 untuk disetujui.';
-            session()->flash('message', $msg);
-            $this->dispatch('notify', ['type' => 'success', 'message' => $msg]);
-            $this->dispatch('modal-alert', ['type' => 'create', 'title' => 'Permohonan Diajukan', 'message' => $msg]);
-            $this->closeEditModal();
-            return;
+                $msg = 'Permohonan perubahan rincian gaji telah berhasil diajukan ke Super Admin / Super Admin 2 untuk disetujui.';
+                session()->flash('message', $msg);
+                $this->dispatch('notify', ['type' => 'success', 'message' => $msg]);
+                $this->dispatch('modal-alert', ['type' => 'create', 'title' => 'Permohonan Diajukan', 'message' => $msg]);
+                $this->closeEditModal();
+                return;
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Gagal mengajukan persetujuan edit gaji: ' . $e->getMessage(), [
+                    'exception' => $e,
+                    'user_id' => auth()->id(),
+                    'gaji_id' => $gaji->id,
+                ]);
+                $this->addError('edit_alasan', 'Gagal mengajukan persetujuan: ' . $e->getMessage());
+                return;
+            }
         }
 
         $oldPotonganPinjaman = floatval($gaji->potongan_peminjaman);
