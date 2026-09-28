@@ -81,7 +81,7 @@ class ArusKas extends Component
         'Sedekah Subuh',
         'Maghrib Mengaji',
         'Donasi',
-        'Sponsor / Acara',
+        'Sponsor dan Acara',
         'Hibah Yayasan',
         'Lainnya'
     ];

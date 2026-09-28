@@ -48,9 +48,9 @@
                 href="{{ route('finance.export.pengeluaran', array_filter(['filter_periode' => $filterPeriode, 'start_date' => $startDate, 'end_date' => $endDate, 'bulan' => $bulan, 'kategori_pengeluaran_id' => $kategori_pengeluaran_id, 'search' => $search])) }}" 
                 target="_blank" 
                 :disabled="$totalCount === 0"
-                title="{{ $totalCount === 0 ? 'Tidak ada data untuk diekspor' : 'Unduh Rekap Spreadsheet Excel (.csv)' }}"
+                title="{{ $totalCount === 0 ? 'Tidak ada data untuk diekspor' : 'Unduh Rekap Spreadsheet Excel' }}"
             >
-                Ekspor Excel (.csv)
+                Ekspor Excel
             </x-button>
         </x-slot:actions>
     </x-page-header>
@@ -68,8 +68,8 @@
         title="Petunjuk Laporan & Pencatatan Pengeluaran"
         :steps="[
             ['title' => 'Catat Pengeluaran Manual', 'desc' => 'Gunakan tombol Catat Pengeluaran untuk mencatat belanja operasional, pemeliharaan, atau pengadaan kas.'],
-            ['title' => 'Buat Laporan Kustom', 'desc' => 'Atur judul laporan, rentang tanggal spesifik, catatan pengantar/penutup, dan tanda tangan resmi pada modal Buat Laporan Kustom.'],
-            ['title' => 'Filter & Ekspor Lengkap', 'desc' => 'Data dapat difilter berdasarkan bulan, kategori, atau rentang tanggal kustom dan dicetak ke PDF/Excel.']
+            ['title' => 'Buat Laporan Kustom', 'desc' => 'Atur judul laporan, rentang tanggal spesifik, catatan pengantar serta penutup, dan tanda tangan resmi pada modal Buat Laporan Kustom.'],
+            ['title' => 'Filter & Ekspor Lengkap', 'desc' => 'Data dapat difilter berdasarkan bulan, kategori, atau rentang tanggal kustom dan dicetak ke dokumen PDF atau lembar Excel.']
         ]"
     />
 
@@ -132,7 +132,7 @@
                 model="filterPeriode" 
                 startDateModel="startDate" 
                 endDateModel="endDate" 
-                label="Filter Periode Tanggal Pengeluaran (Hari Ini, Bulan Ini, atau Rentang Kustom)" 
+                label="Filter Periode Tanggal Transaksi" 
             />
         </div>
 
@@ -181,7 +181,7 @@
                                     size="xs" 
                                     icon="trash-2" 
                                     wire:click="deletePengeluaran({{ $e->id }})" 
-                                    data-confirm="{{ auth()->user()->role?->nama === 'finance' ? 'Ajukan permohonan penghapusan catatan pengeluaran kas ini ke Super Admin / Super Admin 2?' : 'Hapus catatan pengeluaran kas ini?' }}" 
+                                    data-confirm="{{ auth()->user()->role?->nama === 'finance' ? 'Ajukan permohonan penghapusan catatan pengeluaran kas ini ke Super Admin atau Super Admin 2?' : 'Hapus catatan pengeluaran kas ini?' }}" 
                                     title="Hapus Pengeluaran"
                                 >
                                     Hapus
@@ -208,77 +208,115 @@
     <x-floating-card 
         :show="$showCreateModal" 
         title="Catat Kas Keluar Operasional" 
-        subtitle="Dokumentasikan beban pengeluaran operasional (ATK, Sarpras, Listrik/Air, Konsumsi, Acara)."
+        subtitle="Dokumentasikan beban transaksi belanja dan operasional yayasan secara tertib dan akuntabel."
         badge="KAS KELUAR YAYASAN"
         badgeVariant="rose"
         icon="arrow-up-right"
         maxWidth="max-w-xl"
         closeAction="closeCreateModal"
     >
-        <form wire:submit.prevent="savePengeluaran" class="space-y-4">
-            <!-- Grid 2 Kolom: Tanggal & Kategori -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label for="create_tgl" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">Tanggal Transaksi</label>
-                    <input type="date" id="create_tgl" wire:model="createTanggal" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs" />
-                    @error('createTanggal') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
-                </div>
+        <form wire:submit.prevent="savePengeluaran" class="space-y-4 font-sans">
+            <!-- Baris 1: Tanggal Transaksi -->
+            <div>
+                <label for="create_tgl" class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+                    Tanggal Transaksi <span class="text-rose-500 font-bold">*</span>
+                </label>
+                <input 
+                    type="date" 
+                    id="create_tgl" 
+                    wire:model="createTanggal" 
+                    class="w-full bg-white border @error('createTanggal') border-rose-500 ring-1 ring-rose-500 @else border-stone-300 @enderror rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 transition shadow-2xs" 
+                />
+                @error('createTanggal') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
+            </div>
 
-                <div>
-                    <div class="flex items-center justify-between mb-1.5">
-                        <label for="create_kat" class="block text-xs font-bold text-stone-600 uppercase tracking-wider">Kategori Pengeluaran</label>
-                        <button type="button" wire:click="$toggle('is_kategori_kustom')" class="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 hover:underline cursor-pointer">
-                            {{ $is_kategori_kustom ? '← Pilih dari Daftar Kategori' : '+ Tambah Kategori Baru' }}
-                        </button>
-                    </div>
-                    @if(!$is_kategori_kustom)
-                        <select id="create_kat" wire:model="createKategoriId" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs">
-                            @foreach ($categories as $cat)
-                                <option value="{{ $cat->id }}">{{ $cat->nama }}</option>
-                            @endforeach
-                        </select>
-                        @error('createKategoriId') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
-                    @else
-                        <input type="text" id="create_kat_kustom" wire:model="kategori_kustom" placeholder="Ketik nama kategori pengeluaran baru..." class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs" />
-                        @error('kategori_kustom') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
-                    @endif
+            <!-- Baris 2: Kategori Pengeluaran -->
+            <div>
+                <div class="flex items-center justify-between mb-1.5">
+                    <label for="create_kat" class="block text-xs font-bold text-stone-700 uppercase tracking-wider">
+                        Kategori Pengeluaran <span class="text-rose-500 font-bold">*</span>
+                    </label>
+                    <button 
+                        type="button" 
+                        wire:click="$toggle('is_kategori_kustom')" 
+                        class="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 transition cursor-pointer"
+                    >
+                        {{ $is_kategori_kustom ? 'Pilih Kategori Terdaftar' : '+ Kategori Baru' }}
+                    </button>
                 </div>
+                @if(!$is_kategori_kustom)
+                    <select 
+                        id="create_kat" 
+                        wire:model="createKategoriId" 
+                        class="w-full bg-white border @error('createKategoriId') border-rose-500 ring-1 ring-rose-500 @else border-stone-300 @enderror rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 transition shadow-2xs"
+                    >
+                        @foreach ($categories as $cat)
+                            <option value="{{ $cat->id }}">{{ $cat->nama }}</option>
+                        @endforeach
+                    </select>
+                    @error('createKategoriId') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
+                @else
+                    <input 
+                        type="text" 
+                        id="create_kat_kustom" 
+                        wire:model="kategori_kustom" 
+                        placeholder="Nama kategori pengeluaran baru" 
+                        class="w-full bg-white border @error('kategori_kustom') border-rose-500 ring-1 ring-rose-500 @else border-stone-300 @enderror rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 transition shadow-2xs" 
+                    />
+                    @error('kategori_kustom') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
+                @endif
             </div>
 
             <!-- Nominal Pengeluaran -->
-            <x-input-currency
-                id="createJumlah"
-                name="createJumlah"
-                wire:model="createJumlah"
-                label="Nominal Pengeluaran (Rp)"
-                placeholder="Contoh: 150.000"
-                required
-            />
-
-            <!-- Keterangan / Uraian Belanja -->
             <div>
-                <label for="create_ket" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">Keterangan / Uraian Belanja</label>
-                <textarea id="create_ket" wire:model="createKeterangan" rows="3" placeholder="Tulis rincian pembelian ATK, perbaikan sarpras, konsumsi..." class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs"></textarea>
+                <x-input-currency
+                    id="createJumlah"
+                    name="createJumlah"
+                    wire:model="createJumlah"
+                    label="Nominal Pengeluaran"
+                    placeholder="0"
+                    required
+                />
+            </div>
+
+            <!-- Keterangan Pengeluaran -->
+            <div>
+                <label for="create_ket" class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+                    Keterangan Pengeluaran <span class="text-rose-500 font-bold">*</span>
+                </label>
+                <textarea 
+                    id="create_ket" 
+                    wire:model="createKeterangan" 
+                    rows="3" 
+                    placeholder="Tuliskan rincian kebutuhan belanja operasional secara jelas..." 
+                    class="w-full bg-white border @error('createKeterangan') border-rose-500 ring-1 ring-rose-500 @else border-stone-300 @enderror rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 transition shadow-2xs resize-none"
+                ></textarea>
                 @error('createKeterangan') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
             </div>
 
-            <!-- Upload Foto Bukti Pengeluaran (Opsional, Maks 2MB) -->
+            <!-- Upload Foto Bukti Transaksi -->
             <div>
-                <label for="create_bukti" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5 flex items-center justify-between">
-                    <span>Foto Bukti Pengeluaran (Struk / Bon / Nota)</span>
-                    <span class="text-[10px] text-stone-500 normal-case font-semibold">Opsional • Maks 2MB (JPG, PNG, WEBP)</span>
+                <label for="create_bukti" class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                    <span>Foto Bukti Transaksi</span>
+                    <span class="text-[10px] text-stone-500 normal-case font-semibold">Opsional : Maksimal 2MB format JPG, PNG, atau WEBP</span>
                 </label>
                 <div class="relative">
-                    <input type="file" id="create_bukti" wire:model="createBukti" accept="image/jpeg,image/png,image/jpg,image/webp" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-stone-900 text-xs font-medium file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-rose-50 file:text-rose-700 hover:file:bg-rose-100 transition shadow-2xs cursor-pointer" />
+                    <input 
+                        type="file" 
+                        id="create_bukti" 
+                        wire:model="createBukti" 
+                        accept="image/jpeg,image/png,image/jpg,image/webp" 
+                        class="w-full bg-stone-50 hover:bg-stone-100/80 border border-dashed border-stone-300 rounded-xl px-3.5 py-2 text-stone-800 text-xs font-medium file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-100 file:text-emerald-800 hover:file:bg-emerald-200 transition shadow-2xs cursor-pointer" 
+                    />
                 </div>
-                <div wire:loading wire:target="createBukti" class="text-xs text-rose-600 font-bold mt-1.5 flex items-center gap-1.5">
+                <div wire:loading wire:target="createBukti" class="text-xs text-emerald-700 font-bold mt-1.5 flex items-center gap-1.5">
                     <x-lucide-loader-2 class="w-3.5 h-3.5 animate-spin" />
-                    <span>Sedang mengunggah file foto...</span>
+                    <span>Sedang memproses file foto...</span>
                 </div>
                 @error('createBukti') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
 
                 @if ($createBukti)
-                    <div class="mt-2.5 p-2.5 bg-stone-50 rounded-xl border border-stone-200 flex items-center justify-between gap-3 shadow-2xs">
+                    <div class="mt-2.5 p-3 bg-stone-50 rounded-xl border border-stone-200 flex items-center justify-between gap-3 shadow-2xs">
                         <div class="flex items-center gap-3">
                             <img src="{{ $createBukti->temporaryUrl() }}" alt="Pratinjau Foto Bukti" class="w-12 h-12 object-cover rounded-lg border border-stone-300 shadow-2xs" />
                             <div class="text-xs">
@@ -286,30 +324,35 @@
                                 <span class="text-stone-500 text-[11px]">Foto siap disimpan ke sistem</span>
                             </div>
                         </div>
-                        <button type="button" wire:click="$set('createBukti', null)" class="px-2.5 py-1 text-xs font-bold text-rose-700 bg-white hover:bg-rose-50 border border-rose-200 rounded-lg shadow-2xs transition shrink-0 cursor-pointer">
-                            Batal / Hapus
+                        <button 
+                            type="button" 
+                            wire:click="$set('createBukti', null)" 
+                            class="px-3 py-1.5 text-xs font-bold text-rose-700 bg-white hover:bg-rose-50 border border-rose-200 rounded-lg shadow-2xs transition shrink-0 cursor-pointer"
+                        >
+                            Hapus Foto
                         </button>
                     </div>
                 @endif
             </div>
 
+            <!-- Modal Action Buttons -->
             <div class="flex items-center justify-end gap-3 pt-3 border-t border-stone-100">
                 <x-button type="button" variant="secondary" size="sm" wire:click="closeCreateModal">
                     Batal
                 </x-button>
                 <x-button type="submit" variant="danger-solid" size="sm" icon="check" loadingTarget="savePengeluaran">
-                    Simpan Kas Keluar
+                    Simpan Pengeluaran
                 </x-button>
             </div>
         </form>
     </x-floating-card>
 
-    <!-- 2. Modal Buat Laporan Keuangan Manual / Kustom -->
+    <!-- 2. Modal Buat Laporan Pengeluaran Kustom -->
     <x-floating-card 
         :show="$showManualReportModal" 
-        title="Buat Laporan Keuangan Manual / Kustom" 
+        title="Buat Laporan Pengeluaran Kustom" 
         subtitle="Sesuaikan judul, rentang tanggal, catatan pengantar, dan pejabat penandatangan dokumen."
-        badge="LAPORAN MANUAL"
+        badge="LAPORAN KUSTOM"
         badgeVariant="emerald"
         icon="file-signature"
         maxWidth="max-w-2xl"
@@ -347,7 +390,7 @@
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Filter Kategori (Opsional)</label>
+                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Filter Kategori</label>
                 <select 
                     wire:model="reportKategoriId" 
                     class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs"
@@ -360,7 +403,7 @@
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Catatan / Keterangan Penutup (Opsional)</label>
+                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Catatan Penutup Laporan</label>
                 <textarea 
                     wire:model="reportCatatan" 
                     rows="2" 
@@ -385,7 +428,7 @@
                     <input 
                         type="text" 
                         wire:model="reportJabatanPenandatangan" 
-                        placeholder="Contoh: Bendahara Yayasan / Kepala Sekolah" 
+                        placeholder="Contoh: Bendahara Yayasan atau Kepala Sekolah" 
                         class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs" 
                     />
                 </div>
@@ -397,16 +440,16 @@
 
                 <a 
                     href="{{ route('finance.export.pengeluaran', array_filter(['start_date' => $reportStartDate, 'end_date' => $reportEndDate, 'kategori_pengeluaran_id' => $reportKategoriId])) }}" 
-                    target="_blank"
+                    target="_blank" 
                     class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition shadow-2xs"
                 >
                     <x-lucide-file-spreadsheet class="w-4 h-4 text-emerald-600" />
-                    <span>Ekspor Excel (.csv)</span>
+                    <span>Ekspor Excel</span>
                 </a>
 
                 <a 
                     href="{{ route('finance.laporan.pengeluaran.pdf', array_filter(['start_date' => $reportStartDate, 'end_date' => $reportEndDate, 'kategori_pengeluaran_id' => $reportKategoriId, 'judul' => $reportJudul, 'catatan' => $reportCatatan, 'penandatangan' => $reportPenandatangan, 'jabatan_penandatangan' => $reportJabatanPenandatangan])) }}" 
-                    target="_blank"
+                    target="_blank" 
                     class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition shadow-xs"
                 >
                     <x-lucide-printer class="w-4 h-4" />
