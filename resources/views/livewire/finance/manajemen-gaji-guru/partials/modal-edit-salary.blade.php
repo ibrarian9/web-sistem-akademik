@@ -27,6 +27,20 @@
             @endif
         @endif
 
+        @if ($errors->any())
+            <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-800 space-y-1.5">
+                <p class="font-bold flex items-center gap-1.5 text-rose-950">
+                    <x-lucide-alert-circle class="w-4 h-4 text-rose-600 shrink-0" />
+                    <span>Terdapat input yang belum valid:</span>
+                </p>
+                <ul class="list-disc list-inside text-[11px] space-y-0.5 text-rose-700 font-medium">
+                    @foreach ($errors->all() as $err)
+                        <li>{{ $err }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="grid grid-cols-1 sm:grid-cols-6 gap-3 bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
             <div>
                 <label class="block text-[10px] font-extrabold text-stone-600 uppercase tracking-wider mb-1">Bulan Gaji</label>

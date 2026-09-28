@@ -29,6 +29,18 @@ class Pengaturan extends Model
         static::deleted(function ($model) {
             Cache::forget('setting_' . $model->key);
             Cache::forget('all_app_settings');
+
+            $mirrors = [
+                'nama_sekolah' => 'nama_instansi',
+                'nama_instansi' => 'nama_sekolah',
+                'alamat_sekolah' => 'alamat_instansi',
+                'alamat_instansi' => 'alamat_sekolah',
+                'no_telepon' => 'telepon_instansi',
+                'telepon_instansi' => 'no_telepon',
+            ];
+            if (isset($mirrors[$model->key])) {
+                Cache::forget('setting_' . $mirrors[$model->key]);
+            }
         });
     }
 
@@ -36,6 +48,26 @@ class Pengaturan extends Model
     {
         return Cache::remember('setting_' . $key, 3600, function () use ($key, $default) {
             $setting = self::where('key', $key)->first();
+            if ($setting && $setting->value !== null && $setting->value !== '') {
+                return $setting->value;
+            }
+
+            $fallbacks = [
+                'nama_sekolah' => 'nama_instansi',
+                'nama_instansi' => 'nama_sekolah',
+                'alamat_sekolah' => 'alamat_instansi',
+                'alamat_instansi' => 'alamat_sekolah',
+                'no_telepon' => 'telepon_instansi',
+                'telepon_instansi' => 'no_telepon',
+            ];
+
+            if (isset($fallbacks[$key])) {
+                $alt = self::where('key', $fallbacks[$key])->first();
+                if ($alt && $alt->value !== null && $alt->value !== '') {
+                    return $alt->value;
+                }
+            }
+
             return $setting ? $setting->value : $default;
         });
     }
@@ -51,6 +83,24 @@ class Pengaturan extends Model
         );
         Cache::forget('setting_' . $key);
         Cache::forget('all_app_settings');
+
+        $mirrors = [
+            'nama_sekolah' => 'nama_instansi',
+            'nama_instansi' => 'nama_sekolah',
+            'alamat_sekolah' => 'alamat_instansi',
+            'alamat_instansi' => 'alamat_sekolah',
+            'no_telepon' => 'telepon_instansi',
+            'telepon_instansi' => 'no_telepon',
+        ];
+
+        if (isset($mirrors[$key])) {
+            $mirrorKey = $mirrors[$key];
+            self::updateOrCreate(
+                ['key' => $mirrorKey],
+                ['value' => $value ?? '']
+            );
+            Cache::forget('setting_' . $mirrorKey);
+        }
     }
 
     public static function getAllSettings(): array

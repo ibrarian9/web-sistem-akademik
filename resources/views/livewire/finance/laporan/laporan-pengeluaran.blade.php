@@ -207,113 +207,83 @@
     <!-- 1. Modal Catat Pengeluaran Kas Baru (Manual) -->
     <x-floating-card 
         :show="$showCreateModal" 
-        title="Catat Pengeluaran Kas Manual" 
-        subtitle="Input transaksi pengeluaran kas operasional baru secara langsung ke pembukuan yayasan."
-        badge="INPUT PENGELUARAN"
+        title="Catat Kas Keluar Operasional" 
+        subtitle="Dokumentasikan beban pengeluaran operasional (ATK, Sarpras, Listrik/Air, Konsumsi, Acara)."
+        badge="KAS KELUAR YAYASAN"
         badgeVariant="rose"
-        icon="wallet-cards"
+        icon="arrow-up-right"
         maxWidth="max-w-xl"
         closeAction="closeCreateModal"
     >
-        <form wire:submit.prevent="savePengeluaran" class="space-y-4 font-sans">
+        <form wire:submit.prevent="savePengeluaran" class="space-y-4">
+            <!-- Grid 2 Kolom: Tanggal & Kategori -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Tanggal Transaksi</label>
-                    <input 
-                        type="date" 
-                        wire:model="createTanggal" 
-                        class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-rose-500 shadow-2xs" 
-                    />
-                    @error('createTanggal') <span class="text-rose-600 text-xs font-semibold mt-1 block">{{ $message }}</span> @enderror
+                    <label for="create_tgl" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">Tanggal Transaksi</label>
+                    <input type="date" id="create_tgl" wire:model="createTanggal" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs" />
+                    @error('createTanggal') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Kategori Pos</label>
-                    <select 
-                        wire:model="createKategoriId" 
-                        class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-rose-500 shadow-2xs"
-                    >
-                        @foreach ($categories as $cat)
-                            <option value="{{ $cat->id }}">{{ $cat->nama }}</option>
-                        @endforeach
-                    </select>
-                    @error('createKategoriId') <span class="text-rose-600 text-xs font-semibold mt-1 block">{{ $message }}</span> @enderror
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label for="create_kat" class="block text-xs font-bold text-stone-600 uppercase tracking-wider">Kategori Pengeluaran</label>
+                        <button type="button" wire:click="$toggle('is_kategori_kustom')" class="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 hover:underline cursor-pointer">
+                            {{ $is_kategori_kustom ? '← Pilih dari Daftar Kategori' : '+ Tambah Kategori Baru' }}
+                        </button>
+                    </div>
+                    @if(!$is_kategori_kustom)
+                        <select id="create_kat" wire:model="createKategoriId" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs">
+                            @foreach ($categories as $cat)
+                                <option value="{{ $cat->id }}">{{ $cat->nama }}</option>
+                            @endforeach
+                        </select>
+                        @error('createKategoriId') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
+                    @else
+                        <input type="text" id="create_kat_kustom" wire:model="kategori_kustom" placeholder="Ketik nama kategori pengeluaran baru..." class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs" />
+                        @error('kategori_kustom') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
+                    @endif
                 </div>
             </div>
 
-            <!-- Amount input with formatted dot separators -->
-            <div x-data="{
-                val: @entangle('createJumlah'),
-                fmt: '',
-                format(v) {
-                    if (v === null || v === undefined || v === '') return '0';
-                    if (typeof v === 'number') return Math.round(v).toLocaleString('id-ID');
-                    let s = v.toString().trim();
-                    let clean = s.replace(/[^0-9]/g, '');
-                    return clean ? Number(clean).toLocaleString('id-ID') : '0';
-                },
-                onInput(e) {
-                    let c = e.target.value.replace(/[^0-9]/g, '');
-                    this.val = c ? parseInt(c, 10) : 0;
-                    this.fmt = c ? Number(c).toLocaleString('id-ID') : '';
-                    e.target.value = this.fmt;
-                },
-                init() {
-                    this.fmt = this.format(this.val);
-                    this.$watch('val', (v) => { this.fmt = this.format(v); });
-                }
-            }">
-                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Jumlah Pengeluaran (Rp)</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-500 font-bold text-xs">Rp</span>
-                    <input 
-                        type="text" 
-                        inputmode="numeric" 
-                        x-model="fmt" 
-                        @input="onInput($event)" 
-                        placeholder="0"
-                        class="w-full pl-10 pr-4 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-sm font-black text-right focus:ring-2 focus:ring-rose-500 shadow-2xs" 
-                    />
-                </div>
-                @error('createJumlah') <span class="text-rose-600 text-xs font-semibold mt-1 block">{{ $message }}</span> @enderror
-            </div>
+            <!-- Nominal Pengeluaran -->
+            <x-input-currency
+                id="createJumlah"
+                name="createJumlah"
+                wire:model="createJumlah"
+                label="Nominal Pengeluaran (Rp)"
+                placeholder="Contoh: 150.000"
+                required
+            />
 
+            <!-- Keterangan / Uraian Belanja -->
             <div>
-                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Keterangan / Rincian Belanja</label>
-                <textarea 
-                    wire:model="createKeterangan" 
-                    rows="3" 
-                    placeholder="Contoh: Pembelian perlengkapan ATK kantor, konsumsi rapat bulanan, perbaikan AC gedung..." 
-                    class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-medium focus:ring-2 focus:ring-rose-500 shadow-2xs"
-                ></textarea>
-                @error('createKeterangan') <span class="text-rose-600 text-xs font-semibold mt-1 block">{{ $message }}</span> @enderror
+                <label for="create_ket" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">Keterangan / Uraian Belanja</label>
+                <textarea id="create_ket" wire:model="createKeterangan" rows="3" placeholder="Tulis rincian pembelian ATK, perbaikan sarpras, konsumsi..." class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-stone-900 text-xs font-medium focus:ring-2 focus:ring-emerald-600 focus:bg-white transition shadow-2xs"></textarea>
+                @error('createKeterangan') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
             </div>
 
             <!-- Upload Foto Bukti Pengeluaran (Opsional, Maks 2MB) -->
             <div>
-                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1 flex items-center justify-between">
-                    <span>Foto Bukti Pengeluaran (Struk / Nota)</span>
+                <label for="create_bukti" class="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                    <span>Foto Bukti Pengeluaran (Struk / Bon / Nota)</span>
                     <span class="text-[10px] text-stone-500 normal-case font-semibold">Opsional • Maks 2MB (JPG, PNG, WEBP)</span>
                 </label>
-                <input 
-                    type="file" 
-                    wire:model="createBukti" 
-                    accept="image/jpeg,image/png,image/jpg,image/webp" 
-                    class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-medium file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-rose-50 file:text-rose-700 hover:file:bg-rose-100 transition shadow-2xs cursor-pointer"
-                />
+                <div class="relative">
+                    <input type="file" id="create_bukti" wire:model="createBukti" accept="image/jpeg,image/png,image/jpg,image/webp" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-stone-900 text-xs font-medium file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-rose-50 file:text-rose-700 hover:file:bg-rose-100 transition shadow-2xs cursor-pointer" />
+                </div>
                 <div wire:loading wire:target="createBukti" class="text-xs text-rose-600 font-bold mt-1.5 flex items-center gap-1.5">
                     <x-lucide-loader-2 class="w-3.5 h-3.5 animate-spin" />
-                    <span>Sedang mengunggah foto bukti...</span>
+                    <span>Sedang mengunggah file foto...</span>
                 </div>
-                @error('createBukti') <span class="text-rose-600 text-xs font-semibold mt-1 block">{{ $message }}</span> @enderror
+                @error('createBukti') <span class="text-[11px] text-rose-600 font-bold mt-1 block">{{ $message }}</span> @enderror
 
                 @if ($createBukti)
-                    <div class="mt-2.5 p-2.5 bg-rose-50/50 rounded-xl border border-rose-200 flex items-center justify-between gap-3 shadow-2xs">
+                    <div class="mt-2.5 p-2.5 bg-stone-50 rounded-xl border border-stone-200 flex items-center justify-between gap-3 shadow-2xs">
                         <div class="flex items-center gap-3">
-                            <img src="{{ $createBukti->temporaryUrl() }}" alt="Pratinjau Foto Bukti" class="w-12 h-12 object-cover rounded-lg border border-rose-300 shadow-2xs" />
+                            <img src="{{ $createBukti->temporaryUrl() }}" alt="Pratinjau Foto Bukti" class="w-12 h-12 object-cover rounded-lg border border-stone-300 shadow-2xs" />
                             <div class="text-xs">
-                                <span class="font-bold text-stone-800 block">Foto Siap Disimpan</span>
-                                <span class="text-stone-500 text-[11px]">Foto bukti transaksi valid</span>
+                                <span class="font-bold text-stone-800 block">Pratinjau Foto Terpilih</span>
+                                <span class="text-stone-500 text-[11px]">Foto siap disimpan ke sistem</span>
                             </div>
                         </div>
                         <button type="button" wire:click="$set('createBukti', null)" class="px-2.5 py-1 text-xs font-bold text-rose-700 bg-white hover:bg-rose-50 border border-rose-200 rounded-lg shadow-2xs transition shrink-0 cursor-pointer">
@@ -323,10 +293,12 @@
                 @endif
             </div>
 
-            <div class="flex items-center justify-end gap-2 pt-3 border-t border-stone-200">
-                <x-button type="button" variant="secondary" size="md" wire:click="closeCreateModal">Batal</x-button>
-                <x-button type="submit" variant="primary" size="md" loadingTarget="savePengeluaran">
-                    Simpan Pengeluaran
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-stone-100">
+                <x-button type="button" variant="secondary" size="sm" wire:click="closeCreateModal">
+                    Batal
+                </x-button>
+                <x-button type="submit" variant="danger-solid" size="sm" icon="check" loadingTarget="savePengeluaran">
+                    Simpan Kas Keluar
                 </x-button>
             </div>
         </form>

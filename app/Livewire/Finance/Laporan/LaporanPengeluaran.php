@@ -9,10 +9,11 @@ use App\Models\Pengaturan;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
+use App\Traits\WithCurrencySanitizer;
 
 class LaporanPengeluaran extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithPagination, WithFileUploads, WithCurrencySanitizer;
 
     // Date & Period Filter State (Global Presets + Custom)
     public string $filterPeriode = 'semua'; // 'semua', 'hari_ini', 'kemarin', 'minggu_ini', 'bulan_ini', 'custom'
@@ -32,6 +33,8 @@ class LaporanPengeluaran extends Component
     public $createJumlah = 0;
     public string $createKeterangan = '';
     public $createBukti = null;
+    public bool $is_kategori_kustom = false;
+    public string $kategori_kustom = '';
 
     // Modal Buat Laporan Keuangan Manual / Kustom
     public bool $showManualReportModal = false;
@@ -131,17 +134,19 @@ class LaporanPengeluaran extends Component
     // ==========================================
     public function openCreateModal()
     {
-        $this->resetValidation();
-        $this->createTanggal = now()->toDateString();
-        $this->createKategoriId = KategoriPengeluaran::first()?->id;
         if (auth()->user()->isSuperAdmin2()) {
             session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
             return;
         }
 
+        $this->resetValidation();
+        $this->createTanggal = now()->toDateString();
+        $this->createKategoriId = KategoriPengeluaran::orderBy('nama')->first()?->id;
         $this->createJumlah = 0;
         $this->createKeterangan = '';
         $this->createBukti = null;
+        $this->is_kategori_kustom = false;
+        $this->kategori_kustom = '';
         $this->showCreateModal = true;
     }
 
@@ -149,6 +154,10 @@ class LaporanPengeluaran extends Component
     {
         $this->showCreateModal = false;
         $this->createBukti = null;
+        $this->createJumlah = 0;
+        $this->createKeterangan = '';
+        $this->is_kategori_kustom = false;
+        $this->kategori_kustom = '';
         $this->resetValidation();
     }
 
@@ -159,22 +168,38 @@ class LaporanPengeluaran extends Component
             return;
         }
 
-        $this->validate([
+        $this->createJumlah = $this->sanitizeCurrency('createJumlah');
+
+        $rules = [
             'createTanggal' => 'required|date',
-            'createKategoriId' => 'required|exists:kategori_pengeluaran,id',
             'createJumlah' => 'required|numeric|min:1',
-            'createKeterangan' => 'required|string|max:255',
+            'createKeterangan' => 'required|string|max:500',
             'createBukti' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-        ], [
+        ];
+
+        $messages = [
             'createTanggal.required' => 'Tanggal pengeluaran wajib diisi.',
-            'createKategoriId.required' => 'Pilih kategori pengeluaran.',
             'createJumlah.required' => 'Jumlah nominal pengeluaran wajib diisi.',
             'createJumlah.min' => 'Nominal pengeluaran minimal Rp 1.',
             'createKeterangan.required' => 'Keterangan pengeluaran wajib diisi.',
             'createBukti.image' => 'File bukti pengeluaran harus berupa foto/gambar.',
             'createBukti.mimes' => 'Format foto hanya boleh JPG, JPEG, PNG, atau WEBP.',
             'createBukti.max' => 'Ukuran file foto bukti pengeluaran maksimal 2MB.',
-        ]);
+        ];
+
+        if ($this->is_kategori_kustom && !empty(trim($this->kategori_kustom))) {
+            $rules['kategori_kustom'] = 'required|string|max:100';
+            $this->validate($rules, $messages);
+
+            $kategori = KategoriPengeluaran::firstOrCreate([
+                'nama' => trim($this->kategori_kustom)
+            ]);
+            $this->createKategoriId = $kategori->id;
+        } else {
+            $rules['createKategoriId'] = 'required|exists:kategori_pengeluaran,id';
+            $messages['createKategoriId.required'] = 'Pilih kategori pengeluaran.';
+            $this->validate($rules, $messages);
+        }
 
         $buktiPath = null;
         if ($this->createBukti) {
@@ -192,6 +217,10 @@ class LaporanPengeluaran extends Component
 
         $this->showCreateModal = false;
         $this->createBukti = null;
+        $this->createJumlah = 0;
+        $this->createKeterangan = '';
+        $this->is_kategori_kustom = false;
+        $this->kategori_kustom = '';
         $this->resetPage();
         session()->flash('message', 'Pengeluaran kas manual berhasil dicatat ke dalam pembukuan yayasan.');
     }

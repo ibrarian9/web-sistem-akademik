@@ -412,12 +412,13 @@ class ManajemenGajiGuru extends Component
             'createBuktiFoto.max' => 'Ukuran foto bukti pembayaran maksimal 2MB.',
         ]);
 
-        $exists = GajiGuru::where('guru_id', $this->createGuruId)
+        $existingGaji = GajiGuru::withTrashed()
+            ->where('guru_id', $this->createGuruId)
             ->where('bulan', $this->createBulan)
             ->where('tahun', $this->createTahun)
-            ->exists();
+            ->first();
 
-        if ($exists) {
+        if ($existingGaji && !$existingGaji->trashed()) {
             $this->addError('createGuruId', 'Gaji untuk guru ini pada periode tersebut sudah ada.');
             return;
         }
@@ -430,7 +431,7 @@ class ManajemenGajiGuru extends Component
         }
 
         try {
-            DB::transaction(function () use ($pathBukti) {
+            DB::transaction(function () use ($pathBukti, $existingGaji) {
                 $pengeluaranId = null;
                 $guru = Guru::with('user')->findOrFail($this->createGuruId);
 
@@ -468,7 +469,7 @@ class ManajemenGajiGuru extends Component
                     }
                 }
 
-                GajiGuru::create([
+                $gajiData = [
                     'guru_id' => $this->createGuruId,
                     'pengeluaran_id' => $pengeluaranId,
                     'bulan' => $this->createBulan,
@@ -492,7 +493,14 @@ class ManajemenGajiGuru extends Component
                     'sumber_dana' => $this->createSumberDana ?: 'Yayasan',
                     'jam_kerja' => $this->createJamKerja ?: '07.00-14.00',
                     'jabatan' => $this->createJabatan ?: ($guru->jabatan ?? 'Guru'),
-                ]);
+                ];
+
+                if ($existingGaji && $existingGaji->trashed()) {
+                    $existingGaji->restore();
+                    $existingGaji->update($gajiData);
+                } else {
+                    GajiGuru::create($gajiData);
+                }
             });
         } catch (\Illuminate\Database\UniqueConstraintViolationException | \Illuminate\Database\QueryException $e) {
             if ($e->getCode() == 23000 || str_contains($e->getMessage(), '1062 Duplicate entry')) {
@@ -622,7 +630,8 @@ class ManajemenGajiGuru extends Component
         $gaji = GajiGuru::with('guru.user')->findOrFail($this->editingId);
         $userRole = auth()->user()->role->nama ?? '';
 
-        $duplicate = GajiGuru::where('guru_id', $gaji->guru_id)
+        $duplicate = GajiGuru::withTrashed()
+            ->where('guru_id', $gaji->guru_id)
             ->where('bulan', $this->editBulan)
             ->where('tahun', $this->editTahun)
             ->where('id', '!=', $this->editingId)
@@ -1002,7 +1011,11 @@ class ManajemenGajiGuru extends Component
                 }
             }
 
-            $gaji->delete();
+            if ($gaji->status === 'draft') {
+                $gaji->forceDelete();
+            } else {
+                $gaji->delete();
+            }
         });
 
         $msg = 'Data gaji berhasil dihapus.';
@@ -1052,7 +1065,11 @@ class ManajemenGajiGuru extends Component
                         );
                         $submittedCount++;
                     } else {
-                        $gaji->delete();
+                        if ($gaji->status === 'draft') {
+                            $gaji->forceDelete();
+                        } else {
+                            $gaji->delete();
+                        }
                         $deletedDraftCount++;
                     }
                 }
@@ -1097,7 +1114,11 @@ class ManajemenGajiGuru extends Component
                     }
                 }
 
-                $gaji->delete();
+                if ($gaji->status === 'draft') {
+                    $gaji->forceDelete();
+                } else {
+                    $gaji->delete();
+                }
             }
         });
 

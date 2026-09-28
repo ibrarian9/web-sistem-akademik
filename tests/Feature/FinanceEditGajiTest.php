@@ -318,4 +318,71 @@ class FinanceEditGajiTest extends TestCase
         $count = $action->execute($items, 'September', 2026);
         $this->assertEquals(0, $count);
     }
+
+    /** 8. Bulk generator cleanly restores trashed salary and updates without 1062 error */
+    public function test_bulk_generator_restores_soft_deleted_salary_without_error(): void
+    {
+        $trashedSalary = GajiGuru::create([
+            'guru_id' => $this->guru->id,
+            'bulan' => 'Oktober',
+            'tahun' => 2026,
+            'gaji_pokok' => 1500000,
+            'total_bruto' => 1500000,
+            'total_diterima' => 1500000,
+            'status' => 'draft',
+            'tanggal_bayar' => '2026-10-25',
+        ]);
+        $trashedSalary->delete(); // soft deleted
+
+        $this->assertSoftDeleted('gaji_guru', ['id' => $trashedSalary->id]);
+
+        $action = app(\App\Actions\Finance\GenerateBulkGajiAction::class);
+        $items = [
+            [
+                'guru_id' => $this->guru->id,
+                'gaji_pokok' => 2200000,
+                'gaji_berkala' => 100000,
+                'insentif' => 500000,
+                'insentif_bpjs' => 17928,
+            ],
+        ];
+
+        $count = $action->execute($items, 'Oktober', 2026);
+        $this->assertEquals(1, $count);
+
+        $trashedSalary->refresh();
+        $this->assertNull($trashedSalary->deleted_at);
+        $this->assertEquals(2200000, floatval($trashedSalary->gaji_pokok));
+    }
+
+    /** 9. Single salary creation restores trashed record without duplicate entry error */
+    public function test_single_salary_create_restores_soft_deleted_record(): void
+    {
+        $trashedSalary = GajiGuru::create([
+            'guru_id' => $this->guru->id,
+            'bulan' => 'November',
+            'tahun' => 2026,
+            'gaji_pokok' => 1800000,
+            'total_bruto' => 1800000,
+            'total_diterima' => 1800000,
+            'status' => 'draft',
+            'tanggal_bayar' => '2026-11-25',
+        ]);
+        $trashedSalary->delete(); // soft deleted
+
+        Livewire::actingAs($this->financeUser)
+            ->test(ManajemenGajiGuru::class)
+            ->set('createGuruId', $this->guru->id)
+            ->set('createBulan', 'November')
+            ->set('createTahun', 2026)
+            ->set('createGajiPokok', 2500000)
+            ->call('saveCreate')
+            ->assertHasNoErrors()
+            ->assertSet('showCreateModal', false);
+
+        $trashedSalary->refresh();
+        $this->assertNull($trashedSalary->deleted_at);
+        $this->assertEquals(2500000, floatval($trashedSalary->gaji_pokok));
+    }
 }
+
