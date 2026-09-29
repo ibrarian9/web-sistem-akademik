@@ -25,9 +25,9 @@
         rawValue: null,
         displayValue: '',
         formatNumber(val) {
-            if (val === null || val === undefined || val === '') return '';
+            if (val === null || val === undefined || val === '') return '0';
             let s = val.toString().trim();
-            if (!s) return '';
+            if (!s) return '0';
             let isNegative = s.startsWith('-');
             s = s.replace(/^-/, '');
 
@@ -47,13 +47,14 @@
 
             // Strip any remaining non-digit characters
             let cleanDigits = s.replace(/[^0-9]/g, '');
-            if (!cleanDigits) return '';
+            if (!cleanDigits) return '0';
             let formattedInt = cleanDigits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
             return (isNegative ? '-' : '') + formattedInt;
         },
         syncFromRaw() {
             if (this.rawValue === null || this.rawValue === undefined || this.rawValue === '') {
-                this.displayValue = '';
+                this.rawValue = 0;
+                this.displayValue = '0';
                 return;
             }
             this.displayValue = this.formatNumber(this.rawValue);
@@ -68,9 +69,10 @@
             let cleanDigits = oldVal.replace(/[^0-9]/g, '');
 
             if (cleanDigits === '') {
-                this.rawValue = null;
-                this.displayValue = '';
-                inputEl.value = '';
+                this.rawValue = 0;
+                this.displayValue = '0';
+                inputEl.value = '0';
+                this.$nextTick(() => { inputEl.setSelectionRange(1, 1); });
                 return;
             }
 
@@ -78,7 +80,7 @@
             let formatted = (isNegative ? '-' : '') + formattedInt;
             let numVal = parseInt((isNegative ? '-' : '') + cleanDigits, 10);
 
-            this.rawValue = isNaN(numVal) ? null : numVal;
+            this.rawValue = isNaN(numVal) ? 0 : numVal;
             this.displayValue = formatted;
             inputEl.value = formatted;
 
@@ -102,9 +104,8 @@
             this.syncFromRaw();
             this.$watch('rawValue', (newVal) => {
                 if (newVal === null || newVal === undefined || newVal === '') {
-                    if (this.displayValue !== '') {
-                        this.displayValue = '';
-                    }
+                    this.rawValue = 0;
+                    this.displayValue = '0';
                     return;
                 }
                 let formatted = this.formatNumber(newVal);

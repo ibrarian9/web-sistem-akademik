@@ -40,8 +40,11 @@ trait WithCurrencySanitizer
                 $val = $this->{$prop};
                 if (is_string($val) && $val !== '') {
                     $this->{$prop} = unmask_rupiah($val);
-                } elseif ($val === '' || $val === null) {
+                } elseif ($val === '' || $val === null || $val === false) {
                     $this->{$prop} = 0.0;
+                } else {
+                    // Ensure int/float values (including 0) are always cast to float
+                    $this->{$prop} = (float) $val;
                 }
             }
         }
