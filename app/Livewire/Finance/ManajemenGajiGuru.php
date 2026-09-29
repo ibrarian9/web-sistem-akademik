@@ -96,9 +96,29 @@ class ManajemenGajiGuru extends Component
         $this->resetPage();
     }
 
+    public function updatedCreateBulan(): void
+    {
+        if ($this->createGuruId) {
+            $guru = \App\Models\Guru::with('user')->find($this->createGuruId);
+            if ($guru) {
+                $this->populateCreateDefaults($guru);
+            }
+        }
+    }
+
+    public function updatedCreateTahun(): void
+    {
+        if ($this->createGuruId) {
+            $guru = \App\Models\Guru::with('user')->find($this->createGuruId);
+            if ($guru) {
+                $this->populateCreateDefaults($guru);
+            }
+        }
+    }
+
     public function updated($propertyName): void
     {
-        if (str_starts_with($propertyName, 'create') && !in_array($propertyName, ['createGuruId', 'createBuktiFoto'])) {
+        if (str_starts_with($propertyName, 'create') && !in_array($propertyName, ['createGuruId', 'createBuktiFoto', 'createBulan', 'createTahun'])) {
             $this->calculateCreateTotal();
         } elseif (str_starts_with($propertyName, 'edit') && !in_array($propertyName, ['editGuruId', 'edit_bukti_foto'])) {
             $this->calculateEditTotal();

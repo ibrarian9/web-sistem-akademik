@@ -71,7 +71,97 @@ trait HasSalaryCreation
         }
     }
 
+    /**
+     * Populate create form with data from the teacher's most recent salary record.
+     * Falls back to status-based defaults when no salary history exists.
+     */
     protected function populateCreateDefaults(Guru $guru): void
+    {
+        // Try to find the most recent salary for this teacher
+        $lastSalary = $this->findPreviousSalary($guru->id, $this->createBulan, $this->createTahun);
+
+        if ($lastSalary) {
+            $this->populateFromPreviousSalary($guru, $lastSalary);
+        } else {
+            $this->populateFromStatusDefaults($guru);
+        }
+
+        // Always refresh loan deduction from active loan data
+        $activeLoan = Peminjaman::where('guru_id', $guru->id)
+            ->where('status', 'berjalan')
+            ->where('sisa_pinjaman', '>', 0)
+            ->first();
+
+        $this->createPotonganPinjaman = $activeLoan
+            ? min(floatval($activeLoan->cicilan_per_bulan), floatval($activeLoan->sisa_pinjaman))
+            : 0.00;
+
+        $this->calculateCreateTotal();
+    }
+
+    /**
+     * Find the most recent salary record for a teacher, prioritizing the
+     * month immediately before the target period.
+     */
+    protected function findPreviousSalary(int $guruId, string $bulan, int $tahun): ?GajiGuru
+    {
+        $bulanIndex = array_search($bulan, $this->listBulan);
+
+        // Calculate previous month
+        if ($bulanIndex !== false && $bulanIndex > 0) {
+            $prevBulan = $this->listBulan[$bulanIndex - 1];
+            $prevTahun = $tahun;
+        } else {
+            // January -> previous is December of last year
+            $prevBulan = 'Desember';
+            $prevTahun = $tahun - 1;
+        }
+
+        // First try exact previous month
+        $prevSalary = GajiGuru::where('guru_id', $guruId)
+            ->where('bulan', $prevBulan)
+            ->where('tahun', $prevTahun)
+            ->first();
+
+        if ($prevSalary) {
+            return $prevSalary;
+        }
+
+        // Fallback: get the most recent salary record regardless of period
+        return GajiGuru::where('guru_id', $guruId)
+            ->latest('id')
+            ->first();
+    }
+
+    /**
+     * Fill the create form fields from a previous salary record.
+     */
+    protected function populateFromPreviousSalary(Guru $guru, GajiGuru $prevSalary): void
+    {
+        $this->createJabatan = $prevSalary->jabatan ?: ($guru->jabatan ?? 'Guru Pengajar');
+        $this->createJamKerja = $prevSalary->jam_kerja ?: '07.00-14.00';
+        $this->createSumberDana = $prevSalary->sumber_dana ?: 'Yayasan';
+
+        // Earnings
+        $this->createGajiPokok = floatval($prevSalary->gaji_pokok);
+        $this->createGajiBerkala = floatval($prevSalary->gaji_berkala);
+        $this->createJumlahEkskul = intval($prevSalary->jumlah_ekskul);
+        $this->createHonorEkskul = floatval($prevSalary->honor_ekskul);
+        $this->createInsentif = floatval($prevSalary->insentif);
+        $this->createInsentifBpjs = floatval($prevSalary->insentif_bpjs);
+        $this->createInsentifMaghrib = floatval($prevSalary->insentif_maghrib_mengaji);
+
+        // Deductions (except loan, which is refreshed from active loan data)
+        $this->createPotonganSosial = floatval($prevSalary->potongan_sosial ?: 10000.00);
+        $this->createPotonganBpjstk = floatval($prevSalary->potongan_bpjstk);
+        $this->createPotonganLainnya = floatval($prevSalary->potongan_lainnya);
+    }
+
+    /**
+     * Fill the create form with hardcoded defaults based on employment status.
+     * Used when there is no previous salary history.
+     */
+    protected function populateFromStatusDefaults(Guru $guru): void
     {
         $isTetap = in_array(strtolower($guru->status_kepegawaian ?? ''), ['tetap_yayasan', 'gty', 'pns']);
         $this->createJabatan = $guru->jabatan ?: ($guru->jenis_guru === 'tahfidz' ? 'Wali Tahfizh' : 'Guru Pengajar');
@@ -89,15 +179,6 @@ trait HasSalaryCreation
         $this->createPotonganSosial = 10000.00;
         $this->createPotonganBpjstk = $isTetap ? 17928.00 : 0.00;
         $this->createPotonganLainnya = 0.00;
-
-        $activeLoan = Peminjaman::where('guru_id', $guru->id)
-            ->where('status', 'berjalan')
-            ->where('sisa_pinjaman', '>', 0)
-            ->first();
-
-        $this->createPotonganPinjaman = $activeLoan ? min(floatval($activeLoan->cicilan_per_bulan), floatval($activeLoan->sisa_pinjaman)) : 0.00;
-
-        $this->calculateCreateTotal();
     }
 
     public function calculateCreateTotal(): void
