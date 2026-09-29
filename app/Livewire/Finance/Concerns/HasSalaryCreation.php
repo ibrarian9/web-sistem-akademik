@@ -37,6 +37,7 @@ trait HasSalaryCreation
     public float $createPotonganLainnya = 0.00;
     public float $createTotalPotongan = 0.00;
     public float $createTotalDiterima = 0.00;
+    public bool $createHasPreviousSalary = false;
 
     public $createBuktiFoto = null;
 
@@ -49,8 +50,8 @@ trait HasSalaryCreation
 
         $firstGuru = Guru::with('user')->where('status_aktif', true)->first();
         $this->createGuruId = $firstGuru?->id;
-        $this->createBulan = $this->listBulan[intval(date('n')) - 1] ?? 'Januari';
-        $this->createTahun = intval(date('Y'));
+        $this->createBulan = !empty($this->filterBulan) ? $this->filterBulan : ($this->listBulan[intval(date('n')) - 1] ?? 'Januari');
+        $this->createTahun = !empty($this->filterTahun) ? intval($this->filterTahun) : intval(date('Y'));
         $this->createTanggalBayar = date('Y-m-d');
         $this->createStatus = 'draft';
 
@@ -79,6 +80,7 @@ trait HasSalaryCreation
     {
         // Try to find the most recent salary for this teacher
         $lastSalary = $this->findPreviousSalary($guru->id, $this->createBulan, $this->createTahun);
+        $this->createHasPreviousSalary = ($lastSalary !== null);
 
         if ($lastSalary) {
             $this->populateFromPreviousSalary($guru, $lastSalary);
@@ -105,32 +107,8 @@ trait HasSalaryCreation
      */
     protected function findPreviousSalary(int $guruId, string $bulan, int $tahun): ?GajiGuru
     {
-        $bulanIndex = array_search($bulan, $this->listBulan);
-
-        // Calculate previous month
-        if ($bulanIndex !== false && $bulanIndex > 0) {
-            $prevBulan = $this->listBulan[$bulanIndex - 1];
-            $prevTahun = $tahun;
-        } else {
-            // January -> previous is December of last year
-            $prevBulan = 'Desember';
-            $prevTahun = $tahun - 1;
-        }
-
-        // First try exact previous month
-        $prevSalary = GajiGuru::where('guru_id', $guruId)
-            ->where('bulan', $prevBulan)
-            ->where('tahun', $prevTahun)
-            ->first();
-
-        if ($prevSalary) {
-            return $prevSalary;
-        }
-
-        // Fallback: get the most recent salary record regardless of period
-        return GajiGuru::where('guru_id', $guruId)
-            ->latest('id')
-            ->first();
+        $salaries = app(\App\Services\Finance\SalaryBulkGeneratorService::class)->resolvePreviousSalaries([$guruId], $bulan, $tahun);
+        return $salaries[$guruId] ?? null;
     }
 
     /**

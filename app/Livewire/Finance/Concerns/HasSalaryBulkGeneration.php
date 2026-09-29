@@ -19,6 +19,13 @@ trait HasSalaryBulkGeneration
             return;
         }
 
+        if (!empty($this->filterBulan)) {
+            $this->generateBulan = $this->filterBulan;
+        }
+        if (!empty($this->filterTahun)) {
+            $this->generateTahun = intval($this->filterTahun);
+        }
+
         $this->loadGeneratePreview();
         $this->showGenerateModal = true;
     }

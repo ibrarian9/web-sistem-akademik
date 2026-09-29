@@ -23,7 +23,7 @@
             </div>
             <div>
                 <label class="block text-[10px] font-extrabold text-stone-600 uppercase tracking-wider mb-1">Bulan</label>
-                <select wire:model="createBulan" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
+                <select wire:model.live="createBulan" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600">
                     @foreach ($listBulan as $b)
                         <option value="{{ $b }}">{{ $b }}</option>
                     @endforeach
@@ -31,9 +31,16 @@
             </div>
             <div>
                 <label class="block text-[10px] font-extrabold text-stone-600 uppercase tracking-wider mb-1">Tahun</label>
-                <input type="number" wire:model="createTahun" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 text-center" />
+                <input type="number" wire:model.live.debounce.400ms="createTahun" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 text-center" />
             </div>
         </div>
+
+        @if ($createHasPreviousSalary)
+            <div class="px-3.5 py-2 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs text-emerald-800 flex-wrap gap-1">
+                <span class="font-bold">✓ Komponen gaji otomatis mengacu pada data riwayat gaji bulan sebelumnya.</span>
+                <span class="text-[10px] text-emerald-600 font-semibold">Dapat disesuaikan jika ada perubahan</span>
+            </div>
+        @endif
 
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
             <div>

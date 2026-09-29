@@ -176,4 +176,121 @@ class FinanceBulkGajiPerformanceTest extends TestCase
         $saved = GajiGuru::where('guru_id', $firstGuru->id)->where('bulan', $currentBulan)->first();
         $this->assertEquals(2500000, floatval($saved->gaji_pokok));
     }
+
+    public function test_bulk_generate_prefills_values_from_previous_month_salary()
+    {
+        $user = User::factory()->create([
+            'nama' => "Guru Senior",
+            'role_id' => $this->guruRole->id,
+            'status' => 'aktif',
+        ]);
+
+        $guru = Guru::create([
+            'user_id' => $user->id,
+            'nip' => "SENIOR-01",
+            'jenis_guru' => 'umum',
+            'status_kepegawaian' => 'tetap_yayasan',
+            'status_aktif' => true,
+            'tanggal_masuk' => '2024-01-01',
+        ]);
+
+        // Prior salary in Agustus 2026
+        GajiGuru::create([
+            'guru_id' => $guru->id,
+            'bulan' => 'Agustus',
+            'tahun' => 2026,
+            'gaji_pokok' => 3200000,
+            'gaji_berkala' => 250000,
+            'insentif' => 650000,
+            'honor_ekskul' => 150000,
+            'insentif_bpjs' => 25000,
+            'insentif_maghrib_mengaji' => 100000,
+            'potongan_sosial' => 15000,
+            'potongan_peminjaman' => 0,
+            'potongan_bpjstk' => 20000,
+            'potongan_lainnya' => 5000,
+            'total_bruto' => 4375000,
+            'total_diterima' => 4335000,
+            'tanggal_bayar' => '2026-08-25',
+            'status' => 'dibayar',
+            'sumber_dana' => 'Yayasan',
+            'jam_kerja' => '07.00-14.00 (Fleksibel)',
+            'jabatan' => 'Guru Senior',
+        ]);
+
+        $service = app(SalaryBulkGeneratorService::class);
+        $preview = $service->buildPreviewItems('September', 2026);
+
+        $this->assertArrayHasKey($guru->id, $preview);
+        $item = $preview[$guru->id];
+
+        $this->assertTrue($item['has_previous_salary']);
+        $this->assertEquals(3200000, $item['gaji_pokok']);
+        $this->assertEquals(250000, $item['gaji_berkala']);
+        $this->assertEquals(650000, $item['insentif']);
+        $this->assertEquals(150000, $item['honor_ekskul']);
+        $this->assertEquals(25000, $item['insentif_bpjs']);
+        $this->assertEquals(100000, $item['insentif_maghrib_mengaji']);
+        $this->assertEquals(15000, $item['potongan_sosial']);
+        $this->assertEquals(20000, $item['potongan_bpjstk']);
+        $this->assertEquals(5000, $item['potongan_lainnya']);
+        $this->assertEquals('Guru Senior', $item['jabatan']);
+    }
+
+    public function test_single_create_modal_prefills_values_from_previous_month_salary()
+    {
+        $user = User::factory()->create([
+            'nama' => "Guru Manual",
+            'role_id' => $this->guruRole->id,
+            'status' => 'aktif',
+        ]);
+
+        $guru = Guru::create([
+            'user_id' => $user->id,
+            'nip' => "MANUAL-01",
+            'jenis_guru' => 'umum',
+            'status_kepegawaian' => 'tetap_yayasan',
+            'status_aktif' => true,
+            'tanggal_masuk' => '2024-01-01',
+        ]);
+
+        // Prior salary in Agustus 2026
+        GajiGuru::create([
+            'guru_id' => $guru->id,
+            'bulan' => 'Agustus',
+            'tahun' => 2026,
+            'gaji_pokok' => 2800000,
+            'gaji_berkala' => 180000,
+            'insentif' => 550000,
+            'honor_ekskul' => 120000,
+            'insentif_bpjs' => 20000,
+            'insentif_maghrib_mengaji' => 80000,
+            'potongan_sosial' => 12000,
+            'potongan_peminjaman' => 0,
+            'potongan_bpjstk' => 18000,
+            'potongan_lainnya' => 2000,
+            'total_bruto' => 3750000,
+            'total_diterima' => 3718000,
+            'tanggal_bayar' => '2026-08-25',
+            'status' => 'dibayar',
+            'sumber_dana' => 'Yayasan',
+            'jam_kerja' => '07.00-14.00 (Fleksibel)',
+            'jabatan' => 'Koordinator Tahfidz',
+        ]);
+
+        $this->actingAs($this->financeUser);
+
+        Livewire::test(ManajemenGajiGuru::class)
+            ->set('createGuruId', $guru->id)
+            ->set('createBulan', 'September')
+            ->set('createTahun', 2026)
+            ->assertSet('createHasPreviousSalary', true)
+            ->assertSet('createGajiPokok', 2800000)
+            ->assertSet('createGajiBerkala', 180000)
+            ->assertSet('createInsentif', 550000)
+            ->assertSet('createHonorEkskul', 120000)
+            ->assertSet('createInsentifMaghrib', 80000)
+            ->assertSet('createPotonganSosial', 12000)
+            ->assertSet('createJabatan', 'Koordinator Tahfidz');
+    }
 }

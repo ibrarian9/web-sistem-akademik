@@ -2,7 +2,7 @@
 <x-floating-card 
     :show="$showGenerateModal" 
     title="Generate Draf Honorarium Pegawai" 
-    subtitle="Tinjau, sesuaikan nominal gaji per guru, lalu generate draf sekaligus dalam satu klik."
+    subtitle="Data nominal otomatis mengacu pada riwayat gaji bulan sebelumnya. Anda tetap dapat menyesuaikan sebelum generate draf."
     badge="DRAF PAYROLL PRA-GENERATE"
     badgeVariant="emerald"
     icon="calendar-plus"
@@ -62,7 +62,18 @@
                                 <td class="p-2.5 font-extrabold text-stone-900 text-xs border-b border-r border-stone-200">
                                     <div class="leading-tight">{{ $item['nama'] }}</div>
                                     <div class="text-[10px] text-emerald-700 font-bold mt-0.5">{{ $item['jabatan'] }}</div>
-                                    <span class="text-[9px] text-stone-400 font-mono">NIY: {{ $item['nip'] }}</span>
+                                    <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                                        <span class="text-[9px] text-stone-400 font-mono">NIY: {{ $item['nip'] }}</span>
+                                        @if (!empty($item['has_previous_salary']))
+                                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">
+                                                Data Bulan Lalu
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-medium bg-stone-100 text-stone-600">
+                                                Pegawai Baru
+                                            </span>
+                                        @endif
+                                    </div>
                                 </td>
                                 
                                 <!-- Gaji Pokok Formatted Input -->
