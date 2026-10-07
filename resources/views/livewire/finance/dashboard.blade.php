@@ -199,14 +199,17 @@
         />
 
         <div class="sm:col-span-2 xl:col-span-4">
-            <x-stat-card 
-                title="Total Saldo Deposit Siswa Mengendap" 
-                :value="'Rp ' . number_format($totalStudentDeposit, 0, ',', '.')" 
-                subtitle="Akumulasi kelebihan pembayaran tagihan dari seluruh siswa yang dapat dialokasikan untuk tagihan berikutnya."
-                icon="wallet" 
-                variant="emerald" 
-                class="h-full"
-            />
+            <a href="{{ route('finance.deposit-siswa') }}" wire:navigate class="block group cursor-pointer transition-transform hover:-translate-y-0.5">
+                <x-stat-card 
+                    title="Total Saldo Deposit Siswa Mengendap" 
+                    :value="'Rp ' . number_format($totalStudentDeposit, 0, ',', '.')" 
+                    subtitle="Akumulasi kelebihan pembayaran tagihan dari seluruh siswa. Klik untuk melihat rincian saldo dan asal-usul kelebihan setoran."
+                    icon="wallet" 
+                    variant="emerald" 
+                    badge="Lihat Rincian →"
+                    class="h-full group-hover:ring-2 group-hover:ring-emerald-400 group-hover:shadow-md transition-all"
+                />
+            </a>
         </div>
     </div>
 

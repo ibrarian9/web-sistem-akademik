@@ -42,21 +42,39 @@
     />
 
     @if (session()->has('message'))
-        <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs">
-            <div class="flex items-center gap-3">
-                <div class="p-2 bg-emerald-600 text-white rounded-xl">
-                    <x-lucide-check-circle class="w-5 h-5" />
+        <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl space-y-3 shadow-2xs">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-emerald-600 text-white rounded-xl shrink-0">
+                        <x-lucide-check-circle class="w-5 h-5" />
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold text-emerald-900 block">{{ session('message') }}</span>
+                        <span class="text-[11px] text-emerald-700">Setoran pembayaran telah berhasil dicatat ke dalam database keuangan.</span>
+                    </div>
                 </div>
-                <div>
-                    <span class="text-xs font-bold text-emerald-900 block">{{ session('message') }}</span>
-                    <span class="text-[11px] text-emerald-700">Setoran pembayaran telah berhasil dicatat ke dalam database keuangan.</span>
-                </div>
+
+                @if (!empty($createdPembayaranList) && count($createdPembayaranList) === 1)
+                    <x-button variant="primary" size="sm" icon="printer" href="{{ route('finance.cetak-resi', $createdPembayaranList[0]['id']) }}" target="_blank">
+                        Cetak Resi Bukti Bayar
+                    </x-button>
+                @elseif ($lastPembayaranId && empty($createdPembayaranList))
+                    <x-button variant="primary" size="sm" icon="printer" href="{{ route('finance.cetak-resi', $lastPembayaranId) }}" target="_blank">
+                        Cetak Resi Bukti Bayar
+                    </x-button>
+                @endif
             </div>
 
-            @if ($lastPembayaranId)
-                <x-button variant="primary" size="sm" icon="printer" href="{{ route('finance.cetak-resi', $lastPembayaranId) }}" target="_blank">
-                    Cetak Resi Bukti Bayar
-                </x-button>
+            @if (!empty($createdPembayaranList) && count($createdPembayaranList) > 1)
+                <div class="pt-2 border-t border-emerald-200/80 flex flex-wrap items-center gap-2">
+                    <span class="text-xs font-bold text-emerald-900">Cetak Kuitansi / Resi:</span>
+                    @foreach ($createdPembayaranList as $item)
+                        <a href="{{ route('finance.cetak-resi', $item['id']) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-2xs transition">
+                            <x-lucide-printer class="w-3.5 h-3.5" />
+                            <span>{{ $item['jenis'] }} ({{ $item['no_resi'] }})</span>
+                        </a>
+                    @endforeach
+                </div>
             @endif
         </div>
     @endif
@@ -151,7 +169,7 @@
         <x-floating-card 
             :show="true" 
             title="Form Setoran Kasir Pembayaran" 
-            :subtitle="$selectedInvoiceInfo['siswa_nama'] . ' (NIS: ' . $selectedInvoiceInfo['siswa_nis'] . ' - Kelas ' . $selectedInvoiceInfo['siswa_kelas'] . ')'"
+            :subtitle="$selectedInvoiceInfo['siswa_nama'] . ' (NIS: ' . $selectedInvoiceInfo['siswa_nis'] . ' : Kelas ' . $selectedInvoiceInfo['siswa_kelas'] . ')'"
             badge="KASIR SETORAN"
             badgeVariant="emerald"
             icon="plus-circle"
@@ -161,8 +179,8 @@
             <!-- Invoice Summary Metrics in Card -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 <div class="p-2.5 bg-stone-50 border border-stone-200 rounded-xl text-center">
-                    <span class="text-[9px] font-bold text-stone-400 uppercase tracking-wider block">Jenis Tagihan</span>
-                    <span class="text-xs font-bold text-stone-800 block mt-0.5">{{ $selectedInvoiceInfo['jenis'] }}</span>
+                    <span class="text-[9px] font-bold text-stone-400 uppercase tracking-wider block">Tagihan Terpilih</span>
+                    <span class="text-xs font-bold text-stone-800 block mt-0.5 truncate" title="{{ $selectedInvoiceInfo['jenis'] }}">{{ $selectedInvoiceInfo['jenis'] }}</span>
                 </div>
                 <div class="p-2.5 bg-stone-50 border border-stone-200 rounded-xl text-center">
                     <span class="text-[9px] font-bold text-stone-400 uppercase tracking-wider block">Total Tagihan</span>
@@ -189,38 +207,69 @@
             @endif
 
             @if (!empty($siswaUnpaidInvoices) && count($siswaUnpaidInvoices) > 1)
-                <!-- Selector Seluruh Tagihan Belum Lunas Siswa Ini -->
-                <div class="space-y-1.5">
-                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider flex items-center justify-between">
-                        <span>Pilih Tagihan yang Ingin Dilunasi:</span>
-                        <span class="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-200">
-                            {{ count($siswaUnpaidInvoices) }} Tagihan Belum Lunas
-                        </span>
-                    </label>
-                    <div class="max-h-36 overflow-y-auto space-y-1.5 p-1 bg-stone-50 border border-stone-200 rounded-xl">
-                        @foreach ($siswaUnpaidInvoices as $ui)
-                            @php $isCurrent = $tagihan_id === $ui['id']; @endphp
+                <!-- Selector Seluruh Tagihan Belum Lunas Siswa Ini (Multi-Pilih) -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between gap-2">
+                        <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">
+                            Pilih Tagihan yang Ingin Dibayar:
+                        </label>
+                        <div class="flex items-center gap-1.5">
                             <button 
                                 type="button" 
-                                wire:click="switchTagihan({{ $ui['id'] }})"
-                                class="w-full text-left p-2.5 rounded-lg border transition flex items-center justify-between gap-2 cursor-pointer {{ $isCurrent ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-2xs font-bold text-emerald-950' : 'bg-white border-stone-200 hover:bg-stone-100 text-stone-700' }}"
+                                wire:click="selectAllTagihans" 
+                                class="text-[10px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded border border-emerald-200 transition cursor-pointer"
                             >
-                                <div class="flex items-center gap-2 min-w-0">
-                                    <div class="w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 {{ $isCurrent ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-stone-300' }}">
-                                        @if ($isCurrent)
-                                            <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
+                                Pilih Semua ({{ count($siswaUnpaidInvoices) }})
+                            </button>
+                            <button 
+                                type="button" 
+                                wire:click="deselectAllTagihans" 
+                                class="text-[10px] font-bold text-stone-600 bg-stone-100 hover:bg-stone-200 px-2 py-0.5 rounded border border-stone-200 transition cursor-pointer"
+                            >
+                                Kosongkan
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="max-h-48 overflow-y-auto space-y-1.5 p-1.5 bg-stone-50 border border-stone-200 rounded-xl">
+                        @foreach ($siswaUnpaidInvoices as $ui)
+                            @php $isChecked = in_array($ui['id'], $selected_tagihan_ids); @endphp
+                            <div 
+                                wire:click="toggleTagihan({{ $ui['id'] }})"
+                                class="w-full text-left p-2.5 rounded-lg border transition flex items-center justify-between gap-3 cursor-pointer select-none {{ $isChecked ? 'bg-emerald-50/90 border-emerald-500 ring-2 ring-emerald-500/20 shadow-2xs font-bold text-emerald-950' : 'bg-white border-stone-200 hover:bg-stone-100/80 text-stone-700' }}"
+                            >
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="w-4 h-4 rounded border flex items-center justify-center shrink-0 transition {{ $isChecked ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-stone-300 bg-white' }}">
+                                        @if ($isChecked)
+                                            <x-lucide-check class="w-3 h-3 text-white stroke-[3]" />
                                         @endif
                                     </div>
-                                    <span class="text-xs font-extrabold truncate">{{ $ui['jenis'] }}</span>
-                                    <span class="text-[10px] px-1.5 py-0.5 rounded {{ $ui['is_spp'] ? 'bg-indigo-50 text-indigo-700' : 'bg-amber-50 text-amber-800' }}">{{ $ui['bulan'] }}</span>
+                                    <div class="min-w-0">
+                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                            <span class="text-xs font-extrabold truncate text-stone-900">{{ $ui['jenis'] }}</span>
+                                            <span class="text-[10px] px-1.5 py-0.5 rounded font-semibold {{ $ui['is_spp'] ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-amber-50 text-amber-800 border border-amber-200' }}">{{ $ui['bulan'] }}</span>
+                                        </div>
+                                        <span class="text-[10px] text-stone-400 block mt-0.5">Jatuh Tempo: {{ $ui['jatuh_tempo'] }}</span>
+                                    </div>
                                 </div>
                                 <div class="text-right shrink-0">
-                                    <span class="text-xs font-black text-rose-700">Rp {{ number_format($ui['sisa'], 0, ',', '.') }}</span>
-                                    <span class="text-[9px] text-stone-400 block">Jatuh Tempo: {{ $ui['jatuh_tempo'] }}</span>
+                                    <span class="text-xs font-black text-rose-700 block">Rp {{ number_format($ui['sisa'], 0, ',', '.') }}</span>
+                                    <span class="text-[10px] text-stone-400 block">dari Rp {{ number_format($ui['nominal'], 0, ',', '.') }}</span>
                                 </div>
-                            </button>
+                            </div>
                         @endforeach
                     </div>
+
+                    @if (count($selected_tagihan_ids) > 1)
+                        <div class="p-2 bg-indigo-50/70 border border-indigo-200 rounded-lg flex items-center justify-between text-xs">
+                            <span class="text-indigo-900 font-bold flex items-center gap-1.5">
+                                <x-lucide-check-circle-2 class="w-4 h-4 text-indigo-600" />
+                                {{ count($selected_tagihan_ids) }} Tagihan Terpilih Sekaligus
+                            </span>
+                            <span class="font-black text-indigo-950">Total: Rp {{ number_format($selectedInvoiceInfo['sisa'] ?? 0, 0, ',', '.') }}</span>
+                        </div>
+                    @endif
+                    @error('selected_tagihan_ids') <span class="text-rose-600 text-[11px] font-bold block">{{ $message }}</span> @enderror
                 </div>
             @endif
 

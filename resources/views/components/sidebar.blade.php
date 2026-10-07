@@ -213,6 +213,7 @@
                     ['title' => 'Arus Kas (Cash Flow)', 'route' => 'finance.arus-kas', 'icon' => 'layers'],
                     ['title' => 'Kelola Tagihan SPP', 'route' => 'finance.tagihan', 'icon' => 'file-text'],
                     ['title' => 'Tabungan Siswa', 'route' => 'finance.tabungan', 'icon' => 'wallet'],
+                    ['title' => 'Saldo Deposit Siswa', 'route' => 'finance.deposit-siswa', 'icon' => 'piggy-bank'],
                     ['title' => 'Gaji Guru & Staf', 'route' => 'finance.gaji-guru', 'icon' => 'banknote'],
                     ['title' => 'Dana BOS (Masuk & Keluar)', 'route' => 'finance.dana-bos', 'icon' => 'box'],
                 ]
@@ -337,6 +338,7 @@
                     ['title' => 'Kasir Pembayaran', 'route' => 'finance.input-pembayaran', 'icon' => 'credit-card'],
                     ['title' => 'Manajemen Tagihan', 'route' => 'finance.tagihan', 'icon' => 'file-text'],
                     ['title' => 'Tabungan Siswa', 'route' => 'finance.tabungan', 'icon' => 'wallet'],
+                    ['title' => 'Saldo Deposit Siswa', 'route' => 'finance.deposit-siswa', 'icon' => 'piggy-bank'],
                     ['title' => 'Overview Pembayaran', 'route' => 'finance.overview-pembayaran', 'icon' => 'eye'],
                 ]
             ],

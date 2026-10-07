@@ -24,6 +24,7 @@ class InputPembayaran extends Component
     // Selection properties
     public ?int $siswa_id = null;
     public ?int $tagihan_id = null;
+    public array $selected_tagihan_ids = [];
     public float $siswaDeposit = 0.00;
 
     // Payment Form properties
@@ -33,23 +34,26 @@ class InputPembayaran extends Component
     public ?string $bukti_bayar = null;
     public $bukti_foto = null;
     public ?int $lastPembayaranId = null;
+    public array $createdPembayaranList = [];
 
     // Selected Invoice details summary
     public ?array $selectedInvoiceInfo = null;
     public array $siswaUnpaidInvoices = [];
     public array $classes = [];
 
-    public function setMetodeBayar(string $method)
+    public function setMetodeBayar(string $method): void
     {
         $this->metode_bayar = $method;
     }
 
-    protected function rules()
+    protected function rules(): array
     {
         return [
             'siswa_id' => 'required|exists:siswa,id',
-            'tagihan_id' => 'required|exists:tagihan,id',
-            'nominal_dibayar' => 'required|numeric|min:0',
+            'tagihan_id' => 'nullable|exists:tagihan,id',
+            'selected_tagihan_ids' => 'required|array|min:1',
+            'selected_tagihan_ids.*' => 'exists:tagihan,id',
+            'nominal_dibayar' => 'required|numeric|min:1',
             'tanggal_bayar' => 'required|date',
             'metode_bayar' => 'required|string|in:Tunai,Transfer Bank,E-Wallet,Deposit',
             'bukti_foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
@@ -57,12 +61,15 @@ class InputPembayaran extends Component
     }
 
     protected $messages = [
+        'selected_tagihan_ids.required' => 'Pilih setidaknya satu tagihan untuk dibayarkan.',
+        'selected_tagihan_ids.min' => 'Pilih setidaknya satu tagihan untuk dibayarkan.',
+        'nominal_dibayar.min' => 'Nominal pembayaran harus lebih dari 0.',
         'bukti_foto.image' => 'File bukti pembayaran harus berupa foto/gambar.',
         'bukti_foto.mimes' => 'Format foto hanya boleh JPG, JPEG, PNG, atau WEBP.',
         'bukti_foto.max' => 'Ukuran file foto bukti pembayaran maksimal 2MB.',
     ];
 
-    public function mount(?int $siswa_id = null)
+    public function mount(?int $siswa_id = null): void
     {
         $this->classes = Kelas::orderBy('nama_kelas')->get()->toArray();
         $this->tanggal_bayar = date('Y-m-d');
@@ -75,17 +82,28 @@ class InputPembayaran extends Component
         }
     }
 
-    public function updatingSearch()
+    public function updatingSearch(): void
     {
         $this->resetPage();
     }
 
-    public function updatingFilterKelas()
+    public function updatingFilterKelas(): void
     {
         $this->resetPage();
     }
 
-    public function pilihSiswaAndTagihan(int $siswaId, ?int $tagihanId = null)
+    public function updatedTagihanId($value): void
+    {
+        if ($value) {
+            $val = (int) $value;
+            if (!in_array($val, $this->selected_tagihan_ids)) {
+                $this->selected_tagihan_ids = [$val];
+            }
+            $this->recalculateSelectedTotals();
+        }
+    }
+
+    public function pilihSiswaAndTagihan(int $siswaId, ?int $tagihanId = null): void
     {
         $siswa = Siswa::with('user', 'kelas')->find($siswaId);
         if (!$siswa) return;
@@ -97,29 +115,56 @@ class InputPembayaran extends Component
 
         if ($tagihanId) {
             $this->tagihan_id = $tagihanId;
+            $this->selected_tagihan_ids = [$tagihanId];
         } else {
-            // Find first unpaid invoice for this student
-            $firstUnpaid = Tagihan::where('siswa_id', $siswaId)
-                ->whereIn('status', ['belum_bayar', 'sebagian'])
-                ->first();
-            $this->tagihan_id = $firstUnpaid ? $firstUnpaid->id : null;
+            // Default to first unpaid invoice
+            if (!empty($this->siswaUnpaidInvoices)) {
+                $firstId = $this->siswaUnpaidInvoices[0]['id'];
+                $this->tagihan_id = $firstId;
+                $this->selected_tagihan_ids = [$firstId];
+            } else {
+                $this->tagihan_id = null;
+                $this->selected_tagihan_ids = [];
+            }
         }
 
-        if ($this->tagihan_id) {
-            $this->loadSelectedTagihanDetails($this->tagihan_id);
-        } else {
-            $this->selectedInvoiceInfo = null;
-            $this->nominal_dibayar = 0.00;
-        }
+        $this->recalculateSelectedTotals();
     }
 
-    public function switchTagihan(int $tagihanId)
+    public function switchTagihan(int $tagihanId): void
     {
         $this->tagihan_id = $tagihanId;
-        $this->loadSelectedTagihanDetails($tagihanId);
+        $this->selected_tagihan_ids = [$tagihanId];
+        $this->recalculateSelectedTotals();
     }
 
-    public function loadSiswaUnpaidInvoices(int $siswaId)
+    public function toggleTagihan(int $tagihanId): void
+    {
+        if (in_array($tagihanId, $this->selected_tagihan_ids)) {
+            $this->selected_tagihan_ids = array_values(array_diff($this->selected_tagihan_ids, [$tagihanId]));
+        } else {
+            $this->selected_tagihan_ids[] = $tagihanId;
+        }
+
+        $this->tagihan_id = $this->selected_tagihan_ids[0] ?? null;
+        $this->recalculateSelectedTotals();
+    }
+
+    public function selectAllTagihans(): void
+    {
+        $this->selected_tagihan_ids = array_column($this->siswaUnpaidInvoices, 'id');
+        $this->tagihan_id = $this->selected_tagihan_ids[0] ?? null;
+        $this->recalculateSelectedTotals();
+    }
+
+    public function deselectAllTagihans(): void
+    {
+        $this->selected_tagihan_ids = [];
+        $this->tagihan_id = null;
+        $this->recalculateSelectedTotals();
+    }
+
+    public function loadSiswaUnpaidInvoices(int $siswaId): void
     {
         $invoices = Tagihan::where('siswa_id', $siswaId)
             ->whereIn('status', ['belum_bayar', 'sebagian'])
@@ -144,38 +189,76 @@ class InputPembayaran extends Component
         })->toArray();
     }
 
-    public function loadSelectedTagihanDetails(int $tagihanId)
+    public function recalculateSelectedTotals(): void
     {
-        $invoice = Tagihan::where('id', $tagihanId)->with(['jenisTagihan', 'siswa.user', 'siswa.kelas'])->first();
-        if ($invoice) {
-            $sisa = floatval($invoice->nominal - $invoice->total_dibayar);
-            $this->nominal_dibayar = $sisa;
-            $this->selectedInvoiceInfo = [
-                'id' => $invoice->id,
-                'siswa_nama' => $invoice->siswa->user->nama ?? '-',
-                'siswa_nis' => $invoice->siswa->nis ?? '-',
-                'siswa_kelas' => $invoice->siswa->kelas->nama_kelas ?? '-',
-                'jenis' => $invoice->jenisTagihan->nama ?? 'Tagihan',
-                'periode' => $invoice->bulan ?: '-',
-                'nominal' => floatval($invoice->nominal),
-                'total_dibayar' => floatval($invoice->total_dibayar),
-                'sisa' => $sisa,
-            ];
+        if (empty($this->selected_tagihan_ids)) {
+            $this->selectedInvoiceInfo = null;
+            $this->nominal_dibayar = 0.00;
+            return;
         }
+
+        $invoices = Tagihan::whereIn('id', $this->selected_tagihan_ids)
+            ->with(['jenisTagihan', 'siswa.user', 'siswa.kelas'])
+            ->orderBy('jatuh_tempo', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        if ($invoices->isEmpty()) {
+            $this->selectedInvoiceInfo = null;
+            $this->nominal_dibayar = 0.00;
+            return;
+        }
+
+        $first = $invoices->first();
+        $totalNominal = $invoices->sum(fn($t) => floatval($t->nominal));
+        $totalDibayar = $invoices->sum(fn($t) => floatval($t->total_dibayar));
+        $totalSisa = $invoices->sum(fn($t) => max(0, floatval($t->nominal) - floatval($t->total_dibayar)));
+        $names = $invoices->map(fn($t) => ($t->jenisTagihan->nama ?? 'Tagihan') . ($t->bulan ? ' ' . $t->bulan : ''))->join(', ');
+
+        $this->nominal_dibayar = $totalSisa;
+        $this->selectedInvoiceInfo = [
+            'id' => $first->id,
+            'siswa_nama' => $first->siswa->user->nama ?? '-',
+            'siswa_nis' => $first->siswa->nis ?? '-',
+            'siswa_kelas' => $first->siswa->kelas->nama_kelas ?? '-',
+            'jenis' => count($invoices) > 1 ? (count($invoices) . ' Tagihan Terpilih (' . $names . ')') : ($first->jenisTagihan->nama ?? 'Tagihan'),
+            'periode' => count($invoices) > 1 ? (count($invoices) . ' Tagihan') : ($first->bulan ?: '-'),
+            'nominal' => $totalNominal,
+            'total_dibayar' => $totalDibayar,
+            'sisa' => $totalSisa,
+            'count' => count($invoices),
+            'names' => $names,
+        ];
     }
 
-    public function resetSelection()
+    public function loadSelectedTagihanDetails(int $tagihanId): void
     {
-        $this->reset(['siswa_id', 'tagihan_id', 'nominal_dibayar', 'selectedInvoiceInfo', 'siswaUnpaidInvoices', 'siswaDeposit', 'bukti_foto']);
+        $this->selected_tagihan_ids = [$tagihanId];
+        $this->recalculateSelectedTotals();
+    }
+
+    public function resetSelection(): void
+    {
+        $this->reset([
+            'siswa_id', 
+            'tagihan_id', 
+            'selected_tagihan_ids', 
+            'nominal_dibayar', 
+            'selectedInvoiceInfo', 
+            'siswaUnpaidInvoices', 
+            'siswaDeposit', 
+            'bukti_foto', 
+            'bukti_bayar'
+        ]);
         $this->resetValidation();
     }
 
-    public function removeBuktiFoto()
+    public function removeBuktiFoto(): void
     {
         $this->bukti_foto = null;
     }
 
-    public function savePayment()
+    public function savePayment(): void
     {
         if (auth()->user()->isSuperAdmin2()) {
             session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
@@ -184,11 +267,18 @@ class InputPembayaran extends Component
 
         $this->sanitizeCurrencies(['nominal_dibayar']);
 
+        // Ensure tagihan_id and selected_tagihan_ids are synced
+        if (empty($this->selected_tagihan_ids) && $this->tagihan_id) {
+            $this->selected_tagihan_ids = [$this->tagihan_id];
+        }
+        if (!empty($this->selected_tagihan_ids) && empty($this->tagihan_id)) {
+            $this->tagihan_id = $this->selected_tagihan_ids[0];
+        }
+
         $this->validate();
 
-        $tagihan = Tagihan::where('id', $this->tagihan_id)->first();
-        if (!$tagihan) {
-            session()->flash('error', 'Tagihan tidak ditemukan.');
+        if (empty($this->selected_tagihan_ids)) {
+            session()->flash('error', 'Pilih setidaknya satu tagihan yang ingin dibayar.');
             return;
         }
 
@@ -206,72 +296,117 @@ class InputPembayaran extends Component
         }
 
         DB::transaction(function () use ($pathBukti) {
-            // Lock tagihan row for update
-            $tagihan = Tagihan::lockForUpdate()->find($this->tagihan_id);
-            if (!$tagihan) return;
+            $tagihans = Tagihan::lockForUpdate()
+                ->whereIn('id', $this->selected_tagihan_ids)
+                ->with(['jenisTagihan', 'siswa'])
+                ->orderBy('jatuh_tempo', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
 
-            $sisaTunggakan = max(0, floatval($tagihan->nominal) - floatval($tagihan->total_dibayar));
-            $kelebihan = max(0, floatval($this->nominal_dibayar) - $sisaTunggakan);
-
-            // Unique receipt number
-            $noResi = 'KW-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
-
-            // Create payment
-            $pembayaran = Pembayaran::create([
-                'no_resi' => $noResi,
-                'tagihan_id' => $this->tagihan_id,
-                'tanggal_bayar' => $this->tanggal_bayar,
-                'nominal_dibayar' => $this->nominal_dibayar,
-                'kelebihan_bayar' => $kelebihan,
-                'metode_bayar' => $this->metode_bayar,
-                'bukti_bayar' => $pathBukti,
-                'is_void' => false,
-                'petugas_id' => auth()->id(),
-            ]);
-
-            $this->lastPembayaranId = $pembayaran->id;
-
-            // Update invoice
-            $newPaid = floatval($tagihan->total_dibayar) + $this->nominal_dibayar;
-            $status = 'sebagian';
-            if ($newPaid >= floatval($tagihan->nominal)) {
-                $status = 'lunas';
+            if ($tagihans->isEmpty()) {
+                return;
             }
 
-            $tagihan->update([
-                'total_dibayar' => $newPaid,
-                'status' => $status
-            ]);
+            $remainingAmount = floatval($this->nominal_dibayar);
+            $totalExcess = 0.00;
+            $createdIds = [];
+            $createdList = [];
+            $count = $tagihans->count();
+
+            $baseTimestamp = date('Ymd');
+            $randomBase = str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+
+            foreach ($tagihans as $idx => $tagihan) {
+                $isLast = ($idx === $count - 1);
+                $sisaTunggakan = max(0, floatval($tagihan->nominal) - floatval($tagihan->total_dibayar));
+
+                if ($isLast) {
+                    $allocated = $remainingAmount;
+                    if ($allocated > $sisaTunggakan) {
+                        $kelebihan = $allocated - $sisaTunggakan;
+                        $totalExcess += $kelebihan;
+                    } else {
+                        $kelebihan = 0.00;
+                    }
+                } else {
+                    $allocated = min($remainingAmount, $sisaTunggakan);
+                    $remainingAmount = max(0, $remainingAmount - $allocated);
+                    $kelebihan = 0.00;
+                }
+
+                // If no remaining amount for this bill, skip creating empty 0 payment if multiple bills
+                if ($allocated <= 0 && $count > 1) {
+                    continue;
+                }
+
+                // Unique receipt number
+                $suffix = ($count > 1) ? '-' . ($idx + 1) : '';
+                $noResi = 'KW-' . $baseTimestamp . '-' . $randomBase . $suffix;
+                while (Pembayaran::where('no_resi', $noResi)->exists()) {
+                    $randomBase = str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+                    $noResi = 'KW-' . $baseTimestamp . '-' . $randomBase . $suffix;
+                }
+
+                $pembayaran = Pembayaran::create([
+                    'no_resi' => $noResi,
+                    'tagihan_id' => $tagihan->id,
+                    'tanggal_bayar' => $this->tanggal_bayar,
+                    'nominal_dibayar' => $allocated,
+                    'kelebihan_bayar' => $kelebihan,
+                    'metode_bayar' => $this->metode_bayar,
+                    'bukti_bayar' => $pathBukti,
+                    'is_void' => false,
+                    'petugas_id' => auth()->id(),
+                ]);
+
+                $newPaid = floatval($tagihan->total_dibayar) + $allocated;
+                $status = ($newPaid >= floatval($tagihan->nominal)) ? 'lunas' : 'sebagian';
+                $tagihan->update([
+                    'total_dibayar' => $newPaid,
+                    'status' => $status,
+                ]);
+
+                $createdIds[] = $pembayaran->id;
+                $createdList[] = [
+                    'id' => $pembayaran->id,
+                    'no_resi' => $noResi,
+                    'jenis' => ($tagihan->jenisTagihan->nama ?? 'Tagihan') . ($tagihan->bulan ? ' (' . $tagihan->bulan . ')' : ''),
+                    'nominal' => $allocated,
+                ];
+            }
 
             $siswaObj = Siswa::find($this->siswa_id);
             if ($siswaObj) {
-                // If paid via deposit, subtract from deposit
                 if ($this->metode_bayar === 'Deposit') {
                     $siswaObj->decrement('saldo_deposit', $this->nominal_dibayar);
                 }
 
-                // If overpayment, add excess to deposit
-                if ($kelebihan > 0) {
-                    $siswaObj->increment('saldo_deposit', $kelebihan);
+                if ($totalExcess > 0) {
+                    $siswaObj->increment('saldo_deposit', $totalExcess);
+                }
+
+                // In-App Notification
+                if ($siswaObj->user_id) {
+                    $tagihanNames = $tagihans->map(fn($t) => ($t->jenisTagihan->nama ?? 'Tagihan') . ($t->bulan ? ' ' . $t->bulan : ''))->join(', ');
+                    Notifikasi::create([
+                        'user_id' => $siswaObj->user_id,
+                        'siswa_id' => $siswaObj->id,
+                        'judul' => 'Pembayaran Berhasil',
+                        'isi_pesan' => "Setoran Pembayaran untuk {$tagihanNames} sebesar Rp " . number_format($this->nominal_dibayar, 0, ',', '.') . " (" . $this->metode_bayar . ") telah diterima.",
+                        'jenis' => 'tunggakan',
+                        'channel' => 'in_app',
+                        'status_kirim' => 'terkirim',
+                        'dikirim_pada' => now(),
+                    ]);
                 }
             }
 
-            // Notification
-            if ($siswaObj && $siswaObj->user_id) {
-                Notifikasi::create([
-                    'user_id' => $siswaObj->user_id,
-                    'siswa_id' => $siswaObj->id,
-                    'judul' => 'Pembayaran Berhasil',
-                    'isi_pesan' => "Setoran Pembayaran untuk " . ($tagihan->jenisTagihan->nama ?? 'Tagihan') . " sebesar Rp " . number_format($this->nominal_dibayar, 0, ',', '.') . " (" . $this->metode_bayar . ") telah diterima.",
-                    'jenis' => 'tunggakan',
-                    'channel' => 'in_app',
-                    'status_kirim' => 'terkirim',
-                    'dikirim_pada' => now(),
-                ]);
-            }
+            $this->lastPembayaranId = $createdIds[0] ?? null;
+            $this->createdPembayaranList = $createdList;
         });
 
-        session()->flash('message', 'Setoran pembayaran berhasil disimpan.');
+        $countPaid = count($this->createdPembayaranList);
+        session()->flash('message', "Setoran pembayaran untuk {$countPaid} tagihan sebesar Rp " . number_format($this->nominal_dibayar, 0, ',', '.') . " berhasil disimpan.");
         $this->resetSelection();
         $this->resetPage();
     }
