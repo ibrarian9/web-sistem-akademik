@@ -136,6 +136,9 @@ class FinancialApprovalService
                             $newStatus = 'sebagian';
                         }
                         $target->update(['status' => $newStatus]);
+
+                        // Synchronize excess payment and student deposit balance
+                        app(\App\Actions\Finance\AdjustTagihanExcessAction::class)->execute($target);
                     } elseif ($target instanceof Tabungan) {
                         self::recalculateStudentTabungan($target->siswa_id);
                     } elseif ($target instanceof \App\Models\GajiGuru) {

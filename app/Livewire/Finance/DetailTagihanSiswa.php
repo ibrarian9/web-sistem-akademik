@@ -622,6 +622,8 @@ class DetailTagihanSiswa extends Component
             $newStatus = 'sebagian';
         }
 
+        $oldNominal = floatval($t->nominal);
+
         $t->update([
             'jenis_tagihan_id' => $this->edit_jenis_tagihan_id,
             'bulan' => $this->edit_bulan,
@@ -629,6 +631,9 @@ class DetailTagihanSiswa extends Component
             'jatuh_tempo' => $this->edit_jatuh_tempo,
             'status' => $newStatus,
         ]);
+
+        // Synchronize excess payment and student deposit balance
+        app(\App\Actions\Finance\AdjustTagihanExcessAction::class)->execute($t, $oldNominal);
 
         $this->closeEditModal();
         session()->flash('success', 'Data tagihan berhasil diperbarui.');
