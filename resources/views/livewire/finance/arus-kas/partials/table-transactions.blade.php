@@ -1,16 +1,16 @@
 <!-- Unified Cash Flow Jurnal Table -->
 <x-table loadingTarget="search, tab, stream, filterPeriode, startDate, endDate, filterKategoriMasuk, filterKategoriKeluar, filterMetode, nominalMin, nominalMax, page">
-    <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+    <thead class="bg-stone-100/90 text-stone-700 font-extrabold uppercase tracking-wider text-[11px] border-b border-stone-200">
         <tr>
             <x-table.th class="w-32">Tanggal</x-table.th>
             <x-table.th align="center" class="w-24">Tipe</x-table.th>
             <x-table.th class="w-44">Stream / Sumber</x-table.th>
             <x-table.th class="w-40">Kategori / Pos</x-table.th>
             @if ($tab === 'semua' || $tab === 'masuk')
-                <x-table.th align="right" class="w-36">{{ $tab === 'masuk' ? 'Nominal Masuk (Rp)' : 'Kas Masuk (Rp)' }}</x-table.th>
+                <x-table.th align="right" class="w-36 text-emerald-800">{{ $tab === 'masuk' ? 'Nominal Masuk (Rp)' : 'Kas Masuk (Rp)' }}</x-table.th>
             @endif
             @if ($tab === 'semua' || $tab === 'keluar')
-                <x-table.th align="right" class="w-36">{{ $tab === 'keluar' ? 'Nominal Keluar (Rp)' : 'Kas Keluar (Rp)' }}</x-table.th>
+                <x-table.th align="right" class="w-36 text-rose-800">{{ $tab === 'keluar' ? 'Nominal Keluar (Rp)' : 'Kas Keluar (Rp)' }}</x-table.th>
             @endif
             <x-table.th class="min-w-[180px]">Keterangan / Rincian</x-table.th>
             <x-table.th align="center" class="w-32">Metode / Resi</x-table.th>
@@ -18,57 +18,57 @@
             <x-table.th align="center" class="w-24">Aksi</x-table.th>
         </tr>
     </thead>
-    <tbody class="divide-y divide-stone-200 bg-white">
+    <tbody class="divide-y divide-stone-100 bg-white">
         @php
             $tableColspan = ($tab === 'semua') ? 10 : 9;
         @endphp
         @forelse ($paginatedTransactions as $item)
-            <tr class="hover:bg-stone-50/80 transition">
-                <td class="p-3.5 border-r border-stone-200">
+            <tr class="hover:bg-stone-50/80 transition-colors">
+                <td class="p-3.5">
                     <div class="font-bold text-xs text-stone-900">{{ $item->tanggal->translatedFormat('d M Y') }}</div>
                     @if($item->tanggal->format('H:i') !== '00:00')
                         <div class="text-[10px] text-stone-400 font-mono">{{ $item->tanggal->format('H:i') }} WIB</div>
                     @endif
                 </td>
-                <td class="p-3.5 text-center border-r border-stone-200">
+                <td class="p-3.5 text-center">
                     @if ($item->type === 'masuk')
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
                             <x-lucide-arrow-down-left class="w-3 h-3 text-emerald-600" /> Masuk
                         </span>
                     @else
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-200">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200">
                             <x-lucide-arrow-up-right class="w-3 h-3 text-rose-600" /> Keluar
                         </span>
                     @endif
                 </td>
-                <td class="p-3.5 border-r border-stone-200">
+                <td class="p-3.5">
                     <x-badge :variant="$item->stream_badge" size="xs">
                         {{ $item->stream_label }}
                     </x-badge>
                 </td>
-                <td class="p-3.5 border-r border-stone-200 font-bold text-stone-800 text-xs">
+                <td class="p-3.5 font-bold text-stone-800 text-xs">
                     {{ $item->kategori }}
                 </td>
                 @if ($tab === 'semua' || $tab === 'masuk')
-                    <td class="p-3.5 text-right font-black text-emerald-700 text-xs border-r border-stone-200">
+                    <td class="p-3.5 text-right font-black text-emerald-700 text-xs {{ $item->nominal_masuk > 0 ? 'bg-emerald-50/20' : '' }}">
                         {{ $item->nominal_masuk > 0 ? ('Rp ' . number_format($item->nominal_masuk, 0, ',', '.')) : '-' }}
                     </td>
                 @endif
                 @if ($tab === 'semua' || $tab === 'keluar')
-                    <td class="p-3.5 text-right font-black text-rose-700 text-xs border-r border-stone-200">
+                    <td class="p-3.5 text-right font-black text-rose-700 text-xs {{ $item->nominal_keluar > 0 ? 'bg-rose-50/20' : '' }}">
                         {{ $item->nominal_keluar > 0 ? ('Rp ' . number_format($item->nominal_keluar, 0, ',', '.')) : '-' }}
                     </td>
                 @endif
-                <td class="p-3.5 text-xs text-stone-700 font-medium border-r border-stone-200">
+                <td class="p-3.5 text-xs text-stone-700 font-medium">
                     {{ $item->keterangan }}
                 </td>
-                <td class="p-3.5 text-center text-xs text-stone-600 border-r border-stone-200 font-medium">
+                <td class="p-3.5 text-center text-xs text-stone-600 font-medium">
                     <span class="font-bold block">{{ $item->metode_resi }}</span>
                     @if ($item->no_resi)
                         <span class="text-[10px] font-mono text-stone-400 block">{{ $item->no_resi }}</span>
                     @endif
                 </td>
-                <td class="p-3.5 text-center text-xs border-r border-stone-200">
+                <td class="p-3.5 text-center text-xs">
                     @if (!empty($item->bukti))
                         <div class="flex items-center justify-center">
                             <img src="{{ asset('storage/' . $item->bukti) }}" 
@@ -90,9 +90,9 @@
                     @elseif (in_array(auth()->user()->role?->nama, ['finance', 'super_admin', 'founder']) && !auth()->user()->isSuperAdmin2() && in_array(substr($item->id, 0, strpos($item->id, '_')), ['spp', 'infaq', 'op', 'bos', 'gaji', 'tab', 'loan']))
                         <button type="button" 
                                 wire:click="openUploadBuktiModal('{{ $item->id }}', '{{ addslashes($item->kategori) }}', '{{ addslashes($item->keterangan) }}', {{ $item->nominal_masuk > 0 ? $item->nominal_masuk : $item->nominal_keluar }})" 
-                                class="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 hover:text-emerald-900 border border-dashed border-emerald-300 rounded-lg text-[10px] font-bold transition cursor-pointer shadow-2xs"
+                                class="inline-flex items-center gap-1 px-2 py-1 bg-stone-50 hover:bg-emerald-50 text-stone-600 hover:text-emerald-700 border border-dashed border-stone-300 hover:border-emerald-300 rounded-lg text-[10px] font-semibold transition cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
                                 title="Upload Foto Bukti">
-                            <x-lucide-camera class="w-3.5 h-3.5 text-emerald-600" />
+                            <x-lucide-camera class="w-3.5 h-3.5 text-stone-400" />
                             <span>Bukti</span>
                         </button>
                     @else

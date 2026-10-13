@@ -280,225 +280,233 @@
     </div>
 
     <!-- MAIN PANEL: FILTER & UNIFIED LEDGER TABLE -->
-    <div class="bg-white border border-stone-200 rounded-2xl p-4 sm:p-6 shadow-xs space-y-5">
-        
-        <!-- Controls Bar: Sumber Dana & Arah Arus Tabs -->
-        <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 pb-4 border-b border-stone-200">
-            <!-- Sumber Dana Filter Tabs -->
-            <div class="flex items-center gap-1.5 p-1 bg-stone-100/90 border border-stone-200/90 rounded-xl overflow-x-auto">
-                <button type="button" 
-                        wire:click="setSumber('semua')" 
-                        class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition select-none cursor-pointer whitespace-nowrap {{ $filterSumber === 'semua' ? 'bg-white text-emerald-900 shadow-2xs border border-stone-200 font-extrabold' : 'text-stone-600 hover:text-stone-900 hover:bg-white/60' }}">
-                    Semua Sumber ({{ $metrics['count_total'] }})
-                </button>
-                <button type="button" 
-                        wire:click="setSumber('kas_umum')" 
-                        class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition select-none cursor-pointer whitespace-nowrap flex items-center gap-1.5 {{ $filterSumber === 'kas_umum' ? 'bg-white text-indigo-900 shadow-2xs border border-stone-200 font-extrabold' : 'text-stone-600 hover:text-stone-900 hover:bg-white/60' }}">
-                    <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
-                    <span>Kas Operasional ({{ $metrics['count_kas'] }})</span>
-                </button>
-                <button type="button" 
-                        wire:click="setSumber('dana_bos')" 
-                        class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition select-none cursor-pointer whitespace-nowrap flex items-center gap-1.5 {{ $filterSumber === 'dana_bos' ? 'bg-white text-amber-900 shadow-2xs border border-stone-200 font-extrabold' : 'text-stone-600 hover:text-stone-900 hover:bg-white/60' }}">
-                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                    <span>Dana BOS ({{ $metrics['count_bos'] }})</span>
-                </button>
-            </div>
-
-            <!-- Arah Arus Filter Tabs -->
-            <div class="flex items-center gap-1.5 p-1 bg-stone-100/90 border border-stone-200/90 rounded-xl overflow-x-auto">
-                <button type="button" 
-                        wire:click="setJenis('semua')" 
-                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition select-none cursor-pointer whitespace-nowrap {{ $filterJenis === 'semua' ? 'bg-white text-stone-900 shadow-2xs border border-stone-200 font-extrabold' : 'text-stone-600 hover:text-stone-900 hover:bg-white/60' }}">
-                    Semua Arus
-                </button>
-                <button type="button" 
-                        wire:click="setJenis('masuk')" 
-                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition select-none cursor-pointer whitespace-nowrap flex items-center gap-1 {{ $filterJenis === 'masuk' ? 'bg-emerald-600 text-white shadow-2xs font-extrabold' : 'text-emerald-700 hover:bg-emerald-50' }}">
-                    <x-lucide-arrow-down-left class="w-3.5 h-3.5" />
-                    <span>Pemasukan Saja</span>
-                </button>
-                <button type="button" 
-                        wire:click="setJenis('keluar')" 
-                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition select-none cursor-pointer whitespace-nowrap flex items-center gap-1 {{ $filterJenis === 'keluar' ? 'bg-rose-600 text-white shadow-2xs font-extrabold' : 'text-rose-700 hover:bg-rose-50' }}">
-                    <x-lucide-arrow-up-right class="w-3.5 h-3.5" />
-                    <span>Pengeluaran Saja</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Filter Bar: Search, Category, Date Range -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3 items-end">
-            <!-- Search Keyword -->
-            <div class="{{ $filterPeriode === 'custom' ? 'lg:col-span-3' : ($this->activeFilterCount > 0 ? 'lg:col-span-4' : 'lg:col-span-4') }}">
-                <label class="block text-[11px] font-bold text-stone-600 uppercase tracking-wider mb-1">Pencarian:</label>
-                <x-search-input wire:model.live.debounce.300ms="search" placeholder="Cari keterangan, resi, petugas..." />
-            </div>
-
-            <!-- Kategori Dropdown -->
-            <div class="{{ $filterPeriode === 'custom' ? 'lg:col-span-3' : ($this->activeFilterCount > 0 ? 'lg:col-span-4' : 'lg:col-span-4') }}">
-                <label class="block text-[11px] font-bold text-stone-600 uppercase tracking-wider mb-1">Kategori Transaksi:</label>
-                <select wire:model.live="filterKategori" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
-                    <option value="">Semua Kategori</option>
-                    @foreach ($categoryGroups as $groupLabel => $cats)
-                        @if (!empty($cats))
-                            <optgroup label="{{ $groupLabel }}">
-                                @foreach ($cats as $cat)
-                                    <option value="{{ $cat }}">{{ $cat }}</option>
-                                @endforeach
-                            </optgroup>
-                        @endif
-                    @endforeach
-                </select>
-            </div>
-
-            <!-- Periode Waktu Preset -->
-            <div class="{{ $filterPeriode === 'custom' ? 'lg:col-span-2' : ($this->activeFilterCount > 0 ? 'lg:col-span-3' : 'lg:col-span-4') }}">
-                <label class="block text-[11px] font-bold text-stone-600 uppercase tracking-wider mb-1">Periode Waktu:</label>
-                <select wire:model.live="filterPeriode" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
-                    <option value="semua">Semua Periode</option>
-                    <option value="hari_ini">Hari Ini</option>
-                    <option value="kemarin">Kemarin</option>
-                    <option value="minggu_ini">Minggu Ini</option>
-                    <option value="bulan_ini">Bulan Ini</option>
-                    <option value="bulan_lalu">Bulan Lalu</option>
-                    <option value="tahun_ini">Tahun Ini</option>
-                    <option value="custom">Rentang Tanggal Kustom</option>
-                </select>
-            </div>
-
-            <!-- Custom Date Range -->
-            @if ($filterPeriode === 'custom')
-                <div class="lg:col-span-2">
-                    <label class="block text-[11px] font-bold text-stone-600 uppercase tracking-wider mb-1">Dari:</label>
-                    <input type="date" wire:model.live="startDate" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
+    <div class="space-y-4">
+        <!-- Filter Card -->
+        <div class="bg-white border border-stone-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-4">
+            <!-- Row 1: Source & Flow Tabs -->
+            <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 pb-3 border-b border-stone-100">
+                <!-- Sumber Dana Filter Tabs -->
+                <div class="flex items-center gap-1.5 p-1 bg-stone-100/80 rounded-xl overflow-x-auto">
+                    <button type="button" 
+                            wire:click="setSumber('semua')" 
+                            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition select-none cursor-pointer whitespace-nowrap {{ $filterSumber === 'semua' ? 'bg-white text-stone-900 shadow-xs font-extrabold' : 'text-stone-600 hover:text-stone-900' }}">
+                        Semua Sumber <span class="ml-1 px-1.5 py-0.5 rounded-full text-[10px] {{ $filterSumber === 'semua' ? 'bg-stone-100 text-stone-700' : 'bg-stone-200/70 text-stone-600' }}">{{ $metrics['count_total'] }}</span>
+                    </button>
+                    <button type="button" 
+                            wire:click="setSumber('kas_umum')" 
+                            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition select-none cursor-pointer whitespace-nowrap flex items-center gap-1.5 {{ $filterSumber === 'kas_umum' ? 'bg-white text-indigo-950 shadow-xs font-extrabold' : 'text-stone-600 hover:text-stone-900' }}">
+                        <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                        <span>Kas Operasional</span>
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] {{ $filterSumber === 'kas_umum' ? 'bg-indigo-100 text-indigo-800' : 'bg-stone-200/70 text-stone-600' }}">{{ $metrics['count_kas'] }}</span>
+                    </button>
+                    <button type="button" 
+                            wire:click="setSumber('dana_bos')" 
+                            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition select-none cursor-pointer whitespace-nowrap flex items-center gap-1.5 {{ $filterSumber === 'dana_bos' ? 'bg-white text-amber-950 shadow-xs font-extrabold' : 'text-stone-600 hover:text-stone-900' }}">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                        <span>Dana BOS</span>
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] {{ $filterSumber === 'dana_bos' ? 'bg-amber-100 text-amber-800' : 'bg-stone-200/70 text-stone-600' }}">{{ $metrics['count_bos'] }}</span>
+                    </button>
                 </div>
-                <div class="lg:col-span-2">
-                    <label class="block text-[11px] font-bold text-stone-600 uppercase tracking-wider mb-1">Sampai:</label>
-                    <input type="date" wire:model.live="endDate" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
-                </div>
-            @endif
 
-            <!-- Reset Button -->
-            @if ($this->activeFilterCount > 0)
-                <div class="{{ $filterPeriode === 'custom' ? 'lg:col-span-12 flex justify-end' : 'lg:col-span-1 flex items-end' }}">
-                    <x-button variant="secondary" size="md" icon="refresh-cw" wire:click="resetFilters" class="w-full justify-center">
-                        Reset
-                    </x-button>
+                <!-- Arah Arus Filter Tabs -->
+                <div class="flex items-center gap-1.5 p-1 bg-stone-100/80 rounded-xl overflow-x-auto self-start lg:self-auto">
+                    <button type="button" 
+                            wire:click="setJenis('semua')" 
+                            class="px-3 py-1.5 rounded-lg text-xs font-bold transition select-none cursor-pointer whitespace-nowrap {{ $filterJenis === 'semua' ? 'bg-white text-stone-900 shadow-xs font-extrabold' : 'text-stone-600 hover:text-stone-900' }}">
+                        Semua Arus
+                    </button>
+                    <button type="button" 
+                            wire:click="setJenis('masuk')" 
+                            class="px-3 py-1.5 rounded-lg text-xs font-bold transition select-none cursor-pointer whitespace-nowrap flex items-center gap-1 {{ $filterJenis === 'masuk' ? 'bg-emerald-600 text-white shadow-xs font-extrabold' : 'text-emerald-700 hover:bg-emerald-50' }}">
+                        <x-lucide-arrow-down-left class="w-3.5 h-3.5" />
+                        <span>Pemasukan</span>
+                    </button>
+                    <button type="button" 
+                            wire:click="setJenis('keluar')" 
+                            class="px-3 py-1.5 rounded-lg text-xs font-bold transition select-none cursor-pointer whitespace-nowrap flex items-center gap-1 {{ $filterJenis === 'keluar' ? 'bg-rose-600 text-white shadow-xs font-extrabold' : 'text-rose-700 hover:bg-rose-50' }}">
+                        <x-lucide-arrow-up-right class="w-3.5 h-3.5" />
+                        <span>Pengeluaran</span>
+                    </button>
                 </div>
-            @endif
+            </div>
+
+            <!-- Row 2: Search, Category, Date Filters -->
+            <div class="flex flex-col md:flex-row flex-wrap items-stretch md:items-center gap-3">
+                <!-- Search Input with flex-1 -->
+                <div class="flex-1 min-w-[240px]">
+                    <x-search-input wire:model.live.debounce.300ms="search" placeholder="Cari keterangan, nomor resi, petugas..." />
+                </div>
+
+                <!-- Kategori Dropdown -->
+                <div class="w-full sm:w-auto min-w-[200px]">
+                    <div class="relative">
+                        <select wire:model.live="filterKategori" class="w-full pl-3.5 pr-8 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-800 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 transition shadow-2xs appearance-none cursor-pointer">
+                            <option value="">Semua Kategori</option>
+                            @foreach ($categoryGroups as $groupLabel => $cats)
+                                @if (!empty($cats))
+                                    <optgroup label="{{ $groupLabel }}">
+                                        @foreach ($cats as $cat)
+                                            <option value="{{ $cat }}">{{ $cat }}</option>
+                                        @endforeach
+                                    </optgroup>
+                                @endif
+                            @endforeach
+                        </select>
+                        <x-lucide-chevron-down class="w-4 h-4 text-stone-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                </div>
+
+                <!-- Periode Dropdown -->
+                <div class="w-full sm:w-auto min-w-[170px]">
+                    <div class="relative">
+                        <select wire:model.live="filterPeriode" class="w-full pl-3.5 pr-8 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-800 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 transition shadow-2xs appearance-none cursor-pointer">
+                            <option value="semua">Semua Periode</option>
+                            <option value="hari_ini">Hari Ini</option>
+                            <option value="kemarin">Kemarin</option>
+                            <option value="minggu_ini">Minggu Ini</option>
+                            <option value="bulan_ini">Bulan Ini</option>
+                            <option value="bulan_lalu">Bulan Lalu</option>
+                            <option value="tahun_ini">Tahun Ini</option>
+                            <option value="custom">Rentang Tanggal...</option>
+                        </select>
+                        <x-lucide-calendar class="w-4 h-4 text-stone-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                </div>
+
+                <!-- Custom Date Range -->
+                @if ($filterPeriode === 'custom')
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <input type="date" wire:model.live="startDate" class="px-3 py-2 bg-white border border-stone-300 rounded-xl text-xs font-semibold text-stone-800 focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
+                        <span class="text-stone-400 text-xs">s/d</span>
+                        <input type="date" wire:model.live="endDate" class="px-3 py-2 bg-white border border-stone-300 rounded-xl text-xs font-semibold text-stone-800 focus:ring-2 focus:ring-emerald-600 shadow-2xs" />
+                    </div>
+                @endif
+
+                <!-- Reset Button -->
+                @if ($this->activeFilterCount > 0)
+                    <button type="button" wire:click="resetFilters" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 text-xs font-bold transition shadow-2xs cursor-pointer shrink-0" title="Reset Semua Filter">
+                        <x-lucide-rotate-ccw class="w-3.5 h-3.5 text-stone-500" />
+                        <span>Reset</span>
+                    </button>
+                @endif
+            </div>
         </div>
 
         <!-- TABLE SECTION -->
         <x-table loadingTarget="filterSumber, filterJenis, filterKategori, filterPeriode, startDate, endDate, search, page">
-            <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+            <thead class="bg-stone-100/90 text-stone-700 font-extrabold uppercase tracking-wider text-[11px] border-b border-stone-200">
                 <tr>
-                    <x-table.th class="w-28">Tanggal</x-table.th>
-                    <x-table.th class="w-36 whitespace-nowrap">Sumber Dana</x-table.th>
-                    <x-table.th align="center" class="w-28">Jenis Arus</x-table.th>
-                    <x-table.th class="min-w-[140px]">Kategori</x-table.th>
-                    <x-table.th class="min-w-[220px]">Uraian & Keterangan Transaksi</x-table.th>
-                    <x-table.th align="right" class="w-36 text-emerald-200">Pemasukan (Rp)</x-table.th>
-                    <x-table.th align="right" class="w-36 text-rose-200">Pengeluaran (Rp)</x-table.th>
-                    <x-table.th align="center" class="w-28">Petugas / Bukti</x-table.th>
+                    <x-table.th class="w-36">Tanggal & Resi</x-table.th>
+                    <x-table.th class="w-32 whitespace-nowrap">Sumber</x-table.th>
+                    <x-table.th align="center" class="w-24">Arus</x-table.th>
+                    <x-table.th class="min-w-[130px]">Kategori</x-table.th>
+                    <x-table.th class="min-w-[240px]">Uraian & Keterangan</x-table.th>
+                    <x-table.th align="right" class="w-36 text-emerald-800">Pemasukan (Rp)</x-table.th>
+                    <x-table.th align="right" class="w-36 text-rose-800">Pengeluaran (Rp)</x-table.th>
+                    <x-table.th align="center" class="w-32">Petugas / Bukti</x-table.th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-stone-200 bg-white">
+            <tbody class="divide-y divide-stone-100 bg-white">
                 @forelse ($transactions as $t)
-                    <tr class="hover:bg-emerald-50/40 transition">
-                        <!-- Tanggal -->
-                        <td class="p-3.5 border-r border-stone-200">
-                            <span class="font-extrabold text-stone-900 text-xs block">
-                                {{ $t->tanggal ? $t->tanggal->translatedFormat('d/m/Y') : '-' }}
+                    <tr class="hover:bg-stone-50/80 transition-colors">
+                        <!-- Tanggal & Resi -->
+                        <td class="p-3.5 whitespace-nowrap">
+                            <span class="font-bold text-stone-900 text-xs block">
+                                {{ $t->tanggal ? $t->tanggal->translatedFormat('d M Y') : '-' }}
                             </span>
                             @if ($t->no_resi)
-                                <span class="text-[10px] text-stone-500 font-mono block mt-0.5">
+                                <span class="text-[10px] text-stone-400 font-mono block mt-0.5">
                                     {{ $t->no_resi }}
                                 </span>
                             @endif
                         </td>
 
-                        <!-- Sumber Dana Badge (Muat Satu Baris) -->
-                        <td class="p-3.5 border-r border-stone-200 whitespace-nowrap">
+                        <!-- Sumber Dana -->
+                        <td class="p-3.5 whitespace-nowrap">
                             @if ($t->sumber === 'dana_bos')
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-amber-50 text-amber-900 border border-amber-300 whitespace-nowrap">
-                                    <x-lucide-box class="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold bg-amber-50 text-amber-900 border border-amber-200/80">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                                     <span>Dana BOS</span>
                                 </span>
                             @else
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-indigo-50 text-indigo-900 border border-indigo-200 whitespace-nowrap">
-                                    <x-lucide-landmark class="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold bg-indigo-50 text-indigo-900 border border-indigo-200/80">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
                                     <span>Kas Sekolah</span>
                                 </span>
                             @endif
                         </td>
 
-                        <!-- Jenis Arus Badge -->
-                        <td class="p-3.5 text-center border-r border-stone-200">
+                        <!-- Jenis Arus -->
+                        <td class="p-3.5 text-center whitespace-nowrap">
                             @if ($t->type === 'masuk')
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
-                                    <x-lucide-arrow-down-left class="w-3 h-3 text-emerald-700" />
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    <x-lucide-arrow-down-left class="w-3 h-3 text-emerald-600" />
                                     <span>Masuk</span>
                                 </span>
                             @else
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-800 border border-rose-300">
-                                    <x-lucide-arrow-up-right class="w-3 h-3 text-rose-700" />
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200">
+                                    <x-lucide-arrow-up-right class="w-3 h-3 text-rose-600" />
                                     <span>Keluar</span>
                                 </span>
                             @endif
                         </td>
 
                         <!-- Kategori -->
-                        <td class="p-3.5 border-r border-stone-200">
-                            <span class="text-xs font-extrabold text-stone-900 block truncate" title="{{ $t->kategori }}">
+                        <td class="p-3.5">
+                            <span class="text-xs font-bold text-stone-800 block truncate max-w-[150px]" title="{{ $t->kategori }}">
                                 {{ $t->kategori }}
                             </span>
                         </td>
 
                         <!-- Uraian & Keterangan Transaksi -->
-                        <td class="p-3.5 border-r border-stone-200">
-                            <span class="text-xs text-stone-800 font-medium block leading-snug">
+                        <td class="p-3.5">
+                            <span class="text-xs text-stone-700 font-medium block leading-relaxed max-w-md">
                                 {{ $t->keterangan }}
                             </span>
                         </td>
 
                         <!-- Nominal Pemasukan -->
-                        <td class="p-3.5 text-right font-black text-xs border-r border-stone-200 {{ $t->nominal_masuk > 0 ? 'text-emerald-700 bg-emerald-50/20' : 'text-stone-300' }}">
+                        <td class="p-3.5 text-right whitespace-nowrap {{ $t->nominal_masuk > 0 ? 'bg-emerald-50/20' : '' }}">
                             @if ($t->nominal_masuk > 0)
-                                +Rp {{ number_format($t->nominal_masuk, 0, ',', '.') }}
+                                <span class="font-extrabold text-xs text-emerald-700 font-mono">
+                                    +Rp {{ number_format($t->nominal_masuk, 0, ',', '.') }}
+                                </span>
                             @else
-                                -
+                                <span class="text-stone-300 font-mono text-xs">-</span>
                             @endif
                         </td>
 
                         <!-- Nominal Pengeluaran -->
-                        <td class="p-3.5 text-right font-black text-xs border-r border-stone-200 {{ $t->nominal_keluar > 0 ? 'text-rose-700 bg-rose-50/20' : 'text-stone-300' }}">
+                        <td class="p-3.5 text-right whitespace-nowrap {{ $t->nominal_keluar > 0 ? 'bg-rose-50/20' : '' }}">
                             @if ($t->nominal_keluar > 0)
-                                -Rp {{ number_format($t->nominal_keluar, 0, ',', '.') }}
+                                <span class="font-extrabold text-xs text-rose-700 font-mono">
+                                    -Rp {{ number_format($t->nominal_keluar, 0, ',', '.') }}
+                                </span>
                             @else
-                                -
+                                <span class="text-stone-300 font-mono text-xs">-</span>
                             @endif
                         </td>
 
                         <!-- Petugas / Bukti Transaksi -->
-                        <td class="p-3.5 text-center">
-                            <div class="flex flex-col items-center justify-center gap-1">
-                                <span class="text-[10px] text-stone-500 font-semibold truncate max-w-[100px]" title="{{ $t->petugas }}">
+                        <td class="p-3.5 text-center whitespace-nowrap">
+                            <div class="flex items-center justify-center gap-2">
+                                <span class="text-[11px] text-stone-500 font-medium truncate max-w-[80px]" title="{{ $t->petugas }}">
                                     {{ $t->petugas ?: '-' }}
                                 </span>
                                 @if ($t->bukti)
                                     <button type="button" 
                                             wire:click="openPreviewBukti('{{ Storage::url($t->bukti) }}', 'Bukti Transaksi: {{ addslashes($t->kategori) }}')" 
-                                            class="inline-flex items-center gap-1 px-2 py-0.5 bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-300 rounded text-[10px] font-bold transition cursor-pointer">
-                                        <x-lucide-image class="w-3 h-3 text-emerald-600" />
+                                            class="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-[10px] font-bold transition shadow-2xs hover:scale-105 active:scale-95 cursor-pointer"
+                                            title="Lihat Bukti Foto">
+                                        <x-lucide-image class="w-3.5 h-3.5 text-emerald-600" />
                                         <span>Bukti</span>
                                     </button>
                                 @elseif (in_array(auth()->user()->role?->nama, ['finance', 'super_admin', 'founder']) && !auth()->user()->isSuperAdmin2() && in_array(substr($t->id, 0, strpos($t->id, '_')), ['spp', 'infaq', 'op', 'bos', 'gaji', 'tab', 'loan']))
                                     <button type="button" 
                                             wire:click="openUploadBuktiModal('{{ $t->id }}', '{{ addslashes($t->kategori) }}', '{{ addslashes($t->keterangan) }}', {{ $t->nominal_masuk > 0 ? $t->nominal_masuk : $t->nominal_keluar }})" 
-                                            class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 hover:text-emerald-900 border border-dashed border-emerald-300 rounded text-[10px] font-bold transition cursor-pointer shadow-2xs"
-                                            title="Upload Foto Bukti">
-                                        <x-lucide-camera class="w-3 h-3 text-emerald-600" />
+                                            class="inline-flex items-center gap-1 px-2.5 py-1 bg-stone-50 hover:bg-emerald-50 text-stone-600 hover:text-emerald-700 border border-dashed border-stone-300 hover:border-emerald-300 rounded-lg text-[10px] font-semibold transition cursor-pointer hover:scale-105 active:scale-95 shadow-2xs"
+                                            title="Unggah Foto Bukti">
+                                        <x-lucide-camera class="w-3.5 h-3.5 text-stone-400" />
                                         <span>Bukti</span>
                                     </button>
                                 @else
