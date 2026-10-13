@@ -238,6 +238,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/arus-kas-masuk', \App\Livewire\Finance\ArusKas::class)->name('arus-kas-masuk');
         Route::get('/arus-kas-keluar', \App\Livewire\Finance\ArusKas::class)->name('arus-kas-keluar');
         Route::get('/dana-bos', \App\Livewire\Finance\DanaBos::class)->name('dana-bos');
+        Route::get('/kas-gabungan', \App\Livewire\Finance\KasDanBosGabungan::class)->name('kas-gabungan');
 
         // Peminjaman & Gaji Guru
         Route::get('/peminjaman', \App\Livewire\Finance\ManajemenPeminjaman::class)->name('peminjaman');

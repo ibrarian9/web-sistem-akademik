@@ -215,7 +215,8 @@
                     ['title' => 'Tabungan Siswa', 'route' => 'finance.tabungan', 'icon' => 'wallet'],
                     ['title' => 'Saldo Deposit Siswa', 'route' => 'finance.deposit-siswa', 'icon' => 'piggy-bank'],
                     ['title' => 'Gaji Guru & Staf', 'route' => 'finance.gaji-guru', 'icon' => 'banknote'],
-                    ['title' => 'Dana BOS (Masuk & Keluar)', 'route' => 'finance.dana-bos', 'icon' => 'box'],
+                    ['title' => 'Dana BOS', 'route' => 'finance.dana-bos', 'icon' => 'box'],
+                    ['title' => 'Arus Kas & Dana Bos', 'route' => 'finance.kas-gabungan', 'icon' => 'pie-chart'],
                 ]
             ],
             [
@@ -354,7 +355,8 @@
                     ['title' => 'Pengajuan Dana', 'route' => 'finance.pengajuan-dana', 'icon' => 'banknote'],
                     ['title' => 'Gaji Guru & Karyawan', 'route' => 'finance.gaji-guru', 'icon' => 'wallet'],
                     ['title' => 'Kasbon Guru', 'route' => 'finance.peminjaman', 'icon' => 'link'],
-                    ['title' => 'Dana BOS (Masuk & Keluar)', 'route' => 'finance.dana-bos', 'icon' => 'box'],
+                    ['title' => 'Dana BOS', 'route' => 'finance.dana-bos', 'icon' => 'box'],
+                    ['title' => 'Arus Kas & Dana Bos', 'route' => 'finance.kas-gabungan', 'icon' => 'pie-chart'],
                 ]
             ],
             [

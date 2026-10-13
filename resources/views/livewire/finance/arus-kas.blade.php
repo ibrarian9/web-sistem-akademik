@@ -52,6 +52,9 @@
     <!-- MODAL 3: Edit Pengeluaran & Bukti Pembayaran -->
     @include('livewire.finance.arus-kas.partials.modal-edit-expense')
 
+    <!-- MODAL 4: Upload Foto Bukti Transaksi -->
+    @include('livewire.finance.arus-kas.partials.modal-upload-bukti')
+
     <!-- ALPINE.JS LIGHTBOX PREVIEW MODAL (CLIENT-SIDE) -->
     @include('livewire.finance.arus-kas.partials.modal-lightbox-bukti')
 </div>

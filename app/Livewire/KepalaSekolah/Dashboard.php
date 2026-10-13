@@ -30,8 +30,8 @@ class Dashboard extends Component
 
         $activeSemester = Semester::where('status_aktif', true)->first();
 
-        // Hitung Tunggakan Siswa
-        $tagihanUnpaid = Tagihan::whereIn('status', ['belum_bayar', 'sebagian']);
+        // Hitung Tunggakan Siswa (jatuh tempo s/d akhir bulan berjalan)
+        $tagihanUnpaid = Tagihan::tunggakan();
         if ($activeSemester && $activeSemester->tahun_ajaran_id) {
             $tagihanUnpaid->where('tahun_ajaran_id', $activeSemester->tahun_ajaran_id);
         }

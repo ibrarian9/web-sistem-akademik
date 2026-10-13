@@ -115,7 +115,7 @@ class CashFlowService
                         'petugas' => $item->petugas->nama ?? 'Bendahara',
                         'can_delete' => true,
                         'can_edit' => false,
-                        'bukti' => null,
+                        'bukti' => $item->bukti,
                     ]);
                 }
             }
@@ -220,7 +220,7 @@ class CashFlowService
                         'petugas' => 'Sistem Payroll',
                         'can_delete' => false,
                         'can_edit' => false,
-                        'bukti' => null,
+                        'bukti' => $item->bukti_bayar,
                     ]);
                 }
             }

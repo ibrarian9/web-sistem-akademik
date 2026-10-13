@@ -272,4 +272,42 @@ class TagihanTunggakanJatuhTempoVsMendatangTest extends TestCase
             ->call('filterByStatus', 'lunas')
             ->assertSet('filterStatus', 'lunas');
     }
+
+    public function test_super_admin_dashboard_tunggakan_only_includes_due_arrears(): void
+    {
+        // 1. Due bill (past)
+        Tagihan::create([
+            'siswa_id' => $this->siswa->id,
+            'jenis_tagihan_id' => $this->jenisSpp->id,
+            'tahun_ajaran_id' => $this->tahunAjaran->id,
+            'bulan' => 'Agustus',
+            'nominal' => 350000,
+            'total_dibayar' => 0,
+            'status' => 'belum_bayar',
+            'jatuh_tempo' => Carbon::now()->subMonth()->startOfMonth()->addDays(9)->toDateString(),
+        ]);
+
+        // 2. Future bill (upcoming months, should NOT be in totalTunggakan)
+        Tagihan::create([
+            'siswa_id' => $this->siswa->id,
+            'jenis_tagihan_id' => $this->jenisSpp->id,
+            'tahun_ajaran_id' => $this->tahunAjaran->id,
+            'bulan' => 'Desember',
+            'nominal' => 500000,
+            'total_dibayar' => 0,
+            'status' => 'belum_bayar',
+            'jatuh_tempo' => Carbon::now()->addMonths(2)->startOfMonth()->addDays(9)->toDateString(),
+        ]);
+
+        $roleSuperAdmin = Role::firstOrCreate(['nama' => 'super_admin']);
+        $superAdminUser = User::factory()->create([
+            'role_id' => $roleSuperAdmin->id,
+            'status' => 'aktif',
+        ]);
+
+        $this->actingAs($superAdminUser);
+
+        Livewire::test(\App\Livewire\SuperAdmin\Dashboard::class)
+            ->assertSet('totalTunggakan', 'Rp 350.000');
+    }
 }

@@ -10,6 +10,7 @@ use App\Traits\WithCurrencySanitizer;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class DanaBos extends Component
 {
@@ -364,11 +365,52 @@ class DanaBos extends Component
 
         $transactions = $query->paginate(15);
 
+        // 6-Month Trend for Dana BOS
+        $monthlyChartData = [];
+        $maxMonthVal = 1;
+
+        for ($i = 5; $i >= 0; $i--) {
+            $mCarbon = Carbon::now()->subMonths($i);
+            $year = $mCarbon->year;
+            $monthNum = $mCarbon->month;
+            $monthLabel = $mCarbon->locale('id')->isoFormat('MMM YYYY');
+
+            $mMasuk = (float) BosModel::where('jenis', 'masuk')->whereYear('tanggal', $year)->whereMonth('tanggal', $monthNum)->sum('nominal');
+            $mKeluar = (float) BosModel::where('jenis', 'keluar')->whereYear('tanggal', $year)->whereMonth('tanggal', $monthNum)->sum('nominal');
+
+            if ($mMasuk > $maxMonthVal) $maxMonthVal = $mMasuk;
+            if ($mKeluar > $maxMonthVal) $maxMonthVal = $mKeluar;
+
+            $monthlyChartData[] = [
+                'label' => $monthLabel,
+                'inflow' => $mMasuk,
+                'outflow' => $mKeluar,
+                'net' => $mMasuk - $mKeluar,
+            ];
+        }
+
+        foreach ($monthlyChartData as &$mItem) {
+            $mItem['inflow_pct'] = $maxMonthVal > 0 ? round(($mItem['inflow'] / $maxMonthVal) * 100) : 0;
+            $mItem['outflow_pct'] = $maxMonthVal > 0 ? round(($mItem['outflow'] / $maxMonthVal) * 100) : 0;
+        }
+        unset($mItem);
+
+        // Top Spending Categories
+        $topCategories = BosModel::where('jenis', 'keluar')
+            ->selectRaw('kategori, SUM(nominal) as total')
+            ->groupBy('kategori')
+            ->orderByDesc('total')
+            ->limit(4)
+            ->get();
+
         return view('livewire.finance.dana-bos', [
             'transactions' => $transactions,
             'totalMasuk' => $totalMasuk,
             'totalKeluar' => $totalKeluar,
             'saldoBos' => $saldoBos,
+            'monthlyChartData' => $monthlyChartData,
+            'maxMonthVal' => $maxMonthVal,
+            'topCategories' => $topCategories,
         ])->layout('components.layouts.app', ['title' => 'Tata Kelola Dana BOS']);
     }
 }

@@ -37,11 +37,18 @@ class ArusKas extends Component
     public bool $showIncomeModal = false;
     public bool $showExpenseModal = false;
 
-    // Proof file and preview
     public $bukti_keluar = null;
     public bool $showPreviewBuktiModal = false;
     public ?string $previewBuktiUrl = null;
     public ?string $previewBuktiTitle = null;
+
+    // General Upload Bukti Modal
+    public bool $showUploadBuktiModal = false;
+    public ?string $uploadTargetId = null;
+    public ?string $uploadTargetKategori = null;
+    public ?string $uploadTargetKeterangan = null;
+    public ?float $uploadTargetNominal = null;
+    public $uploadBuktiFile = null;
 
     // Edit Expense Modal
     public bool $showEditExpenseModal = false;
@@ -501,6 +508,104 @@ class ArusKas extends Component
         $this->showPreviewBuktiModal = false;
         $this->previewBuktiUrl = null;
         $this->previewBuktiTitle = null;
+    }
+
+    public function openUploadBuktiModal(string $transactionId, string $kategori = '', string $keterangan = '', float $nominal = 0)
+    {
+        if (!in_array(auth()->user()->role?->nama, ['finance', 'super_admin', 'founder']) || auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Hanya Admin Keuangan dan Admin Utama yang berhak mengunggah bukti transaksi.');
+            return;
+        }
+
+        $this->uploadTargetId = $transactionId;
+        $this->uploadTargetKategori = $kategori;
+        $this->uploadTargetKeterangan = $keterangan;
+        $this->uploadTargetNominal = $nominal;
+        $this->uploadBuktiFile = null;
+        $this->resetErrorBag();
+        $this->showUploadBuktiModal = true;
+    }
+
+    public function closeUploadBuktiModal()
+    {
+        $this->showUploadBuktiModal = false;
+        $this->uploadTargetId = null;
+        $this->uploadTargetKategori = null;
+        $this->uploadTargetKeterangan = null;
+        $this->uploadTargetNominal = null;
+        $this->uploadBuktiFile = null;
+        $this->resetErrorBag();
+    }
+
+    public function saveUploadedBukti()
+    {
+        if (!in_array(auth()->user()->role?->nama, ['finance', 'super_admin', 'founder']) || auth()->user()->isSuperAdmin2()) {
+            abort(403, 'Akses tidak diizinkan.');
+        }
+
+        $this->validate([
+            'uploadBuktiFile' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ], [
+            'uploadBuktiFile.required' => 'Silakan pilih file foto bukti terlebih dahulu.',
+            'uploadBuktiFile.image' => 'File bukti harus berupa foto atau gambar.',
+            'uploadBuktiFile.mimes' => 'Format foto hanya boleh JPG, JPEG, PNG, atau WEBP.',
+            'uploadBuktiFile.max' => 'Ukuran file foto bukti maksimal 2MB.',
+        ]);
+
+        if (!$this->uploadTargetId) {
+            $this->closeUploadBuktiModal();
+            return;
+        }
+
+        $parts = explode('_', $this->uploadTargetId, 2);
+        if (count($parts) !== 2) {
+            session()->flash('error', 'Format transaksi tidak valid.');
+            $this->closeUploadBuktiModal();
+            return;
+        }
+
+        [$prefix, $rawId] = $parts;
+        $rawId = (int) $rawId;
+
+        switch ($prefix) {
+            case 'spp':
+                $model = \App\Models\Pembayaran::findOrFail($rawId);
+                $path = $this->uploadBuktiFile->store('bukti_bayar', 'public');
+                $model->update(['bukti_bayar' => $path]);
+                break;
+
+            case 'infaq':
+                $model = \App\Models\PemasukanKas::findOrFail($rawId);
+                $path = $this->uploadBuktiFile->store('pemasukan_kas', 'public');
+                $model->update(['bukti' => $path]);
+                break;
+
+            case 'op':
+                $model = \App\Models\Pengeluaran::findOrFail($rawId);
+                $path = $this->uploadBuktiFile->store('bukti_pengeluaran', 'public');
+                $model->update(['bukti' => $path]);
+                break;
+
+            case 'bos':
+                $model = \App\Models\DanaBos::findOrFail($rawId);
+                $path = $this->uploadBuktiFile->store('dana_bos', 'public');
+                $model->update(['bukti' => $path]);
+                break;
+
+            case 'gaji':
+                $model = \App\Models\GajiGuru::findOrFail($rawId);
+                $path = $this->uploadBuktiFile->store('bukti_bayar', 'public');
+                $model->update(['bukti_bayar' => $path]);
+                break;
+
+            default:
+                session()->flash('error', 'Jenis transaksi ini tidak mendukung lampiran bukti.');
+                $this->closeUploadBuktiModal();
+                return;
+        }
+
+        session()->flash('message', 'Foto bukti transaksi berhasil diunggah.');
+        $this->closeUploadBuktiModal();
     }
 
     public function deleteExpense(int $id, ?string $alasan = null)

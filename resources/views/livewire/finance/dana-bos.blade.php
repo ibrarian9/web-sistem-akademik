@@ -66,6 +66,114 @@
         <x-alert-banner type="danger" :message="session('error')" />
     @endif
 
+    <!-- VISUAL ANALYTICS: DUAL-BAR MONTHLY TREND & CATEGORY BREAKDOWN -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- 1. Dual Bar Monthly Trend (2 Cols) -->
+        <div class="lg:col-span-2 bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4 flex flex-col justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-3">
+                <div>
+                    <h3 class="text-sm font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-2">
+                        <x-lucide-bar-chart-3 class="w-4 h-4 text-emerald-700" />
+                        <span>Tren Penerimaan vs Belanja Dana BOS (6 Bulan Terakhir)</span>
+                    </h3>
+                    <p class="text-[11px] text-stone-500 font-medium mt-0.5">Monitoring perbandingan realisasi dana bantuan operasional sekolah.</p>
+                </div>
+                <!-- Chart Legend -->
+                <div class="flex items-center gap-3 text-[11px] font-bold">
+                    <span class="flex items-center gap-1.5 text-stone-700">
+                        <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span> Penerimaan BOS
+                    </span>
+                    <span class="flex items-center gap-1.5 text-stone-700">
+                        <span class="w-2.5 h-2.5 rounded-sm bg-rose-500 inline-block"></span> Belanja BOS
+                    </span>
+                </div>
+            </div>
+
+            <!-- Dual Bar Chart Display -->
+            <div class="pt-4 pb-2">
+                <div class="grid grid-cols-6 gap-2 sm:gap-4 items-end h-56 border-b border-stone-200 px-2">
+                    @foreach ($monthlyChartData as $mData)
+                        <div class="flex flex-col items-center h-full justify-end group relative">
+                            <!-- Tooltip on hover -->
+                            <div class="opacity-0 group-hover:opacity-100 pointer-events-none absolute -top-20 bg-stone-900 text-white text-[10px] font-bold py-2 px-3.5 rounded-xl shadow-xl transition duration-150 z-20 whitespace-nowrap text-left space-y-1">
+                                <div class="font-extrabold text-stone-300 border-b border-stone-700 pb-1 text-center">{{ $mData['label'] }}</div>
+                                <div class="text-emerald-400">Penerimaan: Rp {{ number_format($mData['inflow'], 0, ',', '.') }}</div>
+                                <div class="text-rose-400">Belanja: Rp {{ number_format($mData['outflow'], 0, ',', '.') }}</div>
+                                <div class="{{ $mData['net'] >= 0 ? 'text-emerald-300' : 'text-rose-300' }} font-black pt-0.5 border-t border-stone-800">
+                                    Sisa: {{ $mData['net'] >= 0 ? '+' : '-' }}Rp {{ number_format(abs($mData['net']), 0, ',', '.') }}
+                                </div>
+                            </div>
+
+                            <!-- Dual Bar Columns Container -->
+                            <div class="w-full flex items-end justify-center gap-1 sm:gap-1.5 h-full">
+                                <!-- Inflow Bar (Green) -->
+                                <div class="w-1/2 max-w-[22px] bg-emerald-500 rounded-t-lg transition-all duration-300 group-hover:opacity-90 shadow-2xs" 
+                                     style="height: {{ max(6, $mData['inflow_pct']) }}%;" 
+                                     title="Penerimaan: Rp {{ number_format($mData['inflow'], 0, ',', '.') }}"></div>
+                                <!-- Outflow Bar (Red) -->
+                                <div class="w-1/2 max-w-[22px] bg-rose-500 rounded-t-lg transition-all duration-300 group-hover:opacity-90 shadow-2xs" 
+                                     style="height: {{ max(6, $mData['outflow_pct']) }}%;" 
+                                     title="Belanja: Rp {{ number_format($mData['outflow'], 0, ',', '.') }}"></div>
+                            </div>
+
+                            <!-- Bar Month Label -->
+                            <span class="text-[10px] font-bold text-stone-400 uppercase tracking-tight truncate w-full text-center mt-2">
+                                {{ $mData['label'] }}
+                            </span>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            <!-- Footer summary badge -->
+            <div class="pt-2 flex items-center justify-between text-xs text-stone-500 font-medium">
+                <span>* Angka real-time dari buku jurnal transaksi dana BOS</span>
+                <span class="font-bold text-stone-700">Skala Tertinggi: Rp {{ number_format($maxMonthVal, 0, ',', '.') }}</span>
+            </div>
+        </div>
+
+        <!-- 2. Pos Alokasi Belanja BOS Terbesar (1 Col) -->
+        <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4 flex flex-col justify-between">
+            <div>
+                <h3 class="text-sm font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-2 border-b border-stone-100 pb-3">
+                    <x-lucide-pie-chart class="w-4 h-4 text-amber-600" />
+                    <span>Pos Belanja Terbesar</span>
+                </h3>
+                <p class="text-[11px] text-stone-500 font-medium mt-1">Distribusi kategori alokasi anggaran belanja dana BOS.</p>
+            </div>
+
+            @php
+                $totKeluar = max(1, $totalKeluar);
+            @endphp
+
+            <div class="space-y-3 flex-1 flex flex-col justify-center">
+                @forelse ($topCategories as $cat)
+                    @php
+                        $catPct = round(($cat->total / $totKeluar) * 100);
+                    @endphp
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="font-bold text-stone-800 truncate max-w-[180px]" title="{{ $cat->kategori }}">{{ $cat->kategori }}</span>
+                            <span class="font-black text-rose-700 text-[11px]">Rp {{ number_format($cat->total, 0, ',', '.') }} ({{ $catPct }}%)</span>
+                        </div>
+                        <div class="h-2 w-full bg-stone-100 rounded-full overflow-hidden">
+                            <div class="bg-rose-500 h-full rounded-full transition-all duration-300" style="width: {{ max(4, $catPct) }}%;"></div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="text-center py-6 text-stone-400 text-xs font-medium">
+                        Belum ada data realisasi belanja BOS.
+                    </div>
+                @endforelse
+            </div>
+
+            <div class="pt-3 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-stone-700">
+                <span>Total Realisasi:</span>
+                <span class="text-rose-700 font-black">Rp {{ number_format($totalKeluar, 0, ',', '.') }}</span>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Table Panel (Full Width) -->
     <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
         <!-- Tab Selector & Search Row -->
