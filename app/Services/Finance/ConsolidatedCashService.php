@@ -229,7 +229,7 @@ class ConsolidatedCashService
                         'metode_resi' => 'Setoran Tunai',
                         'no_resi' => null,
                         'petugas' => $item->petugas->nama ?? 'Petugas Tabungan',
-                        'bukti' => null,
+                        'bukti' => $item->bukti,
                         'stream' => 'tabungan',
                     ]);
                 }
@@ -356,7 +356,7 @@ class ConsolidatedCashService
                         'metode_resi' => 'Pencairan Kas',
                         'no_resi' => null,
                         'petugas' => 'Bendahara',
-                        'bukti' => null,
+                        'bukti' => $item->bukti,
                         'stream' => 'kasbon',
                     ]);
                 }

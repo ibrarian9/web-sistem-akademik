@@ -149,7 +149,7 @@ class CashFlowService
                         'petugas' => $item->petugas->nama ?? 'Petugas Tabungan',
                         'can_delete' => false,
                         'can_edit' => false,
-                        'bukti' => null,
+                        'bukti' => $item->bukti,
                     ]);
                 }
             }
@@ -251,7 +251,7 @@ class CashFlowService
                         'petugas' => 'Finance',
                         'can_delete' => false,
                         'can_edit' => false,
-                        'bukti' => null,
+                        'bukti' => $item->bukti,
                     ]);
                 }
             }

@@ -50,8 +50,8 @@
     "semantic_hash": ""
   },
   "app/Livewire/Finance/ArusKas.php": {
-    "mtime": 1791878735.4572408,
-    "ast_hash": "b330876ef9c1dd1845f6e0b6e8c68f51",
+    "mtime": 1791882111.115163,
+    "ast_hash": "482c8fa9d2a36518d76c5fafdc5d526a",
     "semantic_hash": ""
   },
   "app/Livewire/Finance/ArusKasKeluar.php": {
@@ -490,8 +490,8 @@
     "semantic_hash": ""
   },
   "app/Models/Peminjaman.php": {
-    "mtime": 1789527718.7356822,
-    "ast_hash": "3f5be1587acd5fb15b80c6dbbe1e2a5a",
+    "mtime": 1791882036.0949953,
+    "ast_hash": "6e1c534adefa5b0b709c5c910c87478f",
     "semantic_hash": ""
   },
   "app/Models/PengajuanDana.php": {
@@ -1020,8 +1020,8 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/dana-bos.blade.php": {
-    "mtime": 1791869944.7416997,
-    "ast_hash": "3d96ee871ba5ffa03bc0cf47cfd230d2",
+    "mtime": 1791882169.8845434,
+    "ast_hash": "014b5fe1e9c0596272c971e04ff685ec",
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/dashboard.blade.php": {
@@ -1825,8 +1825,8 @@
     "semantic_hash": ""
   },
   "app/Models/Tabungan.php": {
-    "mtime": 1786557246.1520016,
-    "ast_hash": "b940eac8f280b2f28a54d60bf9c0b863",
+    "mtime": 1791882020.4625866,
+    "ast_hash": "4487adb10ee67a52a5d9bf19360a18dd",
     "semantic_hash": ""
   },
   "database/migrations/2026_08_11_000002_create_tabungans_table.php": {
@@ -2970,8 +2970,8 @@
     "semantic_hash": ""
   },
   "app/Services/Finance/CashFlowService.php": {
-    "mtime": 1791878600.9245255,
-    "ast_hash": "587f64502406c5b5ba895567f98150c6",
+    "mtime": 1791882079.3480284,
+    "ast_hash": "69643d3a4eb8a2d7727b34ad736f0b85",
     "semantic_hash": ""
   },
   "app/Services/Finance/CsvExportService.php": {
@@ -3075,8 +3075,8 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/arus-kas/partials/table-transactions.blade.php": {
-    "mtime": 1791878818.1200001,
-    "ast_hash": "197ca69847eee5614a56abd5df60bd38",
+    "mtime": 1791882131.295319,
+    "ast_hash": "02ef2215ee1727be67f94b6f8aa506dc",
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/tabungan-siswa/partials/modal-edit-transaction.blade.php": {
@@ -3570,18 +3570,18 @@
     "semantic_hash": ""
   },
   "app/Livewire/Finance/KasDanBosGabungan.php": {
-    "mtime": 1791878662.9804518,
-    "ast_hash": "f3843581b84fdd5f5fa9b034ef199c86",
+    "mtime": 1791882096.3619437,
+    "ast_hash": "ec1ceacbeb5c3f41ff49f6c4f2214617",
     "semantic_hash": ""
   },
   "app/Services/Finance/ConsolidatedCashService.php": {
-    "mtime": 1791878581.5503025,
-    "ast_hash": "eca316956bd9fe172207b2e362a81ca4",
+    "mtime": 1791882059.751231,
+    "ast_hash": "a8933e9cd156d503039d330153a62f53",
     "semantic_hash": ""
   },
   "resources/views/livewire/finance/kas-dan-bos-gabungan.blade.php": {
-    "mtime": 1791878706.2877984,
-    "ast_hash": "9320965b08c91bbc94e25dc9f03ee718",
+    "mtime": 1791882154.6928062,
+    "ast_hash": "7f94c58ac847cb52e23017ad605af3e7",
     "semantic_hash": ""
   },
   "resources/views/livewire/shared/laporan/pdf-kas-dan-bos-gabungan.blade.php": {
@@ -3590,8 +3590,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/KasDanBosGabunganTest.php": {
-    "mtime": 1791878851.9077792,
-    "ast_hash": "d3ce9f0d2e5d1756bd625b1a06f0a5c6",
+    "mtime": 1791882208.6369557,
+    "ast_hash": "a3e7ed286c229bb8fa0706ed68bd9666",
     "semantic_hash": ""
   },
   "tests/Feature/SuperAdminDashboardAndRandomMurottalTest.php": {
@@ -3602,6 +3602,11 @@
   "resources/views/livewire/finance/arus-kas/partials/modal-upload-bukti.blade.php": {
     "mtime": 1791878751.5642478,
     "ast_hash": "1d65c76ec8bb11a9e3b368ef056bb6f4",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_10_13_000001_add_bukti_to_tabungans_and_peminjaman_table.php": {
+    "mtime": 1791882000.1094756,
+    "ast_hash": "9a9a66f4b6024019cd6026463db48431",
     "semantic_hash": ""
   }
 }

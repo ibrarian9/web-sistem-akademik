@@ -328,13 +328,14 @@ test('finance user and super admin can upload proof photo for transaction withou
         'bukti' => null,
     ]);
 
-    // 1. Finance Admin can see '+ Bukti' and upload proof
+    // 1. Finance Admin can see 'Bukti' and upload proof
     $this->actingAs($this->userFinance);
 
     $file = \Illuminate\Http\UploadedFile::fake()->image('bukti_transfer.jpg');
 
     Livewire::test(KasDanBosGabungan::class)
-        ->assertSee('+ Bukti')
+        ->assertSee('Bukti')
+        ->assertDontSee('+ Bukti')
         ->call('openUploadBuktiModal', 'infaq_' . $kasMasuk->id, 'Infaq Gedung', 'Infaq Pembangunan Asrama Santri', 750000)
         ->assertSet('showUploadBuktiModal', true)
         ->assertSet('uploadTargetId', 'infaq_' . $kasMasuk->id)
@@ -363,7 +364,8 @@ test('finance user and super admin can upload proof photo for transaction withou
     $fileSuperAdmin = \Illuminate\Http\UploadedFile::fake()->image('struk_snack.png');
 
     Livewire::test(KasDanBosGabungan::class)
-        ->assertSee('+ Bukti')
+        ->assertSee('Bukti')
+        ->assertDontSee('+ Bukti')
         ->call('openUploadBuktiModal', 'op_' . $pengeluaran->id, 'Konsumsi', 'Beli Snack Rapat Yayasan', 125000)
         ->assertSet('showUploadBuktiModal', true)
         ->set('uploadBuktiFile', $fileSuperAdmin)
@@ -394,7 +396,8 @@ test('finance user and super admin can upload proof in arus kas page', function 
     $file = \Illuminate\Http\UploadedFile::fake()->image('struk_pln.jpg');
 
     Livewire::test(\App\Livewire\Finance\ArusKas::class)
-        ->assertSee('+ Bukti')
+        ->assertSee('Bukti')
+        ->assertDontSee('+ Bukti')
         ->call('openUploadBuktiModal', 'op_' . $pengeluaran->id, 'Listrik', 'Tagihan Listrik PLN Kantor', 450000)
         ->assertSet('showUploadBuktiModal', true)
         ->set('uploadBuktiFile', $file)
@@ -405,5 +408,69 @@ test('finance user and super admin can upload proof in arus kas page', function 
     expect($pengeluaran->bukti)->not->toBeNull();
     Storage::disk('public')->assertExists($pengeluaran->bukti);
 });
+
+test('finance user and super admin can upload proof for tabungan and kasbon in kas gabungan and arus kas', function () {
+    Storage::fake('public');
+
+    // 1. Tabungan
+    $siswa = \App\Models\Siswa::first();
+    $tabungan = \App\Models\Tabungan::create([
+        'siswa_id' => $siswa->id,
+        'petugas_id' => $this->userFinance->id,
+        'kode_transaksi' => 'TAB-' . uniqid(),
+        'jenis' => 'setor',
+        'nominal' => 250000,
+        'saldo_akhir' => 250000,
+        'tanggal' => now()->toDateString(),
+        'keterangan' => 'Setor Tabungan Siswa',
+        'bukti' => null,
+    ]);
+
+    $this->actingAs($this->userFinance);
+    $fileTabungan = \Illuminate\Http\UploadedFile::fake()->image('slip_setoran.jpg');
+
+    Livewire::test(KasDanBosGabungan::class)
+        ->assertSee('Bukti')
+        ->assertDontSee('+ Bukti')
+        ->call('openUploadBuktiModal', 'tab_' . $tabungan->id, 'Tabungan Siswa', 'Setor Tabungan Siswa', 250000)
+        ->assertSet('showUploadBuktiModal', true)
+        ->set('uploadBuktiFile', $fileTabungan)
+        ->call('saveUploadedBukti')
+        ->assertSet('showUploadBuktiModal', false);
+
+    $tabungan->refresh();
+    expect($tabungan->bukti)->not->toBeNull();
+    Storage::disk('public')->assertExists($tabungan->bukti);
+
+    // 2. Kasbon / Peminjaman
+    $guru = \App\Models\Guru::first();
+    $peminjaman = \App\Models\Peminjaman::create([
+        'guru_id' => $guru->id,
+        'tanggal_pinjam' => now()->toDateString(),
+        'nominal' => 1000000,
+        'tenor_bulan' => 5,
+        'cicilan_per_bulan' => 200000,
+        'sisa_pinjaman' => 1000000,
+        'status' => 'berjalan',
+        'bukti' => null,
+    ]);
+
+    $this->actingAs($this->userSuperAdmin);
+    $fileKasbon = \Illuminate\Http\UploadedFile::fake()->image('bukti_kasbon.jpg');
+
+    Livewire::test(\App\Livewire\Finance\ArusKas::class)
+        ->assertSee('Bukti')
+        ->assertDontSee('+ Bukti')
+        ->call('openUploadBuktiModal', 'loan_' . $peminjaman->id, 'Kasbon Guru', 'Pencairan Kasbon', 1000000)
+        ->assertSet('showUploadBuktiModal', true)
+        ->set('uploadBuktiFile', $fileKasbon)
+        ->call('saveUploadedBukti')
+        ->assertSet('showUploadBuktiModal', false);
+
+    $peminjaman->refresh();
+    expect($peminjaman->bukti)->not->toBeNull();
+    Storage::disk('public')->assertExists($peminjaman->bukti);
+});
+
 
 

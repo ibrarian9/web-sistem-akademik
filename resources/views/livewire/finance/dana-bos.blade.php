@@ -298,11 +298,11 @@
                                 <button 
                                     type="button" 
                                     wire:click="openEditModal({{ $t->id }})" 
-                                    class="inline-flex items-center gap-1 px-2 py-1 bg-stone-50 hover:bg-stone-100 text-stone-500 hover:text-stone-800 border border-dashed border-stone-300 rounded-lg text-[10px] font-semibold transition cursor-pointer"
+                                    class="inline-flex items-center gap-1 px-2 py-1 bg-stone-50 hover:bg-stone-100 text-stone-600 hover:text-stone-800 border border-dashed border-stone-300 rounded-lg text-[10px] font-semibold transition cursor-pointer"
                                     title="Upload Bukti Foto / Struk"
                                 >
-                                    <x-lucide-plus class="w-3 h-3 text-stone-400 shrink-0" />
-                                    <span>+ Bukti</span>
+                                    <x-lucide-camera class="w-3 h-3 text-stone-500 shrink-0" />
+                                    <span>Bukti</span>
                                 </button>
                             @else
                                 <span class="text-[10px] text-stone-400 italic font-mono">-</span>

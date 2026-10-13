@@ -21,6 +21,7 @@ class Tabungan extends Model
         'saldo_akhir',
         'tanggal',
         'keterangan',
+        'bukti',
     ];
 
     protected $casts = [

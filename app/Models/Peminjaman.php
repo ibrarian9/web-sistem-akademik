@@ -20,6 +20,7 @@ class Peminjaman extends Model
         'cicilan_per_bulan',
         'sisa_pinjaman',
         'status',
+        'bukti',
     ];
 
     protected $casts = [

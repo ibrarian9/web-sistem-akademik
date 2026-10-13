@@ -493,13 +493,13 @@
                                         <x-lucide-image class="w-3 h-3 text-emerald-600" />
                                         <span>Bukti</span>
                                     </button>
-                                @elseif (in_array(auth()->user()->role?->nama, ['finance', 'super_admin', 'founder']) && !auth()->user()->isSuperAdmin2() && in_array(substr($t->id, 0, strpos($t->id, '_')), ['spp', 'infaq', 'op', 'bos', 'gaji']))
+                                @elseif (in_array(auth()->user()->role?->nama, ['finance', 'super_admin', 'founder']) && !auth()->user()->isSuperAdmin2() && in_array(substr($t->id, 0, strpos($t->id, '_')), ['spp', 'infaq', 'op', 'bos', 'gaji', 'tab', 'loan']))
                                     <button type="button" 
                                             wire:click="openUploadBuktiModal('{{ $t->id }}', '{{ addslashes($t->kategori) }}', '{{ addslashes($t->keterangan) }}', {{ $t->nominal_masuk > 0 ? $t->nominal_masuk : $t->nominal_keluar }})" 
                                             class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 hover:text-emerald-900 border border-dashed border-emerald-300 rounded text-[10px] font-bold transition cursor-pointer shadow-2xs"
                                             title="Upload Foto Bukti">
                                         <x-lucide-camera class="w-3 h-3 text-emerald-600" />
-                                        <span>+ Bukti</span>
+                                        <span>Bukti</span>
                                     </button>
                                 @else
                                     <span class="text-[10px] text-stone-400 font-mono italic">-</span>

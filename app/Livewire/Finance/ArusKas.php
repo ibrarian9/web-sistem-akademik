@@ -598,6 +598,18 @@ class ArusKas extends Component
                 $model->update(['bukti_bayar' => $path]);
                 break;
 
+            case 'tab':
+                $model = \App\Models\Tabungan::findOrFail($rawId);
+                $path = $this->uploadBuktiFile->store('bukti_tabungan', 'public');
+                $model->update(['bukti' => $path]);
+                break;
+
+            case 'loan':
+                $model = \App\Models\Peminjaman::findOrFail($rawId);
+                $path = $this->uploadBuktiFile->store('bukti_peminjaman', 'public');
+                $model->update(['bukti' => $path]);
+                break;
+
             default:
                 session()->flash('error', 'Jenis transaksi ini tidak mendukung lampiran bukti.');
                 $this->closeUploadBuktiModal();
