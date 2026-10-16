@@ -1,113 +1,106 @@
 <!-- TABEL MATRIKS PEMBAYARAN TERPADU (SPP 6 BULAN + KATEGORI TUNGGAKAN LAINNYA PADA SUMBU X) -->
 <div class="space-y-4 font-sans">
-    <!-- 1. Kontrol Filter & Pencarian (Layout Bersih, Luas & Rapi) -->
-    <div class="bg-white border border-stone-200 rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
-        <!-- Baris 1: Pencarian, Pilihan Kelas & Switcher Periode SPP -->
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <!-- Search Input & Dropdown Kelas -->
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1">
-                <div class="w-full sm:w-80">
+    <!-- 1. Kontrol Filter & Pencarian (Layout Bersih, Sederhana & Rapi) -->
+    <div class="bg-white border border-stone-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
+        <!-- Baris 1: Filter Utama (Search, Kelas, Status, Periode, Reset, Ekspor) -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2.5 flex-1">
+                <!-- Search Input -->
+                <div class="w-full sm:w-64 min-w-[200px]">
                     <x-search-input wire:model.live.debounce.300ms="search" placeholder="Cari nama santri atau NIS..." />
                 </div>
-                <div class="w-full sm:w-48">
-                    <select wire:model.live="filterKelas" class="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
+
+                <!-- Dropdown Kelas -->
+                <div class="w-full sm:w-auto min-w-[130px]">
+                    <select wire:model.live="filterKelas" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-800 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs cursor-pointer">
                         <option value="">Semua Kelas</option>
                         @foreach ($kelases as $k)
                             <option value="{{ $k->id }}">Kelas {{ $k->nama_kelas }}</option>
                         @endforeach
                     </select>
                 </div>
+
+                <!-- Dropdown Status Pelunasan -->
+                <div class="w-full sm:w-auto min-w-[150px]">
+                    <select wire:model.live="filterStatusSpp" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-800 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs cursor-pointer">
+                        <option value="">Semua Status ({{ $sppStatsSummary['total_siswa'] }})</option>
+                        <option value="menunggak">Ada Tunggakan ({{ $sppStatsSummary['menunggak_count'] }})</option>
+                        <option value="lunas">Lunas Tertib ({{ $sppStatsSummary['lunas_count'] }})</option>
+                    </select>
+                </div>
+
+                <!-- Switcher Periode SPP -->
+                <div class="inline-flex items-center gap-1 p-1 bg-stone-100 rounded-xl border border-stone-200 text-xs">
+                    <button 
+                        type="button" 
+                        wire:click="setSppPeriode('ganjil')" 
+                        class="px-2.5 py-1.5 rounded-lg font-bold transition cursor-pointer {{ $sppPeriode === 'ganjil' ? 'bg-white text-emerald-800 shadow-2xs font-black' : 'text-stone-600 hover:text-stone-900' }}"
+                        title="Semester Ganjil (Juli - Des)"
+                    >
+                        Sem. Ganjil
+                    </button>
+                    <button 
+                        type="button" 
+                        wire:click="setSppPeriode('genap')" 
+                        class="px-2.5 py-1.5 rounded-lg font-bold transition cursor-pointer {{ $sppPeriode === 'genap' ? 'bg-white text-emerald-800 shadow-2xs font-black' : 'text-stone-600 hover:text-stone-900' }}"
+                        title="Semester Genap (Jan - Jun)"
+                    >
+                        Sem. Genap
+                    </button>
+                    <button 
+                        type="button" 
+                        wire:click="setSppPeriode('terakhir')" 
+                        class="px-2.5 py-1.5 rounded-lg font-bold transition cursor-pointer {{ $sppPeriode === 'terakhir' ? 'bg-white text-emerald-800 shadow-2xs font-black' : 'text-stone-600 hover:text-stone-900' }}"
+                        title="6 Bulan Berjalan"
+                    >
+                        6 Bln Berjalan
+                    </button>
+                </div>
+
+                <!-- Reset Filter Button -->
+                @if ($this->activeFilterCount > 0)
+                    <button type="button" wire:click="resetOverviewFilters" class="inline-flex items-center gap-1.5 px-3 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold rounded-xl border border-stone-300 transition shadow-2xs cursor-pointer" title="Reset Semua Filter">
+                        <x-lucide-rotate-ccw class="w-3.5 h-3.5 text-stone-500" />
+                        <span>Reset ({{ $this->activeFilterCount }})</span>
+                    </button>
+                @endif
             </div>
 
-            <!-- Periode SPP 6 Bulan Switcher & Tombol Ekspor -->
-            <div class="flex items-center gap-3 flex-wrap">
-                <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-stone-600 hidden sm:inline">Periode SPP:</span>
-                    <div class="inline-flex items-center gap-1 p-1 bg-stone-100 rounded-xl border border-stone-200 text-xs">
-                        <button 
-                            type="button" 
-                            wire:click="setSppPeriode('ganjil')" 
-                            class="px-3 py-1.5 rounded-lg font-bold transition cursor-pointer {{ $sppPeriode === 'ganjil' ? 'bg-white text-emerald-800 shadow-2xs font-black' : 'text-stone-600 hover:text-stone-900' }}"
-                            title="Tampilkan 6 bulan Semester Ganjil (Juli s/d Desember)"
-                        >
-                            Semester Ganjil (Juli : Des)
-                        </button>
-                        <button 
-                            type="button" 
-                            wire:click="setSppPeriode('genap')" 
-                            class="px-3 py-1.5 rounded-lg font-bold transition cursor-pointer {{ $sppPeriode === 'genap' ? 'bg-white text-emerald-800 shadow-2xs font-black' : 'text-stone-600 hover:text-stone-900' }}"
-                            title="Tampilkan 6 bulan Semester Genap (Januari s/d Juni)"
-                        >
-                            Semester Genap (Jan : Jun)
-                        </button>
-                        <button 
-                            type="button" 
-                            wire:click="setSppPeriode('terakhir')" 
-                            class="px-3 py-1.5 rounded-lg font-bold transition cursor-pointer {{ $sppPeriode === 'terakhir' ? 'bg-white text-emerald-800 shadow-2xs font-black' : 'text-stone-600 hover:text-stone-900' }}"
-                            title="Tampilkan 6 bulan berjalan"
-                        >
-                            6 Bln Berjalan
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Tombol Aksi Ekspor Excel & PDF -->
-                <div class="flex items-center gap-2">
-                    <button 
-                        type="button" 
-                        wire:click="exportMatrixExcel" 
-                        wire:loading.attr="disabled"
-                        class="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer disabled:opacity-50 min-h-[38px]"
-                        title="Ekspor Matriks Tagihan & Pembayaran ke Spreadsheet Excel (.csv)"
-                    >
-                        <x-lucide-file-spreadsheet class="w-4 h-4 text-emerald-700" wire:loading.remove wire:target="exportMatrixExcel" />
-                        <x-lucide-loader-2 class="w-4 h-4 text-emerald-700 animate-spin" wire:loading wire:target="exportMatrixExcel" />
-                        <span>Ekspor Excel</span>
-                    </button>
-                    <button 
-                        type="button" 
-                        wire:click="exportMatrixPdf" 
-                        wire:loading.attr="disabled"
-                        class="inline-flex items-center gap-1.5 px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-300 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer disabled:opacity-50 min-h-[38px]"
-                        title="Cetak Dokumen Matriks Tagihan & Pembayaran ke PDF (A4 Landscape)"
-                    >
-                        <x-lucide-printer class="w-4 h-4 text-rose-700" wire:loading.remove wire:target="exportMatrixPdf" />
-                        <x-lucide-loader-2 class="w-4 h-4 text-rose-700 animate-spin" wire:loading wire:target="exportMatrixPdf" />
-                        <span>Cetak PDF</span>
-                    </button>
-                </div>
+            <!-- Tombol Aksi Ekspor Excel & PDF -->
+            <div class="flex items-center gap-2 self-start lg:self-auto shrink-0">
+                <button 
+                    type="button" 
+                    wire:click="exportMatrixExcel" 
+                    wire:loading.attr="disabled"
+                    class="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer disabled:opacity-50 min-h-[38px]"
+                    title="Ekspor Matriks Tagihan & Pembayaran ke Spreadsheet Excel (.csv)"
+                >
+                    <x-lucide-file-spreadsheet class="w-4 h-4 text-emerald-700" wire:loading.remove wire:target="exportMatrixExcel" />
+                    <x-lucide-loader-2 class="w-4 h-4 text-emerald-700 animate-spin" wire:loading wire:target="exportMatrixExcel" />
+                    <span>Ekspor Excel</span>
+                </button>
+                <button 
+                    type="button" 
+                    wire:click="exportMatrixPdf" 
+                    wire:loading.attr="disabled"
+                    class="inline-flex items-center gap-1.5 px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-300 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer disabled:opacity-50 min-h-[38px]"
+                    title="Cetak Dokumen Matriks Tagihan & Pembayaran ke PDF (A4 Landscape)"
+                >
+                    <x-lucide-printer class="w-4 h-4 text-rose-700" wire:loading.remove wire:target="exportMatrixPdf" />
+                    <x-lucide-loader-2 class="w-4 h-4 text-rose-700 animate-spin" wire:loading wire:target="exportMatrixPdf" />
+                    <span>Cetak PDF</span>
+                </button>
             </div>
         </div>
 
-        <!-- Baris 2: Filter Status Pelunasan, Metrik & Per-Page -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-stone-100">
-            <!-- Filter Status Pelunasan -->
-            <div class="inline-flex items-center gap-1.5 p-1 bg-stone-100 rounded-xl border border-stone-200 text-xs">
-                <button 
-                    type="button" 
-                    wire:click="filterByStatusSpp('')" 
-                    class="px-3 py-1.5 rounded-lg font-bold transition cursor-pointer {{ $filterStatusSpp === '' ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-600 hover:text-stone-900' }}"
-                >
-                    Semua Santri ({{ $sppStatsSummary['total_siswa'] }})
-                </button>
-                <button 
-                    type="button" 
-                    wire:click="filterByStatusSpp('menunggak')" 
-                    class="px-3 py-1.5 rounded-lg font-bold transition cursor-pointer {{ $filterStatusSpp === 'menunggak' ? 'bg-rose-600 text-white shadow-2xs' : 'text-rose-700 hover:bg-rose-100/60' }}"
-                >
-                    Ada Tunggakan ({{ $sppStatsSummary['menunggak_count'] }})
-                </button>
-                <button 
-                    type="button" 
-                    wire:click="filterByStatusSpp('lunas')" 
-                    class="px-3 py-1.5 rounded-lg font-bold transition cursor-pointer {{ $filterStatusSpp === 'lunas' ? 'bg-emerald-600 text-white shadow-2xs' : 'text-emerald-700 hover:bg-emerald-100/60' }}"
-                >
-                    Lunas ({{ $sppStatsSummary['lunas_count'] }})
-                </button>
+        <!-- Baris 2: Indikator & Per-Page -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-stone-100 text-xs">
+            <div class="text-stone-500 font-medium">
+                Menampilkan <strong class="text-stone-800 font-extrabold">{{ $siswasSppMatrix->count() }}</strong> santri dari total {{ $sppStatsSummary['total_siswa'] }} santri
             </div>
 
             <!-- Metrik & Baris per Halaman -->
-            <div class="flex items-center gap-4 text-xs justify-between sm:justify-end">
+            <div class="flex items-center gap-4 justify-between sm:justify-end">
                 <div class="flex items-center gap-2 text-[11px] font-mono">
                     <span class="text-emerald-700 font-bold">Terbayar: Rp {{ number_format($sppStatsSummary['total_dibayar_nominal'], 0, ',', '.') }}</span>
                     <span class="text-stone-300">|</span>
@@ -133,56 +126,56 @@
                 <!-- Header Bertingkat (Two-Tier Group Header) -->
                 <thead>
                     <!-- Tier 1: Group Kategori & Rowspan Columns -->
-                    <tr class="text-[11px] uppercase font-black tracking-wider text-white">
+                    <tr class="text-[11px] uppercase font-black tracking-wider text-stone-700">
                         <!-- No (Rowspan 2, Sticky Left 0px) -->
-                        <th rowspan="2" class="p-2.5 w-[48px] min-w-[48px] max-w-[48px] text-center border-b border-r border-emerald-800 sticky left-0 z-30 bg-emerald-950 text-white font-black select-none">
+                        <th rowspan="2" class="p-2.5 w-[48px] min-w-[48px] max-w-[48px] text-center border-b border-r border-stone-200 sticky left-0 z-30 bg-stone-100 text-stone-900 font-black select-none">
                             No
                         </th>
 
                         <!-- Identitas Santri (Rowspan 2, Sticky Left 48px) -->
-                        <th rowspan="2" class="p-2.5 w-[240px] min-w-[240px] max-w-[240px] border-b border-r-2 border-emerald-800 sticky left-[48px] z-30 bg-emerald-950 text-white shadow-[4px_0_6px_-2px_rgba(0,0,0,0.15)]">
-                            <span class="block text-white font-black text-xs">Nama & NIS</span>
-                            <span class="text-[9px] font-medium text-emerald-300 block">Serta Kelas / Rombel</span>
+                        <th rowspan="2" class="p-2.5 w-[240px] min-w-[240px] max-w-[240px] border-b border-r-2 border-stone-200 sticky left-[48px] z-30 bg-stone-100 text-stone-900 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.06)]">
+                            <span class="block text-stone-900 font-black text-xs">Nama & NIS</span>
+                            <span class="text-[9px] font-medium text-stone-500 block">Serta Kelas / Rombel</span>
                         </th>
 
                         <!-- SPP Rutin (Colspan 6) -->
-                        <th colspan="{{ count($sppMatrixMonths) }}" class="bg-emerald-900 p-2.5 text-center border-b border-r border-emerald-800 text-white">
+                        <th colspan="{{ count($sppMatrixMonths) }}" class="bg-stone-100/90 p-2.5 text-center border-b border-r border-stone-200 text-stone-800">
                             <div class="flex items-center justify-center gap-1.5 text-xs font-black">
-                                <x-lucide-calendar class="w-3.5 h-3.5 text-emerald-300" />
+                                <x-lucide-calendar class="w-3.5 h-3.5 text-emerald-600" />
                                 <span>SPP Rutin (Terbatas 6 Bulan)</span>
                             </div>
                         </th>
 
                         <!-- Kategori Tunggakan Lainnya (Colspan sesuai jumlah non-SPP) -->
                         @if ($nonSppJenisList->count() > 0)
-                            <th colspan="{{ $nonSppJenisList->count() }}" class="bg-emerald-900 p-2.5 text-center border-b border-r border-emerald-800 text-white">
+                            <th colspan="{{ $nonSppJenisList->count() }}" class="bg-stone-100/90 p-2.5 text-center border-b border-r border-stone-200 text-stone-800">
                                 <div class="flex items-center justify-center gap-1.5 text-xs font-black">
-                                    <x-lucide-layers class="w-3.5 h-3.5 text-emerald-300" />
+                                    <x-lucide-layers class="w-3.5 h-3.5 text-indigo-600" />
                                     <span>Kategori Tunggakan Lainnya (Non-SPP)</span>
                                 </div>
                             </th>
                         @endif
 
                         <!-- Total Tunggakan (Rowspan 2) -->
-                        <th rowspan="2" class="p-2.5 w-36 text-right border-b border-r border-emerald-800 bg-emerald-950 text-white">
-                            <span class="block font-black text-xs text-rose-300">Total Tunggakan</span>
-                            <span class="text-[9px] font-normal text-emerald-300 block">Semua Tagihan</span>
+                        <th rowspan="2" class="p-2.5 w-36 text-right border-b border-r border-stone-200 bg-stone-100 text-rose-800">
+                            <span class="block font-black text-xs text-rose-700">Total Tunggakan</span>
+                            <span class="text-[9px] font-normal text-stone-500 block">Semua Tagihan</span>
                         </th>
 
                         <!-- Aksi (Rowspan 2) -->
-                        <th rowspan="2" class="p-2.5 w-24 text-center border-b border-emerald-800 bg-emerald-950 text-white text-xs font-black">
+                        <th rowspan="2" class="p-2.5 w-24 text-center border-b border-stone-200 bg-stone-100 text-stone-800 text-xs font-black">
                             Aksi
                         </th>
                     </tr>
 
                     <!-- Tier 2: Nama Kolom Detail untuk SPP dan Kategori Non-SPP -->
-                    <tr class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-100">
+                    <tr class="text-[11px] font-extrabold uppercase tracking-wider text-stone-600">
                         <!-- 6 Kolom SPP -->
                         @foreach ($sppMatrixMonths as $m)
-                            <th class="p-2 text-center min-w-[110px] border-b border-r border-emerald-800/80 bg-emerald-800 text-emerald-50">
-                                <span class="block font-black text-white">SPP {{ $m }}</span>
+                            <th class="p-2 text-center min-w-[110px] border-b border-r border-stone-200 bg-stone-50/90 text-stone-700">
+                                <span class="block font-black text-stone-900">SPP {{ $m }}</span>
                                 @if (isset($footerSppMatrix[$m]))
-                                    <span class="text-[9px] font-normal text-emerald-200 block">
+                                    <span class="text-[9px] font-normal text-stone-500 block">
                                         {{ $footerSppMatrix[$m]['lunas_count'] }} Lunas
                                     </span>
                                 @endif
@@ -191,10 +184,10 @@
 
                         <!-- Kolom per Kategori Non-SPP (Uang Gedung, Seragam, Buku, dll) -->
                         @foreach ($nonSppJenisList as $jt)
-                            <th class="p-2 text-center min-w-[125px] border-b border-r border-emerald-800/80 bg-emerald-800 text-emerald-50">
-                                <span class="block font-black text-white truncate" title="{{ $jt->nama }}">{{ $jt->nama }}</span>
+                            <th class="p-2 text-center min-w-[125px] border-b border-r border-stone-200 bg-stone-50/90 text-stone-700">
+                                <span class="block font-black text-stone-900 truncate" title="{{ $jt->nama }}">{{ $jt->nama }}</span>
                                 @if (isset($footerNonSppMatrix[$jt->id]))
-                                    <span class="text-[9px] font-normal text-emerald-200 block">
+                                    <span class="text-[9px] font-normal text-stone-500 block">
                                         {{ $footerNonSppMatrix[$jt->id]['lunas_count'] }} Lunas
                                     </span>
                                 @endif

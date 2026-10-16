@@ -150,8 +150,31 @@ class OverviewPembayaran extends Component
 
     public function filterByStatusSpp(string $status): void
     {
-        $this->filterStatusSpp = ($this->filterStatusSpp === $status) ? '' : $status;
+        if ($this->filterStatusSpp === $status) {
+            $this->filterStatusSpp = '';
+            $this->filterStatus = '';
+        } else {
+            $this->filterStatusSpp = $status;
+            $this->filterStatus = ($status === 'menunggak') ? 'tunggakan' : (($status === 'lunas') ? 'lunas' : '');
+        }
         $this->resetPage('pageSpp');
+        $this->resetPage();
+    }
+
+    public function resetOverviewFilters(): void
+    {
+        $this->reset(['search', 'filterKelas', 'filterStatus', 'filterStatusSpp', 'filterStatusBulan']);
+        $this->resetPage();
+        $this->resetPage('pageSpp');
+    }
+
+    public function getActiveFilterCountProperty(): int
+    {
+        $count = 0;
+        if (trim($this->search) !== '') $count++;
+        if ($this->filterKelas) $count++;
+        if ($this->filterStatus !== '' || $this->filterStatusSpp !== '' || $this->filterStatusBulan !== '') $count++;
+        return $count;
     }
 
     public function updatingSppPeriode(): void
@@ -678,10 +701,13 @@ class OverviewPembayaran extends Component
     {
         if ($this->filterStatus === $status) {
             $this->filterStatus = '';
+            $this->filterStatusSpp = '';
         } else {
             $this->filterStatus = $status;
+            $this->filterStatusSpp = ($status === 'tunggakan') ? 'menunggak' : (($status === 'lunas') ? 'lunas' : '');
         }
         $this->resetPage();
+        $this->resetPage('pageSpp');
     }
 
     public function kirimReminder(int $siswaId)

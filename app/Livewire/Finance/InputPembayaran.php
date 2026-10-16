@@ -6,12 +6,17 @@ use Livewire\Component;
 use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\Tagihan;
+use App\Models\JenisTagihan;
 use App\Models\Pembayaran;
 use App\Models\Notifikasi;
 use Illuminate\Support\Facades\DB;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use App\Traits\WithCurrencySanitizer;
+use App\Models\Pengaturan;
+use App\Services\AuditLogger;
+use App\Services\Finance\CsvExportService;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class InputPembayaran extends Component
 {
@@ -20,6 +25,9 @@ class InputPembayaran extends Component
     // Filters
     public string $search = '';
     public ?int $filterKelas = null;
+    public ?int $filterJenisTagihan = null;
+    public string $filterPeriode = '';
+    public string $filterWaktu = '';
 
     // Selection properties
     public ?int $siswa_id = null;
@@ -90,6 +98,38 @@ class InputPembayaran extends Component
     public function updatingFilterKelas(): void
     {
         $this->resetPage();
+    }
+
+    public function updatingFilterJenisTagihan(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterPeriode(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterWaktu(): void
+    {
+        $this->resetPage();
+    }
+
+    public function resetTableFilters(): void
+    {
+        $this->reset(['search', 'filterKelas', 'filterJenisTagihan', 'filterPeriode', 'filterWaktu']);
+        $this->resetPage();
+    }
+
+    public function getActiveFilterCountProperty(): int
+    {
+        $count = 0;
+        if (trim($this->search) !== '') $count++;
+        if ($this->filterKelas) $count++;
+        if ($this->filterJenisTagihan) $count++;
+        if ($this->filterPeriode !== '') $count++;
+        if ($this->filterWaktu !== '') $count++;
+        return $count;
     }
 
     public function updatedTagihanId($value): void
@@ -411,21 +451,56 @@ class InputPembayaran extends Component
         $this->resetPage();
     }
 
-    public function render()
+    public function getFilteredTagihanQuery()
     {
-        $queryTunggakan = Tagihan::tunggakan()
-            ->whereIn('status', ['belum_bayar', 'sebagian'])
-            ->with(['siswa.user', 'siswa.kelas', 'jenisTagihan'])
-            ->latest();
+        $cutoff = now()->endOfMonth()->toDateString();
+        $today = now()->toDateString();
 
+        $query = Tagihan::whereIn('status', ['belum_bayar', 'sebagian'])
+            ->whereHas('siswa')
+            ->with(['siswa.user', 'siswa.kelas', 'jenisTagihan']);
+
+        // Filter Waktu Jatuh Tempo
+        if ($this->filterWaktu === 'lewat') {
+            $query->whereDate('jatuh_tempo', '<', $today);
+        } elseif ($this->filterWaktu === 'bulan_ini') {
+            $query->whereDate('jatuh_tempo', '>=', now()->startOfMonth()->toDateString())
+                ->whereDate('jatuh_tempo', '<=', $cutoff);
+        } elseif ($this->filterWaktu === 'mendatang') {
+            $query->whereDate('jatuh_tempo', '>', $cutoff);
+        } elseif ($this->filterWaktu === 'semua') {
+            // Tanpa batasan waktu cutoff (mencakup seluruh waktu)
+        } else {
+            // Default: Tagihan jatuh tempo s/d akhir bulan berjalan
+            $query->jatuhTempo($cutoff);
+        }
+
+        // Filter Kelas
         if ($this->filterKelas) {
-            $queryTunggakan->whereHas('siswa', function ($q) {
+            $query->whereHas('siswa', function ($q) {
                 $q->where('kelas_id', $this->filterKelas);
             });
         }
 
+        // Filter Jenis Tagihan
+        if ($this->filterJenisTagihan) {
+            $query->where('jenis_tagihan_id', $this->filterJenisTagihan);
+        }
+
+        // Filter Periode Bulan Tagihan
+        if ($this->filterPeriode !== '') {
+            if ($this->filterPeriode === 'non_bulanan') {
+                $query->where(function ($q) {
+                    $q->whereNull('bulan')->orWhere('bulan', '');
+                });
+            } else {
+                $query->where('bulan', $this->filterPeriode);
+            }
+        }
+
+        // Pencarian Nama Siswa atau NIS
         if (trim($this->search) !== '') {
-            $queryTunggakan->where(function ($query) {
+            $query->where(function ($query) {
                 $query->whereHas('siswa.user', function ($q) {
                     $q->where('nama', 'like', '%' . $this->search . '%');
                 })->orWhereHas('siswa', function ($q) {
@@ -434,10 +509,166 @@ class InputPembayaran extends Component
             });
         }
 
-        $activeTunggakan = $queryTunggakan->paginate(12);
+        return $query;
+    }
+
+    public function exportExcel()
+    {
+        $query = $this->getFilteredTagihanQuery()->orderBy('jatuh_tempo', 'asc');
+        $tagihans = $query->get();
+
+        if ($tagihans->isEmpty()) {
+            session()->flash('error', 'Tidak ada data tagihan yang sesuai dengan filter untuk diekspor.');
+            $this->dispatch('show-alert', [
+                'title' => 'Data Kosong',
+                'message' => 'Tidak ada data tagihan yang sesuai dengan filter untuk diekspor.',
+                'type' => 'warning',
+            ]);
+            return null;
+        }
+
+        AuditLogger::log('export', 'Mengekspor Daftar Tagihan Kasir ke Excel/CSV', null, [
+            'total_data' => $tagihans->count(),
+            'filter_waktu' => $this->filterWaktu,
+            'filter_kelas' => $this->filterKelas,
+            'filter_jenis_tagihan' => $this->filterJenisTagihan,
+            'filter_periode' => $this->filterPeriode,
+            'search' => $this->search,
+        ]);
+
+        $filename = 'daftar_tagihan_kasir_' . date('Ymd_His') . '.csv';
+
+        $headers = [
+            'No',
+            'NIS',
+            'Nama Siswa',
+            'Kelas',
+            'Jenis Tagihan',
+            'Periode / Bulan',
+            'Jatuh Tempo',
+            'Nominal (Rp)',
+            'Total Dibayar (Rp)',
+            'Sisa Tagihan (Rp)',
+            'Status',
+        ];
+
+        return CsvExportService::stream($filename, $headers, $tagihans, function ($t, $index) {
+            $sisa = max(0, floatval($t->nominal) - floatval($t->total_dibayar));
+            $statusLabel = match ($t->status) {
+                'lunas' => 'Lunas',
+                'sebagian' => 'Sebagian',
+                'batal' => 'Batal',
+                default => 'Belum Bayar',
+            };
+
+            return [
+                $index + 1,
+                $t->siswa->nis ?? '-',
+                $t->siswa->user->nama ?? '-',
+                $t->siswa->kelas->nama_kelas ?? '-',
+                $t->jenisTagihan->nama ?? '-',
+                $t->bulan ?: 'Non-Bulanan',
+                $t->jatuh_tempo ? date('d/m/Y', strtotime($t->jatuh_tempo)) : '-',
+                $t->nominal,
+                $t->total_dibayar,
+                $sisa,
+                $statusLabel,
+            ];
+        });
+    }
+
+    public function exportPdf()
+    {
+        @ini_set('max_execution_time', 120);
+        @ini_set('memory_limit', '512M');
+
+        $query = $this->getFilteredTagihanQuery()->orderBy('jatuh_tempo', 'asc');
+        $tagihans = $query->get();
+
+        if ($tagihans->isEmpty()) {
+            session()->flash('error', 'Tidak dapat mengunduh PDF karena tidak ada data tagihan yang sesuai filter.');
+            $this->dispatch('show-alert', [
+                'title' => 'Data Kosong',
+                'message' => 'Tidak dapat mengunduh PDF karena tidak ada data tagihan yang sesuai filter.',
+                'type' => 'warning',
+            ]);
+            return null;
+        }
+
+        AuditLogger::log('export', 'Mengekspor Daftar Tagihan Kasir ke PDF', null, [
+            'total_data' => $tagihans->count(),
+            'filter_waktu' => $this->filterWaktu,
+            'filter_kelas' => $this->filterKelas,
+            'filter_jenis_tagihan' => $this->filterJenisTagihan,
+            'filter_periode' => $this->filterPeriode,
+            'search' => $this->search,
+        ]);
+
+        $kelas = $this->filterKelas ? Kelas::find($this->filterKelas) : null;
+        $jenisTagihan = $this->filterJenisTagihan ? JenisTagihan::find($this->filterJenisTagihan) : null;
+
+        $namaSekolah = Pengaturan::getValue('nama_sekolah', 'PONDOK PESANTREN & SEKOLAH ISLAM TERPADU');
+        $alamatSekolah = Pengaturan::getValue('alamat_sekolah', 'Jl. Pendidikan Karakter Islami No. 123');
+        $noTelepon = Pengaturan::getValue('no_telepon', '(0274) 123456');
+
+        $waktuText = match ($this->filterWaktu) {
+            'lewat' => 'Lewat Jatuh Tempo (Menunggak)',
+            'bulan_ini' => 'Jatuh Tempo Bulan Ini',
+            'mendatang' => 'Jatuh Tempo Mendatang',
+            'semua' => 'Semua Waktu',
+            default => 'Semua Tunggakan Aktif',
+        };
+
+        $periodeText = match ($this->filterPeriode) {
+            '' => 'Semua Periode',
+            'non_bulanan' => 'Non-Bulanan (Bebas)',
+            default => 'Bulan ' . $this->filterPeriode,
+        };
+
+        $totalNominal = $tagihans->sum(fn($t) => floatval($t->nominal));
+        $totalDibayar = $tagihans->sum(fn($t) => floatval($t->total_dibayar));
+        $totalSisa = $tagihans->sum(fn($t) => max(0, floatval($t->nominal) - floatval($t->total_dibayar)));
+
+        $pdf = Pdf::loadView('livewire.shared.laporan.pdf-daftar-tagihan-kasir', [
+            'data' => $tagihans,
+            'kelas' => $kelas?->nama_kelas ?? 'Semua Kelas',
+            'jenisTagihan' => $jenisTagihan?->nama ?? 'Semua Jenis',
+            'periodeText' => $periodeText,
+            'waktuText' => $waktuText,
+            'search' => $this->search,
+            'namaSekolah' => $namaSekolah,
+            'alamatSekolah' => $alamatSekolah,
+            'noTelepon' => $noTelepon,
+            'totalNominal' => $totalNominal,
+            'totalDibayar' => $totalDibayar,
+            'totalSisa' => $totalSisa,
+        ])->setPaper('a4', 'landscape');
+
+        $filename = 'daftar_tagihan_kasir_' . date('Ymd_His') . '.pdf';
+
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->output();
+        }, $filename, [
+            'Content-Type' => 'application/pdf',
+        ]);
+    }
+
+    public function render()
+    {
+        $activeTunggakan = $this->getFilteredTagihanQuery()
+            ->orderBy('jatuh_tempo', 'asc')
+            ->paginate(12);
+
+        $jenisTagihanOptions = JenisTagihan::orderBy('nama')->get();
+        $standardMonths = [
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni'
+        ];
 
         return view('livewire.finance.input-pembayaran', [
-            'activeTunggakan' => $activeTunggakan
+            'activeTunggakan' => $activeTunggakan,
+            'jenisTagihanOptions' => $jenisTagihanOptions,
+            'standardMonths' => $standardMonths,
         ])->layout('components.layouts.app', ['title' => 'Input Pembayaran']);
     }
 }

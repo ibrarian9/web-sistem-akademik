@@ -201,29 +201,49 @@
             @include('livewire.finance.overview-pembayaran.partials.table-detailed-matrix')
         @else
             <!-- Filter & Search Controls (Tabel Default) -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <!-- Search -->
-                <x-search-input wire:model.live.debounce.300ms="search" placeholder="Cari nama siswa atau NIS..." />
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
+                <div class="flex flex-wrap items-center gap-3 flex-1">
+                    <!-- Search -->
+                    <div class="w-full sm:w-72">
+                        <x-search-input wire:model.live.debounce.300ms="search" placeholder="Cari nama siswa atau NIS..." />
+                    </div>
 
-                <!-- Filter Kelas -->
-                <select wire:model.live="filterKelas" class="px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
-                    <option value="">Semua Kelas</option>
-                    @foreach ($kelases as $k)
-                        <option value="{{ $k->id }}">Kelas {{ $k->nama_kelas }}</option>
-                    @endforeach
-                </select>
+                    <!-- Filter Kelas -->
+                    <div class="w-full sm:w-auto min-w-[140px]">
+                        <select wire:model.live="filterKelas" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs cursor-pointer">
+                            <option value="">Semua Kelas</option>
+                            @foreach ($kelases as $k)
+                                <option value="{{ $k->id }}">Kelas {{ $k->nama_kelas }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                <!-- Filter Status -->
-                <select wire:model.live="filterStatus" class="px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
-                    <option value="">Semua Status Tagihan</option>
-                    <option value="lunas">Lunas / Tertib Berjalan</option>
-                    <option value="tunggakan">Ada Tunggakan</option>
-                </select>
+                    <!-- Filter Status -->
+                    <div class="w-full sm:w-auto min-w-[160px]">
+                        <select wire:model.live="filterStatus" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs cursor-pointer">
+                            <option value="">Semua Status Tagihan</option>
+                            <option value="lunas">Lunas / Tertib Berjalan</option>
+                            <option value="tunggakan">Ada Tunggakan</option>
+                        </select>
+                    </div>
+
+                    <!-- Reset Filter -->
+                    @if ($this->activeFilterCount > 0)
+                        <button type="button" wire:click="resetOverviewFilters" class="inline-flex items-center gap-1.5 px-3 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold rounded-xl border border-stone-300 transition shadow-2xs cursor-pointer" title="Reset Semua Filter">
+                            <x-lucide-rotate-ccw class="w-3.5 h-3.5 text-stone-500" />
+                            <span>Reset ({{ $this->activeFilterCount }})</span>
+                        </button>
+                    @endif
+                </div>
+
+                <div class="text-xs text-stone-500 font-medium">
+                    Menampilkan <strong class="text-stone-800 font-extrabold">{{ $siswas->total() }}</strong> siswa
+                </div>
             </div>
 
             <!-- Data Table Card (Tabel Default) -->
             <x-table loadingTarget="search, filterKelas, filterStatus, filterTahunAjaran, page">
-                <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+                <thead class="bg-stone-100/90 text-stone-700 font-extrabold uppercase tracking-wider text-[11px] border-b border-stone-200">
                     <tr>
                         <x-table.th class="min-w-[180px]">Siswa</x-table.th>
                         <x-table.th class="w-32">Kelas</x-table.th>
@@ -234,22 +254,22 @@
                         <x-table.th align="center" class="w-36">Aksi</x-table.th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-stone-200 bg-white">
+                <tbody class="divide-y divide-stone-100 bg-white">
                     @forelse ($siswas as $item)
-                        <tr class="hover:bg-emerald-50/40 transition">
+                        <tr class="hover:bg-stone-50/80 transition-colors">
                             <!-- Student identity -->
-                            <td class="p-3.5 border-r border-stone-200">
+                            <td class="p-3.5">
                                 <div class="font-extrabold text-stone-900 text-xs">{{ $item['nama'] }}</div>
                                 <div class="text-[10px] text-stone-600 font-mono font-medium">NIS: {{ $item['nis'] }}</div>
                             </td>
                             <!-- Class -->
-                            <td class="p-3.5 border-r border-stone-200">
+                            <td class="p-3.5">
                                 <x-badge variant="stone" size="xs">
                                     {{ $item['kelas'] }}
                                 </x-badge>
                             </td>
                             <!-- Invoice Counts -->
-                            <td class="p-3.5 text-center border-r border-stone-200">
+                            <td class="p-3.5 text-center">
                                 @if ($item['total_tagihan_count'] > 0)
                                     <span class="text-xs font-bold text-stone-800">
                                         {{ $item['total_tagihan_count'] }} Tagihan
@@ -262,7 +282,7 @@
                                 @endif
                             </td>
                             <!-- In-arrears details -->
-                            <td class="p-3.5 text-right border-r border-stone-200">
+                            <td class="p-3.5 text-right">
                                 <div class="text-[11px] text-stone-600 font-medium">Tagihan: Rp {{ number_format($item['total_nominal'], 0, ',', '.') }}</div>
                                 <div class="text-[11px] text-emerald-700 font-bold">Dibayar: Rp {{ number_format($item['total_dibayar'], 0, ',', '.') }}</div>
                                 @if ($item['sisa_tunggakan'] > 0)
@@ -275,7 +295,7 @@
                                 @endif
                             </td>
                             <!-- Custom Status Badge -->
-                            <td class="p-3.5 text-center border-r border-stone-200">
+                            <td class="p-3.5 text-center">
                                 @switch($item['status'])
                                     @case('Lunas Semua')
                                         <x-badge variant="emerald" size="xs" :dot="true">Lunas Semua</x-badge>
@@ -291,7 +311,7 @@
                                 @endswitch
                             </td>
                             <!-- Last Pay Date -->
-                            <td class="p-3.5 text-center text-stone-600 text-xs font-semibold border-r border-stone-200">
+                            <td class="p-3.5 text-center text-stone-600 text-xs font-semibold">
                                 {{ $item['terakhir_bayar'] }}
                             </td>
                             <!-- Action button triggers -->

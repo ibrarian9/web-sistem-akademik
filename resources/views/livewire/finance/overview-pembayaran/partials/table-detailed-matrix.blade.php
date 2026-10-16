@@ -128,62 +128,70 @@
     @endif
 
     <!-- 3. Kontrol Pencarian, Kelas & Baris per Halaman -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <!-- Search Input -->
-        <x-search-input wire:model.live.debounce.300ms="search" placeholder="Cari nama santri atau NIS..." />
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 bg-white border border-stone-200 rounded-2xl shadow-xs">
+        <div class="flex flex-wrap items-center gap-2.5 flex-1">
+            <!-- Search Input -->
+            <div class="w-full sm:w-64 min-w-[200px]">
+                <x-search-input wire:model.live.debounce.300ms="search" placeholder="Cari nama santri atau NIS..." />
+            </div>
 
-        <!-- Filter Kelas -->
-        <select wire:model.live="filterKelas" class="px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
-            <option value="">Semua Kelas</option>
-            @foreach ($kelases as $k)
-                <option value="{{ $k->id }}">Kelas {{ $k->nama_kelas }}</option>
-            @endforeach
-        </select>
-
-        <!-- Baris per Halaman -->
-        <div class="flex items-center gap-2">
-            <select wire:model.live="perPageLengkap" class="w-full px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
-                <option value="15">15 Siswa per Halaman</option>
-                <option value="20">20 Siswa per Halaman</option>
-                <option value="35">35 Siswa per Halaman</option>
-                <option value="50">50 Siswa per Halaman</option>
-            </select>
+            <!-- Filter Kelas -->
+            <div class="w-full sm:w-auto min-w-[130px]">
+                <select wire:model.live="filterKelas" class="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-800 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs cursor-pointer">
+                    <option value="">Semua Kelas</option>
+                    @foreach ($kelases as $k)
+                        <option value="{{ $k->id }}">Kelas {{ $k->nama_kelas }}</option>
+                    @endforeach
+                </select>
+            </div>
 
             @if ($filterStatusBulan !== '' || $search !== '' || $filterKelas !== null)
                 <button 
                     type="button" 
-                    wire:click="$set('filterStatusBulan', ''); $set('search', ''); $set('filterKelas', null);" 
-                    class="p-2 text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 rounded-xl border border-stone-200 text-xs font-bold transition shrink-0 cursor-pointer"
+                    wire:click="resetOverviewFilters" 
+                    class="inline-flex items-center gap-1.5 px-3 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold rounded-xl border border-stone-300 transition shadow-2xs cursor-pointer shrink-0"
                     title="Reset Filter"
                 >
-                    <x-lucide-rotate-ccw class="w-4 h-4" />
+                    <x-lucide-rotate-ccw class="w-3.5 h-3.5 text-stone-500" />
+                    <span>Reset Filter</span>
                 </button>
             @endif
+        </div>
+
+        <!-- Baris per Halaman -->
+        <div class="flex items-center gap-2 text-xs text-stone-500 font-medium">
+            <span>Tampilkan:</span>
+            <select wire:model.live="perPageLengkap" class="px-2.5 py-1 bg-white border border-stone-300 rounded-lg text-xs font-bold text-stone-900 focus:ring-2 focus:ring-emerald-600 shadow-2xs cursor-pointer">
+                <option value="15">15 Siswa</option>
+                <option value="20">20 Siswa</option>
+                <option value="35">35 Siswa</option>
+                <option value="50">50 Siswa</option>
+            </select>
         </div>
     </div>
 
     <!-- 4. TABEL UTAMA: Data Tagihan Seluruh Murid -->
     <div class="overflow-x-auto rounded-2xl border border-stone-200 shadow-xs bg-white">
         <table class="w-full text-left text-xs border-collapse">
-            <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider text-[11px] border-b border-emerald-900">
+            <thead class="bg-stone-100/90 text-stone-700 font-extrabold uppercase tracking-wider text-[11px] border-b border-stone-200">
                 <tr>
-                    <th class="p-3 text-center w-12 border-r border-emerald-700/60 sticky left-0 z-10 bg-emerald-800">No</th>
-                    <th class="p-3 min-w-[180px] border-r border-emerald-700/60 sticky left-12 z-10 bg-emerald-800">Identitas Santri</th>
-                    <th class="p-3 w-24 border-r border-emerald-700/60 text-center">Kelas</th>
+                    <th class="p-3 text-center w-12 border-r border-stone-200 sticky left-0 z-10 bg-stone-100 text-stone-900">No</th>
+                    <th class="p-3 min-w-[180px] border-r border-stone-200 sticky left-12 z-10 bg-stone-100 text-stone-900">Identitas Santri</th>
+                    <th class="p-3 w-24 border-r border-stone-200 text-center">Kelas</th>
                     
                     <!-- Kolom Jenis-jenis Tunggakan -->
                     @foreach ($jenisTagihanList as $jt)
-                        <th class="p-2.5 text-center min-w-[110px] border-r border-emerald-700/60">
-                            <span class="block font-black">{{ $jt->nama }}</span>
-                            <span class="text-[9px] font-normal opacity-85 block capitalize">({{ $jt->kategori }})</span>
+                        <th class="p-2.5 text-center min-w-[110px] border-r border-stone-200">
+                            <span class="block font-black text-stone-900">{{ $jt->nama }}</span>
+                            <span class="text-[9px] font-normal text-stone-500 block capitalize">({{ $jt->kategori }})</span>
                         </th>
                     @endforeach
 
                     <!-- Kolom Rangkuman Bulan Terpilih -->
-                    <th class="p-3 w-32 text-right border-r border-emerald-700/60">Tagihan Bln Ini</th>
-                    <th class="p-3 w-32 text-right border-r border-emerald-700/60">Sisa Tunggakan</th>
-                    <th class="p-3 w-28 text-center border-r border-emerald-700/60">Status</th>
-                    <th class="p-3 w-36 text-center">Aksi</th>
+                    <th class="p-3 w-32 text-right border-r border-stone-200 text-stone-800">Tagihan Bln Ini</th>
+                    <th class="p-3 w-32 text-right border-r border-stone-200 text-rose-700">Sisa Tunggakan</th>
+                    <th class="p-3 w-28 text-center border-r border-stone-200 text-stone-800">Status</th>
+                    <th class="p-3 w-36 text-center text-stone-800">Aksi</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-stone-200 bg-white">

@@ -7,7 +7,16 @@
         title="Input Pembayaran Siswa" 
         subtitle="Pilih dari daftar siswa yang memiliki tagihan aktif di bawah untuk memproses transaksi setoran kasir."
         icon="plus-circle"
-    />
+    >
+        <x-slot:actions>
+            <x-button variant="outline" size="sm" icon="file-spreadsheet" wire:click="exportExcel" :disabled="$activeTunggakan->total() === 0" title="{{ $activeTunggakan->total() === 0 ? 'Tidak ada data tagihan untuk diekspor' : 'Ekspor Daftar Tagihan ke Excel (CSV)' }}">
+                Ekspor Excel
+            </x-button>
+            <x-button variant="outline" size="sm" icon="printer" wire:click="exportPdf" :disabled="$activeTunggakan->total() === 0" title="{{ $activeTunggakan->total() === 0 ? 'Tidak ada data tagihan untuk dicetak' : 'Cetak Dokumen PDF Daftar Tagihan' }}">
+                Cetak PDF
+            </x-button>
+        </x-slot:actions>
+    </x-page-header>
 
     <!-- Info & Tutorial Box -->
     <x-info-tutorial-box 
@@ -85,58 +94,175 @@
 
     <!-- MAIN TABLE: DAFTAR TUNGGAKAN SISWA -->
     <div class="bg-white border border-stone-200 rounded-2xl p-3.5 sm:p-6 shadow-xs space-y-4">
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-            <div class="max-w-md w-full">
-                <x-search-input wire:model.live.debounce.300ms="search" placeholder="Cari nama siswa atau NIS..." />
+        <!-- FILTER CONTROLS (PREMIUM, INTUITIVE & STREAMLINED) -->
+        <div class="space-y-3 pb-3 border-b border-stone-100">
+            <!-- Row 1: Quick Waktu / Status Segmented Tabs & Summary -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <!-- Waktu / Status Pills -->
+                <div class="flex items-center gap-1.5 p-1 bg-stone-100/80 rounded-xl overflow-x-auto select-none">
+                    <button type="button" 
+                            wire:click="$set('filterWaktu', '')" 
+                            class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap {{ $filterWaktu === '' ? 'bg-white text-stone-900 shadow-xs font-extrabold' : 'text-stone-600 hover:text-stone-900' }}">
+                        Semua Tunggakan
+                    </button>
+                    <button type="button" 
+                            wire:click="$set('filterWaktu', 'lewat')" 
+                            class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap flex items-center gap-1.5 {{ $filterWaktu === 'lewat' ? 'bg-rose-600 text-white shadow-xs font-extrabold' : 'text-rose-700 hover:bg-rose-50' }}">
+                        <span class="w-1.5 h-1.5 rounded-full {{ $filterWaktu === 'lewat' ? 'bg-white' : 'bg-rose-500' }}"></span>
+                        <span>Lewat Jatuh Tempo</span>
+                    </button>
+                    <button type="button" 
+                            wire:click="$set('filterWaktu', 'bulan_ini')" 
+                            class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap flex items-center gap-1.5 {{ $filterWaktu === 'bulan_ini' ? 'bg-emerald-600 text-white shadow-xs font-extrabold' : 'text-emerald-700 hover:bg-emerald-50' }}">
+                        <span class="w-1.5 h-1.5 rounded-full {{ $filterWaktu === 'bulan_ini' ? 'bg-white' : 'bg-emerald-500' }}"></span>
+                        <span>Bulan Ini</span>
+                    </button>
+                    <button type="button" 
+                            wire:click="$set('filterWaktu', 'mendatang')" 
+                            class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap flex items-center gap-1.5 {{ $filterWaktu === 'mendatang' ? 'bg-amber-600 text-white shadow-xs font-extrabold' : 'text-amber-700 hover:bg-amber-50' }}">
+                        <span class="w-1.5 h-1.5 rounded-full {{ $filterWaktu === 'mendatang' ? 'bg-white' : 'bg-amber-500' }}"></span>
+                        <span>Mendatang (Pra-Bayar)</span>
+                    </button>
+                    <button type="button" 
+                            wire:click="$set('filterWaktu', 'semua')" 
+                            class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap {{ $filterWaktu === 'semua' ? 'bg-white text-stone-900 shadow-xs font-extrabold' : 'text-stone-600 hover:text-stone-900' }}">
+                        Semua Waktu
+                    </button>
+                </div>
+
+                <!-- Tagihan Counter & Quick Export Actions -->
+                <div class="flex flex-wrap items-center gap-2.5 self-end sm:self-auto shrink-0">
+                    <span class="text-xs text-stone-500 font-medium">
+                        Menampilkan <strong class="text-stone-900 font-extrabold">{{ $activeTunggakan->total() }}</strong> tagihan
+                    </span>
+
+                    <div class="h-4 w-px bg-stone-200 hidden sm:block"></div>
+
+                    <div class="flex items-center gap-1.5">
+                        <button type="button" 
+                                wire:click="exportExcel" 
+                                wire:loading.attr="disabled"
+                                @if($activeTunggakan->total() === 0) disabled @endif
+                                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/80 rounded-lg text-xs font-bold transition shadow-2xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed" 
+                                title="Ekspor Daftar Tagihan ke Excel (CSV)">
+                            <x-lucide-file-spreadsheet class="w-3.5 h-3.5 text-emerald-600" />
+                            <span>Excel</span>
+                        </button>
+                        <button type="button" 
+                                wire:click="exportPdf" 
+                                wire:loading.attr="disabled"
+                                @if($activeTunggakan->total() === 0) disabled @endif
+                                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200/80 rounded-lg text-xs font-bold transition shadow-2xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed" 
+                                title="Cetak / Unduh Dokumen PDF">
+                            <x-lucide-printer class="w-3.5 h-3.5 text-rose-600" />
+                            <span>PDF</span>
+                        </button>
+                    </div>
+                </div>
             </div>
-            
-            <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
-                <span class="text-xs font-bold text-stone-600 uppercase tracking-wider shrink-0">Filter Kelas:</span>
-                <select wire:model.live="filterKelas" class="flex-1 sm:flex-initial sm:w-auto px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold focus:ring-2 focus:ring-emerald-600 shadow-2xs">
-                    <option value="">Semua Kelas</option>
-                    @foreach ($classes as $c)
-                        <option value="{{ $c['id'] }}">Kelas {{ $c['nama_kelas'] }}</option>
-                    @endforeach
-                </select>
+
+            <!-- Row 2: Search, Kelas, Jenis Tagihan, Periode Dropdowns with icons -->
+            <div class="flex flex-col md:flex-row flex-wrap items-stretch md:items-center gap-2.5">
+                <!-- Search Input with flex-1 -->
+                <div class="flex-1 min-w-[240px]">
+                    <x-search-input wire:model.live.debounce.300ms="search" placeholder="Cari nama siswa atau NIS..." />
+                </div>
+
+                <!-- Filter Kelas -->
+                <div class="w-full sm:w-auto min-w-[150px]">
+                    <div class="relative">
+                        <select wire:model.live="filterKelas" class="w-full pl-3.5 pr-8 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-800 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 transition shadow-2xs appearance-none cursor-pointer">
+                            <option value="">Semua Kelas</option>
+                            @foreach ($classes as $c)
+                                <option value="{{ $c['id'] }}">Kelas {{ $c['nama_kelas'] }}</option>
+                            @endforeach
+                        </select>
+                        <x-lucide-chevron-down class="w-4 h-4 text-stone-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                </div>
+
+                <!-- Filter Jenis Tagihan -->
+                <div class="w-full sm:w-auto min-w-[170px]">
+                    <div class="relative">
+                        <select wire:model.live="filterJenisTagihan" class="w-full pl-3.5 pr-8 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-800 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 transition shadow-2xs appearance-none cursor-pointer">
+                            <option value="">Semua Jenis Tagihan</option>
+                            @foreach ($jenisTagihanOptions as $jt)
+                                <option value="{{ $jt->id }}">{{ $jt->nama }}</option>
+                            @endforeach
+                        </select>
+                        <x-lucide-chevron-down class="w-4 h-4 text-stone-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                </div>
+
+                <!-- Filter Periode (Bulan) -->
+                <div class="w-full sm:w-auto min-w-[150px]">
+                    <div class="relative">
+                        <select wire:model.live="filterPeriode" class="w-full pl-3.5 pr-8 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-800 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 transition shadow-2xs appearance-none cursor-pointer">
+                            <option value="">Semua Periode</option>
+                            @foreach ($standardMonths as $bln)
+                                <option value="{{ $bln }}">Bulan {{ $bln }}</option>
+                            @endforeach
+                            <option value="non_bulanan">Non-Bulanan (Bebas)</option>
+                        </select>
+                        <x-lucide-calendar class="w-4 h-4 text-stone-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                </div>
+
+                <!-- Reset Filter Button -->
+                @if ($this->activeFilterCount > 0)
+                    <button type="button" wire:click="resetTableFilters" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 text-xs font-bold transition shadow-2xs cursor-pointer shrink-0" title="Reset Semua Filter">
+                        <x-lucide-rotate-ccw class="w-3.5 h-3.5 text-stone-500" />
+                        <span>Reset ({{ $this->activeFilterCount }})</span>
+                    </button>
+                @endif
             </div>
         </div>
 
-        <x-table loadingTarget="search, filterKelas, page">
-            <thead class="bg-emerald-800 text-white font-extrabold uppercase tracking-wider border-b border-emerald-900">
+        <x-table loadingTarget="search, filterKelas, filterJenisTagihan, filterPeriode, filterWaktu, page">
+            <thead class="bg-stone-100/90 text-stone-700 font-extrabold uppercase tracking-wider text-[11px] border-b border-stone-200">
                 <tr>
                     <x-table.th class="min-w-[180px]">Siswa & Kelas</x-table.th>
                     <x-table.th class="w-44">Jenis Tagihan</x-table.th>
-                    <x-table.th align="center" class="w-32">Periode</x-table.th>
-                    <x-table.th align="right" class="w-40">Nominal Tagihan</x-table.th>
-                    <x-table.th align="right" class="w-40">Sisa Tunggakan</x-table.th>
+                    <x-table.th align="center" class="w-40">Periode & Jatuh Tempo</x-table.th>
+                    <x-table.th align="right" class="w-36">Nominal</x-table.th>
+                    <x-table.th align="right" class="w-36 text-rose-700">Sisa Tagihan</x-table.th>
                     <x-table.th align="center" class="w-32">Status</x-table.th>
                     <x-table.th align="center" class="w-36">Aksi Kasir</x-table.th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-stone-200 bg-white">
+            <tbody class="divide-y divide-stone-100 bg-white">
                 @forelse ($activeTunggakan as $t)
                     @php
                         $sisa = floatval($t->nominal - $t->total_dibayar);
                         $isSelected = $selectedInvoiceInfo && $selectedInvoiceInfo['id'] === $t->id;
+                        $isOverdue = $t->jatuh_tempo && $t->jatuh_tempo->format('Y-m-d') < date('Y-m-d');
                     @endphp
-                    <tr class="hover:bg-emerald-50/40 transition {{ $isSelected ? 'bg-emerald-50/80 font-bold' : '' }}">
-                        <td class="p-3.5 border-r border-stone-200">
+                    <tr class="hover:bg-emerald-50/40 transition-colors {{ $isSelected ? 'bg-emerald-50/80 font-bold' : '' }}">
+                        <td class="p-3.5">
                             <span class="font-extrabold text-stone-900 text-xs block">{{ $t->siswa->user->nama ?? '-' }}</span>
                             <span class="text-[10px] text-stone-500 font-mono">NIS: {{ $t->siswa->nis ?? '-' }} | Kelas {{ $t->siswa->kelas->nama_kelas ?? '-' }}</span>
                         </td>
-                        <td class="p-3.5 text-xs font-bold text-stone-900 border-r border-stone-200">
+                        <td class="p-3.5 text-xs font-bold text-stone-900">
                             {{ $t->jenisTagihan->nama ?? '-' }}
                         </td>
-                        <td class="p-3.5 text-center text-xs text-stone-600 font-semibold border-r border-stone-200">
-                            {{ $t->bulan ?: '-' }}
+                        <td class="p-3.5 text-center">
+                            <span class="text-xs text-stone-800 font-bold block">{{ $t->bulan ?: '-' }}</span>
+                            @if ($t->jatuh_tempo)
+                                <div class="inline-flex items-center gap-1 text-[10px] mt-0.5 {{ $isOverdue ? 'text-rose-600 font-bold' : 'text-stone-400 font-mono' }}">
+                                    @if ($isOverdue)
+                                        <x-lucide-alert-circle class="w-3 h-3 text-rose-500" />
+                                    @endif
+                                    <span>JT: {{ $t->jatuh_tempo->format('d/m/Y') }}</span>
+                                </div>
+                            @endif
                         </td>
-                        <td class="p-3.5 text-right font-bold text-xs text-stone-800 border-r border-stone-200">
+                        <td class="p-3.5 text-right font-bold text-xs text-stone-700">
                             Rp {{ number_format($t->nominal, 0, ',', '.') }}
                         </td>
-                        <td class="p-3.5 text-right font-black text-rose-700 text-xs border-r border-stone-200">
+                        <td class="p-3.5 text-right font-black text-rose-700 text-xs">
                             Rp {{ number_format($sisa, 0, ',', '.') }}
                         </td>
-                        <td class="p-3.5 text-center border-r border-stone-200">
+                        <td class="p-3.5 text-center">
                             @if ($t->status === 'belum_bayar')
                                 <x-badge variant="rose" size="xs" :dot="true">Belum Bayar</x-badge>
                             @else
