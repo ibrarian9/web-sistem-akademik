@@ -1270,8 +1270,8 @@
     "semantic_hash": ""
   },
   "resources/views/livewire/super-admin/dashboard.blade.php": {
-    "mtime": 1791872601.7041469,
-    "ast_hash": "12a22fd5ee34bb14e4120d3a2fa6f3c8",
+    "mtime": 1792139070.4976375,
+    "ast_hash": "f62086899af9144e9f7274ba2e172d87",
     "semantic_hash": ""
   },
   "resources/views/livewire/super-admin/tata-kelola/audit-log.blade.php": {
@@ -2515,8 +2515,8 @@
     "semantic_hash": ""
   },
   "resources/views/components/quran-audio-player.blade.php": {
-    "mtime": 1791872401.44179,
-    "ast_hash": "ae320adeabbf98d2f64886eff4ae1a33",
+    "mtime": 1792139715.4027786,
+    "ast_hash": "669ea0dd102117c5985c9c787fc25208",
     "semantic_hash": ""
   },
   "tests/Feature/SuperAdmin2ProductionSeederAndMurottalTest.php": {

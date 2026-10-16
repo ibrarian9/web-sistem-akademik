@@ -180,23 +180,20 @@
     <div class="bg-gradient-to-br from-emerald-900 via-teal-900 to-emerald-950 text-white rounded-2xl p-5 sm:p-6 shadow-md border border-emerald-800/80 relative overflow-hidden">
         <!-- Background Pattern Deco -->
         <div class="absolute -right-10 -bottom-10 w-48 h-48 rounded-full bg-emerald-500/10 blur-2xl pointer-events-none"></div>
-        <div class="absolute right-6 top-6 text-emerald-400/10 pointer-events-none">
-            <x-lucide-book-open class="w-32 h-32" />
-        </div>
 
         <div class="relative z-10 space-y-4">
             <!-- Header Card Mutiara Ayat -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-emerald-700/60">
                 <div class="flex items-center gap-2.5">
-                    <span class="p-2 rounded-xl bg-emerald-800/80 border border-emerald-600/50 text-emerald-300 shadow-2xs">
+                    <span class="p-2 rounded-xl bg-emerald-800/80 border border-emerald-600/50 text-emerald-300 shadow-2xs shrink-0">
                         <x-lucide-sparkles class="w-4 h-4 text-emerald-300" />
                     </span>
                     <div>
                         <div class="flex items-center gap-2">
                             <h3 class="text-xs font-black uppercase tracking-wider text-emerald-200">Mutiara Ayat & Lantunan Al-Qur'an</h3>
-                            <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-400/30">Acak Otomatis</span>
+                            <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-400/30">Lantunan Pilihan</span>
                         </div>
-                        <p class="text-[11px] text-emerald-100/70 font-medium">Lantunan ayat suci dan renungan hikmah yang berganti secara acak setiap saat.</p>
+                        <p class="text-[11px] text-emerald-100/70 font-medium">Lantunan ayat suci dan renungan hikmah yang dapat diputar sewaktu-waktu.</p>
                     </div>
                 </div>
 
@@ -205,7 +202,7 @@
                     <button 
                         type="button" 
                         @click="$dispatch('quran-play-toggle')" 
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-xs transition hover:scale-102 cursor-pointer active:scale-98"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-xs transition cursor-pointer"
                     >
                         <template x-if="quranState.isPlaying">
                             <span class="flex items-center gap-1.5">
@@ -224,8 +221,8 @@
                     <button 
                         type="button" 
                         @click="$dispatch('quran-play-random')" 
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl text-xs font-bold transition hover:scale-102 cursor-pointer active:scale-98"
-                        title="Putar Ayat dan Surat Acak Lainnya"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl text-xs font-bold transition cursor-pointer"
+                        title="Tampilkan Ayat dan Surat Acak Lainnya"
                     >
                         <x-lucide-shuffle class="w-3.5 h-3.5 text-emerald-300" />
                         <span>Acak Ayat Baru</span>

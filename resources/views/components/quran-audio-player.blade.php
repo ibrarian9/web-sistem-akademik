@@ -5,8 +5,8 @@
             isPlaying: false,
             isMuted: false,
             isDisabled: false,
-            isMinimized: false,
-            volume: 0.15,
+            isMinimized: true,
+            volume: 0.7,
             surahTitle: 'Surah Al-Fatihah',
             surahName: 'Al-Fatihah',
             ayahNumber: 1,
@@ -230,7 +230,7 @@
             ],
 
             initPlayer() {
-                // Pilih surat dan ayat acak saat komponen dimuat
+                // Pilih surat dan ayat acak saat komponen dimuat (tampilan teks saja, tanpa putar audio otomatis)
                 this.pickRandomAyah(false);
 
                 // Check user preference in localStorage
@@ -240,27 +240,8 @@
                 }
 
                 this.setupAudio();
-
-                // Attempt gentle autoplay on dashboard load
-                const playPromise = this.audio.play();
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        this.isPlaying = true;
-                        this.broadcastState();
-                    }).catch(() => {
-                        this.isPlaying = false;
-                        const startOnInteraction = () => {
-                            if (!this.isDisabled && !this.isPlaying && this.audio) {
-                                this.audio.play().then(() => {
-                                    this.isPlaying = true;
-                                    this.broadcastState();
-                                }).catch(() => {});
-                            }
-                        };
-                        document.addEventListener('click', startOnInteraction, { once: true });
-                        document.addEventListener('keydown', startOnInteraction, { once: true });
-                    });
-                }
+                this.isPlaying = false;
+                this.broadcastState();
             },
 
             setupAudio() {
@@ -280,9 +261,10 @@
                     }
                 });
 
-                // Saat ayat selesai dilantunkan, otomatis putar ayat & surat acak berikutnya
+                // Saat ayat selesai dilantunkan, hentikan pemutaran (tidak berputar terus-menerus tanpa henti)
                 this.audio.addEventListener('ended', () => {
-                    this.nextRandomAyah(true);
+                    this.isPlaying = false;
+                    this.broadcastState();
                 });
             },
 
@@ -301,11 +283,13 @@
                 if (this.audio) {
                     this.audio.src = this.audioSrc;
                     this.audio.load();
-                    if (shouldPlay || this.isPlaying) {
+                    if (shouldPlay) {
                         this.audio.play().then(() => {
                             this.isPlaying = true;
                             this.broadcastState();
                         }).catch(() => {});
+                    } else if (!this.isPlaying) {
+                        this.isPlaying = false;
                     }
                 }
 
@@ -418,7 +402,7 @@
         }"
         x-init="initPlayer()"
         @quran-play-toggle.window="togglePlay()"
-        @quran-play-random.window="nextRandomAyah(true)"
+        @quran-play-random.window="nextRandomAyah(isPlaying)"
         class="fixed bottom-22 right-6 sm:bottom-6 sm:left-6 lg:left-72 sm:right-auto z-40 select-none"
     >
         <!-- Floating Active Player Widget (Full Card) -->
@@ -436,7 +420,7 @@
             <!-- Animated Soundwave or Quran Icon -->
             <div 
                 @click="togglePlay()" 
-                class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center shrink-0 shadow-md cursor-pointer hover:scale-105 transition"
+                class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center shrink-0 shadow-xs cursor-pointer transition"
                 title="Klik untuk Jeda atau Putar"
             >
                 <template x-if="isPlaying">
@@ -447,7 +431,7 @@
                     </div>
                 </template>
                 <template x-if="!isPlaying">
-                    <x-lucide-volume-x class="w-5 h-5 text-emerald-100" />
+                    <x-lucide-volume-2 class="w-4 h-4 text-emerald-100" />
                 </template>
             </div>
 
@@ -464,18 +448,18 @@
                 
                 <!-- Volume Mini Indicator -->
                 <div class="flex items-center gap-2 mt-1">
-                    <x-lucide-volume-1 class="w-3 h-3 text-stone-400 shrink-0" />
+                    <x-lucide-volume-2 class="w-3.5 h-3.5 text-stone-400 shrink-0" />
                     <input 
                         type="range" 
                         min="0" 
-                        max="0.5" 
-                        step="0.01" 
+                        max="1" 
+                        step="0.05" 
                         :value="volume" 
                         @input="updateVolume($event.target.value)"
                         class="w-16 sm:w-20 h-1 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
                         title="Atur Volume Suara"
                     />
-                    <span class="text-[9px] text-stone-400 font-bold" x-text="Math.round(volume * 200) + '%'"></span>
+                    <span class="text-[9px] text-stone-400 font-bold" x-text="Math.round(volume * 100) + '%'"></span>
                 </div>
             </div>
 
@@ -499,7 +483,7 @@
                 <!-- Shuffle / Next Random Ayah & Surah Button -->
                 <button 
                     type="button" 
-                    @click="nextRandomAyah(true)"
+                    @click="nextRandomAyah(isPlaying)"
                     class="p-1.5 rounded-lg hover:bg-emerald-50 text-stone-500 hover:text-emerald-700 transition cursor-pointer"
                     title="Ganti Ayat & Surat Acak Lainnya"
                 >
@@ -549,7 +533,7 @@
                     </div>
                 </template>
                 <template x-if="!isPlaying">
-                    <x-lucide-volume-x class="w-3.5 h-3.5 text-stone-400" />
+                    <x-lucide-volume-2 class="w-3.5 h-3.5 text-emerald-600" />
                 </template>
                 <span class="font-bold text-stone-800 text-[11px] truncate max-w-[110px] sm:max-w-[140px]" x-text="surahTitle">Surah Al-Fatihah</span>
             </div>
@@ -564,7 +548,7 @@
             </button>
             <button 
                 type="button" 
-                @click="nextRandomAyah(true)" 
+                @click="nextRandomAyah(isPlaying)" 
                 class="p-1 rounded-full hover:bg-emerald-50 text-stone-500 hover:text-emerald-700 transition cursor-pointer" 
                 title="Ganti Ayat & Surat Acak"
             >
@@ -599,7 +583,7 @@
             <button 
                 type="button" 
                 @click="reEnable()"
-                class="flex items-center gap-1.5 px-3 py-2 bg-emerald-600/90 hover:bg-emerald-700 text-white rounded-full shadow-lg text-[11px] font-bold backdrop-blur-xs transition hover:scale-105 cursor-pointer"
+                class="flex items-center gap-1.5 px-3 py-2 bg-emerald-600/90 hover:bg-emerald-700 text-white rounded-full shadow-lg text-[11px] font-bold backdrop-blur-xs transition cursor-pointer"
                 title="Buka & Putar Kembali Lantunan Ayat Suci"
             >
                 <x-lucide-volume-2 class="w-3.5 h-3.5" />
