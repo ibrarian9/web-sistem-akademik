@@ -50,6 +50,10 @@ class ArusKas extends Component
     public ?float $uploadTargetNominal = null;
     public $uploadBuktiFile = null;
 
+    // Table Selection & Bulk Actions
+    public array $selectedTransactionIds = [];
+    public bool $isBulkUpload = false;
+
     // Edit Expense Modal
     public bool $showEditExpenseModal = false;
     public ?int $editingPengeluaranId = null;
@@ -510,6 +514,38 @@ class ArusKas extends Component
         $this->previewBuktiTitle = null;
     }
 
+    public function getSelectedTransactionsProperty(): \Illuminate\Support\Collection
+    {
+        if (empty($this->selectedTransactionIds)) {
+            return collect();
+        }
+        return $this->getUnifiedTransactions()->whereIn('id', $this->selectedTransactionIds);
+    }
+
+    public function resetTransactionSelection(): void
+    {
+        $this->selectedTransactionIds = [];
+    }
+
+    public function openBulkUploadBuktiModal(): void
+    {
+        if (!in_array(auth()->user()->role?->nama, ['finance', 'super_admin', 'founder']) || auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Hanya Admin Keuangan dan Admin Utama yang berhak mengunggah bukti transaksi.');
+            return;
+        }
+
+        if (empty($this->selectedTransactionIds)) {
+            session()->flash('warning', 'Pilih minimal satu transaksi untuk mengunggah bukti.');
+            return;
+        }
+
+        $this->isBulkUpload = true;
+        $this->uploadTargetId = null;
+        $this->uploadBuktiFile = null;
+        $this->resetErrorBag();
+        $this->showUploadBuktiModal = true;
+    }
+
     public function openUploadBuktiModal(string $transactionId, string $kategori = '', string $keterangan = '', float $nominal = 0)
     {
         if (!in_array(auth()->user()->role?->nama, ['finance', 'super_admin', 'founder']) || auth()->user()->isSuperAdmin2()) {
@@ -517,7 +553,9 @@ class ArusKas extends Component
             return;
         }
 
+        $this->isBulkUpload = false;
         $this->uploadTargetId = $transactionId;
+        $this->selectedTransactionIds = [$transactionId];
         $this->uploadTargetKategori = $kategori;
         $this->uploadTargetKeterangan = $keterangan;
         $this->uploadTargetNominal = $nominal;
@@ -529,6 +567,7 @@ class ArusKas extends Component
     public function closeUploadBuktiModal()
     {
         $this->showUploadBuktiModal = false;
+        $this->isBulkUpload = false;
         $this->uploadTargetId = null;
         $this->uploadTargetKategori = null;
         $this->uploadTargetKeterangan = null;
@@ -544,79 +583,99 @@ class ArusKas extends Component
         }
 
         $this->validate([
-            'uploadBuktiFile' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'uploadBuktiFile' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
         ], [
             'uploadBuktiFile.required' => 'Silakan pilih file foto bukti terlebih dahulu.',
             'uploadBuktiFile.image' => 'File bukti harus berupa foto atau gambar.',
             'uploadBuktiFile.mimes' => 'Format foto hanya boleh JPG, JPEG, PNG, atau WEBP.',
-            'uploadBuktiFile.max' => 'Ukuran file foto bukti maksimal 2MB.',
+            'uploadBuktiFile.max' => 'Ukuran file foto bukti maksimal 5MB.',
         ]);
 
-        if (!$this->uploadTargetId) {
+        $targetIds = $this->isBulkUpload ? $this->selectedTransactionIds : ($this->uploadTargetId ? [$this->uploadTargetId] : []);
+
+        if (empty($targetIds)) {
             $this->closeUploadBuktiModal();
             return;
         }
 
-        $parts = explode('_', $this->uploadTargetId, 2);
-        if (count($parts) !== 2) {
-            session()->flash('error', 'Format transaksi tidak valid.');
-            $this->closeUploadBuktiModal();
-            return;
+        $path = $this->uploadBuktiFile->store('bukti_arus_kas', 'public');
+        $successCount = 0;
+
+        foreach ($targetIds as $tid) {
+            $parts = explode('_', $tid, 2);
+            if (count($parts) !== 2) {
+                continue;
+            }
+
+            [$prefix, $rawId] = $parts;
+            $rawId = (int) $rawId;
+
+            switch ($prefix) {
+                case 'spp':
+                    $model = \App\Models\Pembayaran::find($rawId);
+                    if ($model) {
+                        $model->update(['bukti_bayar' => $path]);
+                        $successCount++;
+                    }
+                    break;
+
+                case 'infaq':
+                    $model = \App\Models\PemasukanKas::find($rawId);
+                    if ($model) {
+                        $model->update(['bukti' => $path]);
+                        $successCount++;
+                    }
+                    break;
+
+                case 'op':
+                    $model = \App\Models\Pengeluaran::find($rawId);
+                    if ($model) {
+                        $model->update(['bukti' => $path]);
+                        $successCount++;
+                    }
+                    break;
+
+                case 'bos':
+                    $model = \App\Models\DanaBos::find($rawId);
+                    if ($model) {
+                        $model->update(['bukti' => $path]);
+                        $successCount++;
+                    }
+                    break;
+
+                case 'gaji':
+                    $model = \App\Models\GajiGuru::find($rawId);
+                    if ($model) {
+                        $model->update(['bukti_bayar' => $path]);
+                        $successCount++;
+                    }
+                    break;
+
+                case 'tab':
+                    $model = \App\Models\Tabungan::find($rawId);
+                    if ($model) {
+                        $model->update(['bukti' => $path]);
+                        $successCount++;
+                    }
+                    break;
+
+                case 'loan':
+                    $model = \App\Models\Peminjaman::find($rawId);
+                    if ($model) {
+                        $model->update(['bukti' => $path]);
+                        $successCount++;
+                    }
+                    break;
+            }
         }
 
-        [$prefix, $rawId] = $parts;
-        $rawId = (int) $rawId;
-
-        switch ($prefix) {
-            case 'spp':
-                $model = \App\Models\Pembayaran::findOrFail($rawId);
-                $path = $this->uploadBuktiFile->store('bukti_bayar', 'public');
-                $model->update(['bukti_bayar' => $path]);
-                break;
-
-            case 'infaq':
-                $model = \App\Models\PemasukanKas::findOrFail($rawId);
-                $path = $this->uploadBuktiFile->store('pemasukan_kas', 'public');
-                $model->update(['bukti' => $path]);
-                break;
-
-            case 'op':
-                $model = \App\Models\Pengeluaran::findOrFail($rawId);
-                $path = $this->uploadBuktiFile->store('bukti_pengeluaran', 'public');
-                $model->update(['bukti' => $path]);
-                break;
-
-            case 'bos':
-                $model = \App\Models\DanaBos::findOrFail($rawId);
-                $path = $this->uploadBuktiFile->store('dana_bos', 'public');
-                $model->update(['bukti' => $path]);
-                break;
-
-            case 'gaji':
-                $model = \App\Models\GajiGuru::findOrFail($rawId);
-                $path = $this->uploadBuktiFile->store('bukti_bayar', 'public');
-                $model->update(['bukti_bayar' => $path]);
-                break;
-
-            case 'tab':
-                $model = \App\Models\Tabungan::findOrFail($rawId);
-                $path = $this->uploadBuktiFile->store('bukti_tabungan', 'public');
-                $model->update(['bukti' => $path]);
-                break;
-
-            case 'loan':
-                $model = \App\Models\Peminjaman::findOrFail($rawId);
-                $path = $this->uploadBuktiFile->store('bukti_peminjaman', 'public');
-                $model->update(['bukti' => $path]);
-                break;
-
-            default:
-                session()->flash('error', 'Jenis transaksi ini tidak mendukung lampiran bukti.');
-                $this->closeUploadBuktiModal();
-                return;
-        }
-
-        session()->flash('message', 'Foto bukti transaksi berhasil diunggah.');
+        $this->selectedTransactionIds = [];
+        session()->flash('message', "Foto bukti berhasil disimpan untuk {$successCount} transaksi.");
+        $this->dispatch('show-alert', [
+            'title' => 'Bukti Tersimpan',
+            'message' => "Foto bukti berhasil disimpan untuk {$successCount} transaksi.",
+            'type' => 'success',
+        ]);
         $this->closeUploadBuktiModal();
     }
 
@@ -658,6 +717,266 @@ class ArusKas extends Component
             'message' => 'Catatan pengeluaran kas berhasil dihapus.',
             'type' => 'delete',
         ]);
+    }
+
+    public function deleteSppPayment(int $id, ?string $alasan = null): void
+    {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $userRole = auth()->user()->role->nama ?? '';
+        if (!in_array($userRole, ['finance', 'super_admin', 'founder'])) {
+            abort(403, 'Akses tidak diizinkan.');
+        }
+
+        $pembayaran = \App\Models\Pembayaran::with('tagihan.siswa')->findOrFail($id);
+
+        if ($userRole === 'finance') {
+            $reason = $alasan ?: 'Pembatalan transaksi pembayaran SPP diajukan oleh staf keuangan';
+            \App\Services\FinancialApprovalService::createRequest(
+                auth()->user(),
+                'hapus',
+                'pembayaran',
+                $pembayaran,
+                null,
+                $reason,
+                "Hapus Pembayaran SPP: {$pembayaran->no_resi} - Rp " . number_format($pembayaran->nominal_dibayar, 0, ',', '.')
+            );
+
+            session()->flash('message', 'Permohonan pembatalan pembayaran SPP telah diajukan ke Super Admin untuk disetujui.');
+            $this->dispatch('show-alert', [
+                'title' => 'Menunggu Persetujuan',
+                'message' => 'Permohonan pembatalan pembayaran SPP telah diajukan ke Super Admin untuk disetujui.',
+                'type' => 'info',
+            ]);
+            return;
+        }
+
+        \DB::transaction(function () use ($pembayaran) {
+            $tagihan = $pembayaran->tagihan;
+            $siswa = $tagihan ? $tagihan->siswa : null;
+            $nominalDibayar = floatval($pembayaran->nominal_dibayar);
+            $kelebihan = floatval($pembayaran->kelebihan_bayar);
+            $metode = $pembayaran->metode_bayar;
+
+            if ($siswa) {
+                if (strtolower($metode) === 'deposit') {
+                    $siswa->increment('saldo_deposit', $nominalDibayar);
+                }
+                if ($kelebihan > 0) {
+                    $siswa->decrement('saldo_deposit', min(floatval($siswa->saldo_deposit), $kelebihan));
+                }
+            }
+
+            $pembayaran->update(['is_void' => true]);
+            $pembayaran->delete();
+
+            if ($tagihan) {
+                $newTotal = floatval($tagihan->pembayarans()->sum('nominal_dibayar'));
+                $newStatus = 'belum_bayar';
+                if ($tagihan->nominal <= 0 || $newTotal >= $tagihan->nominal) {
+                    $newStatus = 'lunas';
+                } elseif ($newTotal > 0) {
+                    $newStatus = 'sebagian';
+                }
+                $tagihan->update([
+                    'total_dibayar' => $newTotal,
+                    'status' => $newStatus,
+                ]);
+            }
+        });
+
+        session()->flash('message', 'Transaksi pembayaran SPP berhasil dibatalkan dan dihapus.');
+        $this->dispatch('show-alert', [
+            'title' => 'Berhasil',
+            'message' => 'Transaksi pembayaran SPP berhasil dibatalkan dan dihapus.',
+            'type' => 'delete',
+        ]);
+    }
+
+    public function bulkDeleteTransactions(?string $alasan = null): void
+    {
+        if (auth()->user()->isSuperAdmin2()) {
+            session()->flash('error', 'Akses Ditolak: Super Admin 2 hanya memiliki hak akses Lihat Saja.');
+            return;
+        }
+
+        $userRole = auth()->user()->role->nama ?? '';
+        if (!in_array($userRole, ['finance', 'super_admin', 'founder'])) {
+            abort(403, 'Akses tidak diizinkan.');
+        }
+
+        if (empty($this->selectedTransactionIds)) {
+            session()->flash('warning', 'Pilih minimal satu transaksi untuk dihapus.');
+            return;
+        }
+
+        $reason = $alasan ?: 'Penghapusan transaksi arus kas massal oleh ' . ($userRole === 'finance' ? 'staf keuangan' : 'admin');
+        $deletedCount = 0;
+        $submittedApprovalCount = 0;
+        $skippedCount = 0;
+
+        foreach ($this->selectedTransactionIds as $tid) {
+            $parts = explode('_', $tid, 2);
+            if (count($parts) !== 2) {
+                continue;
+            }
+            [$prefix, $rawId] = $parts;
+            $rawId = (int) $rawId;
+
+            switch ($prefix) {
+                case 'op':
+                    $item = Pengeluaran::with('kategoriPengeluaran')->find($rawId);
+                    if ($item) {
+                        if ($userRole === 'finance') {
+                            $alreadyPending = \App\Models\ApprovalKeuangan::where('model_type', Pengeluaran::class)
+                                ->where('model_id', $rawId)
+                                ->where('status', 'menunggu')
+                                ->where('tipe_aksi', 'hapus')
+                                ->exists();
+
+                            if (!$alreadyPending) {
+                                \App\Services\FinancialApprovalService::createRequest(
+                                    auth()->user(),
+                                    'hapus',
+                                    'arus_kas',
+                                    $item,
+                                    null,
+                                    $reason,
+                                    "Hapus Pengeluaran Kas: " . ($item->kategoriPengeluaran->nama ?? 'Pengeluaran') . " - Rp " . number_format($item->jumlah, 0, ',', '.') . " (" . ($item->tanggal ? $item->tanggal->format('d/m/Y') : '-') . ")"
+                                );
+                                $submittedApprovalCount++;
+                            }
+                        } else {
+                            $item->delete();
+                            $deletedCount++;
+                        }
+                    }
+                    break;
+
+                case 'infaq':
+                    $item = PemasukanKas::find($rawId);
+                    if ($item) {
+                        if ($userRole === 'finance') {
+                            $alreadyPending = \App\Models\ApprovalKeuangan::where('model_type', PemasukanKas::class)
+                                ->where('model_id', $rawId)
+                                ->where('status', 'menunggu')
+                                ->where('tipe_aksi', 'hapus')
+                                ->exists();
+
+                            if (!$alreadyPending) {
+                                \App\Services\FinancialApprovalService::createRequest(
+                                    auth()->user(),
+                                    'hapus',
+                                    'arus_kas',
+                                    $item,
+                                    null,
+                                    $reason,
+                                    "Hapus Pemasukan Kas: {$item->kategori} - Rp " . number_format($item->jumlah, 0, ',', '.') . " (" . ($item->tanggal ? $item->tanggal->format('d/m/Y') : '-') . ")"
+                                );
+                                $submittedApprovalCount++;
+                            }
+                        } else {
+                            $item->delete();
+                            $deletedCount++;
+                        }
+                    }
+                    break;
+
+                case 'spp':
+                    $item = \App\Models\Pembayaran::with('tagihan.siswa')->find($rawId);
+                    if ($item) {
+                        if ($userRole === 'finance') {
+                            $alreadyPending = \App\Models\ApprovalKeuangan::where('model_type', \App\Models\Pembayaran::class)
+                                ->where('model_id', $rawId)
+                                ->where('status', 'menunggu')
+                                ->where('tipe_aksi', 'hapus')
+                                ->exists();
+
+                            if (!$alreadyPending) {
+                                \App\Services\FinancialApprovalService::createRequest(
+                                    auth()->user(),
+                                    'hapus',
+                                    'pembayaran',
+                                    $item,
+                                    null,
+                                    $reason,
+                                    "Hapus Pembayaran SPP: {$item->no_resi} - Rp " . number_format($item->nominal_dibayar, 0, ',', '.')
+                                );
+                                $submittedApprovalCount++;
+                            }
+                        } else {
+                            \DB::transaction(function () use ($item) {
+                                $tagihan = $item->tagihan;
+                                $siswa = $tagihan ? $tagihan->siswa : null;
+                                $nominalDibayar = floatval($item->nominal_dibayar);
+                                $kelebihan = floatval($item->kelebihan_bayar);
+                                $metode = $item->metode_bayar;
+
+                                if ($siswa) {
+                                    if (strtolower($metode) === 'deposit') {
+                                        $siswa->increment('saldo_deposit', $nominalDibayar);
+                                    }
+                                    if ($kelebihan > 0) {
+                                        $siswa->decrement('saldo_deposit', min(floatval($siswa->saldo_deposit), $kelebihan));
+                                    }
+                                }
+
+                                $item->update(['is_void' => true]);
+                                $item->delete();
+
+                                if ($tagihan) {
+                                    $newTotal = floatval($tagihan->pembayarans()->sum('nominal_dibayar'));
+                                    $newStatus = 'belum_bayar';
+                                    if ($tagihan->nominal <= 0 || $newTotal >= $tagihan->nominal) {
+                                        $newStatus = 'lunas';
+                                    } elseif ($newTotal > 0) {
+                                        $newStatus = 'sebagian';
+                                    }
+                                    $tagihan->update([
+                                        'total_dibayar' => $newTotal,
+                                        'status' => $newStatus,
+                                    ]);
+                                }
+                            });
+                            $deletedCount++;
+                        }
+                    }
+                    break;
+
+                default:
+                    $skippedCount++;
+                    break;
+            }
+        }
+
+        $this->selectedTransactionIds = [];
+
+        if ($userRole === 'finance') {
+            $msg = "Permohonan penghapusan {$submittedApprovalCount} transaksi telah diajukan ke Super Admin untuk disetujui.";
+            if ($skippedCount > 0) {
+                $msg .= " ({$skippedCount} transaksi sistem dilewati).";
+            }
+            session()->flash('message', $msg);
+            $this->dispatch('show-alert', [
+                'title' => 'Permohonan Diajukan',
+                'message' => $msg,
+                'type' => 'info',
+            ]);
+        } else {
+            $msg = "{$deletedCount} transaksi berhasil dihapus dari arus kas.";
+            if ($skippedCount > 0) {
+                $msg .= " ({$skippedCount} transaksi sistem seperti penggajian atau tabungan dilewati).";
+            }
+            session()->flash('message', $msg);
+            $this->dispatch('show-alert', [
+                'title' => 'Berhasil',
+                'message' => $msg,
+                'type' => 'delete',
+            ]);
+        }
     }
 
     /**
@@ -877,10 +1196,32 @@ class ArusKas extends Component
             ]
         );
 
+        // Pending Approval IDs for Arus Kas models
+        $pendingApprovalPengeluaranIds = \App\Models\ApprovalKeuangan::where('model_type', Pengeluaran::class)
+            ->where('status', 'menunggu')
+            ->where('tipe_aksi', 'hapus')
+            ->pluck('model_id')
+            ->toArray();
+
+        $pendingApprovalPemasukanIds = \App\Models\ApprovalKeuangan::where('model_type', PemasukanKas::class)
+            ->where('status', 'menunggu')
+            ->where('tipe_aksi', 'hapus')
+            ->pluck('model_id')
+            ->toArray();
+
+        $pendingApprovalPembayaranIds = \App\Models\ApprovalKeuangan::where('model_type', \App\Models\Pembayaran::class)
+            ->where('status', 'menunggu')
+            ->where('tipe_aksi', 'hapus')
+            ->pluck('model_id')
+            ->toArray();
+
         return view('livewire.finance.arus-kas', array_merge([
             'paginatedTransactions' => $paginatedTransactions,
             'monthlyChartData' => $monthlyChartData,
             'maxMonthVal' => $maxMonthVal,
+            'pendingApprovalPengeluaranIds' => $pendingApprovalPengeluaranIds,
+            'pendingApprovalPemasukanIds' => $pendingApprovalPemasukanIds,
+            'pendingApprovalPembayaranIds' => $pendingApprovalPembayaranIds,
         ], $metrics))->layout('components.layouts.app', ['title' => 'Arus Kas (Cash Flow) Terpadu']);
     }
 }

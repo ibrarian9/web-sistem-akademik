@@ -453,7 +453,7 @@
                         <span class="text-[10px] text-stone-400 font-semibold">Opsional • Maks. 2MB • Foto/Gambar</span>
                     </div>
 
-                    @if ($bukti_foto)
+                    @if ($bukti_foto && in_array(strtolower($bukti_foto->getClientOriginalExtension()), ['jpg', 'jpeg', 'png', 'webp']))
                         <div class="p-3 bg-emerald-50/70 border border-emerald-300 rounded-xl flex items-center justify-between gap-3 shadow-2xs">
                             <div class="flex items-center gap-3 min-w-0">
                                 <img src="{{ $bukti_foto->temporaryUrl() }}" alt="Preview Bukti" class="w-14 h-14 object-cover rounded-lg border border-emerald-200 shadow-2xs shrink-0" />
@@ -467,10 +467,104 @@
                             </button>
                         </div>
                     @else
-                        <div class="relative border-2 border-dashed border-stone-300 hover:border-emerald-500 rounded-xl p-4 bg-stone-50/60 hover:bg-emerald-50/20 text-center transition group cursor-pointer">
+                        <div 
+                            x-data="{
+                                isCompressing: false,
+                                isUploading: false,
+                                uploadProgress: 0,
+                                clientError: null,
+                                async handleFileSelect(e) {
+                                    const file = e.target.files[0];
+                                    if (!file) return;
+
+                                    this.clientError = null;
+                                    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+                                    if (!validTypes.includes(file.type)) {
+                                        this.clientError = 'Format file tidak didukung. Harap pilih foto JPG, JPEG, PNG, atau WEBP.';
+                                        e.target.value = '';
+                                        return;
+                                    }
+
+                                    try {
+                                        let uploadFile = file;
+                                        if (file.size > 350 * 1024) {
+                                            this.isCompressing = true;
+                                            uploadFile = await this.compress(file);
+                                            this.isCompressing = false;
+                                        }
+
+                                        this.isUploading = true;
+                                        this.uploadProgress = 0;
+
+                                        $wire.upload('bukti_foto', uploadFile, 
+                                            () => {
+                                                this.isUploading = false;
+                                                this.isCompressing = false;
+                                                this.uploadProgress = 100;
+                                                this.clientError = null;
+                                                e.target.value = '';
+                                            },
+                                            (error) => {
+                                                this.isUploading = false;
+                                                this.isCompressing = false;
+                                                this.clientError = 'Gagal mengunggah foto. Pastikan koneksi internet stabil.';
+                                                e.target.value = '';
+                                            },
+                                            (event) => {
+                                                this.uploadProgress = event.detail.progress;
+                                            }
+                                        );
+                                    } catch (err) {
+                                        this.isCompressing = false;
+                                        this.isUploading = false;
+                                        this.clientError = 'Gagal memproses gambar: ' + (err.message || 'Format tidak valid');
+                                        e.target.value = '';
+                                    }
+                                },
+                                compress(file) {
+                                    return new Promise((resolve) => {
+                                        const img = new Image();
+                                        const reader = new FileReader();
+                                        reader.onload = (e) => {
+                                            img.onload = () => {
+                                                const maxDim = 1600;
+                                                let width = img.width;
+                                                let height = img.height;
+                                                if (width > height && width > maxDim) {
+                                                    height = Math.round((height * maxDim) / width);
+                                                    width = maxDim;
+                                                } else if (height > maxDim) {
+                                                    width = Math.round((width * maxDim) / height);
+                                                    height = maxDim;
+                                                }
+                                                const canvas = document.createElement('canvas');
+                                                canvas.width = width;
+                                                canvas.height = height;
+                                                const ctx = canvas.getContext('2d');
+                                                ctx.drawImage(img, 0, 0, width, height);
+                                                canvas.toBlob((blob) => {
+                                                    if (!blob || blob.size >= file.size) {
+                                                        resolve(file);
+                                                    } else {
+                                                        const cleanName = file.name.replace(/\.[^/.]+$/, '') + '.jpg';
+                                                        const compressed = new File([blob], cleanName, { type: 'image/jpeg', lastModified: Date.now() });
+                                                        resolve(compressed);
+                                                    }
+                                                }, 'image/jpeg', 0.82);
+                                            };
+                                            img.onerror = () => resolve(file);
+                                            img.src = e.target.result;
+                                        };
+                                        reader.onerror = () => resolve(file);
+                                        reader.readAsDataURL(file);
+                                    });
+                                }
+                            }"
+                            class="relative border-2 border-dashed border-stone-300 hover:border-emerald-500 rounded-xl p-4 bg-stone-50/60 hover:bg-emerald-50/20 text-center transition group cursor-pointer"
+                        >
                             <input 
                                 type="file" 
-                                wire:model="bukti_foto" 
+                                @change="handleFileSelect($event)"
                                 accept="image/jpeg,image/png,image/jpg,image/webp" 
                                 class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
                             />
@@ -482,19 +576,28 @@
                                     Klik atau seret foto bukti transfer / struk kasir
                                 </div>
                                 <div class="text-[10px] text-stone-400 font-medium">
-                                    Hanya file gambar (JPG, JPEG, PNG, WEBP) maks 2MB
+                                    Kompresi otomatis cepat (JPG, JPEG, PNG, WEBP)
                                 </div>
                             </div>
 
-                            <div wire:loading wire:target="bukti_foto" class="absolute inset-0 bg-white/90 backdrop-blur-xs rounded-xl flex items-center justify-center z-20">
+                            <div x-show="isCompressing" x-cloak class="absolute inset-0 bg-white/90 backdrop-blur-xs rounded-xl flex items-center justify-center z-20">
                                 <div class="flex items-center gap-2 text-xs font-bold text-emerald-800">
-                                    <svg class="animate-spin h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    <span>Mengunggah foto...</span>
+                                    <span class="animate-spin inline-block w-4 h-4 border-2 border-emerald-600 border-t-transparent rounded-full"></span>
+                                    <span>Mengoptimalkan ukuran foto...</span>
                                 </div>
                             </div>
+
+                            <div x-show="isUploading" x-cloak class="absolute inset-0 bg-white/95 backdrop-blur-xs rounded-xl flex flex-col items-center justify-center p-4 z-20">
+                                <div class="flex items-center gap-2 text-xs font-bold text-emerald-800 mb-2">
+                                    <span class="animate-spin inline-block w-4 h-4 border-2 border-emerald-600 border-t-transparent rounded-full"></span>
+                                    <span>Mengunggah foto... <span x-text="uploadProgress + '%'"></span></span>
+                                </div>
+                                <div class="w-48 bg-stone-200 rounded-full h-1.5 overflow-hidden">
+                                    <div class="bg-emerald-600 h-1.5 transition-all duration-150" :style="'width: ' + uploadProgress + '%'"></div>
+                                </div>
+                            </div>
+
+                            <span x-show="clientError" x-cloak class="text-rose-600 text-[11px] font-bold block mt-2" x-text="clientError"></span>
                         </div>
                     @endif
                     @error('bukti_foto') <span class="text-rose-600 text-[11px] font-bold block mt-1">{{ $message }}</span> @enderror

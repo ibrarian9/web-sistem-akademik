@@ -176,6 +176,108 @@ test('pembayaran: can edit and attach or delete photo proof in DetailTagihanSisw
     Storage::disk('public')->assertMissing($uploadedPath);
 });
 
+test('pembayaran: can upload same transfer proof simultaneously for multiple transactions via openBulkBuktiModal', function () {
+    $this->actingAs($this->userFinance);
+
+    $p1 = Pembayaran::create([
+        'tagihan_id' => $this->tagihan->id,
+        'nominal_dibayar' => 100000,
+        'tanggal_bayar' => now(),
+        'metode_bayar' => 'Transfer Bank',
+        'no_resi' => 'INV-MULTI-001',
+        'petugas_id' => $this->userFinance->id,
+        'bukti_bayar' => null,
+    ]);
+
+    $p2 = Pembayaran::create([
+        'tagihan_id' => $this->tagihan->id,
+        'nominal_dibayar' => 100000,
+        'tanggal_bayar' => now(),
+        'metode_bayar' => 'Transfer Bank',
+        'no_resi' => 'INV-MULTI-002',
+        'petugas_id' => $this->userFinance->id,
+        'bukti_bayar' => null,
+    ]);
+
+    $p3 = Pembayaran::create([
+        'tagihan_id' => $this->tagihan->id,
+        'nominal_dibayar' => 50000,
+        'tanggal_bayar' => now(),
+        'metode_bayar' => 'Transfer Bank',
+        'no_resi' => 'INV-MULTI-003',
+        'petugas_id' => $this->userFinance->id,
+        'bukti_bayar' => null,
+    ]);
+
+    $file = UploadedFile::fake()->image('bukti_tf_kombinasi.jpg')->size(950);
+
+    Livewire::test(DetailTagihanSiswa::class, ['siswaId' => $this->siswa->id])
+        ->set('selectedPembayaranIds', [(string)$p1->id, (string)$p2->id, (string)$p3->id])
+        ->call('openBulkBuktiModal')
+        ->assertSet('showBuktiModal', true)
+        ->assertCount('targetPembayaranIds', 3)
+        ->set('edit_bukti_foto', $file)
+        ->call('saveBuktiFoto')
+        ->assertHasNoErrors()
+        ->call('closeBuktiModal')
+        ->assertSet('showBuktiModal', false);
+
+    $p1->refresh();
+    $p2->refresh();
+    $p3->refresh();
+
+    expect($p1->bukti_bayar)->not->toBeNull();
+    expect($p2->bukti_bayar)->not->toBeNull();
+    expect($p3->bukti_bayar)->not->toBeNull();
+
+    // Pastikan bukti tf sama persis untuk ketiga transaksi
+    expect($p1->bukti_bayar)->toBe($p2->bukti_bayar);
+    expect($p2->bukti_bayar)->toBe($p3->bukti_bayar);
+    Storage::disk('public')->assertExists($p1->bukti_bayar);
+});
+
+test('pembayaran: can select multiple transactions inside modal when opened from single row', function () {
+    $this->actingAs($this->userFinance);
+
+    $p1 = Pembayaran::create([
+        'tagihan_id' => $this->tagihan->id,
+        'nominal_dibayar' => 150000,
+        'tanggal_bayar' => now(),
+        'metode_bayar' => 'Transfer Bank',
+        'no_resi' => 'INV-ROW-001',
+        'petugas_id' => $this->userFinance->id,
+        'bukti_bayar' => null,
+    ]);
+
+    $p2 = Pembayaran::create([
+        'tagihan_id' => $this->tagihan->id,
+        'nominal_dibayar' => 100000,
+        'tanggal_bayar' => now(),
+        'metode_bayar' => 'Transfer Bank',
+        'no_resi' => 'INV-ROW-002',
+        'petugas_id' => $this->userFinance->id,
+        'bukti_bayar' => null,
+    ]);
+
+    $file = UploadedFile::fake()->image('bukti_tf_tunggal_ke_banyak.png')->size(600);
+
+    Livewire::test(DetailTagihanSiswa::class, ['siswaId' => $this->siswa->id])
+        ->call('openBuktiModal', $p1->id)
+        ->assertSet('showBuktiModal', true)
+        ->set('targetPembayaranIds', [$p1->id, $p2->id])
+        ->set('edit_bukti_foto', $file)
+        ->call('saveBuktiFoto')
+        ->assertHasNoErrors();
+
+    $p1->refresh();
+    $p2->refresh();
+
+    expect($p1->bukti_bayar)->not->toBeNull();
+    expect($p2->bukti_bayar)->not->toBeNull();
+    expect($p1->bukti_bayar)->toBe($p2->bukti_bayar);
+    Storage::disk('public')->assertExists($p1->bukti_bayar);
+});
+
 test('pengeluaran: upload image under 2MB succeeds on ArusKasKeluar and can be edited', function () {
     $this->actingAs($this->userFinance);
 
@@ -341,6 +443,126 @@ test('pengeluaran: upload image is purely OPTIONAL on ArusKasKeluar and ArusKas 
     $p2 = Pengeluaran::where('keterangan', 'Pengeluaran Kas Tanpa Foto')->first();
     expect($p2)->not->toBeNull();
     expect($p2->bukti)->toBeNull();
+});
+
+test('arus_kas: bulk upload proof for multiple transactions simultaneously', function () {
+    $this->actingAs($this->userFinance);
+
+    $p1 = Pengeluaran::create([
+        'kategori_pengeluaran_id' => $this->kategori->id,
+        'jumlah' => 120000,
+        'tanggal' => now()->toDateString(),
+        'keterangan' => 'Belanja ATK 1',
+        'petugas_id' => $this->userFinance->id,
+    ]);
+
+    $p2 = Pengeluaran::create([
+        'kategori_pengeluaran_id' => $this->kategori->id,
+        'jumlah' => 85000,
+        'tanggal' => now()->toDateString(),
+        'keterangan' => 'Belanja ATK 2',
+        'petugas_id' => $this->userFinance->id,
+    ]);
+
+    $infaq = \App\Models\PemasukanKas::create([
+        'kategori' => 'Infaq',
+        'jumlah' => 500000,
+        'tanggal' => now()->toDateString(),
+        'keterangan' => 'Infaq Donatur Masjid',
+        'petugas_id' => $this->userFinance->id,
+    ]);
+
+    $file = UploadedFile::fake()->image('bukti_gabungan_kas.jpg')->size(450);
+
+    Livewire::test(ArusKas::class)
+        ->set('selectedTransactionIds', ['op_' . $p1->id, 'op_' . $p2->id, 'infaq_' . $infaq->id])
+        ->call('openBulkUploadBuktiModal')
+        ->assertSet('showUploadBuktiModal', true)
+        ->assertSet('isBulkUpload', true)
+        ->set('uploadBuktiFile', $file)
+        ->call('saveUploadedBukti')
+        ->assertHasNoErrors()
+        ->assertSet('showUploadBuktiModal', false)
+        ->assertSet('selectedTransactionIds', []);
+
+    $p1->refresh();
+    $p2->refresh();
+    $infaq->refresh();
+
+    expect($p1->bukti)->not->toBeNull();
+    expect($p2->bukti)->not->toBeNull();
+    expect($infaq->bukti)->not->toBeNull();
+    expect($p1->bukti)->toBe($p2->bukti);
+    expect($p1->bukti)->toBe($infaq->bukti);
+
+    Storage::disk('public')->assertExists($p1->bukti);
+});
+
+test('arus_kas: finance bulk delete submits approval request', function () {
+    $this->actingAs($this->userFinance);
+
+    $p1 = Pengeluaran::create([
+        'kategori_pengeluaran_id' => $this->kategori->id,
+        'jumlah' => 250000,
+        'tanggal' => now()->toDateString(),
+        'keterangan' => 'Perbaikan Pintu',
+        'petugas_id' => $this->userFinance->id,
+    ]);
+
+    $infaq = \App\Models\PemasukanKas::create([
+        'kategori' => 'Infaq',
+        'jumlah' => 300000,
+        'tanggal' => now()->toDateString(),
+        'keterangan' => 'Infaq Hamba Allah',
+        'petugas_id' => $this->userFinance->id,
+    ]);
+
+    Livewire::test(ArusKas::class)
+        ->set('selectedTransactionIds', ['op_' . $p1->id, 'infaq_' . $infaq->id])
+        ->call('bulkDeleteTransactions', 'Alasan salah input massal')
+        ->assertHasNoErrors()
+        ->assertSet('selectedTransactionIds', []);
+
+    expect(\App\Models\ApprovalKeuangan::where('model_type', Pengeluaran::class)->where('model_id', $p1->id)->where('status', 'menunggu')->exists())->toBeTrue();
+    expect(\App\Models\ApprovalKeuangan::where('model_type', \App\Models\PemasukanKas::class)->where('model_id', $infaq->id)->where('status', 'menunggu')->exists())->toBeTrue();
+});
+
+test('arus_kas: super admin bulk delete directly deletes transactions', function () {
+    $roleSuperAdmin = Role::where('nama', 'super_admin')->first();
+    $userSuperAdmin = User::whereHas('role', fn($q) => $q->where('nama', 'super_admin'))->first() ?? User::create([
+        'nama' => 'Super Admin Test',
+        'username' => 'super_admin_test_delete',
+        'email' => 'superadmin_test@test.com',
+        'password' => bcrypt('password'),
+        'role_id' => $roleSuperAdmin->id,
+    ]);
+
+    $this->actingAs($userSuperAdmin);
+
+    $p1 = Pengeluaran::create([
+        'kategori_pengeluaran_id' => $this->kategori->id,
+        'jumlah' => 150000,
+        'tanggal' => now()->toDateString(),
+        'keterangan' => 'Beli Bensin',
+        'petugas_id' => $userSuperAdmin->id,
+    ]);
+
+    $infaq = \App\Models\PemasukanKas::create([
+        'kategori' => 'Infaq',
+        'jumlah' => 200000,
+        'tanggal' => now()->toDateString(),
+        'keterangan' => 'Infaq Kotak Amal',
+        'petugas_id' => $userSuperAdmin->id,
+    ]);
+
+    Livewire::test(ArusKas::class)
+        ->set('selectedTransactionIds', ['op_' . $p1->id, 'infaq_' . $infaq->id])
+        ->call('bulkDeleteTransactions')
+        ->assertHasNoErrors()
+        ->assertSet('selectedTransactionIds', []);
+
+    expect(Pengeluaran::find($p1->id))->toBeNull();
+    expect(\App\Models\PemasukanKas::find($infaq->id))->toBeNull();
 });
 
 

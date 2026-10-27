@@ -6,7 +6,7 @@
 
 <!-- 1. MicroModal Centered Confirmation Dialog Component -->
 <div class="modal micromodal-slide" id="modal-confirm" aria-hidden="true">
-    <div id="modal-confirm-overlay" class="modal__overlay fixed inset-0 bg-stone-950/60 backdrop-blur-xs z-[99999] flex items-center justify-center p-4 transition-all duration-300" tabindex="-1" data-micromodal-close>
+    <div id="modal-confirm-overlay" class="modal__overlay fixed inset-0 bg-stone-950/60 backdrop-blur-xs z-[99999] flex items-center justify-center p-4 transition-all duration-300" tabindex="-1" onclick="if (event.target === this) window.closeConfirmModal();" data-micromodal-close>
         <div id="modal-confirm-container" class="modal__container bg-white text-stone-900 border border-stone-200 {{ $rounded }} p-6 shadow-2xl max-w-md w-full relative overflow-hidden transition-all duration-300 shadow-stone-950/20" role="dialog" aria-modal="true" aria-labelledby="modal-confirm-title">
             
             <!-- Top Accent Line -->
@@ -30,13 +30,13 @@
                         </p>
                     </div>
                 </div>
-                <button type="button" class="modal__close p-1.5 {{ $badgeRounded }} text-stone-400 hover:text-stone-800 hover:bg-stone-100 font-bold transition text-xs shrink-0 cursor-pointer" aria-label="Close modal" data-micromodal-close>
+                <button type="button" onclick="window.closeConfirmModal()" class="modal__close p-1.5 {{ $badgeRounded }} text-stone-400 hover:text-stone-800 hover:bg-stone-100 font-bold transition text-xs shrink-0 cursor-pointer" aria-label="Close modal" data-micromodal-close>
                     ✕
                 </button>
             </div>
 
             <footer id="modal-confirm-footer" class="flex items-center justify-end gap-2.5 pt-4 mt-4 border-t border-stone-200">
-                <button type="button" id="modal-confirm-cancel-btn" class="px-4.5 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 {{ $badgeRounded }} text-xs font-bold transition border border-stone-300 cursor-pointer" data-micromodal-close>
+                <button type="button" id="modal-confirm-cancel-btn" onclick="window.closeConfirmModal()" class="px-4.5 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 {{ $badgeRounded }} text-xs font-bold transition border border-stone-300 cursor-pointer" data-micromodal-close>
                     Batal
                 </button>
                 <button type="button" id="modal-confirm-action-btn" class="px-6 py-2.5 bg-rose-600 hover:bg-rose-700 text-white {{ $badgeRounded }} text-xs font-extrabold shadow-md transition cursor-pointer">
@@ -134,10 +134,38 @@
 
         // Setup explicit close handlers for confirmation modal
         document.querySelectorAll('#modal-confirm [data-micromodal-close]').forEach(function(el) {
-            el.addEventListener('click', function() {
+            el.addEventListener('click', function(ev) {
+                if (ev) ev.preventDefault();
                 window.closeConfirmModal();
             });
         });
+    });
+
+    // Delegated click listener for bulletproof modal closing across all Livewire navigations
+    document.addEventListener('click', function(e) {
+        const closeBtn = e.target.closest('#modal-confirm [data-micromodal-close], #modal-confirm .modal__close, #modal-confirm-cancel-btn');
+        if (closeBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.closeConfirmModal();
+            return;
+        }
+
+        if (e.target && e.target.id === 'modal-confirm-overlay') {
+            e.preventDefault();
+            e.stopPropagation();
+            window.closeConfirmModal();
+        }
+    });
+
+    // Support closing via Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modalElem = document.getElementById('modal-confirm');
+            if (modalElem && (modalElem.classList.contains('is-open') || modalElem.getAttribute('aria-hidden') === 'false')) {
+                window.closeConfirmModal();
+            }
+        }
     });
 
     // Close Floating Toast Notification
@@ -531,10 +559,34 @@
                 actionBtn.innerText = btnText;
                 actionBtn.className = 'px-6 py-2.5 ' + btnClass + ' ' + MICRO_MODAL_ROUNDED_BADGE + ' text-xs font-extrabold shadow-md transition cursor-pointer';
                 actionBtn.onclick = function() {
-                    window.closeConfirmModal();
+                    actionBtn.disabled = true;
+                    actionBtn.classList.add('opacity-75', 'cursor-not-allowed');
+                    actionBtn.innerHTML = '<svg class="w-4 h-4 animate-spin inline-block mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Memproses...';
+                    setTimeout(function() {
+                        window.closeConfirmModal();
+                        actionBtn.disabled = false;
+                        actionBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                        actionBtn.innerText = btnText;
+                    }, 120);
                     if (typeof onConfirm === 'function') {
                         onConfirm();
                     }
+                };
+            }
+
+            const cancelBtn = document.getElementById('modal-confirm-cancel-btn');
+            if (cancelBtn) {
+                cancelBtn.onclick = function(e) {
+                    if (e) e.preventDefault();
+                    window.closeConfirmModal();
+                };
+            }
+
+            const closeXBtn = document.querySelector('#modal-confirm .modal__close');
+            if (closeXBtn) {
+                closeXBtn.onclick = function(e) {
+                    if (e) e.preventDefault();
+                    window.closeConfirmModal();
                 };
             }
 

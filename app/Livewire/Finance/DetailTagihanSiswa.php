@@ -44,6 +44,7 @@ class DetailTagihanSiswa extends Component
     public ?int $selectedPembayaranId = null;
     public ?Pembayaran $selectedPembayaran = null;
     public $edit_bukti_foto = null;
+    public array $targetPembayaranIds = [];
 
     // Create Tagihan Modal for this student
     public bool $showCreateModal = false;
@@ -1114,12 +1115,78 @@ class DetailTagihanSiswa extends Component
         ]);
     }
 
+    public function getStudentPembayaransProperty()
+    {
+        return Pembayaran::whereHas('tagihan', function ($q) {
+                $q->where('siswa_id', $this->siswaId);
+            })
+            ->where('is_void', false)
+            ->with(['tagihan.jenisTagihan', 'petugas'])
+            ->orderBy('tanggal_bayar', 'desc')
+            ->orderBy('id', 'desc')
+            ->get();
+    }
+
+    public function getTotalTargetNominalProperty(): float
+    {
+        if (empty($this->targetPembayaranIds)) {
+            return 0.0;
+        }
+
+        $intIds = array_filter(array_map('intval', $this->targetPembayaranIds));
+        return (float) Pembayaran::whereIn('id', $intIds)->sum('nominal_dibayar');
+    }
+
+    public function selectAllTargetPembayaran()
+    {
+        $this->targetPembayaranIds = $this->studentPembayarans->pluck('id')->map(fn($id) => (int)$id)->toArray();
+    }
+
+    public function selectTargetPembayaranTanpaBukti()
+    {
+        $noProofIds = $this->studentPembayarans->whereNull('bukti_bayar')->pluck('id')->map(fn($id) => (int)$id)->toArray();
+        if (empty($noProofIds) && $this->selectedPembayaranId) {
+            $this->targetPembayaranIds = [(int)$this->selectedPembayaranId];
+        } else {
+            $this->targetPembayaranIds = $noProofIds;
+        }
+    }
+
+    public function clearTargetPembayaran()
+    {
+        $this->targetPembayaranIds = $this->selectedPembayaranId ? [(int)$this->selectedPembayaranId] : [];
+    }
+
     public function openBuktiModal(int $pembayaranId)
     {
         $this->resetValidation();
         $this->edit_bukti_foto = null;
         $this->selectedPembayaranId = $pembayaranId;
         $this->selectedPembayaran = Pembayaran::with(['tagihan.jenisTagihan', 'petugas'])->findOrFail($pembayaranId);
+
+        $selectedInts = array_map('intval', $this->selectedPembayaranIds);
+        if (in_array($pembayaranId, $selectedInts) && count($selectedInts) > 1) {
+            $this->targetPembayaranIds = $selectedInts;
+        } else {
+            $this->targetPembayaranIds = [$pembayaranId];
+        }
+
+        $this->showBuktiModal = true;
+    }
+
+    public function openBulkBuktiModal()
+    {
+        if (empty($this->selectedPembayaranIds)) {
+            session()->flash('error', 'Silakan pilih setidaknya satu transaksi pembayaran terlebih dahulu.');
+            return;
+        }
+
+        $this->resetValidation();
+        $this->edit_bukti_foto = null;
+        $this->targetPembayaranIds = array_values(array_map('intval', $this->selectedPembayaranIds));
+        $firstId = $this->targetPembayaranIds[0];
+        $this->selectedPembayaranId = $firstId;
+        $this->selectedPembayaran = Pembayaran::with(['tagihan.jenisTagihan', 'petugas'])->find($firstId);
         $this->showBuktiModal = true;
     }
 
@@ -1128,6 +1195,7 @@ class DetailTagihanSiswa extends Component
         $this->showBuktiModal = false;
         $this->selectedPembayaranId = null;
         $this->selectedPembayaran = null;
+        $this->targetPembayaranIds = [];
         $this->edit_bukti_foto = null;
         $this->resetValidation();
     }
@@ -1139,6 +1207,16 @@ class DetailTagihanSiswa extends Component
             return;
         }
 
+        $targetIds = array_filter(array_map('intval', $this->targetPembayaranIds));
+        if (empty($targetIds)) {
+            if ($this->selectedPembayaranId) {
+                $targetIds = [(int) $this->selectedPembayaranId];
+            } else {
+                $this->addError('targetPembayaranIds', 'Pilih setidaknya satu transaksi pembayaran.');
+                return;
+            }
+        }
+
         $this->validate([
             'edit_bukti_foto' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
         ], [
@@ -1148,19 +1226,49 @@ class DetailTagihanSiswa extends Component
             'edit_bukti_foto.max' => 'Ukuran file foto bukti pembayaran maksimal 2MB.',
         ]);
 
-        $pembayaran = Pembayaran::findOrFail($this->selectedPembayaranId);
+        $path = $this->edit_bukti_foto->store('bukti_pembayaran', 'public');
 
-        // Hapus file bukti lama dari storage jika ada
-        if ($pembayaran->bukti_bayar && Storage::disk('public')->exists($pembayaran->bukti_bayar)) {
-            Storage::disk('public')->delete($pembayaran->bukti_bayar);
+        // Kumpulkan file bukti lama untuk dibersihkan secara aman
+        $oldProofs = Pembayaran::whereIn('id', $targetIds)
+            ->whereNotNull('bukti_bayar')
+            ->pluck('bukti_bayar')
+            ->unique()
+            ->toArray();
+
+        // Update semua transaksi pembayaran terpilih sekaligus
+        Pembayaran::whereIn('id', $targetIds)->update([
+            'bukti_bayar' => $path,
+        ]);
+
+        // Hapus file lama jika tidak ada record pembayaran lain yang memakai file tersebut
+        foreach ($oldProofs as $oldPath) {
+            if ($oldPath && $oldPath !== $path && Storage::disk('public')->exists($oldPath)) {
+                $isStillReferenced = Pembayaran::where('bukti_bayar', $oldPath)->exists();
+                if (!$isStillReferenced) {
+                    Storage::disk('public')->delete($oldPath);
+                }
+            }
         }
 
-        $path = $this->edit_bukti_foto->store('bukti_pembayaran', 'public');
-        $pembayaran->update(['bukti_bayar' => $path]);
+        $count = count($targetIds);
+        if ($this->selectedPembayaranId) {
+            $this->selectedPembayaran = Pembayaran::with(['tagihan.jenisTagihan', 'petugas'])->find($this->selectedPembayaranId);
+        }
 
-        $this->selectedPembayaran = $pembayaran->fresh(['tagihan.jenisTagihan', 'petugas']);
         $this->edit_bukti_foto = null;
-        session()->flash('success', 'Foto bukti pembayaran berhasil diperbarui.');
+        $this->selectedPembayaranIds = [];
+        $this->selectAllPembayaran = false;
+
+        $msg = $count > 1 
+            ? "Foto bukti transfer berhasil diunggah untuk {$count} transaksi pembayaran sekaligus."
+            : "Foto bukti pembayaran berhasil diperbarui.";
+
+        $this->dispatch('show-alert', [
+            'title' => 'Berhasil',
+            'message' => $msg,
+            'type' => 'success',
+        ]);
+        session()->flash('success', $msg);
     }
 
     public function deleteBuktiFoto()
@@ -1170,15 +1278,47 @@ class DetailTagihanSiswa extends Component
             return;
         }
 
-        $pembayaran = Pembayaran::findOrFail($this->selectedPembayaranId);
-
-        if ($pembayaran->bukti_bayar && Storage::disk('public')->exists($pembayaran->bukti_bayar)) {
-            Storage::disk('public')->delete($pembayaran->bukti_bayar);
+        $targetIds = array_filter(array_map('intval', $this->targetPembayaranIds));
+        if (empty($targetIds) && $this->selectedPembayaranId) {
+            $targetIds = [(int) $this->selectedPembayaranId];
         }
 
-        $pembayaran->update(['bukti_bayar' => null]);
-        $this->selectedPembayaran = $pembayaran->fresh(['tagihan.jenisTagihan', 'petugas']);
-        session()->flash('success', 'Foto bukti pembayaran berhasil dihapus.');
+        if (empty($targetIds)) {
+            return;
+        }
+
+        $oldProofs = Pembayaran::whereIn('id', $targetIds)
+            ->whereNotNull('bukti_bayar')
+            ->pluck('bukti_bayar')
+            ->unique()
+            ->toArray();
+
+        Pembayaran::whereIn('id', $targetIds)->update(['bukti_bayar' => null]);
+
+        foreach ($oldProofs as $oldPath) {
+            if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+                $isStillReferenced = Pembayaran::where('bukti_bayar', $oldPath)->exists();
+                if (!$isStillReferenced) {
+                    Storage::disk('public')->delete($oldPath);
+                }
+            }
+        }
+
+        $count = count($targetIds);
+        if ($this->selectedPembayaranId) {
+            $this->selectedPembayaran = Pembayaran::with(['tagihan.jenisTagihan', 'petugas'])->find($this->selectedPembayaranId);
+        }
+
+        $msg = $count > 1 
+            ? "Foto bukti pembayaran berhasil dihapus dari {$count} transaksi pembayaran."
+            : "Foto bukti pembayaran berhasil dihapus.";
+
+        $this->dispatch('show-alert', [
+            'title' => 'Berhasil',
+            'message' => $msg,
+            'type' => 'success',
+        ]);
+        session()->flash('success', $msg);
     }
 
     public function render()

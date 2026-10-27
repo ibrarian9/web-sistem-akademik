@@ -1,5 +1,23 @@
 <!-- Riwayat Transaksi Pembayaran Siswa -->
-<div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
+<div 
+    x-data="{
+        selectedRows: @entangle('selectedPembayaranIds'),
+        allIds: {{ json_encode($recentPayments->pluck('id')->map(fn($id) => (string)$id)->toArray()) }},
+        toggleAll(checked) {
+            const current = Array.isArray(this.selectedRows) ? this.selectedRows.map(String) : [];
+            if (checked) {
+                this.selectedRows = Array.from(new Set([...current, ...this.allIds]));
+            } else {
+                this.selectedRows = current.filter(id => !this.allIds.includes(id));
+            }
+        },
+        isAllSelected() {
+            const current = Array.isArray(this.selectedRows) ? this.selectedRows.map(String) : [];
+            return this.allIds.length > 0 && this.allIds.every(id => current.includes(id));
+        }
+    }"
+    class="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4"
+>
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-3">
         <div>
             <h3 class="text-sm font-extrabold text-stone-900 uppercase tracking-tight flex items-center gap-2">
@@ -75,12 +93,12 @@
     </div>
 
     <!-- Payment History Table with loadingTarget & table component -->
-    <x-table loadingTarget="filterBayarBulan, filterBayarJenis, filterBayarMetode, filterBayarTahunAjaran, searchBayar, pembayaranPage">
+    <x-table loadingTarget="filterBayarBulan, filterBayarJenis, filterBayarMetode, filterBayarTahunAjaran, searchBayar, pembayaranPage, deletePembayaran, bulkDeletePembayaran">
         <thead class="bg-stone-800 text-white font-extrabold uppercase tracking-wider border-b border-stone-900 text-xs">
             <tr>
                 @if (!auth()->user()->isSuperAdmin2())
                     <th class="w-10 p-3.5 text-center border-r border-stone-700/60">
-                        <input type="checkbox" wire:model.live="selectAllPembayaran" class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer" title="Pilih semua riwayat pembayaran" />
+                        <input type="checkbox" :checked="isAllSelected()" @change="toggleAll($event.target.checked)" class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer" title="Pilih semua riwayat pembayaran" />
                     </th>
                 @endif
                 <x-table.th class="w-10 text-center">No</x-table.th>
@@ -100,13 +118,13 @@
                     $isPendingDeleteBayar = in_array($rp->id, $pendingApprovalPembayaranIds ?? []);
                     $isSelectedBayar = in_array((string)$rp->id, array_map('strval', $selectedPembayaranIds ?? []));
                 @endphp
-                <tr class="{{ $isPendingDeleteBayar ? 'bg-amber-50/75 hover:bg-amber-100/75 border-l-4 border-l-amber-500' : ($isSelectedBayar ? 'bg-emerald-50/40' : 'hover:bg-stone-50') }} transition">
+                <tr :class="selectedRows && selectedRows.map(String).includes('{{ $rp->id }}') ? 'bg-emerald-50/40' : ({{ $isPendingDeleteBayar ? 'true' : 'false' }} ? 'bg-amber-50/75 hover:bg-amber-100/75 border-l-4 border-l-amber-500' : 'hover:bg-stone-50')" class="transition">
                     @if (!auth()->user()->isSuperAdmin2())
                         <td class="p-3.5 text-center border-r border-stone-200">
                             @if ($isPendingDeleteBayar)
                                 <span class="text-amber-500 font-bold" title="Sedang menunggu persetujuan Super Admin">•</span>
                             @else
-                                <input type="checkbox" wire:model.live="selectedPembayaranIds" value="{{ $rp->id }}" class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer" />
+                                <input type="checkbox" value="{{ $rp->id }}" x-model="selectedRows" class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer" />
                             @endif
                         </td>
                     @endif
@@ -169,6 +187,7 @@
                                     size="xs" 
                                     icon="trash-2" 
                                     wire:click="deletePembayaran({{ $rp->id }})" 
+                                    loadingTarget="deletePembayaran({{ $rp->id }})"
                                     wire:confirm="{{ auth()->user()->role?->nama === 'finance' ? 'Aksi pembatalan pembayaran oleh Keuangan membutuhkan persetujuan Super Admin atau Super Admin 2. Ajukan pembatalan pembayaran ini?' : 'Yakin ingin membatalkan dan menghapus transaksi pembayaran ini? Total terbayar dan status tagihan akan disesuaikan otomatis.' }}" 
                                     title="Batalkan Transaksi Pembayaran">
                                     Hapus
@@ -192,44 +211,87 @@
         {{ $recentPayments->links() }}
     </div>
 
-    <!-- Floating Bulk Action Bar: Pembayaran Terpilih -->
-    @if (count($selectedPembayaranIds) > 0)
-        <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-stone-900/95 backdrop-blur-md text-white px-5 py-3 rounded-2xl shadow-2xl border border-stone-700 flex items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-200">
-            <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="text-xs font-black tracking-wide">{{ count($selectedPembayaranIds) }} Pembayaran Terpilih</span>
-            </div>
+    <!-- Floating Bulk Action Bar: Pembayaran Terpilih (Instant Alpine UI) -->
+    <div 
+        x-show="selectedRows && selectedRows.length > 0"
+        x-cloak
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 translate-y-4"
+        x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 translate-y-0"
+        x-transition:leave-end="opacity-0 translate-y-4"
+        class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-stone-900/95 backdrop-blur-md text-white px-5 py-3 rounded-2xl shadow-2xl border border-stone-700 flex items-center gap-4 max-w-[95vw] sm:max-w-xl flex-wrap sm:flex-nowrap justify-between sm:justify-start"
+    >
+        <div class="flex items-center gap-2">
+            <span wire:loading.remove wire:target="bulkDeletePembayaran, openBulkBuktiModal" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+            <svg wire:loading wire:target="bulkDeletePembayaran, openBulkBuktiModal" class="w-3.5 h-3.5 animate-spin text-amber-400 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span wire:loading.remove wire:target="bulkDeletePembayaran" class="text-xs font-black tracking-wide whitespace-nowrap"><span x-text="selectedRows ? selectedRows.length : 0"></span> Pembayaran Terpilih</span>
+            <span wire:loading wire:target="bulkDeletePembayaran" class="text-xs font-black tracking-wide whitespace-nowrap text-amber-300">Membatalkan <span x-text="selectedRows ? selectedRows.length : 0"></span> Pembayaran...</span>
+        </div>
 
-            <div class="h-4 w-px bg-stone-700"></div>
+        <div class="h-4 w-px bg-stone-700 hidden sm:block"></div>
 
-            <div class="flex items-center gap-2">
-                @if (auth()->user()->role?->nama === 'finance')
-                    <button 
-                        type="button" 
-                        wire:click="bulkDeletePembayaran" 
-                        wire:confirm="Ajukan permohonan pembatalan untuk {{ count($selectedPembayaranIds) }} transaksi pembayaran terpilih ke Super Admin?"
-                        class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-stone-950 font-black text-xs rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer">
-                        <x-lucide-send class="w-3.5 h-3.5" />
-                        <span>Ajukan Pembatalan Terpilih</span>
-                    </button>
-                @else
-                    <button 
-                        type="button" 
-                        wire:click="bulkDeletePembayaran" 
-                        wire:confirm="Yakin ingin membatalkan dan menghapus {{ count($selectedPembayaranIds) }} transaksi pembayaran terpilih? Saldo tagihan dan deposit akan disesuaikan otomatis."
-                        class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-black text-xs rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer">
-                        <x-lucide-trash-2 class="w-3.5 h-3.5" />
-                        <span>Batalkan & Hapus Terpilih</span>
-                    </button>
-                @endif
+        <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+            <button 
+                type="button" 
+                wire:loading.attr="disabled"
+                wire:target="bulkDeletePembayaran, openBulkBuktiModal"
+                @click="$wire.set('selectedPembayaranIds', selectedRows).then(() => $wire.openBulkBuktiModal())" 
+                class="min-h-[38px] px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50 text-white font-black text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer disabled:cursor-not-allowed"
+                title="Unggah satu foto bukti transfer yang sama untuk semua transaksi pembayaran terpilih">
+                <x-lucide-camera wire:loading.remove wire:target="openBulkBuktiModal" class="w-3.5 h-3.5 shrink-0" />
+                <svg wire:loading wire:target="openBulkBuktiModal" class="w-3.5 h-3.5 animate-spin shrink-0 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+                <span wire:loading.remove wire:target="openBulkBuktiModal">Upload Bukti TF (<span x-text="selectedRows ? selectedRows.length : 0"></span>)</span>
+                <span wire:loading wire:target="openBulkBuktiModal">Membuka...</span>
+            </button>
 
+            @if (auth()->user()->role?->nama === 'finance')
                 <button 
                     type="button" 
-                    wire:click="resetPembayaranSelection" 
-                    class="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white font-bold text-xs rounded-xl transition cursor-pointer">
-                    Batal
+                    wire:loading.attr="disabled"
+                    wire:target="bulkDeletePembayaran, openBulkBuktiModal"
+                    @click="window.showAlert('Konfirmasi Tindakan', 'Ajukan permohonan pembatalan untuk ' + (selectedRows ? selectedRows.length : 0) + ' transaksi pembayaran terpilih ke Super Admin?', () => { $wire.set('selectedPembayaranIds', selectedRows).then(() => $wire.bulkDeletePembayaran()); }, 'delete')"
+                    class="min-h-[38px] px-3.5 py-2 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 disabled:opacity-50 text-stone-950 font-black text-xs rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer disabled:cursor-not-allowed">
+                    <svg wire:loading wire:target="bulkDeletePembayaran" class="w-3.5 h-3.5 animate-spin shrink-0 text-stone-950" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <x-lucide-send wire:loading.remove wire:target="bulkDeletePembayaran" class="w-3.5 h-3.5 shrink-0" />
+                    <span wire:loading.remove wire:target="bulkDeletePembayaran">Ajukan Pembatalan Terpilih</span>
+                    <span wire:loading wire:target="bulkDeletePembayaran">Mengajukan Batal...</span>
                 </button>
-            </div>
+            @else
+                <button 
+                    type="button" 
+                    wire:loading.attr="disabled"
+                    wire:target="bulkDeletePembayaran, openBulkBuktiModal"
+                    @click="window.showAlert('Konfirmasi Tindakan', 'Yakin ingin membatalkan dan menghapus ' + (selectedRows ? selectedRows.length : 0) + ' transaksi pembayaran terpilih? Saldo tagihan dan deposit akan disesuaikan otomatis.', () => { $wire.set('selectedPembayaranIds', selectedRows).then(() => $wire.bulkDeletePembayaran()); }, 'delete')"
+                    class="min-h-[38px] px-3.5 py-2 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 disabled:opacity-50 text-white font-black text-xs rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer disabled:cursor-not-allowed">
+                    <svg wire:loading wire:target="bulkDeletePembayaran" class="w-3.5 h-3.5 animate-spin shrink-0 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <x-lucide-trash-2 wire:loading.remove wire:target="bulkDeletePembayaran" class="w-3.5 h-3.5 shrink-0" />
+                    <span wire:loading.remove wire:target="bulkDeletePembayaran">Batalkan & Hapus Terpilih</span>
+                    <span wire:loading wire:target="bulkDeletePembayaran">Menghapus Data...</span>
+                </button>
+            @endif
+
+            <button 
+                type="button" 
+                wire:loading.attr="disabled"
+                wire:target="bulkDeletePembayaran"
+                @click="selectedRows = []; $wire.set('selectedPembayaranIds', [])" 
+                class="min-h-[38px] px-3 py-2 bg-stone-800 hover:bg-stone-700 disabled:opacity-50 text-stone-300 hover:text-white font-bold text-xs rounded-xl transition cursor-pointer disabled:cursor-not-allowed">
+                Batal
+            </button>
         </div>
-    @endif
+    </div>
 </div>
